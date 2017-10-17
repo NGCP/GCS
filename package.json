@@ -1,0 +1,11 @@
+{
+	"name": "missioncontrol",
+	"description": "",
+	"author": "Karthik Jayakumar",
+	"version": "0.1.0",
+	"main": "main.js",
+	"dependencies": {
+		"gmaps": "^0.4.24",
+		"requirejs": "^2.3.5"
+	}
+}
