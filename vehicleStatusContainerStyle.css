@@ -1,0 +1,9 @@
+/*
+ * CSS file for vehicleStatusContainer.HTML
+ */
+
+#vehicleStatusContainerViewport {
+   height:100%;
+   width:100%;
+   border: solid 1px gray;
+}
