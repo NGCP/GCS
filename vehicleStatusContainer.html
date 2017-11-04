@@ -5,15 +5,36 @@
       <!-- Load stylesheets -->
       <link href="vehicleStatusContainerStyle.css" rel="stylesheet"></link>
       <link href="globalStyle.css" rel="stylesheet"></link>
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
       <!-- Link all external files here -->
    </head>
 
    <body>
+      <div id="vehicleStatusContainerViewport" style="height:100%;width:100%; border: solid 1px black;">
+         <div id="editing">
+            <h4>Enable Editing</h4>
+            <label class="switch">
+               <input id="ch" type="checkbox">
+               <span class="slider round"></span>
+            </label>
+         </div>
+         <div id="coords">
+            <label><h4>Latitude 1:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
+            <label><h4>Longitude 1:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
+            <label><h4>Latitude 2:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
+            <label><h4>Longitude 2:</h4></label><input disabled="disabled" class="input" type="text"/>
+         </div>
 
-      <div id="vehicleStatusContainerViewport">
-         <strong>INSERT CODE FOR VEHICLE STATUS DISPLAY HERE</strong>
-      </div>
-
+      <script>
+         $(document).ready(function() {
+            $('#ch').click(function() { 
+               if ($('.input').attr('disabled')) {
+                  $('.input').removeAttr('disabled');
+               } else {
+                  $('.input').attr('disabled', true);
+               }
+            });
+         });
+      </script>
    </body>
-
 </html>
