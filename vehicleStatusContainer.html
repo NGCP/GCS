@@ -9,11 +9,29 @@
    </head>
 
    <body>
-
       <div id="vehicleStatusContainerViewport" style="height:100%;width:100%; border: solid 1px black;">
-         <strong>INSERT CODE FOR VEHICLE STATUS DISPLAY HERE</strong>
+         <div id="editing">
+            <h4>Enable Editing</h4>
+            <label class="switch">
+               <input id="ch" type="checkbox">
+               <span class="slider round"></span>
+            </label>
+         </div>
+         <div id="coords">
+            <label><h4>Latitude 1:</h4></label><input disabled="disabled" id="input" type="text"/><br/>
+            <label><h4>Longitude 1:</h4></label><input disabled="disabled" type="text"/><br/>
+            <label><h4>Latitude 2:</h4></label><input disabled="disabled" type="text"/><br/>
+            <label><h4>Longitude 2:</h4></label><input disabled="disabled" type="text"/>
+         </div>
       </div>
 
+      <script>
+         $(document).ready(function() {
+            $(".switch").click(function(event){
+               event.preventDefault();
+               $('#input').prop("disabled", false);
+            });
+         });
+      </script>
    </body>
-
 </html>
