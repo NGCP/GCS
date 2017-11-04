@@ -16,7 +16,10 @@
 }
 
 #coords input {
-  readonl
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+  border:solid 1px black;
+  padding:5px;
 }
 
 .switch {
