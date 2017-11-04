@@ -4,7 +4,7 @@
  * can update the entire program at once.
  *
  * Any page-specific CSS, such as identifying the formatting for a particular div, should be
- * done in a page-specific CSS file. 
+ * done in a page-specific CSS file.
  */
 
 html {
@@ -45,4 +45,9 @@ iframe {
    width: 100%;
    height: 100%;
    border: none;
+}
+
+webview {
+   width: 100%;
+   height: 100%;
 }
