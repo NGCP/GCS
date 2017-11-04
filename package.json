@@ -6,7 +6,7 @@
 	"main": "main.js",
 	"dependencies": {
 		"gmaps": "^0.4.24",
-		"jquery": "^3.2.1",
+		"jquery": "^3.2.0",
 		"requirejs": "^2.3.5"
 	}
 }

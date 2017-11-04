@@ -5,7 +5,7 @@
       <!-- Load stylesheets -->
       <link href="vehicleStatusContainerStyle.css" rel="stylesheet"></link>
       <link href="globalStyle.css" rel="stylesheet"></link>
-      <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.2.0.min.js"></script>
       <!-- Link all external files here -->
    </head>
 
@@ -24,10 +24,10 @@
             <label><h4>Latitude 2:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
             <label><h4>Longitude 2:</h4></label><input disabled="disabled" class="input" type="text"/>
          </div>
-
+      </div>
       <script>
          $(document).ready(function() {
-            $('#ch').click(function() { 
+            $('#ch').click(function() {
                if ($('.input').attr('disabled')) {
                   $('.input').removeAttr('disabled');
                } else {
