@@ -4,30 +4,33 @@
       <!-- Load external script files -->
 
       <!-- load style files -->
-      <link href="mainPageStyle.css" rel="stylesheet"></link>
-      <link href="globalStyle.css" rel="stylesheet"></link>
+      <link href="mainPageStyle.css" type="text/css" rel="stylesheet"></link>
+      <link href="globalStyle.css" type="text/css" rel="stylesheet"></link>
+
+      <script>
+      </script>
 
    </head>
    <body>
 
-      <!-- The three viewport dividers defined here. -->
+      <!-- The three viewport dividers defined here.  -->
       <div id="upperLevelContainer">
 
          <div id="mapContainer">
-            <iframe src="mapContainer.html">
-            </iframe>
+            <webview src="mapContainer.html" nodeintegration>
+            </webview>
          </div>
 
          <div id="vehicleStatusContainer">
-            <iframe src="vehicleStatusContainer.html">
-            </iframe>
+            <webview src="vehicleStatusContainer.html" nodeintegration>
+            </webview>
          </div>
 
       </div>
 
       <div id="logContainer">
-         <iframe src="logContainer.html">
-         </iframe>
+         <webview src="logContainer.html" nodeintegration>
+         </webview>
       </div>
 
    </body>
