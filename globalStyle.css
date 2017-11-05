@@ -12,9 +12,11 @@ html {
 }
 
 body {
-   padding: 0px;
-   margin: 0px;
-   overflow-x: hidden;
+    padding: 0px;
+    margin: 0px;
+    overflow-x: hidden;
+    display: grid;
+    background: #AAA;
 }
 
 button {

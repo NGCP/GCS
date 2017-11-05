@@ -2,32 +2,35 @@
  * CSS definitions for INDEX.HTML
  */
 
-#upperLevelContainer {
-   width:100%;
-   min-width: 600px;
-   display: flex;
+.gridWrapper {
+   display: grid;
+
+   grid-gap: 5px;
+
+   grid-template-columns: repeat(4, 1fr);
+   grid-template-rows: repeat(4, 1fr);
+   grid-template-areas: 
+   "map map map vehicleStatus"
+   "map map map vehicleStatus"
+   "map map map missionSetup"
+   "log log log missionSetup";
+
+   background: #666
 }
 
-#mapContainer {
-   width: 80%;
-   height: 80%;
-   min-width: 500px;
-   min-height: 500px;
-   border: none;
+.mapContainer {
+   grid-area: map;
 }
 
-#vehicleStatusContainer {
-   width: 20%;
-   height: 80%;
-   min-width: 100px;
-   min-height: 500px;
-   border-left: 1px gray solid;
+.missionSetupContainer {
+   grid-area: missionSetup;
 }
 
-#logContainer {
-   width: 100%;
-   height: 20%;
-   min-width: 600px;
-   min-height: 50px;
+.vehicleStatusContainer {
+   grid-area: vehicleStatus
+}
+
+.logContainer {
+   grid-area: log;
 }
 

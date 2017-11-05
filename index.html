@@ -7,30 +7,32 @@
       <link href="mainPageStyle.css" type="text/css" rel="stylesheet"></link>
       <link href="globalStyle.css" type="text/css" rel="stylesheet"></link>
 
-      <script>
-      </script>
-
    </head>
    <body>
 
       <!-- The three viewport dividers defined here.  -->
-      <div id="upperLevelContainer">
+      <div class="gridWrapper">
 
-         <div id="mapContainer">
-            <webview src="mapContainer.html" nodeintegration>
-            </webview>
+         <div class="mapContainer">
+            <iframe src="mapElement/mapContainer.html" nodeintegration>
+            </iframe>
          </div>
 
-         <div id="vehicleStatusContainer">
-            <webview src="vehicleStatusContainer.html" nodeintegration>
-            </webview>
+         <div class="vehicleStatusContainer">
+            <iframe src="vehicleStatusElement/vehicleStatusContainer.html" nodeintegration>
+            </iframe>
          </div>
 
-      </div>
+         <div class="missionSetupContainer">
+            <iframe src="missionSetupElement/missionSetupContainer.html" nodeintegration>
+            </iframe>
+         </div>
 
-      <div id="logContainer">
-         <webview src="logContainer.html" nodeintegration>
-         </webview>
+         <div class="logContainer">
+            <iframe src="logElement/logContainer.html" nodeintegration>
+            </iframe>
+         </div>
+
       </div>
 
    </body>
