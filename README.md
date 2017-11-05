@@ -20,4 +20,4 @@ This is a ground control station application to view and set missions for all au
 
 ## Contributing
 
-Please read our wiki about how to setup a development environment and contributing code to our project.
+Please read our [wiki](https://github.com/NGCP/missioncontrol/wiki) about how to setup a development environment and contributing code to our project.
