@@ -13,7 +13,7 @@
 		"url": "https://github.com/NGCP/missioncontrol/issues"
 	},
 	"dependencies": {
-		"jquery": "^3.2.0",
+		"jquery": "^3.2.1",
 		"requirejs": "^2.3.5"
 	}
 }
