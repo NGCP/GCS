@@ -28,6 +28,7 @@ function createWindow() {
       protocol: 'file',
       slashes: true
    }));
+
 }
 
 // This method will be called when Electron has finished
