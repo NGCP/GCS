@@ -19,16 +19,17 @@ function setup() {
 }
 
 // This method creates a new window by loading index.html and setting the
-// size of the window to its default (1500 by 1000)
+// size of the window to fill up the screen
 function createWindow() {
-   theWindow = new BrowserWindow({width:1500, height:1000});
-   theWindow.maximize();
+   process.env.GOOGLE_API_KEY = 'AIzaSyD3H6DflNeWKtlSNTMlvHaK9Z-6WnnqmLY'
+   theWindow = new BrowserWindow();
+   theWindow.maximize()
+
    theWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file',
       slashes: true
    }));
-
 }
 
 // This method will be called when Electron has finished
