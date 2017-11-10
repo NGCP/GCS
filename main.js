@@ -22,7 +22,7 @@ function setup() {
 // size of the window to its default (1500 by 1000)
 function createWindow() {
    theWindow = new BrowserWindow({width:1500, height:1000});
-
+   theWindow.maximize();
    theWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file',
