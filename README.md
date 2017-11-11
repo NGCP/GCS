@@ -20,7 +20,7 @@ This ground control station application will be used to view and set missions fo
 
 * Open up your terminal application and clone this repository
 ~~~~
-git clone https://github.com/chocolatecharme/ngcp-gcs.git
+git clone https://github.com/NGCP/missioncontrol.git
 ~~~~
 ### Running the Program
 
