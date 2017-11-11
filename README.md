@@ -10,28 +10,22 @@ This ground control station application will be used to view and set missions fo
 ## Dependencies
 
 - [NodeJS](https://nodejs.org/en/) - a dependecy for electron
-- [Electron](https://electron.atom.io) - used to run the desktop application, make sure to install globally
+- [Electron](https://electron.atom.io) - used to run the desktop application, make sure to install **globally**
 - [jQuery](https://jquery.com)
 
 ## Getting Started
 
 ### Setting Things Up
 
-* Open up your terminal application
-* Clone this repository
+* Open up your terminal application and clone this repository
 ~~~~
 git clone https://github.com/chocolatecharme/ngcp-gcs.git
 ~~~~
-* Install Node.js if you haven't done so already.
-
 ### Running the Program
 
-* In the terminal, go to the directory you cloned
+* In the terminal, go to the directory you cloned and run the program
 ~~~~
 cd missioncontrol
-~~~~
-* Run the program as follows
-~~~~
 electron .
 ~~~~
 
