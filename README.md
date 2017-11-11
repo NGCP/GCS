@@ -8,7 +8,7 @@ This ground control station application will be used to view and set missions fo
 - Modular design
 
 ## Dependencies
-### Make sure you have these installed
+#### Make sure you have these installed
 
 - [NodeJS](https://nodejs.org/en/) - a dependecy for electron
 - [Electron](https://electron.atom.io) - used to run the desktop application, make sure to install **globally**
