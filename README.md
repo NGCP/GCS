@@ -1,6 +1,6 @@
 # Mission Control | NGCP GCS Team 2017 - 2018
 This year, one of the NGCP's biggest goals is to have a working Ground Control Station/Mission Control.
-This ground control station application will be used to view and set missions for all autonomous vehicle platforms in [NGCP](http://www.calpolyngcp.com/about.html)
+This ground control station application will be used to view and set missions for all autonomous vehicle platforms in [NGCP](http://www.calpolyngcp.com/about.html).
 
 ## Features
 
