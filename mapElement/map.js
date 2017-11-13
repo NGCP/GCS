@@ -49,7 +49,7 @@ var markers = [];
  */ 
 function loadMap(htmlID) {
 	createMap(htmlID);
-	// addMarkers(); 			// I'm going to lay off from loading markers for now.
+	addMarkers(); 			// I'm going to lay off from loading markers for now.
 								// There might be a better way, but let me do some research.
 	addButtons();
 }
@@ -79,7 +79,7 @@ function addMarkers() {
 	let list = ['uav1', 'uav2', 'ugv1', 'ugv2']; // list of image files w/o .png
 	for (let i = 0; i < list.length; i++) {
 		let icon = {
-			url: 'markers/' + list[i] + '.png',
+			url: '../resources/vehicle-icons/' + list[i] + '.png',
 			scaledSize: new google.maps.Size(60, 60),
 			anchor: new google.maps.Point(25, 25)
 		};
