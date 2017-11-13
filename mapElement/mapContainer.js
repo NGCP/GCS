@@ -15,7 +15,7 @@ const cpp = {
   lat: 34.0575651,
   lng: -117.8229297
 };
-var center = cpp;
+var center = calpoly;
 
 /*
  * 	Load the map into mapContainer with all the markers and buttons
