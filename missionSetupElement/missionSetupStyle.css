@@ -1,8 +1,8 @@
 /*
- * CSS file for vehicleStatusContainer.HTML
+ * CSS file for MISSIONSETUPCONTAINER.HTML
  */
 
-#missionSetupContainerViewport {
+#missionSetup {
    height:100%;
    width:100%;
    text-align: center;

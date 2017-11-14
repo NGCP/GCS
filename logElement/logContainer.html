@@ -1,41 +1,17 @@
+<!DOCTYPE html>
 <html>
+	<head>
+		<meta charset="UTF-8">
+		
+		<!-- stylesheets -->
+		<link href="logStyle.css" rel="stylesheet"></link>
+		<link href="../globalStyle.css" rel="stylesheet"></link>
+	</head>
 
-   <!-- Log container html file: load the log view. -->
-   <head>
-      <!-- Load stylesheets -->
-      <link href="logContainerStyle.css" rel="stylesheet"></link>
-      <link href="../globalStyle.css" rel="stylesheet"></link>
-   </head>
-
-   <body>
-
-      <script>
-       var messages = [{type: "ERROR",
-                        time: 65457,
-                        content: "Mission start failure"
-                        },
-
-                       {type: "COMM",
-                        time: 98765,
-                        content: "Quad A requesting open channel"
-                        },
-
-                       {type: "SUCCESS",
-                        time: 13425,
-                        content: "Mission started successfully"},
-
-                       {type: "UI",
-                        time: 12428,
-                        content: "This is the UI"}
-                       ];
-
-       </script>
-
-      <div id="logContainerViewport">
-         <button onclick="printMessages(messages[Math.floor(Math.random() * 4)])">load messages</button>
-         <p id="displayed"></p>
-      </div>
-
-   </body>
-
+	<body>
+		<div id="log">
+			<button onclick="">load messages</button>
+			<p id="displayed"></p>
+		</div>
+	</body>
 </html>

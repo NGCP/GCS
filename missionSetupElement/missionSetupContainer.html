@@ -1,39 +1,29 @@
+<!DOCTYPE html>
 <html>
+	<head>
+		<meta charset="UTF-8">
+		
+		<!-- stylesheets -->
+		<link href="missionSetupStyle.css" rel="stylesheet"></link>
+		<link href="../globalStyle.css" rel="stylesheet"></link>
+	</head>
 
-   <!-- Vehicle status container html file: load the table & vehicles and display their status. -->
-   <head>
-      <!-- Load stylesheets -->
-      <link href="missionSetupContainerStyle.css" rel="stylesheet"></link>
-      <link href="../globalStyle.css" rel="stylesheet"></link>
-      <!-- Link all external files here -->
-   </head>
-
-   <body>
-      <div id="missionSetupContainerViewport">
-         <div id="editing">
-            <h4>Enable Editing</h4>
-            <label class="switch">
-               <input id="ch" type="checkbox">
-               <span class="slider round"></span>
-            </label>
-         </div>
-         <div id="coords">
-            <label><h4>Latitude 1:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
-            <label><h4>Longitude 1:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
-            <label><h4>Latitude 2:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
-            <label><h4>Longitude 2:</h4></label><input disabled="disabled" class="input" type="text"/>
-         </div>
-      </div>
-      <script>
-         $(document).ready(function() {
-            $('#ch').click(function() {
-               if ($('.input').attr('disabled')) {
-                  $('.input').removeAttr('disabled');
-               } else {
-                  $('.input').attr('disabled', true);
-               }
-            });
-         });
-      </script>
-   </body>
+	<body>
+		<div id="missionSetup">
+			<div id="editing">
+				<h4>Enable Editing</h4>
+				<label class="switch">
+					<input id="ch" type="checkbox">
+					<span class="slider round"></span>
+				</label>
+			</div>
+			
+			<div id="coords">
+				<label><h4>Latitude 1:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
+				<label><h4>Longitude 1:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
+				<label><h4>Latitude 2:</h4></label><input disabled="disabled" class="input" type="text"/><br/>
+				<label><h4>Longitude 2:</h4></label><input disabled="disabled" class="input" type="text"/>
+			</div>
+		</div>
+	</body>
 </html>

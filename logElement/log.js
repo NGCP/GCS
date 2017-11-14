@@ -1,3 +1,35 @@
+/*
+ * 	JavaScript file for LOGCONTAINER.HTML
+ */
+
+var logDocument;
+var logFrame = document.getElementById('logFrame');
+var logWindow = logFrame.contentWindow;
+
+logWindow.addEventListener('load', function() {
+	console.log("log.js loaded");
+	logDocument = logFrame.contentDocument || logFrame.contentWindow.document;
+});
+
+/*var messages = [{type: "ERROR",
+                        time: 65457,
+                        content: "Mission start failure"
+                        },
+
+                       {type: "COMM",
+                        time: 98765,
+                        content: "Quad A requesting open channel"
+                        },
+
+                       {type: "SUCCESS",
+                        time: 13425,
+                        content: "Mission started successfully"},
+
+                       {type: "UI",
+                        time: 12428,
+                        content: "This is the UI"}
+                       ];
+
 function printMessages(message) {
     var curr = document.getElementById("displayed");
 
@@ -17,4 +49,4 @@ function printMessages(message) {
 
 function time(s) {
     return new Date(s * 1e3).toISOString().slice(-13, -5);
-}
+}*/
