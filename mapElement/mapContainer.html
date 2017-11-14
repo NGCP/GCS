@@ -1,24 +1,14 @@
+<!DOCTYPE html>
 <html>
+	<head>
+		<meta charset="UTF-8">
+		
+		<!-- stylesheets -->
+		<link href="mapStyle.css" rel="stylesheet"></link>
+		<link href="../globalStyle.css" rel="stylesheet"></link>
+	</head>
 
-   <!-- Map container html file: load the maps. -->
-   <head>
-      <!-- Load stylesheets -->
-      <link href="mapContainerStyle.css" rel="stylesheet"></link>
-      <link href="../globalStyle.css" rel="stylesheet"></link>
-      <!-- Link all external files here -->
-      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU"></script>
-      <script src="./mapContainer.js"></script>
-   </head>
-
-   <body>
-
-      <webview id="mapViewPort">
-      </webview>
-
-   </body>
-
-   <script>
-      loadMap("mapViewPort");
-   </script>
-
+	<body>
+		<webview id="map"></webview>
+	</body>
 </html>

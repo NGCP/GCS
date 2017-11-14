@@ -1,0 +1,28 @@
+/*
+ * 	CSS file for MAPCONTAINER.HTML
+ */
+
+#map {
+	width: 100vw;
+	height: 100vh;
+}
+
+button#centerMap {
+	background-color: #fff;
+	border: 2px solid #fff;
+	border-radius: 3px;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+	cursor: pointer;
+	text-align: center;
+	margin-top: 5px;
+
+	color: rgb(25, 25, 25);
+	font-family: Roboto, Arial, sans-serif;
+	font-size: 16px; 
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+button#vehicleStatus {
+
+}
