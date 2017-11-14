@@ -21,9 +21,8 @@ function setup() {
 // This method creates a new window by loading index.html and setting the
 // size of the window to fill up the screen
 function createWindow() {
-   process.env.GOOGLE_API_KEY = 'AIzaSyD3H6DflNeWKtlSNTMlvHaK9Z-6WnnqmLY'
    theWindow = new BrowserWindow();
-   theWindow.maximize()
+   theWindow.maximize();
 
    theWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
