@@ -1,36 +1,38 @@
 /*
- * CSS definitions for INDEX.HTML
+ * CSS file for INDEX.HTML
  */
 
-.gridWrapper {
-   display: grid;
+.wrapper {
+	width: 100vw;
+	height: 100vh;
+	background: #666;
+	overflow: hidden;
+	
+	display: grid;
+	grid-gap: 5px;
+	grid-template-columns: repeat(4, 1fr);
+	grid-template-rows: repeat(4, 1fr);
 
-   grid-gap: 5px;
-
-   grid-template-columns: repeat(4, 1fr);
-   grid-template-rows: repeat(4, 1fr);
-   grid-template-areas: 
-   "map map map vehicleStatus"
-   "map map map vehicleStatus"
-   "map map map missionSetup"
-   "log log log missionSetup";
-
-   background: #666
+	grid-template-areas: 
+	"map map map vehicleStatus"
+	"map map map vehicleStatus"
+	"map map map missionSetup"
+	"log log log missionSetup";
+	
 }
 
 .mapContainer {
-   grid-area: map;
+	grid-area: map;
 }
 
 .missionSetupContainer {
-   grid-area: missionSetup;
+	grid-area: missionSetup;
 }
 
 .vehicleStatusContainer {
-   grid-area: vehicleStatus
+	grid-area: vehicleStatus
 }
 
 .logContainer {
-   grid-area: log;
+	grid-area: log;
 }
-
