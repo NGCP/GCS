@@ -1,40 +1,49 @@
 <html>
-   <head>
-      <title>Mission Control</title>
-      <link rel="icon" type="image/x-icon" href="images/icon.png" />
-      
-      <!-- load style files -->
-      <link href="indexStyle.css" type="text/css" rel="stylesheet"></link>
-      <link href="globalStyle.css" type="text/css" rel="stylesheet"></link>
-      
-      <!-- Load external script files -->
-   </head>
-   <body>
+	<head>
+		<title>Mission Control</title>
+		<link rel="icon" type="image/x-icon" href="resources/icon.png" />
 
-      <!-- The three viewport dividers defined here.  -->
-      <div class="gridWrapper">
+		<!-- load style files -->
+		<link href="indexStyle.css" type="text/css" rel="stylesheet"></link>
+		<link href="globalStyle.css" type="text/css" rel="stylesheet"></link>
+		
+		<!-- Load external script files -->
+      	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU"></script>
+	</head>
+	<body>
 
-         <div class="mapContainer">
-            <iframe src="mapElement/mapContainer.html" nodeintegration>
-            </iframe>
-         </div>
+		<!-- The three viewport dividers defined here.  -->
+		<div class="gridWrapper">
 
-         <div class="vehicleStatusContainer">
-            <iframe src="vehicleStatusElement/vehicleStatusContainer.html" nodeintegration>
-            </iframe>
-         </div>
+			<div class="mapContainer">
+				<iframe id="mapContainer" src="mapElement/mapContainer.html" nodeintegration></iframe>
+			</div>
 
-         <div class="missionSetupContainer">
-            <iframe src="missionSetupElement/missionSetupContainer.html" nodeintegration>
-            </iframe>
-         </div>
+			<div class="vehicleStatusContainer">
+				<iframe id="vehicleStatusContainer" src="vehicleStatusElement/vehicleStatusContainer.html" nodeintegration></iframe>
+			</div>
 
-         <div class="logContainer">
-            <iframe src="logElement/logContainer.html" nodeintegration>
-            </iframe>
-         </div>
+			<div class="missionSetupContainer">
+				<iframe id="missionSetupContainer" src="missionSetupElement/missionSetupContainer.html" nodeintegration></iframe>
+			</div>
 
-      </div>
+			<div class="logContainer">
+				<iframe id="logContainer" src="logElement/logContainer.html" nodeintegration></iframe>
+			</div>
+			
+		</div>
 
-   </body>
+		<script src="logElement/log.js"></script>
+		<script src="mapElement/map.js"></script>
+		<script src="missionSetupElement/missionSetup.js"></script>
+		<script src="vehicleStatusElement/vehicleStatus.js"></script>
+		
+		<script>
+			updateCenterToUserLocation();
+			setTimeout(function() {			// 5000 ms delay to give Google Maps 5 seconds to retrieve user location.
+			loadMap('map');				
+			}, 5000);
+		</script>
+	</body>
 </html>
