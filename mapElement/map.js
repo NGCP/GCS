@@ -1,7 +1,7 @@
 /*
  * 	JavaScript file for MAPCONTAINER.HTML
  */
-
+const path = require('path');
 var mapDocument;
 var mapFrame = document.getElementById('mapFrame');
 var mapWindow = mapFrame.contentWindow;
@@ -9,7 +9,7 @@ var mapWindow = mapFrame.contentWindow;
 mapWindow.addEventListener('load', function() {
 	console.log("map.js loaded");
 	mapDocument = mapFrame.contentDocument || mapFrame.contentWindow.document;
-	
+
 	updateCenterToUserLocation();
 	setTimeout(function() {
 		loadMap();
@@ -41,24 +41,15 @@ function addMap(id) {
 }
 
 function addMarkers() {
-	var list = ['uav1', 'uav2', 'ugv1', 'ugv2'];
+	var list = ['uav1.png', 'uav2.png', 'ugv1.png', 'ugv2.png'];
 	for (let i = 0; i < list.length; i++) {
 		// create icon
 		var icon = {
-			url: '../resources/vehicle-icons/' + list[i] + '.png',
+			url: path.join( __dirname, 'resources','vehicle-icons', list[i]),
 			scaledSize: new google.maps.Size(60, 60),
 			anchor: new google.maps.Point(25, 25)
 		};
-		
-		var goldStar = {
-          path: 'M 125,5 155,90 245,90 175,145 200,230 125,180 50,230 75,145 5,90 95,90 z',
-          fillColor: 'yellow',
-          fillOpacity: 0.8,
-          scale: 1,
-          strokeColor: 'gold',
-          strokeWeight: 14
-        };
-		
+
 		// create marker
 		markers[i] = new google.maps.Marker({
 	  		position: center,
@@ -67,12 +58,12 @@ function addMarkers() {
 	  		draggable: true // temporary
 		});
 		markers[i].index = i;
-		
+
 		// create marker listener
 		markers[i].addListener('click', function() {
 			updateVehicleStatus(markers[i]);
 		});
-		
+
 		console.log(markers[i].getPosition() + ", " + markers[i].icon.url);
 	}
 }
@@ -83,14 +74,14 @@ function addButtons() {
 	centerMapButton.innerHTML = 'Center Map';
 	centerMapButton.index = 1;
 	map.controls[google.maps.ControlPosition.TOP_CENTER].push(centerMapButton);
-	
+
 	centerMapButton.addEventListener('click', function() {
 			map.panTo(center);
 	});
 }
 
 function updateCenterToUserLocation() {
-	if (navigator.geolocation) {	
+	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(function(p) {
 			center = {
 				lat: p.coords.latitude,
