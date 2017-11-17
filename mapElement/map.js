@@ -56,8 +56,7 @@ function addMarkers() {
 		markers[i] = new google.maps.Marker({
 	  		position: center,
 	  		map: map,
-	  		icon: icon,
-	  		draggable: true // temporary
+	  		icon: icon
 		});
 		markers[i].index = i;
 
@@ -83,8 +82,11 @@ function addButtons() {
 }
 
 function updateCenterToUserLocation() {
+	console.log("Getting user location.");
 	if (navigator.geolocation) {
+		console.log("Found navigator.");
 		navigator.geolocation.getCurrentPosition(function(p) {
+			console.log("Setting center.");
 			center = {
 				lat: p.coords.latitude,
 				lng: p.coords.longitude
