@@ -5,12 +5,13 @@ const path = require('path');
 var mapDocument;
 var mapFrame = document.getElementById('mapFrame');
 var mapWindow = mapFrame.contentWindow;
+var center;
 
 mapWindow.addEventListener('load', function() {
 	console.log("map.js loaded");
 	mapDocument = mapFrame.contentDocument || mapFrame.contentWindow.document;
 
-	updateCenterToUserLocation();
+  updateCenterToUserLocation();
 	setTimeout(function() {
 		loadMap();
 	}, 3000);
@@ -18,7 +19,7 @@ mapWindow.addEventListener('load', function() {
 
 const calpoly = {lat: 35.306205, lng: -120.662227}, cpp = {lat: 34.0575651, lng: -117.8229297};
 
-var center = calpoly;
+center = cpp;
 var map;
 var markers = [];
 
@@ -38,6 +39,7 @@ function addMap(id) {
 		fullscreenControl: false
 	});
 	map.setTilt(0);
+	console.log("center: " + center.lat + ", " + center.lng);
 }
 
 function addMarkers() {
@@ -46,7 +48,7 @@ function addMarkers() {
 		// create icon
 		var icon = {
 			url: path.join( __dirname, 'resources','vehicle-icons', list[i]),
-			scaledSize: new google.maps.Size(60, 60),
+			scaledSize: new google.maps.Size(100, 100),
 			anchor: new google.maps.Point(25, 25)
 		};
 
@@ -54,7 +56,7 @@ function addMarkers() {
 		markers[i] = new google.maps.Marker({
 	  		position: center,
 	  		map: map,
-	  		icon: icon.url,
+	  		icon: icon,
 	  		draggable: true // temporary
 		});
 		markers[i].index = i;
