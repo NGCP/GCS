@@ -2,6 +2,7 @@
  * 	JavaScript file for MAPCONTAINER.HTML
  */
 const path = require('path');
+
 var mapDocument;
 var mapFrame = document.getElementById('mapFrame');
 var mapWindow = mapFrame.contentWindow;
@@ -19,7 +20,7 @@ mapWindow.addEventListener('load', function() {
 
 const calpoly = {lat: 35.306205, lng: -120.662227}, cpp = {lat: 34.0575651, lng: -117.8229297};
 
-center = cpp;
+center = calpoly;
 var map;
 var markers = [];
 
@@ -82,15 +83,19 @@ function addButtons() {
 }
 
 function updateCenterToUserLocation() {
-	console.log("Getting user location.");
+	console.log("Checking if user location services is supported.");
 	if (navigator.geolocation) {
-		console.log("Found navigator.");
+		console.log("User Location services is supported.");
+		console.log("Checking if user location can be found (electron accepts to get user location).");
 		navigator.geolocation.getCurrentPosition(function(p) {
-			console.log("Setting center.");
+			console.log("User location is found.");
 			center = {
 				lat: p.coords.latitude,
 				lng: p.coords.longitude
 			};
+		},
+		function(){
+			console.log("User location is not found.");
 		});
 	}
 }
