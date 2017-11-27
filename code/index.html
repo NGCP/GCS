@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Mission Control</title>
+		<link rel="icon" type="image/x-icon" href="resources/icon.png" />
+
+		<!-- stylesheets -->
+		<link rel="stylesheet" type="text/css" href="indexStyle.css" >
+		<link rel="stylesheet" type="text/css" href="globalStyle.css">
+	</head>
+
+	<body>
+		<div class="wrapper">
+			<div class="mapContainer">
+				<iframe id="mapFrame" src="mapElement/mapContainer.html" nodeintegration></iframe>
+			</div>
+
+			<div class="vehicleStatusContainer">
+				<iframe id="vehicleStatusFrame" src="vehicleStatusElement/vehicleStatusContainer.html" nodeintegration></iframe>
+			</div>
+
+			<div class="missionSetupContainer">
+				<iframe id="missionSetupFrame" src="missionSetupElement/missionSetupContainer.html" nodeintegration></iframe>
+			</div>
+
+			<div class="logContainer">
+				<iframe id="logFrame" src="logElement/logContainer.html" nodeintegration></iframe>
+			</div>
+		</div>
+
+		<!-- external scripts -->
+      	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU"></script>
+
+		<!-- internal scripts -->
+		<script src="mapElement/map.js"></script>
+		<script src="vehicleStatusElement/vehicleStatus.js"></script>
+		<script src="missionSetupElement/missionSetup.js"></script>
+		<script src="logElement/log.js"></script>
+	</body>
+</html>
