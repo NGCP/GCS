@@ -1,0 +1,19 @@
+{
+	"name": "ngcp_mission_control",
+	"title": "Mission Control",
+	"description": "Ground control station for autonomous vehicle platforms in NGCP",
+	"author": "Northrop Grumman Collaboration Project",
+	"version": "0.3.0",
+	"main": "main.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/NGCP/missioncontrol"
+	},
+	"bugs": {
+		"url": "https://github.com/NGCP/missioncontrol/issues"
+	},
+	"dependencies": {
+		"jquery": "^3.2.1",
+		"requirejs": "^2.3.5"
+	}
+}

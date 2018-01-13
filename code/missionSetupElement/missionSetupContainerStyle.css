@@ -1,0 +1,171 @@
+/*
+ * CSS file for MISSIONSETUPCONTAINER.HTML
+ */
+
+#missionSetupContainerViewport {
+   height:100%;
+   width:100%;
+   text-align: center;
+}
+
+#coords {
+   padding-top: 10px;
+}
+
+#coords label {
+   display: inline-block;
+   width: 100px;
+   text-align: left;
+}
+
+#coords input[type="number"] {
+   padding: 5px;
+   border: 1px gray solid;
+   margin-bottom: 5px;
+   width: calc(50% - 50px);
+   height: 40px;
+}
+
+#coords input[type="button"] {
+   font-size: inherit;
+   width: 40px;
+   height: 40px;
+   margin: 1px;
+   padding: 0px;
+   background-color: #59cc33;
+   border-bottom: 2px solid #47a527;
+   border-top: 0px;
+   border-left: 0px;
+   border-right: 0px;
+   color: #f9f9f9;
+   user-select: none;
+}
+
+#coords input[type="button"]:hover {
+   background-color: #63e23a;
+}
+
+#coords input[type="button"]:active {
+   background-color: #47a527;
+}
+
+#coords input[type="button"]:disabled {
+   color: #dadada;
+   background-color: #6e9063;
+   border-bottom: 2px solid #4f7143;
+}
+
+#coords .goTo {
+   background-image: url('../../resources/images/arrow.png');
+   background-size: contain;
+   background-repeat: no-repeat;
+}
+
+#coords .newPin {
+   background-image: url('../../resources/images/pin.png');
+   background-size: contain;
+   background-repeat: no-repeat;
+}
+
+#setupControls {
+   margin-top:30px;
+   width:100%;
+}
+
+.modalViewport {
+   position: absolute;
+   top: 0px;
+   height:100%;
+   width:100%;
+   right:-100%;
+   background:#f9f9f9;
+   border-radius: 2px;
+   opacity: 0.95;
+   z-index:99;
+   transition: right 0.2s ease;
+}
+
+.modalViewport-visible {
+   right:0px;
+}
+
+.switch {
+   position: relative;
+   display: inline-block;
+   width: 60px;
+   height: 34px;
+   margin-top: -15px;
+}
+
+#SetupInfoTable {
+   width: 95%;
+   border-collapse: collapse;
+   margin-left: 2.5%;
+   margin-right: 2.5%;
+   margin-top: 10px;
+   margin-bottom: 10px;
+}
+
+#SetupInfoTable td {
+   border: 1px solid #000000;
+   padding: 5px;
+   width: 50%;
+}
+
+/*
+.switch input {display:none;}
+
+.slider {
+   position: absolute;
+   cursor: pointer;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background-color: #ccc;
+   transition: .4s;
+}
+
+.slider:before {
+   position: absolute;
+   content: "";
+   height: 26px;
+   width: 26px;
+   left: 4px;
+   bottom: 4px;
+   background-color: white;
+   transition: .4s;
+}
+
+input:checked + .slider {
+   background-color: #2196F3;
+}
+
+input:focus + .slider {
+   box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+   transform: translateX(26px);
+}
+
+input:disabled {
+   background-color: gray;
+}
+
+.slider.round {
+   border-radius: 34px;
+}
+
+.slider.round:before {
+   border-radius: 50%;
+}
+*/
+
+#map {
+   float: left;
+}
+
+h4 {
+   font-weight: 100;
+}

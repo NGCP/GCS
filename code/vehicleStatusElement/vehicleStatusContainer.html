@@ -1,0 +1,78 @@
+<html>
+   <head>
+      <!-- load style files -->
+      <link href="vehicleStatusContainerStyle.css" type="text/css" rel="stylesheet"></link>
+      <link href="../globalStyle.css" type="text/css" rel="stylesheet"></link>
+      <script>
+         const renderer = top.require('./vehicleStatusElement/vehicleStatusContainer.js');
+         renderer.init(this);
+
+         //temp
+         var last = 0;
+         var vehicles = [
+            {
+               markerID: "Quad A",
+               lat: 35.306205,
+               lng: -120.662227,
+               vehicleType: "uav1",
+               status: {type:"INIT", message:"Connecting..."}
+            },
+            {
+               markerID: "Quad B",
+               lat: 35.33,
+               lng: -120.662227,
+               vehicleType: "ugv1",
+               status: {type: "READY", message:"Ready"}
+            },
+            {
+               markerID: "Quad C",
+               lat: 35.306205,
+               lng: -120.68,
+               vehicleType: "uav1",
+               status: {type: "READY", message: "Ready"}
+            },
+            {
+               markerID: "Quad D",
+               lat: 35.32,
+               lng: -120.65,
+               vehicleType: "uav2",
+               status: {type: "ERROR", message: "Lost Connection"}
+            }
+         ];
+
+         function addVehicle() {
+            renderer.addVehicle(null, vehicles[last]);
+            last++;
+         }
+
+         function moveVehicle() {
+            var vehicle = parseInt(Math.random()*4);
+            vehicles[vehicle].lat += (Math.random()/100)-0.005;
+            vehicles[vehicle].lng += (Math.random()/100)-0.005;
+            vehicles[vehicle].vehicleType = "ugv2";
+            vehicles[vehicle].status = {type: "ERROR", message: "Lost Connection"};
+            renderer.updateVehicle(null, vehicles[vehicle]);
+         }
+
+
+      </script>
+   </head>
+   <body>
+
+      <!-- vehicle status viewport defined here.  -->
+      <div id="vehicleStatus">
+         <table id="vehicleDataTable">
+            <tr>
+               <th>Vehicle Name</th>
+               <th>Status</th>
+               <th>Role</th>
+            </tr>
+         </table>
+         <button onclick="addVehicle()">Add Vehicle</button>
+         <button onclick="moveVehicle()">Move Random Vehicle</button>
+      </div>
+
+
+
+   </body>
+</html>

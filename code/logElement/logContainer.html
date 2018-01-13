@@ -1,0 +1,37 @@
+<html>
+
+   <!-- Log container html file: load the log view. -->
+   <head>
+      <!-- Load stylesheets -->
+      <link href="logContainerStyle.css" rel="stylesheet"></link>
+      <link href="../globalStyle.css" rel="stylesheet"></link>
+      <!-- Link all external files here -->
+      <script>
+         const renderer = top.require('./logElement/logContainerRenderer.js');
+         renderer.init(this);
+      </script>
+      <script src="./logContainer.js"></script>
+   </head>
+
+   <body>
+      <div id="logContainerViewport">
+         <!-- div containing all the error messages -->
+         <div id="displayed">
+         </div>
+         <div id="controls">
+            <button id="loadMessagesButton" onclick="renderer.printMessage();">load messages</button>
+            Filter by:
+            <select id="filterSelector" onchange="changeFilter(this.value);">
+               <option value="NOFILTER"> - No Filter - </option>
+               <option value="ERROR">Error</option>
+               <option value="SUCCESS">Success</option>
+               <option value="COMM">Comm</option>
+               <option value="UI">UI</option>
+            </select>
+            <!--<button id="logPopoutButton" onclick="renderer.popOut();">Pop-Out</button>-->
+            <button id="saveLogButton" onclick="renderer.writeLogToFile();">Save Log</button>
+         </div>
+      </div>
+   </body>
+
+</html>

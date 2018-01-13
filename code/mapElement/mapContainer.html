@@ -1,0 +1,31 @@
+<html>
+
+   <!-- Map container html file: load the maps. -->
+   <head>
+      <!-- Load stylesheets -->
+      <link href="mapContainerStyle.css" rel="stylesheet"></link>
+      <link href="../globalStyle.css" rel="stylesheet"></link>
+      <!-- Link all external files here -->
+
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU"></script>
+
+      <script>
+         const renderer = top.require('./mapElement/mapContainer.js');
+         renderer.init(this);
+      </script>
+
+
+   </head>
+
+   <body>
+
+      <div id="mapViewPort">
+      </div>
+
+   </body>
+
+   <script>
+      renderer.loadMap("mapViewPort");
+   </script>
+
+</html>

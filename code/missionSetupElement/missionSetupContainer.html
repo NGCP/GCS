@@ -1,0 +1,72 @@
+<html>
+
+   <!-- Vehicle status container html file: load the table & vehicles and display their status. -->
+   <head>
+      <!-- Load stylesheets -->
+      <link href="missionSetupContainerStyle.css" rel="stylesheet"></link>
+      <link href="../globalStyle.css" rel="stylesheet"></link>
+
+      <script>
+         const renderer = top.require('./missionSetupElement/missionSetup.js');
+         renderer.init(this);
+      </script>
+
+      <!-- Link all external files here -->
+   </head>
+
+
+   <body>
+      <div id="missionSetupContainerViewport">
+         <div id="setupStaticViewport">
+            <span style="text-align:center">
+            <h3>Mission Setup</h3>
+
+            <table id="SetupInfoTable">
+               <tr id="pin1">
+                  <td>Pin 1</td>
+                  <td>N/A</td>
+               </tr>
+               <tr id="pin2">
+                  <td>Pin 2</td>
+                  <td>N/A</td>
+               </tr>
+               <tr id="totalSelectedArea">
+                  <td>Total selected area</td>
+                  <td>N/A</td>
+               </tr>
+               <tr id="estimatedCompletionTime">
+                  <td>Estimated completion time</td>
+                  <td>N/A</td>
+               </tr>
+            </table>
+
+            </span>
+
+            <div id="setupControls">
+               <button onclick="renderer.editMission();">Edit Mission</button>
+               <button onclick="renderer.editMission();" disabled="disabled">Start Mission</button>
+            </div>
+
+
+         </div>
+         <div id="setupModalViewport" class="modalViewport">
+            <div id="coords">
+               <form name="missionSetupForm" action="#">
+                  <input disabled="disabled" class="input latin" type="number" placeholder="Latitude" id="lat0" step="0.00001"/>
+                  <input disabled="disabled" class="input lngin" type="number" placeholder="Longitude" id="lng0" step="0.00001"/>
+
+                  <input type="button" id="goToLocation0" onclick="renderer.moveMarkerToLocation(0);" value=" " class="goTo"/>
+                  <input type="button" id="newPin0" onclick="renderer.createNewMarker(0);" value=" " class="newPin"/>
+                  <br/>
+                  <input disabled="disabled" class="input latin" type="number" placeholder="Latitude" id="lat1" step="0.00001"/>
+                  <input disabled="disabled" class="input lngin" type="number" placeholder="Longitude" id="lng1" step="0.00001"/>
+
+                  <input type="button" id="goToLocation1" onclick="renderer.moveMarkerToLocation(1);" value=" " class="goTo"/>
+                  <input type="button" id="newPin1" onclick="renderer.createNewMarker(1);" value=" " class="newPin"/>
+               </form>
+            </div>
+            <button class="input" id="doneEditing" disabled="disabled" onclick="renderer.doneEditing()">Done</button>
+         </div>
+      </div>
+   </body>
+</html>
