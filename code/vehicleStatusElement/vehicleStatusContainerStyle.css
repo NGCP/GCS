@@ -1,0 +1,60 @@
+/*
+ * CSS file for VEHICLESTATUSCONTAINER.HTML
+ */
+
+
+#vehicleStatus {
+   width: 100%;
+   padding: 20px;
+}
+
+#vehicleDataTable {
+   width: calc(100% - 40px);
+}
+
+button.goTo {
+   font-size: inherit;
+   width: 40px;
+   height: 20px;
+   margin: 1px;
+   padding: 0px;
+   background-color: #59cc33;
+   border-bottom: 2px solid #47a527;
+   border-top: 0px;
+   border-left: 0px;
+   border-right: 0px;
+   color: #f9f9f9;
+   user-select: none;
+   background-image: url('../../resources/images/arrow.png');
+   background-size: contain;
+   background-repeat: no-repeat;
+}
+
+span.INIT {
+   font-style: italic;
+   color: #000000;
+}
+
+span.READY {
+   font-style: normal;
+   color: #3fff00;
+}
+
+span.ERROR {
+   font-weight: 10px;
+   color: rgb(240,20,20);
+}
+
+span.RUNNING {
+   font-style: italic;
+   color: #3fff00;
+}
+
+table {
+   border-collapse: collapse;
+}
+
+table, th, td {
+   border: 1px solid black;
+   padding: 7px;
+}

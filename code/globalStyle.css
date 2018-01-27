@@ -1,59 +1,79 @@
 /*
- * 	This file contains all styles that should be used throughout the application.
+ * This file contains all styles that should be pervasive throughout the application.
+ * All HTML files should use these styles, so that changing any of the following attributes
+ * can update the entire program at once.
  *
- * 	Any container-specific CSS should be done in their container-specific CSS file.
+ * Any page-specific CSS, such as identifying the formatting for a particular div, should be
+ * done in a page-specific CSS file.
  */
 
 html {
-	font-family: Roboto, Arial, sans-serif !important;
+   font-family: Roboto, Arial, sans-serif !important;
 }
 
 body {
-	padding: 0px;
-	margin: 0px;
-	overflow-x: hidden;
-	display: grid;
-	background: #AAA;
+   padding: 0px;
+   margin: 0px;
+   overflow-x: hidden;
+   display: grid;
+   background: #AAA;
 }
 
-p {
-	color: rgb(25, 25, 25);
-	font-size: 14px; 
-	padding-left: 5px;
-	padding-right: 5px;
+select {
+   font-size: inherit;
+   height: 2.3em;
+   padding-top: 5px;
+   padding-bottom: 3px;
+   padding-left: 20px;
+   padding-right: 20px;
+   background-color: #EFEFEF;
+   user-select: none;
+}
+
+select:active {
+   background-color: #E0E0E0;
 }
 
 button {
-	font-size: inherit;
-	height: 2.3em;
-	padding-top: 5px;
-	padding-bottom: 3px;
-	padding-left: 20px;
-	padding-right: 20px;
-	background-color: #59cc33;
-	border-bottom: 2px solid #47a527;
-	border-top: 0px;
-	border-left: 0px;
-	border-right: 0px;
-	color: #f9f9f9;
+   font-size: inherit;
+   height: 2.3em;
+   padding-top: 5px;
+   padding-bottom: 3px;
+   padding-left: 20px;
+   padding-right: 20px;
+   background-color: #59cc33;
+   border-bottom: 2px solid #47a527;
+   border-top: 0px;
+   border-left: 0px;
+   border-right: 0px;
+   color: #f9f9f9;
+   user-select: none;
+   cursor: pointer;
+}
+
+button:hover {
+   background-color: #63e23a;
 }
 
 button:active {
-	background-color: #47a527;
+   background-color: #47a527;
 }
 
+button:disabled {
+   color: #dadada;
+   background-color: #6e9063;
+   border-bottom: 2px solid #4f7143;
+}
+
+button:focus {outline:0;}
+
 object {
-	width: 100%;
-	height: 100%;
+   width: 100%;
+   height: 100%;
 }
 
 iframe {
-	width: 100%;
-	height: 100%;
-	border: none;
-}
-
-webview {
-	width: 100%;
-	height: 100%;
+   width: 100%;
+   height: 100%;
+   border: none;
 }
