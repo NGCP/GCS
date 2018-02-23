@@ -1,0 +1,31 @@
+<html>
+   <head>
+      <title>Mission Control</title>
+      <script>
+         const renderer = require('./test.js');
+      </script>
+
+   </head>
+   <body>
+
+      <!-- The three viewport dividers defined here.  -->
+      <div id="upperLevelContainer">
+
+         testing!
+
+      </div>
+
+      <button onclick="renderer.connect();">
+         Connect
+      </button>
+
+      <button onclick="renderer.testSend();">
+         Test Send
+      </button>
+
+      <button onclick="renderer.initListen();">
+         init listener
+      </button>
+
+   </body>
+</html>

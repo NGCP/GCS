@@ -1,0 +1,19 @@
+{
+  "name": "missioncontrol",
+  "productName": "Mission Control",
+  "author": "Karthik Jayakumar",
+  "version": "0.1.0",
+  "main": "main.js",
+  "dependencies": {
+    "electron": "^1.7.12",
+    "electron-rebuild": "^1.7.3",
+    "requirejs": "^2.3.5"
+  },
+  "scripts": {
+    "install": "node-gyp rebuild"
+  },
+  "gypfile": true,
+  "devDependencies": {},
+  "license": "ISC",
+  "description": ""
+}
