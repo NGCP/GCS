@@ -72,7 +72,8 @@ namespace XBEE {
 		Frame *cur_frame = NULL;
 
 		if (error) {
-			std::cout << "[ERROR] FOUND" << std::endl;
+			std::cerr << error.message() << std::endl;
+			std::cout << "[ERROR] FOUND READ" << std::endl;
 			// throw an error, by repeating system error code
 		}
 
@@ -98,11 +99,13 @@ namespace XBEE {
 		size_t read_amount = frame_length - buffer.size();
 		read(port, buffer, transfer_exactly(read_amount));
 
+		ReceivePacket frame;
+
 		// Construct Frame object
 		switch(FrameType(frame_type)) {
 			case FrameType::RECEIVE_PACKET:
 			{
-				ReceivePacket frame;
+				
 				// Mac 64
 				for (int i = 0; i < 8; i++)
 					temp.get(holder[i]);
@@ -140,6 +143,7 @@ namespace XBEE {
 				break;
 			}
 			default:
+				std::cerr << "Bad packet sent" << std::endl;
 				// Throw unable to parse frame error
 				break;
 		}
@@ -152,7 +156,7 @@ namespace XBEE {
 		using namespace boost::asio;
 
 		if (error) {
-			std::cerr << "[ERROR] FOUND" << std::endl;
+			std::cerr << "[ERROR] FOUND WRITTEN" << std::endl;
 		}
 		WriteHandler(a_frame);
 	}

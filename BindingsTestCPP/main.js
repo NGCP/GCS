@@ -11,8 +11,6 @@ let theWindow;
 // "ready" signal.
 function setup() {
 
-   //console.log(process);
-
    // now create the window
    if(theWindow == null) {
       createWindow();
@@ -22,13 +20,15 @@ function setup() {
 // This method creates a new window by loading index.html and setting the
 // size of the window to its default (1500 by 1000)
 function createWindow() {
-   theWindow = new BrowserWindow({width:1500, height:1000});
+   theWindow = new BrowserWindow({width:800, height:400});
 
    theWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file',
       slashes: true
    }));
+
+   theWindow.toggleDevTools();
 }
 
 // This method will be called when Electron has finished

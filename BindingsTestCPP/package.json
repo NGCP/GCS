@@ -5,12 +5,15 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
+    "bindings": "^1.3.0",
+    "boost-lib": "^0.11.3",
+    "cmake-js": "^3.6.2",
     "electron": "^1.7.12",
     "electron-rebuild": "^1.7.3",
     "requirejs": "^2.3.5"
   },
   "scripts": {
-    "install": "node-gyp rebuild"
+    "install": "./node_modules/cmake-js/bin/cmake-js rebuild --runtime=electron --runtimeVersion=1.7.12"
   },
   "gypfile": true,
   "devDependencies": {},

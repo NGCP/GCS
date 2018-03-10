@@ -1,5 +1,7 @@
 #include <node.h>
 #include <string>
+#include <queue>
+#include <mutex>
 
 #include "include/Frame.hpp"
 #include "include/ReceivePacket.hpp"
@@ -19,13 +21,44 @@ using v8::Local;
 using v8::Persistent;
 using v8::Function;
 using v8::Number;
+using v8::Array;
 using v8::Integer;
 using v8::Object;
 using v8::String;
 using v8::Value;
+using v8::V8;
+
+/*
+   Class to manage the storing of messages.
+ */
+class DataStore {
+   public:
+      void push(std::string value) {
+         lock.lock();
+         dataStore.push(value);
+         lock.unlock();
+      }
+      std::vector<std::string> popAll() {
+
+         lock.lock();
+         std::vector<std::string> returnArray;
+         while(!dataStore.empty()) {
+            returnArray.push_back(dataStore.front());
+            dataStore.pop();
+         }
+         lock.unlock();
+
+         return returnArray;
+      }
+   private:
+      std::mutex lock;
+      std::queue<std::string> dataStore;
+};
 
 
+DataStore store;
 XBEE::SerialXbee connection;
+XBEE::TransmitRequest sendFrame;
 Persistent<Function> readCallbackFunc;
 
 
@@ -34,19 +67,11 @@ Persistent<Function> readCallbackFunc;
    sends the string to the registered callback function (if set)
 */
 void frameReadHandler(XBEE::Frame *a_frame) {
-   Isolate * isolate = Isolate::GetCurrent();
 
-   std::string output = a_frame->ToHexString(XBEE::HexFormat::BYTE_SPACING);
-   std::cout << "in custom handler: " << output << std::endl;
+   XBEE::ReceivePacket *r_frame = (XBEE::ReceivePacket*)a_frame;
+   std::string output = r_frame->GetData();
 
-   Local<String> message = String::NewFromUtf8(isolate, output.c_str());
-
-   Local<Function> cb = Local<Function>::New(isolate, readCallbackFunc);
-   const unsigned fargc = 1;
-   Local<Value> fargv[fargc] = { message };
-   if(!cb.IsEmpty()) {
-      cb->Call(v8::Null(isolate), fargc, fargv);
-   }
+   store.push(output);
 }
 
 
@@ -59,40 +84,42 @@ void frameReadHandler(XBEE::Frame *a_frame) {
 void connect(const FunctionCallbackInfo<Value>& args) {
    Isolate* isolate = args.GetIsolate();
    Local<Integer> successStatus;
+
+   std::string device_path;
+   uint32_t baud_rate;
+
    switch (args.Length()) {
-      case 2: {
+      case 2:
          // device_path (String) and Baud rate (uint32)
          if(!args[0]->IsString() || !args[1]->IsUint32()) {
             isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Invalid arguments")));
             return;
          }
          //convert v8 String to std::string
-         std::string device_path = toStr(args[0]);
+         device_path = toStr(args[0]);
          //convert v8 uint32 to std::string
-         uint32_t baud_rate = args[1]->Uint32Value();
+         baud_rate = args[1]->Uint32Value();
 
          //attempt connection: store result
          successStatus = Integer::New(isolate, connection.Connect(device_path, baud_rate));
          break;
-      }
-      case 1: {
+      case 1:
          // device_path (String)
          if(!args[0]->IsString()) {
             isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Invalid arguments")));
             return;
          }
-         std::string device_path = toStr(args[0]);
+         device_path = toStr(args[0]);
 
          //attempt connection: store result
          successStatus = Integer::New(isolate, connection.Connect(device_path));
          break;
-      }
       default:
          //attempt connection: store result
          successStatus = Integer::New(isolate, connection.Connect());
          break;
    }
-   //set the read handler to custom handler
+   //set the read handler to custom handler (the init callback must be called to finish setting up)
    connection.ReadHandler = std::bind(frameReadHandler, std::placeholders::_1);
    //return the success status of the connection
    args.GetReturnValue().Set(successStatus);
@@ -109,10 +136,8 @@ void sendData(const FunctionCallbackInfo<Value>& args) {
    Isolate* isolate = args.GetIsolate();
    Local<Integer> successStatus;
    std::string dataString;
-
-   XBEE::SerialXbee connection;
-   connection.Connect("/dev/tty.usbserial-DA01R50T");
-
+   uint64_t target_64;
+   uint16_t target_16;
 
    //first argument must be the string of the data to send
    if(!args[0]->IsString()) {
@@ -123,68 +148,59 @@ void sendData(const FunctionCallbackInfo<Value>& args) {
    }
 
    switch (args.Length()) {
-      case 3: {
+      case 3:
          if(!args[1]->IsString() || !args[2]->IsNumber()) {
             isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Invalid arguments")));
             return;
          }
          //get Integer target addresses
-         uint64_t target_64 = std::stoull(toStr(args[1]), nullptr, 0);
-         uint16_t target_16 = (uint16_t)(args[2]->IntegerValue());
-
-         XBEE::TransmitRequest sendFrame(target_64, target_16);
-         sendFrame.SetData(dataString);
-         connection.AsyncWriteFrame(&sendFrame);
+         target_64 = std::stoull(toStr(args[1]), nullptr, 0);
+         target_16 = (uint16_t)(args[2]->IntegerValue());
+         sendFrame = XBEE::TransmitRequest(target_64, target_16);
 
          successStatus = Integer::New(isolate, 0);
          break;
-      }
-      case 2: {
+      case 2:
          if(!args[1]->IsString()) {
             isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Invalid arguments")));
             return;
          }
          //get Integer target addresses
-         uint64_t target_64 = std::stoull(toStr(args[1]), nullptr, 0);
-
-         XBEE::TransmitRequest sendFrame(target_64);
-         sendFrame.SetData(dataString);
-         connection.AsyncWriteFrame(&sendFrame);
+         target_64 = std::stoull(toStr(args[1]), nullptr, 0);
+         sendFrame = XBEE::TransmitRequest(target_64);
 
          successStatus = Integer::New(isolate, 0);
          break;
-      }
-      case 1: {
-         XBEE::TransmitRequest sendFrame;
-         sendFrame.SetData(dataString);
-         connection.AsyncWriteFrame(&sendFrame);
+      case 1:
+         sendFrame = XBEE::TransmitRequest();
 
          successStatus = Integer::New(isolate, 0);
          break;
-      }
       default:
          isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Invalid arguments")));
          return;
    }
 
+   //send data to frame created
+   sendFrame.SetData(dataString);
+   connection.AsyncWriteFrame(&sendFrame);
    //return the success status of the connection
    args.GetReturnValue().Set(successStatus);
 }
 
 
-/*
- * Sets up the callback function that will receive the frames (incoming packets)
- * This function must be called/set up before any callbacks can be generated
- */
-void initCallback(const FunctionCallbackInfo<Value>& args) {
+
+void getData(const FunctionCallbackInfo<Value>& args) {
    Isolate* isolate = args.GetIsolate();
-   if(args.Length() != 1 || !args[0]->IsFunction()) {
-      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(isolate, "Invalid arguments: expected a function")));
-      return;
+
+   std::vector<std::string> values = store.popAll();
+   Local<Array> returnData = Array::New(isolate, values.size());
+   for(int i = 0; i < values.size(); i++) {
+      returnData->Set(i, toV8Str(isolate, values[i]));
    }
-   Local<Function> cb = Local<Function>::Cast(args[0]);
-   readCallbackFunc.Reset(isolate, cb);
+   args.GetReturnValue().Set(returnData);
 }
+
 
 
 /**
@@ -194,7 +210,7 @@ void initCallback(const FunctionCallbackInfo<Value>& args) {
 void Initialize(Local<Object> exports) {
    NODE_SET_METHOD(exports, "connect", connect);
    NODE_SET_METHOD(exports, "sendData", sendData);
-   NODE_SET_METHOD(exports, "initCallback", initCallback);
+   NODE_SET_METHOD(exports, "getData", getData);
 }
 
 //Required funcall to set up module

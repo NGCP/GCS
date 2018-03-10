@@ -11,7 +11,7 @@ namespace XBEE {
 		virtual std::vector<uint8_t> SerializeFrame() const = 0;
 
 	protected:
-		const uint8_t start	= 0x7E;
+		uint8_t start = 0x7E;
 		uint16_t length;
 		uint8_t frame_type;
 		uint8_t checksum;

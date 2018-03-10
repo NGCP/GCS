@@ -1,37 +1,14 @@
 About compiling C++ modules to NodeJS/Electron compatible modules:
 
-Have electron 1.7.12+, and electron-rebuild 1.7.3+ installed.
+Have electron 1.7.12+, and cmake-js installed (npm install cmake-js)
 
-The current comms protocol requires Boost.
 Install using apt-get/brew/your fav package manager
 
 
+Run 'npm install'
+  - This will compile the source to run on electron, and download boost dependencies
 
-Running the compiler:
-
-Create binding.gyp file. Give your addon a target_name, and all the source
-files to compile. Also include custom libraries or paths to include.
-
-Note:
-
-For mac:
-   The libboost dependencies are located/set up in a different manner on MacOS:
-   Change the libraries in binding.gyp to contain the following url:
-      "/usr/local/lib/libboost_thread-mt.dylib""
-
-For Ubuntu:
-   Change the libraries in binding.gyp to contain the follwing url:
-      "/usr/lib/x86_64-linux-gnu/libboost_thread.so" (on 64-bit machine)
-
-   32 bit machines will (most likely) have it in a different location.
-
-
-
-
-Run 'npm install' on the root directory of the project
-If successful, run 'electron-rebuild .'
-If successful, then the module has been successfully compiled, and the
-project is ready to be run.
+Then run electron to launch it.
 
 
 To add a custom module to your project, the following statement is
