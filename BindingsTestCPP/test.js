@@ -3,11 +3,11 @@ const cppBinder = require('./build/Release/cppBinder');
 module.exports = {
 
    connect: function() {
-      console.log(cppBinder.connect("/dev/tty.SLAB_USBtoUART"))
+      console.log(cppBinder.connect("/dev/ttyUSB0"));
    },
 
    testSend: function() {
-      console.log(cppBinder.sendData("HELLO WORLD", "0x0013A2004105C6B4"));
+      console.log(cppBinder.sendData("SENT FROM ELECTRON", "0x0013A20040F8064D"));
    },
 
    getData: function() {

@@ -2,21 +2,48 @@ const {app, ipcMain, BrowserWindow, Menu, dialog, shell} = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
+const xbee = require('./build/Release/xbee');
+
+// =============================================================================
+//       Global program-wide variables
+// =============================================================================
+
+
+let vehicles = {};
+/*
+ipcMain.on('glob_vehicles', (event) => {
+   event.
+});
+*/
+
+// =============================================================================
+//       Set up the application window
+// =============================================================================
+
 
 let menuBar;
 let theWindow;
 global.defaultLocation = null;
 
 
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', setup);
+
+// Create the program window when the 'activate' signal is received
+// The activate should do the same as the setup
+app.on('activate', setup);
+
 // This method to be called to do any setup work required prior to
 // actually displaying the BrowserWindow. Called when app receives the
 // "ready" signal.
 function setup() {
-   setMenuBar();
-
-   // now create the window
+   //only do this once
    if(theWindow == null) {
+      setMenuBar();
       createWindow();
+      xbeeConnect();
    }
 }
 
@@ -37,28 +64,20 @@ function createWindow() {
    }));
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', setup);
-
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-// Create the program window when the 'activate' signal is received
-app.on('activate', () => {
-   if(theWindow == null) {
-      createWindow();
+   // On macOS it is common for applications and their menu bar
+   // to stay active until the user quits explicitly with Cmd + Q
+   if (process.platform !== 'darwin') {
+      app.quit();
    }
 });
 
 
+
+// =============================================================================
+//       Set up the application listeners, and configuration save/load
+// =============================================================================
 
 /*
  * Listener to forward all notification posts to all other renderer processes
@@ -69,7 +88,10 @@ ipcMain.on('post', (event, notif, value) => {
    theWindow.webContents.send(notif, value);
 });
 
-
+/*
+ * Request user with information about configuration save location; if
+ * successful, notify all modules to save the configuration to file
+ */
 function saveConfig() {
 
    var path = dialog.showSaveDialog(theWindow, {
@@ -85,19 +107,20 @@ function saveConfig() {
    var data = {};
    var fileInfo = { fname: path, dataToWrite: data };
 
-   theWindow.webContents.send("saveConfig", fileInfo);
-
    /*
-   fs.writeFile(path, data, (err) => {
-      if(err) {
-         dialog.showErrorBox("Error Saving Configuration File!", err.message)
-         throw err;
-      }
-
-   });
+      Because of the async nature of the configuration save, there is no
+      way to know when all the modules responding to the notification are
+      finished processing the data. Thus, each responding module must put the
+      data in the shared object, and write it to file.
    */
+   theWindow.webContents.send("saveConfig", fileInfo);
 }
 
+/*
+ * Request user with information about configuration save location; if
+ * successful, load information and notify all modules to load configuration
+ * from the object read from file.
+ */
 function loadConfig() {
 
    var paths = dialog.showOpenDialog(theWindow, {
@@ -119,8 +142,79 @@ function loadConfig() {
 
 }
 
+
+
+// =============================================================================
+//       Set up xbee bindings & begin listening for incoming messages
 // =============================================================================
 
+// default message read interval of 1 second
+const messageReadInterval = 1000;
+const pingInterval = 1000;
+
+
+
+function xbeeConnect() {
+   //TODO: detect location of xbee before connection
+   console.log(xbee.connect());
+
+   //begin listening
+   xbeeListener();
+   pingDevices();
+}
+
+/*
+ * Use the data object to send a message.
+ * data must contain a 'message' field and a 64-bit 'address' field.
+ * It can optionally contain a 16-bit destination address 'fieldAddress'.
+ */
+function xbeeSend(data) {
+   if(data.message == undefined || data.address == undefined) {
+      throw "Message or address field is not defined";
+   }
+   //convert address to hex string -- due to v8 limitations where unsigned long long doesnt maintain leading bit
+   var addressToHexStr = "0x" + data.address.toString(16);
+
+   if(data.fieldAddress != undefined) {
+      xbee.sendData(data.message, addressToHexStr, data.fieldAddress);
+   } else {
+      xbee.sendData(data.message, addressToHexStr);
+   }
+}
+
+/*
+ * Listener that will check and process incoming messages.
+ * Listener will call itself endlessly every second.
+ *
+ * TODO: modify xbee addon & this function to support interrupt type check rather than polling
+ */
+function xbeeListener() {
+   var startTime = Date.now();
+
+   var messageResponses = xbee.getData();
+   for(var i = 0; i < messageResponses.length; i++) {
+      console.log(messageResponses[i]);
+      //process each message
+   }
+
+   setTimeout(xbeeListener, messageReadInterval - (Date.now() - startTime));
+}
+
+function pingDevices() {
+   var startTime = Date.now();
+
+   console.log("pinging...");
+   console.log(global["vehicles"]);
+   for(var key in global["vehicles"]) {
+      //console.log(key);
+   }
+
+   setTimeout(pingDevices, pingInterval - (Date.now() - startTime));
+}
+
+
+
+// =============================================================================
 
 // Method to generate and set the menu bar of the application
 function setMenuBar() {

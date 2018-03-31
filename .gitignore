@@ -1,2 +1,5 @@
-
+code/node_modules/
+code/build/
+BindingsTestCPP/node_modules/
+BindingsTestCPP/build/
 .DS_Store

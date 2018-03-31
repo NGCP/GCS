@@ -5,18 +5,18 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
-    "bindings": "^1.3.0",
     "boost-lib": "^0.11.3",
     "cmake-js": "^3.6.2",
-    "electron": "^1.7.12",
-    "electron-rebuild": "^1.7.3",
-    "requirejs": "^2.3.5"
+    "requirejs": "^2.3.5",
+    "electron": "^1.8.4"
   },
   "scripts": {
-    "install": "./node_modules/cmake-js/bin/cmake-js rebuild --runtime=electron --runtimeVersion=1.7.12"
+    "install": "./node_modules/cmake-js/bin/cmake-js rebuild --runtime=electron --runtimeVersion=1.8.4",
+    "start": "electron ."
   },
-  "gypfile": true,
-  "devDependencies": {},
+  "devDependencies": {
+    "electron": "^1.8.4"
+  },
   "license": "ISC",
   "description": ""
 }

@@ -6,7 +6,7 @@ const {ipcRenderer} = require('electron');
 let self;
 let context;
 
-var vehicles = {};
+var vehicles;
 
 module.exports = {
 
@@ -18,6 +18,9 @@ module.exports = {
       ipcRenderer.on('onVehicleAdd', self.addVehicle);
       ipcRenderer.on('onVehicleRemove', self.removeVehicle);
       ipcRenderer.on('onVehicleUpdate', self.updateVehicle);
+
+      // use the global vehicles object
+
    },
 
    addVehicle: function(event, data) {
