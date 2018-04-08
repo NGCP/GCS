@@ -7,7 +7,8 @@
          const renderer = top.require('./vehicleStatusElement/vehicleStatusContainer.js');
          renderer.init(this);
 
-         //temp
+
+         //temporary code
          var last = 0;
          var vehicles = [
             {
@@ -41,7 +42,28 @@
          ];
 
          function addVehicle() {
-            renderer.addVehicle(null, vehicles[last]);
+            var macAddressString = document.getElementById("vehicleMacAddress").value;
+            var re = /([A-Fa-f0-9]{2}[: -]?){8}/;
+            if(!re.test(macAddressString)) {
+               document.getElementById("vehicleAddMessage").textContent = "Invalid mac address";
+               return;
+            }
+
+            //remove special characters and add 0x prefix
+            macAddressString = "0x" + macAddressString.replace(/[: -]/g, "");
+
+            var newVehicle = {
+               markerID: ("Quad " + last),
+               lat: 0,
+               lng: 0,
+               vehicleType: "uav1",
+               status: {type: "INIT", message: "Connecting..."},
+               mac: macAddressString
+            };
+
+            document.getElementById("vehicleMacAddress").value = "";
+            document.getElementById("vehicleAddMessage").textContent = "";
+            renderer.addVehicle(newVehicle);
             last++;
          }
 
@@ -51,9 +73,8 @@
             vehicles[vehicle].lng += (Math.random()/100)-0.005;
             vehicles[vehicle].vehicleType = "ugv2";
             vehicles[vehicle].status = {type: "ERROR", message: "Lost Connection"};
-            renderer.updateVehicle(null, vehicles[vehicle]);
+            renderer.updateVehicle(vehicles[vehicle]);
          }
-
 
       </script>
    </head>
@@ -68,11 +89,13 @@
                <th>Role</th>
             </tr>
          </table>
-         <button onclick="addVehicle()">Add Vehicle</button>
+         <div id="vehicleAddControls">
+            <input id="vehicleMacAddress" type="text"></input>
+            <button id="vehicleAddButton" onclick="addVehicle()">Add Vehicle</button>
+            <span id="vehicleAddMessage" style="color:red;"></span>
+         </div>
          <button onclick="moveVehicle()">Move Random Vehicle</button>
       </div>
-
-
 
    </body>
 </html>

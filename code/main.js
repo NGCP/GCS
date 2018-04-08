@@ -9,12 +9,8 @@ const xbee = require('./build/Release/xbee');
 // =============================================================================
 
 
-let vehicles = {};
-/*
-ipcMain.on('glob_vehicles', (event) => {
-   event.
-});
-*/
+global.vehicles = {};
+
 
 // =============================================================================
 //       Set up the application window
@@ -89,6 +85,24 @@ ipcMain.on('post', (event, notif, value) => {
 });
 
 /*
+ * Retrieve a global variable.
+ */
+ipcMain.on('getGlobal', (event, globName) => {
+   event.returnValue = global[globName];
+});
+
+/*
+ * Set the global value to the given value. Also notifies that variable
+ * has changed so that all objects
+ */
+ipcMain.on('updateGlobal', (event, globName, value) => {
+   global[globName] = value;
+   theWindow.webContents.send('refreshGlobal', globName, value);
+});
+
+
+
+/*
  * Request user with information about configuration save location; if
  * successful, notify all modules to save the configuration to file
  */
@@ -148,19 +162,59 @@ function loadConfig() {
 //       Set up xbee bindings & begin listening for incoming messages
 // =============================================================================
 
-// default message read interval of 1 second
-const messageReadInterval = 1000;
-const pingInterval = 1000;
+// default message read interval of 100ms
+const messageReadInterval = 100;
 
+
+/*
+ * Handles creating the quadcopter destinations (MSN) messages and
+ * sends the start command (START) once completed
+ */
+ipcMain.on('missionStart', (event) => {
+   for(var key in global.vehicles) {
+
+      // do calculation about the heading for each quadcopter
+      var message = "NEWMSG,MSN,";
+      message += "Q" + global.vehicles[key].markerID.substring(5,) + ",";
+
+      // send destinations to the connected quads
+      xbeeSend({
+         message: message,
+         address: global.vehicles[key].mac
+      });
+      xbeeSend({
+         message: "NEWMSG,START",
+         address: global.vehicles[key].mac
+      });
+   }
+});
+
+/*
+ * Stops the mission already in progress (STOP)
+ */
+ipcMain.on('missionStop', (event) => {
+   for(var key in global.vehicles) {
+      xbeeSend({
+         message: "NEWMSG,STOP",
+         address: global.vehicles[key].mac
+      });
+   }
+});
+
+/*
+ * Sends POI locations to the connected devices
+ */
+ipcMain.on('missionPOI', (event, poi) => {
+
+});
 
 
 function xbeeConnect() {
-   //TODO: detect location of xbee before connection
+   //TODO: detect location of xbee before connection COM port/tty0/etc...
    console.log(xbee.connect());
 
    //begin listening
    xbeeListener();
-   pingDevices();
 }
 
 /*
@@ -172,13 +226,16 @@ function xbeeSend(data) {
    if(data.message == undefined || data.address == undefined) {
       throw "Message or address field is not defined";
    }
-   //convert address to hex string -- due to v8 limitations where unsigned long long doesnt maintain leading bit
-   var addressToHexStr = "0x" + data.address.toString(16);
+
+   //ensure the 0x hex prefix is present
+   if(data.address.substring(0,2) != "0x") {
+      data.address = "0x" + data.address;
+   }
 
    if(data.fieldAddress != undefined) {
-      xbee.sendData(data.message, addressToHexStr, data.fieldAddress);
+      xbee.sendData(data.message, data.address, data.fieldAddress);
    } else {
-      xbee.sendData(data.message, addressToHexStr);
+      xbee.sendData(data.message, data.address);
    }
 }
 
@@ -193,25 +250,30 @@ function xbeeListener() {
 
    var messageResponses = xbee.getData();
    for(var i = 0; i < messageResponses.length; i++) {
-      console.log(messageResponses[i]);
+      //log each COMM message
+      theWindow.webContents.send("logMessage", { type: "COMM", content: messageResponses[i] });
       //process each message
+      processMessage(messageResponses[i]);
    }
 
    setTimeout(xbeeListener, messageReadInterval - (Date.now() - startTime));
 }
 
-function pingDevices() {
-   var startTime = Date.now();
+function processMessage(message) {
+   var messageArr = message.split(",");
+   if(messageArr[1] == "UPDT") {
+      var updatedPos = {
+         markerID: "Quad " + messageArr[2].substring(1,),
+         lat: parseFloat(messageArr[3].substring(1,).split(" ")[0]),
+         lng: parseFloat(messageArr[3].substring(1,).split(" ")[1]),
+         status: { type: messageArr[4].substring(1,).toUpperCase(), message: messageArr[4].substring(1,) }
+      };
 
-   console.log("pinging...");
-   console.log(global["vehicles"]);
-   for(var key in global["vehicles"]) {
-      //console.log(key);
+      theWindow.webContents.send("onVehicleUpdate", updatedPos);
+   } else if(messageArr[1] == "TGT") {
+      //ADD POI!
    }
-
-   setTimeout(pingDevices, pingInterval - (Date.now() - startTime));
 }
-
 
 
 // =============================================================================
@@ -340,6 +402,12 @@ function setMenuBar() {
                label: 'Start Mission',
                click () {
                   theWindow.webContents.send('startCurrentMission');
+               }
+            },
+            {
+               label: 'Stop Mission',
+               click() {
+                  theWindow.webContents.send('stopCurrentMission');
                }
             }
          ]
