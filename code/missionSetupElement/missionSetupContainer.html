@@ -43,8 +43,9 @@
             </span>
 
             <div id="setupControls">
-               <button onclick="renderer.editMission();">Edit Mission</button>
-               <button onclick="renderer.startMission();">Start Mission</button>
+               <button onclick="renderer.editMission();" id="editMissionButton">Edit Mission</button>
+               <button onclick="renderer.startMission();" disabled="disabled" id="StartMissionButton">Start Mission</button>
+               <button onclick="renderer.stopMission();" id="StopMissionButton" style="display:none;" class="RED">Stop Mission</button>
             </div>
 
 

@@ -17,6 +17,8 @@ let markers = [{
 module.exports = {
 
    vehicles: {},
+   isReady: false,
+   isRunning: false,
 
    /*
     * Initialize the missionSetup
@@ -37,8 +39,10 @@ module.exports = {
       // listener for an update on the marker location, update text box
       ipcRenderer.on('boundingMarkerHasChanged', (event, data) => {
          self.updateMarkers(data);
+         self.checkReady(); //check that the updates on the marker = ready
       });
    },
+
 
    /**
     * STUB FUNCTION
@@ -46,10 +50,24 @@ module.exports = {
     * Responds to 'startCurrentMission' notification
     */
    startMission: function() {
-      console.log("START MISSION!");
-      self.toggleEditScreen(false);
-   },
+      if(self.isReady) {
+         console.log("START MISSION!");
 
+         //prevent editing of bounding box
+         ipcRenderer.send('post', 'lockBoundingMarkers', true);
+
+         self.toggleEditScreen(false);
+         ipcRenderer.send('missionStart', markers);
+
+         //change state
+         self.isRunning = true;
+         //update ui
+         context.document.getElementById('editMissionButton').disabled = true;
+         context.document.getElementById('StartMissionButton').style.display = "none";
+         context.document.getElementById('StopMissionButton').style.display = "";
+
+      }
+   },
 
    /**
     * STUB FUNCTION
@@ -57,18 +75,30 @@ module.exports = {
     * Responds to 'modifyCurrentMission' notification
     */
    editMission: function() {
-      console.log("EDIT MISSION!");
-      self.toggleEditScreen(true);
+      if(!self.isRunning) {
+         self.toggleEditScreen(true);
+      }
    },
 
    /**
     * STUB FUNCTION
     * Starts the current mission.
-    * Responds to 'startCurrentMission' notification
+    * Responds to 'stopCurrentMission' notification
     */
    stopMission: function() {
-      console.log("STOP MISSION!");
-      ipcRenderer.send('missionStop');
+      if(self.isRunning) {
+         console.log("STOP MISSION!");
+         ipcRenderer.send('missionStop');
+
+         ipcRenderer.send('post', 'lockBoundingMarkers', false);
+
+         //change state
+         self.isRunning = false;
+         //update ui
+         context.document.getElementById('editMissionButton').disabled = false;
+         context.document.getElementById('StartMissionButton').style.display = "";
+         context.document.getElementById('StopMissionButton').style.display = "none";
+      }
    },
 
    /*
@@ -118,8 +148,10 @@ module.exports = {
          markers[i].lat = parseFloat(context.document.forms['missionSetupForm']['lat' + i].value);
          markers[i].lng = parseFloat(context.document.forms['missionSetupForm']['lng' + i].value);
          ipcRenderer.send('post', 'moveBoundingMarker', markers[i]);
+
       }
 
+      self.checkReady();
       self.toggleEditScreen(false);
    },
 
@@ -225,6 +257,35 @@ module.exports = {
          }
          self.showMenu(true);
          self.toggleEditScreen.isOn = true;
+      }
+   },
+
+   /*
+    * Toggles the UI to a "ready" state
+    */
+   checkReady: function() {
+      //check that bounding box is set
+
+      var boundingBoxSet = true;
+      for(var i = 0; i < 2; i++) {
+         if(markers[i].lat == undefined || markers[i].lng == undefined) {
+            boundingBoxSet = false;
+            break;
+         }
+      }
+
+      //check that at least 1 vehicle connected
+      var count = 0;
+      for(var key in self.vehicles) {
+         count++;
+      }
+
+      if(count < 1 && boundingBoxSet) {
+         self.isReady = true;
+         context.document.getElementById("StartMissionButton").disabled = false;
+      } else {
+         self.isReady = false;
+         context.document.getElementById("StartMissionButton").disabled = true;
       }
    },
 

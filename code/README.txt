@@ -13,6 +13,7 @@ You may then run the program using 'npm start'
 NOTE: Ubuntu (unsure about rest of linux distros) requires elevated permissions to open the usb connection; using sudo works,
 however electron must be started manually by running the bin file. This can be done by navigating to the project folder, then
 executing 'sudo node_modules/electron/dist/electron .'
+for mac: 'sudo node_modules/electron/dist/Electron.app/Contents/MacOS/Electron .' 
 
 
 

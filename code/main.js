@@ -170,12 +170,31 @@ const messageReadInterval = 100;
  * Handles creating the quadcopter destinations (MSN) messages and
  * sends the start command (START) once completed
  */
-ipcMain.on('missionStart', (event) => {
+ipcMain.on('missionStart', (event, data) => {
+
+   //const R = 6371008.8; //mean radius of earth
+   const R = 6371e3;
+   const bottomLat = Math.min(data[0].lat, data[1].lat);
+   const bottomlng = Math.min(data[0].lng, data[1].lng);
+   const topLat = Math.max(data[0].lat, data[1].lat);
+   const topLng = Math.max(data[0].lng, data[1].lng);
+
+   const bLatR = bottomLat * (Math.PI / 180);
+   const bLngR = bottomlng * (Math.PI / 180);
+   const tLatR = topLat * (Math.PI / 180);
+   const tLngR = topLng * (Math.PI / 180);
+
+   var angle = Math.acos( Math.sin(bLatR) * Math.sin(tLatR) + Math.cos(bLatR) * Math.cos(tLatR) * Math.cos(tLngR - bLngR) );
+
+
    for(var key in global.vehicles) {
 
-      // do calculation about the heading for each quadcopter
-      var message = "NEWMSG,MSN,";
-      message += "Q" + global.vehicles[key].markerID.substring(5,) + ",";
+      var message = "NEWMSG,MSN," +
+         "Q" + global.vehicles[key].markerID.substring(5,) + "," +
+         "P" + bottomLat.toFixed(10) + " " + bottomlng.toFixed(10) + " 0," +
+         "H" + "0" + "," + //not sure what this value should be
+         "F" + (topLat - bottomLat).toFixed(10) + "," +
+         "D" + (angle * R).toFixed(10);
 
       // send destinations to the connected quads
       xbeeSend({
@@ -211,7 +230,16 @@ ipcMain.on('missionPOI', (event, poi) => {
 
 function xbeeConnect() {
    //TODO: detect location of xbee before connection COM port/tty0/etc...
-   console.log(xbee.connect());
+   //uncomment for macOS
+   //var res = xbee.connect("/dev/tty.usbserial-DJ00HW42");
+
+   //uncomment for linux
+   var res = xbee.connect("/dev/ttyUSB0");
+
+   //connection failed
+   if(res == -1) {
+      dialog.showErrorBox("Connection Error", "Unable to connect to xbee radio. Please check connection, and restart program.");
+   }
 
    //begin listening
    xbeeListener();

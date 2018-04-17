@@ -65,6 +65,37 @@ button:disabled {
    border-bottom: 2px solid #4f7143;
 }
 
+button.RED {
+   font-size: inherit;
+   height: 2.3em;
+   padding-top: 5px;
+   padding-bottom: 3px;
+   padding-left: 20px;
+   padding-right: 20px;
+   background-color: #ff3030;
+   border-bottom: 2px solid #8c0000;
+   border-top: 0px;
+   border-left: 0px;
+   border-right: 0px;
+   color: #f9f9f9;
+   user-select: none;
+   cursor: pointer;
+}
+
+button.RED:hover {
+   background-color: #f78a8a;
+}
+
+button.RED:active {
+   background-color: #8c0000;
+}
+
+button.RED:disabled {
+   color: #dadada;
+   background-color: #a05e5e;
+   border-bottom: 2px solid #7d4343;
+}
+
 button:focus {outline:0;}
 
 input[type=text] {

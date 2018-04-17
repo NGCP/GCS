@@ -47,6 +47,10 @@ module.exports = {
       ipcRenderer.on('moveMarker', (event, data) => {
          self.moveMarker(data);
       });
+
+      ipcRenderer.on('lockBoundingMarkers', (event, data) => {
+         self.lockBoundingMarkers(data);
+      })
    },
 
    /*
@@ -169,6 +173,7 @@ module.exports = {
     * specified bounding marker does not exist.
     */
    moveBoundingMarker: function(data) {
+      ipcRenderer.send('post', 'boundingMarkerHasChanged', data);
       if(boundingMarkers[data.markerID] != null) {
          boundingMarkers[data.markerID].setPosition({ lat: data.lat, lng: data.lng });
          self.updateBoundingBox();
@@ -236,6 +241,18 @@ module.exports = {
 
       }
    },
+
+   /*
+    * Prevent changes to the bounding markers.
+    * Locks when state = true, unlock on false
+    */
+   lockBoundingMarkers: function(state) {
+      for(var markerID in boundingMarkers) {
+         boundingMarkers[markerID].setDraggable(!state);
+         boundingMarkers[markerID].setVisible(!state);
+      }
+   },
+
 
    /*
     * Function fires when a 'saveConfig' notification is received.
