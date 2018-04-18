@@ -164,6 +164,7 @@ function loadConfig() {
 
 // default message read interval of 100ms
 const messageReadInterval = 100;
+const poiQueue = [];
 
 
 /*
@@ -172,8 +173,10 @@ const messageReadInterval = 100;
  */
 ipcMain.on('missionStart', (event, data) => {
 
-   //const R = 6371008.8; //mean radius of earth
-   const R = 6371e3;
+   //TODO: check correctness
+   //TODO: create algorithm to diving search area based on number of vehicles in quick search
+
+   const R = 6371008.8; //mean radius of earth
    const bottomLat = Math.min(data[0].lat, data[1].lat);
    const bottomlng = Math.min(data[0].lng, data[1].lng);
    const topLat = Math.max(data[0].lat, data[1].lat);
@@ -188,6 +191,8 @@ ipcMain.on('missionStart', (event, data) => {
 
 
    for(var key in global.vehicles) {
+
+      //TODO: filter out vehicles that are set to be detailed search only. (only start quick search)
 
       var message = "NEWMSG,MSN," +
          "Q" + global.vehicles[key].markerID.substring(5,) + "," +
@@ -294,14 +299,42 @@ function processMessage(message) {
          markerID: "Quad " + messageArr[2].substring(1,),
          lat: parseFloat(messageArr[3].substring(1,).split(" ")[0]),
          lng: parseFloat(messageArr[3].substring(1,).split(" ")[1]),
-         status: { type: messageArr[4].substring(1,).toUpperCase(), message: messageArr[4].substring(1,) }
+         status: { type: messageArr[4].substring(1,).toUpperCase(), message: messageArr[4].substring(1,) },
+         role: (messageArr[5].substring(1,) == 0) ? "Quick Search" : "Detailed Search"
       };
-
       theWindow.webContents.send("onVehicleUpdate", updatedPos);
+
    } else if(messageArr[1] == "TGT") {
-      //ADD POI!
+      var poiObj = {
+         lat: parseFloat(messageArr[6].substring(1,).split(" ")[0]),
+         lng: parseFloat(messageArr[3].substring(1,).split(" ")[1])
+      };
+      poiQueue.push(poiObj); //push poi to queue
+
+   } else if(messageArr[1] == "ROLE") {
+      //update GUI with role switch data
+      var updatedPos = {
+         markerID: "Quad " + messageArr[2].substring(1,),
+         lat: parseFloat(messageArr[3].substring(1,).split(" ")[0]),
+         lng: parseFloat(messageArr[3].substring(1,).split(" ")[1]),
+         status: { type: messageArr[4].substring(1,).toUpperCase(), message: messageArr[4].substring(1,) },
+         role: (messageArr[5].substring(1,) == 0) ? "Quick Search" : "Detailed Search"
+      };
+      theWindow.webContents.send("onVehicleUpdate", updatedPos);
+      //for now, set all the POIs in the queue to the current Quad
+
+      while(poiQueue.length > 0) {
+         var poiObj = poiQueue.pop();
+         console.log(poiObj);
+         console.log(global.vehicles["Quad " + messageArr[2].substring(1,)].mac);
+         xbeeSend({
+            message: "NEWMSG,POI," + messageArr[2] + ",P" + poiObj.lat.toFixed(10) + " " + poiObj.lng.toFixed(10),
+            address: global.vehicles["Quad " + messageArr[2].substring(1,)].mac
+         });
+      }
    }
 }
+
 
 
 // =============================================================================

@@ -27,22 +27,21 @@ module.exports = {
       var table = context.document.getElementById('vehicleDataTable');
       var newRow = table.insertRow();
 
-      console.log(data.mac);
-
       //Create a new vehicle object with default fields if not specified
       var newVehicle = {
-         markerID: (this.vehicles[data.markerID] != undefined) ? (data.markerID + table.rows.length-1) : data.markerID,
-         lat: data.lat,
-         lng: data.lng,
+         markerID: (data.markerID != undefined) ? data.markerID : "Quad " + (table.rows.length-2),
+         lat: (data.lat != undefined) ? data.lat : 0,
+         lng: (data.lng != undefined) ? data.lng : 0,
          vehicleType: (data.vehicleType != undefined) ? data.vehicleType : "uav1",
-         status: (data.status != undefined) ? data.status : {type: "INIT", message:"Connecting..."},
+         status: (data.status != undefined) ? data.status : {type: "INIT", message:"Awaiting connection..."},
+         role: (data.role != undefined) ? data.role : "",
          mac: data.mac
       }
 
-      newRow.id = data.markerID;
-      newRow.insertCell(0).innerHTML = newVehicle.markerID;
+      newRow.id = newVehicle.markerID;
+      newRow.insertCell(0).innerHTML = "<a href='#' onclick='renderer.goToMarker(\""+newVehicle.markerID+"\")'>" + newVehicle.markerID + "</a>";
       newRow.insertCell(1).innerHTML = "<span class='"+newVehicle.status.type+"'>"+newVehicle.status.message+"<span>";
-      newRow.insertCell(2).innerHTML = "<button class='goTo' onclick='renderer.goToMarker(\""+newVehicle.markerID+"\")'></button>";
+      newRow.insertCell(2).innerHTML = newVehicle.role;
 
       this.vehicles[newVehicle.markerID] = newVehicle;
       this.updateGlobal('vehicles', this.vehicles);
@@ -85,6 +84,11 @@ module.exports = {
       if(data.status != thisVehicle.status && data.status != undefined) {
          thisVehicle.status = data.status;
          context.document.getElementById(data.markerID).cells[1].innerHTML = "<span class='"+thisVehicle.status.type+"'>"+thisVehicle.status.message+"<span>";
+      }
+
+      if(data.role != thisVehicle.role && data.role != undefined) {
+         thisVehicle.role = data.role;
+         context.document.getElementById(data.markerID).cells[2].innerHTML = thisVehicle.role;
       }
 
       this.updateGlobal('vehicles', this.vehicles);

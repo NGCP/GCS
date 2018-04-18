@@ -53,11 +53,6 @@
             macAddressString = "0x" + macAddressString.replace(/[: -]/g, "");
 
             var newVehicle = {
-               markerID: ("Quad " + last),
-               lat: 0,
-               lng: 0,
-               vehicleType: "uav1",
-               status: {type: "INIT", message: "Connecting..."},
                mac: macAddressString
             };
 
