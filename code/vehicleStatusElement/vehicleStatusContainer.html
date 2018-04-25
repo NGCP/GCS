@@ -53,7 +53,8 @@
             macAddressString = "0x" + macAddressString.replace(/[: -]/g, "");
 
             var newVehicle = {
-               mac: macAddressString
+               mac: macAddressString,
+               role: parseInt(document.getElementById("vehicleRoleType").value)
             };
 
             document.getElementById("vehicleMacAddress").value = "";
@@ -86,8 +87,12 @@
          </table>
          <div id="vehicleAddControls">
             <input id="vehicleMacAddress" type="text"></input>
+            <select name="role" id="vehicleRoleType">
+               <option value="0">Quick</option>
+               <option value="1">Detailed</option>
+            </select>
             <button id="vehicleAddButton" onclick="addVehicle()">Add Vehicle</button>
-            <span id="vehicleAddMessage" style="color:red;"></span>
+            <span id="vehicleAddMessage" style="color:#b20000;"></span>
          </div>
          <button onclick="moveVehicle()">Move Random Vehicle</button>
       </div>

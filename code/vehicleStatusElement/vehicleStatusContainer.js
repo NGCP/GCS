@@ -34,20 +34,32 @@ module.exports = {
          lng: (data.lng != undefined) ? data.lng : 0,
          vehicleType: (data.vehicleType != undefined) ? data.vehicleType : "uav1",
          status: (data.status != undefined) ? data.status : {type: "INIT", message:"Awaiting connection..."},
-         role: (data.role != undefined) ? data.role : "",
+         role: data.role,
          mac: data.mac
       }
 
       newRow.id = newVehicle.markerID;
       newRow.insertCell(0).innerHTML = "<a href='#' onclick='renderer.goToMarker(\""+newVehicle.markerID+"\")'>" + newVehicle.markerID + "</a>";
       newRow.insertCell(1).innerHTML = "<span class='"+newVehicle.status.type+"'>"+newVehicle.status.message+"<span>";
-      newRow.insertCell(2).innerHTML = newVehicle.role;
+
+      if(newVehicle.role == 0) {
+         newRow.insertCell(2).innerHTML = "Quick Search";
+      } else if(newVehicle.role == 1) {
+         newRow.insertCell(2).innerHTML = "Detailed Search";
+      } else {
+         newRow.insertCell(2).innerHTML = "";
+      }
+
 
       this.vehicles[newVehicle.markerID] = newVehicle;
       this.updateGlobal('vehicles', this.vehicles);
 
 
+      //notify other renderers about the moving of a vehicle marker
       ipcRenderer.send('post', 'moveMarker', newVehicle);
+
+      //notify main process & attempt to connect to newly added vehicle
+      ipcRenderer.send('connectWithNewVehicle', newVehicle);
    },
 
    goToMarker: function(markerID) {
@@ -88,7 +100,14 @@ module.exports = {
 
       if(data.role != thisVehicle.role && data.role != undefined) {
          thisVehicle.role = data.role;
-         context.document.getElementById(data.markerID).cells[2].innerHTML = thisVehicle.role;
+
+         if(data.role == 0) {
+            newRow.insertCell(2).innerHTML = "Quick Search";
+         } else if(data.role == 1) {
+            newRow.insertCell(2).innerHTML = "Detailed Search";
+         } else {
+            ewRow.insertCell(2).innerHTML = "ERROR";
+         }
       }
 
       this.updateGlobal('vehicles', this.vehicles);

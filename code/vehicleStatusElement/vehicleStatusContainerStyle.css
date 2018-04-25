@@ -13,20 +13,35 @@
 }
 
 #vehicleAddButton {
+   padding-left: 2px;
+   padding-right: 2px;
    font-size: 12px;
-   width:110px;
+   width:80px;
+   height: 25px;
 }
 
 #vehicleMacAddress {
    font-size: 12px;
-   width: calc(100% - 120px);
+   width: calc(100% - 85px - 85px);
+   padding-left: 5px;
+   padding-right: 5px;
+   height: 25px;
 }
+
+#vehicleRoleType {
+   padding: 2px;
+   font-size: 12px;
+   width:80px;
+   height: 25px;
+}
+
 
 #vehicleAddControls {
    padding-top: 5px;
    padding-bottom: 5px;
    width:100%;
 }
+
 
 button.goTo {
    font-size: inherit;

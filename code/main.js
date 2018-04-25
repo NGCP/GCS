@@ -164,7 +164,8 @@ function loadConfig() {
 
 // default message read interval of 100ms
 const messageReadInterval = 100;
-const poiQueue = [];
+const pois = {};
+const waitingVehicleQueue = [];
 
 
 /*
@@ -176,7 +177,7 @@ ipcMain.on('missionStart', (event, data) => {
    //TODO: check correctness
    //TODO: create algorithm to diving search area based on number of vehicles in quick search
 
-   const R = 6371008.8; //mean radius of earth
+   const R = 6371008.8; //mean radius of earth in meters
    const bottomLat = Math.min(data[0].lat, data[1].lat);
    const bottomlng = Math.min(data[0].lng, data[1].lng);
    const topLat = Math.max(data[0].lat, data[1].lat);
@@ -192,24 +193,39 @@ ipcMain.on('missionStart', (event, data) => {
 
    for(var key in global.vehicles) {
 
-      //TODO: filter out vehicles that are set to be detailed search only. (only start quick search)
+      if(global.vehicle[key].role == 0) { //quick search device
 
-      var message = "NEWMSG,MSN," +
-         "Q" + global.vehicles[key].markerID.substring(5,) + "," +
-         "P" + bottomLat.toFixed(10) + " " + bottomlng.toFixed(10) + " 0," +
-         "H" + "0" + "," + //not sure what this value should be
-         "F" + (topLat - bottomLat).toFixed(10) + "," +
-         "D" + (angle * R).toFixed(10);
+         // TODO: Use previous code to implement area partitioning for searches between the devices.
 
-      // send destinations to the connected quads
-      xbeeSend({
-         message: message,
-         address: global.vehicles[key].mac
-      });
-      xbeeSend({
-         message: "NEWMSG,START",
-         address: global.vehicles[key].mac
-      });
+         /*
+          May have to being by detecting all devices that are quicksearch,
+          then using alg to partition, then send messages to all of them
+          */
+
+         var message = "NEWMSG,MSN," +
+            "Q" + global.vehicles[key].markerID.substring(5,) + "," +
+            "P" + bottomLat.toFixed(10) + " " + bottomlng.toFixed(10) + " 0," +
+            "H" + "0" + "," + //not sure what this value should be
+            "F" + ( Math.asin(((tLatR - bLatR) * R) / (angle * R)) * (180 / Math.PI) ).toFixed(10) + "," +
+            "D" + (angle * R).toFixed(10);
+
+         // send destinations to the connected quads
+         xbeeSend({
+            message: message,
+            address: global.vehicles[key].mac
+         });
+         xbeeSend({
+            message: "NEWMSG,START",
+            address: global.vehicles[key].mac
+         });
+
+      } else if(global.vehicles[key].role == 1) { //Detailed search device
+
+         // Insert Quad to queue: ready to act when first POI is detected
+         waitingVehicleQueue.push(global.vehicle[key]);
+
+      }
+
    }
 });
 
@@ -225,12 +241,19 @@ ipcMain.on('missionStop', (event) => {
    }
 });
 
+
 /*
- * Sends POI locations to the connected devices
- */
-ipcMain.on('missionPOI', (event, poi) => {
+* Attempts to connect with a vehicle by setting its ROLE to the specified value
+*/
+ipcMain.on('connectWithNewVehicle', (event, vehicle) => {
+
+  xbeeSend({
+     message: "NEWMSG,ROLE,Q"+ vehicle.markerID.substring(5,) +",R"+vehicle.role,
+     address: vehicle.mac
+  });
 
 });
+
 
 
 function xbeeConnect() {
@@ -300,16 +323,46 @@ function processMessage(message) {
          lat: parseFloat(messageArr[3].substring(1,).split(" ")[0]),
          lng: parseFloat(messageArr[3].substring(1,).split(" ")[1]),
          status: { type: messageArr[4].substring(1,).toUpperCase(), message: messageArr[4].substring(1,) },
-         role: (messageArr[5].substring(1,) == 0) ? "Quick Search" : "Detailed Search"
+         role: parseInt(messageArr[5].substring(1,))
       };
       theWindow.webContents.send("onVehicleUpdate", updatedPos);
 
    } else if(messageArr[1] == "TGT") {
       var poiObj = {
          lat: parseFloat(messageArr[6].substring(1,).split(" ")[0]),
-         lng: parseFloat(messageArr[3].substring(1,).split(" ")[1])
+         lng: parseFloat(messageArr[6].substring(1,).split(" ")[1]),
+         id: parseInt(messageArr[7].substring(1,)),
+         active: "INACTIVE"
       };
-      poiQueue.push(poiObj); //push poi to queue
+      pois[messageArr[7].substring(1,)] = poiObj; //push poi to queue
+
+      //check if there are vehicles in the queue waiting for a POI
+      if(waitingVehicleQueue.length > 0) { //send POI to first vehicle
+         poiObj.active = "RUNNING";
+         xbeeSend({
+            message: "NEWMSG,POI,Q" + vehicle.markerID.substring(5,) + ",P" + poiObj.lat.toFixed(10) + " " + poiObj.lng.toFixed(10),
+            address: waitingVehicleQueue.pop().mac
+         });
+      }
+
+   } else if(messageArr[1] == "FP") { //handle a false positive
+
+      //get the vehicle that sent the message
+      var vehicle = global.vehicles["Quad " + messageArr[2].substring(1,)];
+      //set the false positive message
+      pois[messageArr[3].substring(1,)].active = "FALSE POSITIVE";
+      //pick the next POI to scan
+      var nextPOI = pickPOI(vehicle);
+
+      if(nextPOI != undefined) { // next POI is defined, tell this quad its next destination
+         nextPOI.active = "RUNNING";
+         xbeeSend({
+            message: "NEWMSG,POI,Q" + messageArr[2].substring(1,) + ",P" + nextPOI.lat.toFixed(10) + " " + nextPOI.lng.toFixed(10),
+            address: vehicle.mac
+         });
+      } else { //no POIs waiting, push vehicle to queue
+         waitingVehicleQueue.push(vehicle);
+      }
 
    } else if(messageArr[1] == "ROLE") {
       //update GUI with role switch data
@@ -318,23 +371,53 @@ function processMessage(message) {
          lat: parseFloat(messageArr[3].substring(1,).split(" ")[0]),
          lng: parseFloat(messageArr[3].substring(1,).split(" ")[1]),
          status: { type: messageArr[4].substring(1,).toUpperCase(), message: messageArr[4].substring(1,) },
-         role: (messageArr[5].substring(1,) == 0) ? "Quick Search" : "Detailed Search"
+         role: parseInt(messageArr[5].substring(1,))
       };
       theWindow.webContents.send("onVehicleUpdate", updatedPos);
-      //for now, set all the POIs in the queue to the current Quad
+      //find the next POI to scan for the current quad
 
-      while(poiQueue.length > 0) {
-         var poiObj = poiQueue.pop();
-         console.log(poiObj);
-         console.log(global.vehicles["Quad " + messageArr[2].substring(1,)].mac);
+      var vehicle = global.vehicles["Quad " + messageArr[2].substring(1,)];
+      var nextPOI = pickPOI(vehicle);
+
+      if(nextPOI != undefined) { // next POI is defined, tell this quad its next destination
+         nextPOI.active = "RUNNING";
          xbeeSend({
-            message: "NEWMSG,POI," + messageArr[2] + ",P" + poiObj.lat.toFixed(10) + " " + poiObj.lng.toFixed(10),
-            address: global.vehicles["Quad " + messageArr[2].substring(1,)].mac
+            message: "NEWMSG,POI,Q" + messageArr[2].substring(1,) + ",P" + nextPOI.lat.toFixed(10) + " " + nextPOI.lng.toFixed(10),
+            address: vehicle.mac
          });
+      } else { //no POIs waiting, push vehicle to queue
+         waitingVehicleQueue.push(vehicle);
       }
    }
 }
 
+
+/*
+ * Picks the next POI to process
+ * finds the closest POI that isnt a false positive to the given vehicle
+ */
+function pickPOI(vehicle) {
+
+   const R = 6371008.8; //mean radius of earth in meters
+   var vLat = vehicle.lat * (Math.PI / 180);
+   var vLng = vehicle.lng * (Math.PI / 180);
+   var closestPOI = undefined;
+   var poi = undefined;
+
+   for(var key in pois) {
+      var poiLat = pois[key].lat * (Math.PI / 180);
+      var poiLng = pois[key].lng * (Math.PI / 180);
+
+      var dist = Math.acos( Math.sin(vLat) * Math.sin(poiLat) + Math.cos(vLat) * Math.cos(poiLat) * Math.cos(Math.abs(poiLng - vLng)) ) * R;
+      if((closestPOI == undefined || dist < closestPOI) && pois[key].active ==  "INACTIVE") {
+         closestPOI = dist;
+         poi = pois[key];
+      }
+
+   }
+
+   return poi;
+}
 
 
 // =============================================================================
