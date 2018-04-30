@@ -17,6 +17,12 @@
    background-color: rgb(200, 200, 200);
    user-select: none;
    font-size: 10px;
+   padding-left: 10px;
+   padding-right: 10px;
+}
+
+#filterSelector {
+   width: 100px;
 }
 
 #displayed {

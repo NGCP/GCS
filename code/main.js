@@ -164,8 +164,8 @@ function loadConfig() {
 
 // default message read interval of 100ms
 const messageReadInterval = 100;
-const pois = {};
-const waitingVehicleQueue = [];
+var pois = {};
+var waitingVehicleQueue = {};
 
 
 /*
@@ -193,7 +193,7 @@ ipcMain.on('missionStart', (event, data) => {
 
    for(var key in global.vehicles) {
 
-      if(global.vehicle[key].role == 0) { //quick search device
+      if(global.vehicles[key].role == 0) { //quick search device
 
          // TODO: Use previous code to implement area partitioning for searches between the devices.
 
@@ -205,8 +205,8 @@ ipcMain.on('missionStart', (event, data) => {
          var message = "NEWMSG,MSN," +
             "Q" + global.vehicles[key].markerID.substring(5,) + "," +
             "P" + bottomLat.toFixed(10) + " " + bottomlng.toFixed(10) + " 0," +
-            "H" + "0" + "," + //not sure what this value should be
-            "F" + ( Math.asin(((tLatR - bLatR) * R) / (angle * R)) * (180 / Math.PI) ).toFixed(10) + "," +
+            "H" + ( Math.acos(((tLatR - bLatR) * R) / (angle * R)) * (180 / Math.PI) ).toFixed(10) + "," +
+            "F" + "0" + "," +
             "D" + (angle * R).toFixed(10);
 
          // send destinations to the connected quads
@@ -239,6 +239,10 @@ ipcMain.on('missionStop', (event) => {
          address: global.vehicles[key].mac
       });
    }
+
+   //clear previous mission data
+   pois = {};
+   waitingVehicleQueue = [];
 });
 
 
@@ -259,10 +263,10 @@ ipcMain.on('connectWithNewVehicle', (event, vehicle) => {
 function xbeeConnect() {
    //TODO: detect location of xbee before connection COM port/tty0/etc...
    //uncomment for macOS
-   //var res = xbee.connect("/dev/tty.usbserial-DJ00HW42");
+   var res = xbee.connect("/dev/tty.usbserial-DJ00I0E5");
 
    //uncomment for linux
-   var res = xbee.connect("/dev/ttyUSB0");
+   //var res = xbee.connect("/dev/ttyUSB0");
 
    //connection failed
    if(res == -1) {
@@ -284,9 +288,11 @@ function xbeeSend(data) {
    }
 
    //ensure the 0x hex prefix is present
-   if(data.address.substring(0,2) != "0x") {
+   if(data.address.substring(0,2) !== "0x") {
       data.address = "0x" + data.address;
    }
+
+   theWindow.webContents.send("logMessage", { type: "SUCCESS", content: data.address + ": " + data.message });
 
    if(data.fieldAddress != undefined) {
       xbee.sendData(data.message, data.address, data.fieldAddress);
@@ -309,7 +315,11 @@ function xbeeListener() {
       //log each COMM message
       theWindow.webContents.send("logMessage", { type: "COMM", content: messageResponses[i] });
       //process each message
-      processMessage(messageResponses[i]);
+      try {
+         processMessage(messageResponses[i]);
+      } catch(err) {
+         theWindow.webContents.send("logMessage", { type: "ERROR", content:  err.message + " ORIGINAL MESSAGE: " + messageResponses[i]});
+      }
    }
 
    setTimeout(xbeeListener, messageReadInterval - (Date.now() - startTime));
@@ -317,7 +327,7 @@ function xbeeListener() {
 
 function processMessage(message) {
    var messageArr = message.split(",");
-   if(messageArr[1] == "UPDT") {
+   if(messageArr[1] === "UPDT") {
       var updatedPos = {
          markerID: "Quad " + messageArr[2].substring(1,),
          lat: parseFloat(messageArr[3].substring(1,).split(" ")[0]),
@@ -327,11 +337,11 @@ function processMessage(message) {
       };
       theWindow.webContents.send("onVehicleUpdate", updatedPos);
 
-   } else if(messageArr[1] == "TGT") {
+   } else if(messageArr[1] === "TGT") {
       var poiObj = {
          lat: parseFloat(messageArr[6].substring(1,).split(" ")[0]),
          lng: parseFloat(messageArr[6].substring(1,).split(" ")[1]),
-         id: parseInt(messageArr[7].substring(1,)),
+         id: messageArr[7].substring(1,),
          active: "INACTIVE"
       };
       pois[messageArr[7].substring(1,)] = poiObj; //push poi to queue
@@ -345,7 +355,7 @@ function processMessage(message) {
          });
       }
 
-   } else if(messageArr[1] == "FP") { //handle a false positive
+   } else if(messageArr[1] === "FP") { //handle a false positive
 
       //get the vehicle that sent the message
       var vehicle = global.vehicles["Quad " + messageArr[2].substring(1,)];
@@ -364,7 +374,7 @@ function processMessage(message) {
          waitingVehicleQueue.push(vehicle);
       }
 
-   } else if(messageArr[1] == "ROLE") {
+   } else if(messageArr[1] === "ROLE") {
       //update GUI with role switch data
       var updatedPos = {
          markerID: "Quad " + messageArr[2].substring(1,),
@@ -382,12 +392,26 @@ function processMessage(message) {
       if(nextPOI != undefined) { // next POI is defined, tell this quad its next destination
          nextPOI.active = "RUNNING";
          xbeeSend({
-            message: "NEWMSG,POI,Q" + messageArr[2].substring(1,) + ",P" + nextPOI.lat.toFixed(10) + " " + nextPOI.lng.toFixed(10),
+            message: "NEWMSG,POI,Q" + messageArr[2].substring(1,) + ",P" + nextPOI.lat.toFixed(10) + " " + nextPOI.lng.toFixed(10) + ",I" + nextPOI.id,
             address: vehicle.mac
          });
       } else { //no POIs waiting, push vehicle to queue
          waitingVehicleQueue.push(vehicle);
       }
+   } else if(messageArr[1] == "VLD") {
+      //target found, end mission
+      for(var key in global.vehicles) {
+         xbeeSend({
+            message: "NEWMSG,STOP",
+            address: global.vehicles[key].mac
+         });
+      }
+
+      theWindow.webContents.send("logMessage", { type: "SUCCESS", content: "TARGET FOUND: "});
+
+      //clear previous mission data
+      pois = {};
+      waitingVehicleQueue = [];
    }
 }
 
@@ -409,7 +433,7 @@ function pickPOI(vehicle) {
       var poiLng = pois[key].lng * (Math.PI / 180);
 
       var dist = Math.acos( Math.sin(vLat) * Math.sin(poiLat) + Math.cos(vLat) * Math.cos(poiLat) * Math.cos(Math.abs(poiLng - vLng)) ) * R;
-      if((closestPOI == undefined || dist < closestPOI) && pois[key].active ==  "INACTIVE") {
+      if((closestPOI == undefined || dist < closestPOI) && pois[key].active ===  "INACTIVE") {
          closestPOI = dist;
          poi = pois[key];
       }
@@ -418,6 +442,9 @@ function pickPOI(vehicle) {
 
    return poi;
 }
+
+
+
 
 
 // =============================================================================

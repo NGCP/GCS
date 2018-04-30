@@ -113,7 +113,7 @@ module.exports = {
     */
    moveMarker: function(data) {
 
-      if(boundingMarkers[data.markerID] == undefined) {
+      if(markers[data.markerID] == undefined) {
 
          var icon = {
             url: path.join( __dirname, '..', '..', 'resources', 'images','markers', data.vehicleType+".png"),
@@ -122,7 +122,7 @@ module.exports = {
             labelOrigin: new context.google.maps.Point(25, 55)
          };
 
-         boundingMarkers[data.markerID] = new context.google.maps.Marker({
+         markers[data.markerID] = new context.google.maps.Marker({
             position: {lat: data.lat, lng: data.lng},
             map: theMap,
             draggable: false,
@@ -131,8 +131,8 @@ module.exports = {
          });
 
       } else {
-         boundingMarkers[data.markerID].setPosition({lat: data.lat, lng: data.lng});
-         if(path.basename(boundingMarkers[data.markerID].getIcon().url, ".png") != data.vehicleType) {
+         markers[data.markerID].setPosition({lat: data.lat, lng: data.lng});
+         if(path.basename(markers[data.markerID].getIcon().url, ".png") != data.vehicleType) {
 
             var icon = {
                url: path.join( __dirname, '..', '..', 'resources', 'images','markers', data.vehicleType+".png"),
@@ -140,7 +140,7 @@ module.exports = {
                anchor: new context.google.maps.Point(25, 25),
                labelOrigin: new context.google.maps.Point(25, 55)
             };
-            boundingMarkers[data.markerID].setIcon(icon);
+            markers[data.markerID].setIcon(icon);
          }
       }
 

@@ -43,9 +43,9 @@ module.exports = {
       newRow.insertCell(1).innerHTML = "<span class='"+newVehicle.status.type+"'>"+newVehicle.status.message+"<span>";
 
       if(newVehicle.role == 0) {
-         newRow.insertCell(2).innerHTML = "Quick Search";
+         newRow.insertCell(2).innerHTML = "Quick";
       } else if(newVehicle.role == 1) {
-         newRow.insertCell(2).innerHTML = "Detailed Search";
+         newRow.insertCell(2).innerHTML = "Detailed";
       } else {
          newRow.insertCell(2).innerHTML = "";
       }
@@ -102,9 +102,9 @@ module.exports = {
          thisVehicle.role = data.role;
 
          if(data.role == 0) {
-            newRow.insertCell(2).innerHTML = "Quick Search";
+            newRow.insertCell(2).innerHTML = "Quick";
          } else if(data.role == 1) {
-            newRow.insertCell(2).innerHTML = "Detailed Search";
+            newRow.insertCell(2).innerHTML = "Detailed";
          } else {
             ewRow.insertCell(2).innerHTML = "ERROR";
          }
