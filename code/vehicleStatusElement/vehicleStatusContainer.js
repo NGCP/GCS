@@ -32,7 +32,7 @@ module.exports = {
          markerID: (data.markerID != undefined) ? data.markerID : "Quad " + (table.rows.length-2),
          lat: (data.lat != undefined) ? data.lat : 0,
          lng: (data.lng != undefined) ? data.lng : 0,
-         vehicleType: (data.vehicleType != undefined) ? data.vehicleType : "uav1",
+         iconType: (data.iconType != undefined) ? data.iconType : "uav1",
          status: (data.status != undefined) ? data.status : {type: "INIT", message:"Awaiting connection..."},
          role: data.role,
          mac: data.mac
@@ -85,8 +85,8 @@ module.exports = {
          thisVehicle.lng = data.lng;
          markerHasMoved = true;
       }
-      if(data.vehicleType != thisVehicle.vehicleType && data.vehicleType != undefined) {
-         thisVehicle.vehicleType = data.vehicleType;
+      if(data.iconType != thisVehicle.iconType && data.iconType != undefined) {
+         thisVehicle.iconType = data.iconType;
          markerHasMoved = true;
       }
       if(markerHasMoved) {

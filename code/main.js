@@ -165,7 +165,7 @@ function loadConfig() {
 // default message read interval of 100ms
 const messageReadInterval = 100;
 var pois = {};
-var waitingVehicleQueue = {};
+var waitingVehicleQueue = [];
 
 
 /*
@@ -173,6 +173,12 @@ var waitingVehicleQueue = {};
  * sends the start command (START) once completed
  */
 ipcMain.on('missionStart', (event, data) => {
+
+   //Clear leftover POIs (only the target should be left)
+   for(var key in pois) {
+      theWindow.webContents.send("removeMarker", pois[key]);
+      delete pois[key];
+   }
 
    //TODO: check correctness
    //TODO: create algorithm to diving search area based on number of vehicles in quick search
@@ -263,10 +269,10 @@ ipcMain.on('connectWithNewVehicle', (event, vehicle) => {
 function xbeeConnect() {
    //TODO: detect location of xbee before connection COM port/tty0/etc...
    //uncomment for macOS
-   var res = xbee.connect("/dev/tty.usbserial-DJ00I0E5");
+   //var res = xbee.connect("/dev/tty.usbserial-DJ00I0E5");
 
    //uncomment for linux
-   //var res = xbee.connect("/dev/ttyUSB0");
+   var res = xbee.connect("/dev/ttyUSB0");
 
    //connection failed
    if(res == -1) {
@@ -355,12 +361,21 @@ function processMessage(message) {
          });
       }
 
+      poiObj.markerID = poiObj.id;
+      poiObj.iconType = 'poi_unkwn';
+
+      theWindow.webContents.send("moveMarker", poiObj);
+
    } else if(messageArr[1] === "FP") { //handle a false positive
 
       //get the vehicle that sent the message
       var vehicle = global.vehicles["Quad " + messageArr[2].substring(1,)];
-      //set the false positive message
-      pois[messageArr[3].substring(1,)].active = "FALSE POSITIVE";
+      //set the marker as false positive
+      var poiObj = pois[messageArr[3].substring(1,)];
+      poiObj.active = "FALSE POSITIVE";
+      poiObj.iconType = 'poi_fp';
+      theWindow.webContents.send("moveMarker", poiObj);
+
       //pick the next POI to scan
       var nextPOI = pickPOI(vehicle);
 
@@ -407,10 +422,21 @@ function processMessage(message) {
          });
       }
 
+      var poiObj = pois[messageArr[3].substring(1,)];
+      poiObj.iconType = 'poi_vld';
+      poiObj.active = "TARGET";
+      theWindow.webContents.send("moveMarker", poiObj);
+
       theWindow.webContents.send("logMessage", { type: "SUCCESS", content: "TARGET FOUND: "});
 
       //clear previous mission data
-      pois = {};
+      for(var key in pois) {
+         if(pois[key].active != "TARGET") {
+            theWindow.webContents.send("removeMarker", pois[key]);
+            delete pois[key];
+         }
+      }
+      console.log(pois);
       waitingVehicleQueue = [];
    }
 }

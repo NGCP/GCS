@@ -21,10 +21,6 @@
    padding-right: 10px;
 }
 
-#filterSelector {
-   width: 100px;
-}
-
 #displayed {
    position: fixed;
    top:0px;

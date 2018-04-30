@@ -48,9 +48,13 @@ module.exports = {
          self.moveMarker(data);
       });
 
+      ipcRenderer.on('removeMarker', (event, data) => {
+         self.removeMarker(data);
+      });
+
       ipcRenderer.on('lockBoundingMarkers', (event, data) => {
          self.lockBoundingMarkers(data);
-      })
+      });
    },
 
    /*
@@ -116,7 +120,7 @@ module.exports = {
       if(markers[data.markerID] == undefined) {
 
          var icon = {
-            url: path.join( __dirname, '..', '..', 'resources', 'images','markers', data.vehicleType+".png"),
+            url: path.join( __dirname, '..', '..', 'resources', 'images','markers', data.iconType+".png"),
             scaledSize: new context.google.maps.Size(50, 50),
             anchor: new context.google.maps.Point(25, 25),
             labelOrigin: new context.google.maps.Point(25, 55)
@@ -132,10 +136,10 @@ module.exports = {
 
       } else {
          markers[data.markerID].setPosition({lat: data.lat, lng: data.lng});
-         if(path.basename(markers[data.markerID].getIcon().url, ".png") != data.vehicleType) {
+         if(path.basename(markers[data.markerID].getIcon().url, ".png") != data.iconType) {
 
             var icon = {
-               url: path.join( __dirname, '..', '..', 'resources', 'images','markers', data.vehicleType+".png"),
+               url: path.join( __dirname, '..', '..', 'resources', 'images','markers', data.iconType+".png"),
                scaledSize: new context.google.maps.Size(50, 50),
                anchor: new context.google.maps.Point(25, 25),
                labelOrigin: new context.google.maps.Point(25, 55)
@@ -144,6 +148,13 @@ module.exports = {
          }
       }
 
+   },
+
+   /*
+    * Remove the marker specified by the markerID
+    */
+   removeMarker: function(data) {
+      markers[data.markerID].setMap(null);
    },
 
    /*
