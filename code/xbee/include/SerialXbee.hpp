@@ -32,6 +32,7 @@ namespace XBEE {
 		boost::asio::serial_port port;
 		boost::asio::streambuf buffer;
 		boost::thread runner;
+		bool loop;
 
 		// Parses the incoming data into appropriate Frames
 		void ParseFrame(const boost::system::error_code &error, size_t num_bytes);
@@ -53,7 +54,8 @@ namespace XBEE {
 		// TODO: Add a blocking (synchronous) write function
 		void AsyncWriteFrame(Frame *a_frame);
 		// TODO: Add support for port options, data bit size, parity etc...
-		int Connect(std::string device_path = kDefaultPath, uint32_t baud_rate = 57600);
+		int Connect();
+		int Connect2(std::string device_path = kDefaultPath, uint32_t baud_rate = 57600);
 		void Stop();
 	};
 }

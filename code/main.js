@@ -275,7 +275,7 @@ function xbeeConnect() {
    var res = xbee.connect("/dev/ttyUSB0");
 
    //connection failed
-   if(res == -1) {
+   if(res != 0) { //Not EXIT_SUCCESS
       dialog.showErrorBox("Connection Error", "Unable to connect to xbee radio. Please check connection, and restart program.");
    }
 
@@ -324,6 +324,7 @@ function xbeeListener() {
       try {
          processMessage(messageResponses[i]);
       } catch(err) {
+         console.log(err.stack);
          theWindow.webContents.send("logMessage", { type: "ERROR", content:  err.message + " ORIGINAL MESSAGE: " + messageResponses[i]});
       }
    }
@@ -363,6 +364,7 @@ function processMessage(message) {
 
       poiObj.markerID = poiObj.id;
       poiObj.iconType = 'poi_unkwn';
+      poiObj.iconSize = 25;
 
       theWindow.webContents.send("moveMarker", poiObj);
 
@@ -374,6 +376,8 @@ function processMessage(message) {
       var poiObj = pois[messageArr[3].substring(1,)];
       poiObj.active = "FALSE POSITIVE";
       poiObj.iconType = 'poi_fp';
+      poiObj.iconSize = 25;
+
       theWindow.webContents.send("moveMarker", poiObj);
 
       //pick the next POI to scan
@@ -425,6 +429,7 @@ function processMessage(message) {
       var poiObj = pois[messageArr[3].substring(1,)];
       poiObj.iconType = 'poi_vld';
       poiObj.active = "TARGET";
+      poiObj.iconSize = 50;
       theWindow.webContents.send("moveMarker", poiObj);
 
       theWindow.webContents.send("logMessage", { type: "SUCCESS", content: "TARGET FOUND: "});
@@ -436,7 +441,6 @@ function processMessage(message) {
             delete pois[key];
          }
       }
-      console.log(pois);
       waitingVehicleQueue = [];
    }
 }

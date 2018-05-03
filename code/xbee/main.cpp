@@ -101,7 +101,7 @@ void connect(const FunctionCallbackInfo<Value>& args) {
          baud_rate = args[1]->Uint32Value();
 
          //attempt connection: store result
-         successStatus = Integer::New(isolate, connection.Connect(device_path, baud_rate));
+         successStatus = Integer::New(isolate, connection.Connect2(device_path, baud_rate));
          break;
       case 1:
          // device_path (String)
@@ -112,11 +112,11 @@ void connect(const FunctionCallbackInfo<Value>& args) {
          device_path = toStr(args[0]);
 
          //attempt connection: store result
-         successStatus = Integer::New(isolate, connection.Connect(device_path));
+         successStatus = Integer::New(isolate, connection.Connect2(device_path));
          break;
       default:
          //attempt connection: store result
-         successStatus = Integer::New(isolate, connection.Connect());
+         successStatus = Integer::New(isolate, connection.Connect2());
          break;
    }
    //set the read handler to custom handler (the init callback must be called to finish setting up)

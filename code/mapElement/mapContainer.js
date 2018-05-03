@@ -119,11 +119,15 @@ module.exports = {
 
       if(markers[data.markerID] == undefined) {
 
+         //Set default icon size to 50x50 unless specified otherwise
+         var iconSize = (data.iconSize != undefined) ? data.iconSize : 50;
+
+
          var icon = {
             url: path.join( __dirname, '..', '..', 'resources', 'images','markers', data.iconType+".png"),
-            scaledSize: new context.google.maps.Size(50, 50),
-            anchor: new context.google.maps.Point(25, 25),
-            labelOrigin: new context.google.maps.Point(25, 55)
+            scaledSize: new context.google.maps.Size(iconSize, iconSize),
+            anchor: new context.google.maps.Point(iconSize/2, iconSize/2),
+            labelOrigin: new context.google.maps.Point(iconSize/2, iconSize + 5)
          };
 
          markers[data.markerID] = new context.google.maps.Marker({
@@ -138,11 +142,13 @@ module.exports = {
          markers[data.markerID].setPosition({lat: data.lat, lng: data.lng});
          if(path.basename(markers[data.markerID].getIcon().url, ".png") != data.iconType) {
 
+         var iconSize = (data.iconSize != undefined) ? data.iconSize : 50;
+
             var icon = {
                url: path.join( __dirname, '..', '..', 'resources', 'images','markers', data.iconType+".png"),
-               scaledSize: new context.google.maps.Size(50, 50),
-               anchor: new context.google.maps.Point(25, 25),
-               labelOrigin: new context.google.maps.Point(25, 55)
+               scaledSize: new context.google.maps.Size(iconSize, iconSize),
+               anchor: new context.google.maps.Point(iconSize/2, iconSize/2),
+               labelOrigin: new context.google.maps.Point(iconSize/2, iconSize + 5)
             };
             markers[data.markerID].setIcon(icon);
          }
