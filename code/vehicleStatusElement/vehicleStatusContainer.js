@@ -42,13 +42,7 @@ module.exports = {
       newRow.insertCell(0).innerHTML = "<a href='#' onclick='renderer.goToMarker(\""+newVehicle.markerID+"\")'>" + newVehicle.markerID + "</a>";
       newRow.insertCell(1).innerHTML = "<span class='"+newVehicle.status.type+"'>"+newVehicle.status.message+"<span>";
 
-      if(newVehicle.role == 0) {
-         newRow.insertCell(2).innerHTML = "Quick";
-      } else if(newVehicle.role == 1) {
-         newRow.insertCell(2).innerHTML = "Detailed";
-      } else {
-         newRow.insertCell(2).innerHTML = "";
-      }
+      newRow.insertCell(2).innerHTML = "<select name='role' id='"+newRow.id+"RoleSelector' onchange='renderer.changeRole(this);'><option value='0'" + ((newVehicle.role == 0) ? "selected" : "" ) + ">Quick</option><option value='1'" + ((newVehicle.role == 1) ? "selected" : "" ) + ">Detail</option></select>";
 
 
       this.vehicles[newVehicle.markerID] = newVehicle;
@@ -101,17 +95,26 @@ module.exports = {
       if(data.role != thisVehicle.role && data.role != undefined) {
          thisVehicle.role = data.role;
 
-         if(data.role == 0) {
-            newRow.insertCell(2).innerHTML = "Quick";
-         } else if(data.role == 1) {
-            newRow.insertCell(2).innerHTML = "Detailed";
-         } else {
-            ewRow.insertCell(2).innerHTML = "ERROR";
-         }
+         var row = context.document.getElementById(data.markerID);
+
+         row.cells[2].innerHTML = "<select name='role' id='"+data.markerID+"RoleSelector'><option value='0'" + ((data.role == 0) ? "selected" : "" ) + ">Quick</option><option value='1'" + ((data.role == 1) ? "selected" : "" ) + ">Detail</option></select>";
+
       }
 
       this.updateGlobal('vehicles', this.vehicles);
 
+   },
+
+   /*
+    * Function that changes the role of a vehicle according to the selection
+    */
+   changeRole: function(data) {
+      console.log(data.id.slice(0,-12));
+
+      var thisVehicle = this.vehicles[data.id.slice(0,-12)];
+      thisVehicle.role = data.value;
+
+      ipcRenderer.send('connectWithNewVehicle', thisVehicle);
    },
 
 

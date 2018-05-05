@@ -13,13 +13,16 @@
 		"url": "https://github.com/NGCP/missioncontrol/issues"
 	},
 	"dependencies": {
-		"requirejs": "^2.3.5",
+		"boost-lib": "^0.11.3",
 		"cmake-js": "^3.6.2",
-		"electron": "1.8.4",
-		"boost-lib": "^0.11.3"
+		"npm": "^6.0.0",
+		"requirejs": "^2.3.5"
 	},
 	"scripts": {
-		"install": "./node_modules/cmake-js/bin/cmake-js rebuild --runtime=electron --runtimeVersion=1.8.4",
+		"install": "./node_modules/cmake-js/bin/cmake-js rebuild --runtime=electron --runtimeVersion=2.0.0",
 		"start": "electron ."
+	},
+	"devDependencies": {
+		"electron": "^2.0.0"
 	}
 }
