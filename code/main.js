@@ -31,6 +31,10 @@ app.on('ready', setup);
 // The activate should do the same as the setup
 app.on('activate', setup);
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // This method to be called to do any setup work required prior to
 // actually displaying the BrowserWindow. Called when app receives the
 // "ready" signal.
@@ -204,41 +208,50 @@ ipcMain.on('missionStart', (event, data) => {
       }
    }
 
-   const R = 6371008.8; //mean radius of earth in meters
-   const bottomLat = Math.min(data[0].lat, data[1].lat);
-   const bottomLng = Math.min(data[0].lng, data[1].lng);
-   const topLat = Math.max(data[0].lat, data[1].lat);
-   const topLng = Math.max(data[0].lng, data[1].lng);
+   sleep(1000).then(() => {
 
-   const bLatR = bottomLat * (Math.PI / 180);
-   const bLngR = bottomLng * (Math.PI / 180);
-   const tLatR = topLat * (Math.PI / 180);
-   const tLngR = topLng * (Math.PI / 180);
+      const R = 6371008.8; //mean radius of earth in meters
+      const bottomLat = Math.min(data[0].lat, data[1].lat);
+      const bottomLng = Math.min(data[0].lng, data[1].lng);
+      const topLat = Math.max(data[0].lat, data[1].lat);
+      const topLng = Math.max(data[0].lng, data[1].lng);
 
-   const angleDiff = Math.abs(topLng - bottomLng) / quickSearchVehicles.length;
-   const angle = Math.acos( Math.sin(bLatR) * Math.sin(tLatR) + Math.cos(bLatR) * Math.cos(tLatR) * Math.cos(Math.abs(tLngR - bLngR) / quickSearchVehicles.length) );
+      const bLatR = bottomLat * (Math.PI / 180);
+      const bLngR = bottomLng * (Math.PI / 180);
+      const tLatR = topLat * (Math.PI / 180);
+      const tLngR = topLng * (Math.PI / 180);
 
-   for(var i = 0; i < quickSearchVehicles.length; i+=1) {
+      const angleDiff = Math.abs(topLng - bottomLng) / quickSearchVehicles.length;
+      const angle = Math.acos( Math.sin(bLatR) * Math.sin(tLatR) + Math.cos(bLatR) * Math.cos(tLatR) * Math.cos(Math.abs(tLngR - bLngR) / quickSearchVehicles.length) );
 
-      var message = "NEWMSG,MSN," +
-         "Q" + quickSearchVehicles[i].markerID.substring(5,) + "," +
-         "P" + bottomLat.toFixed(10) + " " + (bottomLng + angleDiff * i).toFixed(10) + " 0," +
-         "H" + ( Math.acos(((tLatR - bLatR) * R) / (angle * R)) * (180 / Math.PI) ).toFixed(10) + "," +
-         "F" + "0" + "," +
-         "D" + (angle * R).toFixed(10);
+      for(var i = 0; i < quickSearchVehicles.length; i+=1) {
 
-      // send destinations to the connected quads
-      // set role (again -- just in case it was missed earlier)
-      xbeeSend({
-         message: message,
-         address: quickSearchVehicles[i].mac
-      });
-      xbeeSend({
-         message: "NEWMSG,START",
-         address: quickSearchVehicles[i].mac
-      });
+         var message = "NEWMSG,MSN," +
+            "Q" + quickSearchVehicles[i].markerID.substring(5,) + "," +
+            "P" + bottomLat.toFixed(10) + " " + (bottomLng + angleDiff * i).toFixed(10) + " 0," +
+            "H" + ( Math.acos(((tLatR - bLatR) * R) / (angle * R)) * (180 / Math.PI) ).toFixed(10) + "," +
+            "F" + "0" + "," +
+            "D" + (angle * R).toFixed(10);
 
-   }
+         // send destinations to the connected quads
+         // set role (again -- just in case it was missed earlier)
+         xbeeSend({
+            message: message,
+            address: quickSearchVehicles[i].mac
+         });
+
+         sleep(1000).then(() => {
+
+            xbeeSend({
+               message: "NEWMSG,START",
+               address: quickSearchVehicles[i].mac
+            });
+
+         });
+
+      }
+
+   });
 
 });
 
@@ -276,7 +289,7 @@ ipcMain.on('connectWithNewVehicle', (event, vehicle) => {
 function xbeeConnect() {
    //TODO: detect location of xbee before connection COM port/tty0/etc...
    //uncomment for macOS
-   var res = xbee.connect("/dev/tty.usbserial-DJ00I0E5");
+   var res = xbee.connect("/dev/tty.usbserial-DA01R50T");
 
    //uncomment for linux
    //var res = xbee.connect("/dev/ttyUSB0");
