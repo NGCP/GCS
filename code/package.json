@@ -15,7 +15,7 @@
 	"dependencies": {
 		"boost-lib": "^0.11.3",
 		"cmake-js": "^3.6.2",
-		"npm": "^6.0.0",
+		"npm": "^6.0.1",
 		"requirejs": "^2.3.5"
 	},
 	"scripts": {

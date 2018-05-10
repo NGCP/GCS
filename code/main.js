@@ -179,9 +179,7 @@ var waitingVehicleQueue = [];
 ipcMain.on('missionStart', (event, data) => {
 
    //Clear leftover POIs (only the target should be left)
-   console.log(pois);
    for(var key in pois) {
-      console.log(pois[key]);
       theWindow.webContents.send("removeMarker", pois[key]);
       delete pois[key];
    }
@@ -203,7 +201,7 @@ ipcMain.on('missionStart', (event, data) => {
             message: "NEWMSG,ROLE,Q"+ global.vehicles[key].markerID.substring(5,) +",R1",
             address: global.vehicles[key].mac
          });
-         
+
          waitingVehicleQueue.push(global.vehicles[key]);
       }
    }
@@ -226,8 +224,10 @@ ipcMain.on('missionStart', (event, data) => {
 
       for(var i = 0; i < quickSearchVehicles.length; i+=1) {
 
+         var currVehicle = quickSearchVehicles[i];
+
          var message = "NEWMSG,MSN," +
-            "Q" + quickSearchVehicles[i].markerID.substring(5,) + "," +
+            "Q" + currVehicle.markerID.substring(5,) + "," +
             "P" + bottomLat.toFixed(10) + " " + (bottomLng + angleDiff * i).toFixed(10) + " 0," +
             "H" + ( Math.acos(((tLatR - bLatR) * R) / (angle * R)) * (180 / Math.PI) ).toFixed(10) + "," +
             "F" + "0" + "," +
@@ -237,16 +237,14 @@ ipcMain.on('missionStart', (event, data) => {
          // set role (again -- just in case it was missed earlier)
          xbeeSend({
             message: message,
-            address: quickSearchVehicles[i].mac
+            address: currVehicle.mac
          });
 
          sleep(1000).then(() => {
-
             xbeeSend({
                message: "NEWMSG,START",
-               address: quickSearchVehicles[i].mac
+               address: currVehicle.mac
             });
-
          });
 
       }
@@ -289,7 +287,7 @@ ipcMain.on('connectWithNewVehicle', (event, vehicle) => {
 function xbeeConnect() {
    //TODO: detect location of xbee before connection COM port/tty0/etc...
    //uncomment for macOS
-   var res = xbee.connect("/dev/tty.usbserial-DA01R50T");
+   var res = xbee.connect("/dev/tty.usbserial-DA01QW1R");
 
    //uncomment for linux
    //var res = xbee.connect("/dev/ttyUSB0");
