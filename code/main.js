@@ -187,22 +187,31 @@ ipcMain.on('missionStart', (event, data) => {
    var quickSearchVehicles = [];
 
    for(var key in global.vehicles) {
-      if(global.vehicles[key].role == 0) {
+      var currVehicle = global.vehicles[key];
+
+      if(currVehicle.role == 0) {
          //set the role again
          xbeeSend({
-            message: "NEWMSG,ROLE,Q"+ global.vehicles[key].markerID.substring(5,) +",R0",
-            address: global.vehicles[key].mac
+            message: "NEWMSG,ROLE,Q"+ currVehicle.markerID.substring(5,) +",R0",
+            address: currVehicle.mac
          });
 
-         quickSearchVehicles.push(global.vehicles[key]);
-      } else if(global.vehicles[key].role == 1) {
+         quickSearchVehicles.push(currVehicle);
+      } else if(currVehicle.role == 1) {
          //set the role again
          xbeeSend({
-            message: "NEWMSG,ROLE,Q"+ global.vehicles[key].markerID.substring(5,) +",R1",
-            address: global.vehicles[key].mac
+            message: "NEWMSG,ROLE,Q"+ currVehicle.markerID.substring(5,) +",R1",
+            address: currVehicle.mac
          });
 
-         waitingVehicleQueue.push(global.vehicles[key]);
+         waitingVehicleQueue.push(currVehicle);
+         //start the waiting vehicles right away
+         sleep(1000).then(() => {
+            xbeeSend({
+               message: "NEWMSG,START",
+               address: currVehicle.mac
+            });
+         });
       }
    }
 
@@ -265,7 +274,12 @@ ipcMain.on('missionStop', (event) => {
    }
 
    //clear previous mission data
-   pois = {};
+   for(var key in pois) {
+      if(pois[key].active != "TARGET") {
+         theWindow.webContents.send("removeMarker", pois[key]);
+         delete pois[key];
+      }
+   }
    waitingVehicleQueue = [];
 });
 
@@ -287,10 +301,10 @@ ipcMain.on('connectWithNewVehicle', (event, vehicle) => {
 function xbeeConnect() {
    //TODO: detect location of xbee before connection COM port/tty0/etc...
    //uncomment for macOS
-   var res = xbee.connect("/dev/tty.usbserial-DA01QW1R");
+   //var res = xbee.connect("/dev/tty.usbserial-DA01QW1R");
 
    //uncomment for linux
-   //var res = xbee.connect("/dev/ttyUSB0");
+   var res = xbee.connect("/dev/ttyUSB0");
 
    //connection failed
    if(res != 0) { //Not EXIT_SUCCESS
@@ -445,7 +459,7 @@ function processMessage(message) {
          });
       }
 
-      var poiObj = pois[messageArr[3].substring(1,)];
+      var poiObj = pois[messageArr[7].substring(1,)];
       poiObj.iconType = 'poi_vld';
       poiObj.active = "TARGET";
       poiObj.iconSize = 50;

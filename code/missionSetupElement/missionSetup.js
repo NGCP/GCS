@@ -289,6 +289,10 @@ module.exports = {
       }
    },
 
+   updateBoundingBoxAngle: function(newAngle) {
+      ipcRenderer.send('post', 'setBoundingAngle', newAngle);
+   },
+
    /*
     * Animates the mission setup menu to either show/hide
     */

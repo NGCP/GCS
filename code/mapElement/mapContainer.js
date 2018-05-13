@@ -10,6 +10,7 @@ let context;
 let self;
 let boundingMarkers = {};
 let boundingBox = null;
+let angle = 0.0;
 let markers = {};
 
 module.exports = {
@@ -34,6 +35,10 @@ module.exports = {
 
       ipcRenderer.on('moveBoundingMarker', (event, data) => {
          self.moveBoundingMarker(data);
+      });
+
+      ipcRenderer.on('setBoundingAngle', (event, data) => {
+         self.setBoundingAngle(data);
       });
 
       ipcRenderer.on('mapSetLocation', (event, data) => {
@@ -161,6 +166,7 @@ module.exports = {
     */
    removeMarker: function(data) {
       markers[data.markerID].setMap(null);
+      delete markers[data.markerID];
    },
 
    /*
@@ -199,6 +205,17 @@ module.exports = {
       }
    },
 
+
+   /*
+    * Set the bounding box angle
+    */
+   setBoundingAngle: function(data) {
+      if(data != undefined) {
+         angle = data;
+         self.updateBoundingBox();
+      }
+   },
+
    /*
     * Creates and sets the bounding box on the map based on the defined points
     * Box is created with the first two points in the markers; if they
@@ -206,23 +223,90 @@ module.exports = {
     * defined, they are ingored.
     */
    updateBoundingBox: function() {
+
+      var angleRadians = angle * (Math.PI / 180);
+
       if(boundingMarkers[0] != null && boundingMarkers[1] != null) {
 
          if(boundingBox == null) {
-            boundingBox = new context.google.maps.Rectangle({
+
+
+            var a = {x: boundingMarkers[1].position.lng(), y: boundingMarkers[1].position.lat()};
+            var b = {x: boundingMarkers[0].position.lng(), y: boundingMarkers[0].position.lat()};
+            var c = {x: undefined, y: undefined};
+            var d = {x: undefined, y: undefined};
+
+            var aVec = { x: Math.cos(angleRadians), y: Math.sin(angleRadians) };
+            var bVec = { x:-Math.sin(angleRadians), y: Math.cos(angleRadians) };
+            var cVec = { x:-Math.cos(angleRadians), y:-Math.sin(angleRadians) };
+            var dVec = { x: Math.sin(angleRadians), y:-Math.cos(angleRadians) };
+
+            var Ma = aVec.y/aVec.x;
+            var Mb = bVec.y/bVec.x;
+            var Mc = cVec.y/cVec.x;
+            var Md = dVec.y/dVec.x;
+
+            if(isFinite(Ma) && isFinite(Mb) && isFinite(Mc) && isFinite(Md)) {
+               c.x = (Ma * a.x - Mb * b.x + b.y - a.y) / (Ma - Mb);
+               d.x = (Mc * b.x - Md * a.x + a.y - b.y) / (Mc - Md);
+
+               c.y = Ma * (c.x - a.x) + a.y;
+               d.y = Mc * (d.x - b.x) + b.y;
+            } else {
+               c.x = b.x;
+               c.y = a.y;
+               d.x = a.x;
+               d.y = b.y;
+            }
+
+
+            console.log(c);
+            console.log(d);
+
+            boundingBox = new context.google.maps.Polygon({
                strokeColor: '#FF0000',
                strokeOpacity: 0.5,
                strokeWeight: 2,
                fillColor: '#FF0000',
                fillOpacity: 0.10,
                map: theMap,
-               bounds: {
-                  north: Math.max(boundingMarkers[0].position.lat(), boundingMarkers[1].position.lat()),
-                  south: Math.min(boundingMarkers[0].position.lat(), boundingMarkers[1].position.lat()),
-                  east: Math.max(boundingMarkers[0].position.lng(), boundingMarkers[1].position.lng()),
-                  west: Math.min(boundingMarkers[0].position.lng(), boundingMarkers[1].position.lng())
-              }
+               paths: [
+                  {lat: boundingMarkers[0].position.lat(), lng: boundingMarkers[0].position.lng()},
+                  {lat: d.y, lng: d.x},
+                  {lat: boundingMarkers[1].position.lat(), lng: boundingMarkers[1].position.lng()},
+                  {lat: c.y, lng: c.x}
+               ]
             });
+
+            //Override the default polygon class to contain a getBounds function
+            boundingBox.getBounds = function() {
+               var paths = this.getPath().getArray();
+               var maxLat = undefined;
+               var maxLng = undefined;
+               var minLat = undefined;
+               var minLng = undefined;
+
+               for(var index in paths) {
+                  if(maxLat == undefined || maxLat < paths[index].lat()) {
+                     maxLat = paths[index].lat();
+                  }
+                  if(minLat == undefined || minLat > paths[index].lat()) {
+                     minLat = paths[index].lat();
+                  }
+                  if(maxLng == undefined || maxLng < paths[index].lng()) {
+                     maxLng = paths[index].lng();
+                  }
+                  if(minLng == undefined || minLng > paths[index].lng()) {
+                     minLng = paths[index].lng();
+                  }
+               }
+
+               return new context.google.maps.LatLngBounds(
+                  {lat: minLat, lng: minLng},
+                  {lat: maxLat, lng: maxLng}
+               );
+            };
+
 
             var centerMapButton = context.document.createElement('button');
             centerMapButton.innerHTML = 'Recenter Map';
@@ -248,12 +332,46 @@ module.exports = {
            theMap.fitBounds(boundingBox.getBounds());
 
          } else {
-            boundingBox.setBounds({
-               north: Math.max(boundingMarkers[0].position.lat(), boundingMarkers[1].position.lat()),
-               south: Math.min(boundingMarkers[0].position.lat(), boundingMarkers[1].position.lat()),
-               east: Math.max(boundingMarkers[0].position.lng(), boundingMarkers[1].position.lng()),
-               west: Math.min(boundingMarkers[0].position.lng(), boundingMarkers[1].position.lng())
-            });
+
+            var a = {x: boundingMarkers[1].position.lng(), y: boundingMarkers[1].position.lat()};
+            var b = {x: boundingMarkers[0].position.lng(), y: boundingMarkers[0].position.lat()};
+            var c = {x: undefined, y: undefined};
+            var d = {x: undefined, y: undefined};
+
+            var aVec = { x: Math.cos(angleRadians), y: Math.sin(angleRadians) };
+            var bVec = { x:-Math.sin(angleRadians), y: Math.cos(angleRadians) };
+            var cVec = { x:-Math.cos(angleRadians), y:-Math.sin(angleRadians) };
+            var dVec = { x: Math.sin(angleRadians), y:-Math.cos(angleRadians) };
+
+            var Ma = aVec.y/aVec.x;
+            var Mb = bVec.y/bVec.x;
+            var Mc = cVec.y/cVec.x;
+            var Md = dVec.y/dVec.x;
+
+            if(isFinite(Ma) && isFinite(Mb) && isFinite(Mc) && isFinite(Md)) {
+               c.x = (Ma * a.x - Mb * b.x + b.y - a.y) / (Ma - Mb);
+               d.x = (Mc * b.x - Md * a.x + a.y - b.y) / (Mc - Md);
+
+               c.y = Ma * (c.x - a.x) + a.y;
+               d.y = Mc * (d.x - b.x) + b.y;
+            } else {
+               c.x = b.x;
+               c.y = a.y;
+               d.x = a.x;
+               d.y = b.y;
+            }
+
+
+
+            console.log(c);
+            console.log(d);
+
+            boundingBox.setPaths([
+               {lat: boundingMarkers[0].position.lat(), lng: boundingMarkers[0].position.lng()},
+               {lat: d.y, lng: d.x},
+               {lat: boundingMarkers[1].position.lat(), lng: boundingMarkers[1].position.lng()},
+               {lat: c.y, lng: c.x}
+            ]);
          }
 
       }
