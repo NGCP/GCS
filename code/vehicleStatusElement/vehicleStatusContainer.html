@@ -7,41 +7,59 @@
          const renderer = top.require('./vehicleStatusElement/vehicleStatusContainer.js');
          renderer.init(this);
 
-         //temp
+
+         //temporary code
          var last = 0;
          var vehicles = [
             {
                markerID: "Quad A",
                lat: 35.306205,
                lng: -120.662227,
-               vehicleType: "uav1",
+               iconType: "uav1",
                status: {type:"INIT", message:"Connecting..."}
             },
             {
                markerID: "Quad B",
                lat: 35.33,
                lng: -120.662227,
-               vehicleType: "ugv1",
+               iconType: "ugv1",
                status: {type: "READY", message:"Ready"}
             },
             {
                markerID: "Quad C",
                lat: 35.306205,
                lng: -120.68,
-               vehicleType: "uav1",
+               iconType: "uav1",
                status: {type: "READY", message: "Ready"}
             },
             {
                markerID: "Quad D",
                lat: 35.32,
                lng: -120.65,
-               vehicleType: "uav2",
+               iconType: "uav2",
                status: {type: "ERROR", message: "Lost Connection"}
             }
          ];
 
          function addVehicle() {
-            renderer.addVehicle(null, vehicles[last]);
+            var macAddressString = document.getElementById("vehicleMacAddress").value;
+            var re = /([A-Fa-f0-9]{2}[: -]?){8}/;
+            if(!re.test(macAddressString)) {
+               document.getElementById("vehicleAddMessage").textContent = "Invalid mac address";
+               return;
+            }
+
+            //remove special characters and add 0x prefix
+            macAddressString = "0x" + macAddressString.replace(/[: -]/g, "");
+
+            var newVehicle = {
+               mac: macAddressString,
+               role: parseInt(document.getElementById("vehicleRoleType").value)
+            };
+
+            document.getElementById("vehicleMacAddress").value = "";
+            document.getElementById("vehicleAddMessage").textContent = "";
+            renderer.addVehicle(newVehicle);
             last++;
          }
 
@@ -49,11 +67,10 @@
             var vehicle = parseInt(Math.random()*4);
             vehicles[vehicle].lat += (Math.random()/100)-0.005;
             vehicles[vehicle].lng += (Math.random()/100)-0.005;
-            vehicles[vehicle].vehicleType = "ugv2";
+            vehicles[vehicle].iconType = "ugv2";
             vehicles[vehicle].status = {type: "ERROR", message: "Lost Connection"};
-            renderer.updateVehicle(null, vehicles[vehicle]);
+            renderer.updateVehicle(vehicles[vehicle]);
          }
-
 
       </script>
    </head>
@@ -68,11 +85,17 @@
                <th>Role</th>
             </tr>
          </table>
-         <button onclick="addVehicle()">Add Vehicle</button>
-         <button onclick="moveVehicle()">Move Random Vehicle</button>
+         <div id="vehicleAddControls">
+            <input id="vehicleMacAddress" type="text"></input>
+            <select name="role" id="vehicleRoleType">
+               <option value="0">Quick</option>
+               <option value="1">Detail</option>
+            </select>
+            <button id="vehicleAddButton" onclick="addVehicle()">Add</button>
+            <span id="vehicleAddMessage" style="color:#b20000;"></span>
+         </div>
+         <!--<button onclick="moveVehicle()">Move Random Vehicle</button>-->
       </div>
-
-
 
    </body>
 </html>

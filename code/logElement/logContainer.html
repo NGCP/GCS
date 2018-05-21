@@ -19,7 +19,7 @@
          <div id="displayed">
          </div>
          <div id="controls">
-            <button id="loadMessagesButton" onclick="renderer.printMessage();">load messages</button>
+            <!--<button id="loadMessagesButton" onclick="renderer.printMessage();">load messages</button>-->
             Filter by:
             <select id="filterSelector" onchange="changeFilter(this.value);">
                <option value="NOFILTER"> - No Filter - </option>
@@ -30,6 +30,7 @@
             </select>
             <!--<button id="logPopoutButton" onclick="renderer.popOut();">Pop-Out</button>-->
             <button id="saveLogButton" onclick="renderer.writeLogToFile();">Save Log</button>
+            <button id="clearLog" class="RED" onclick="document.getElementById('displayed').innerHTML = '';">Clear Log</button>
          </div>
       </div>
    </body>

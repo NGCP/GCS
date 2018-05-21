@@ -16,7 +16,9 @@
    left:0px;
    background-color: rgb(200, 200, 200);
    user-select: none;
-   font-size: 10px;
+   font-size: 10.5px;
+   padding-left: 10px;
+   padding-right: 10px;
 }
 
 #displayed {
@@ -31,7 +33,10 @@
    overflow-y: scroll;
 
    font-family: monospace;
+
+   font-size: 12px;
 }
+
 
 span {
    display: block;

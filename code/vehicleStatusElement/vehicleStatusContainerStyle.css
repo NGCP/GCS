@@ -4,13 +4,44 @@
 
 
 #vehicleStatus {
-   width: 100%;
+   width: calc(100% - 40px);
    padding: 20px;
 }
 
 #vehicleDataTable {
-   width: calc(100% - 40px);
+   width: 100%;
 }
+
+#vehicleAddButton {
+   padding-left: 2px;
+   padding-right: 2px;
+   font-size: 12px;
+   width:50px;
+   height: 25px;
+}
+
+#vehicleMacAddress {
+   font-size: 12px;
+   width: calc(100% - 55px - 70px);
+   padding-left: 5px;
+   padding-right: 5px;
+   height: 25px;
+}
+
+#vehicleRoleType {
+   padding: 2px;
+   font-size: 12px;
+   width:65px;
+   height: 25px;
+}
+
+
+#vehicleAddControls {
+   padding-top: 5px;
+   padding-bottom: 5px;
+   width:100%;
+}
+
 
 button.goTo {
    font-size: inherit;
@@ -30,12 +61,12 @@ button.goTo {
    background-repeat: no-repeat;
 }
 
-span.INIT {
+span.INIT, span.IDLE, span.ONLINE {
    font-style: italic;
    color: #000000;
 }
 
-span.READY {
+span.SCANNING, span.MOVING, span.STARTED {
    font-style: normal;
    color: #3fff00;
 }
@@ -43,11 +74,6 @@ span.READY {
 span.ERROR {
    font-weight: 10px;
    color: rgb(240,20,20);
-}
-
-span.RUNNING {
-   font-style: italic;
-   color: #3fff00;
 }
 
 table {

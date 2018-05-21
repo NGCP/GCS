@@ -16,6 +16,10 @@ let markers = [{
 
 module.exports = {
 
+   vehicles: {},
+   isReady: false,
+   isRunning: false,
+
    /*
     * Initialize the missionSetup
     * Inits the event notifications from main
@@ -28,14 +32,17 @@ module.exports = {
       //register listeners for possible events from main to this renderer process
       ipcRenderer.on('modifyCurrentMission', self.editMission);
       ipcRenderer.on('startCurrentMission', self.startMission);
+      ipcRenderer.on('stopCurrentMission', self.stopMission);
       ipcRenderer.on('saveConfig', self.saveConfig);
       ipcRenderer.on('loadConfig', self.loadConfig);
 
       // listener for an update on the marker location, update text box
       ipcRenderer.on('boundingMarkerHasChanged', (event, data) => {
          self.updateMarkers(data);
+         self.checkReady(); //check that the updates on the marker = ready
       });
    },
+
 
    /**
     * STUB FUNCTION
@@ -43,8 +50,23 @@ module.exports = {
     * Responds to 'startCurrentMission' notification
     */
    startMission: function() {
-      console.log("START MISSION!");
-      self.toggleEnabled(false);
+      if(self.isReady) {
+         console.log("START MISSION!");
+
+         //prevent editing of bounding box
+         ipcRenderer.send('post', 'lockBoundingMarkers', true);
+
+         self.toggleEditScreen(false);
+         ipcRenderer.send('missionStart', markers);
+
+         //change state
+         self.isRunning = true;
+         //update ui
+         context.document.getElementById('editMissionButton').disabled = true;
+         context.document.getElementById('StartMissionButton').style.display = "none";
+         context.document.getElementById('StopMissionButton').style.display = "";
+
+      }
    },
 
    /**
@@ -53,8 +75,30 @@ module.exports = {
     * Responds to 'modifyCurrentMission' notification
     */
    editMission: function() {
-      console.log("EDIT MISSION!");
-      self.toggleEnabled(true);
+      if(!self.isRunning) {
+         self.toggleEditScreen(true);
+      }
+   },
+
+   /**
+    * STUB FUNCTION
+    * Starts the current mission.
+    * Responds to 'stopCurrentMission' notification
+    */
+   stopMission: function() {
+      if(self.isRunning) {
+         console.log("STOP MISSION!");
+         ipcRenderer.send('missionStop');
+
+         ipcRenderer.send('post', 'lockBoundingMarkers', false);
+
+         //change state
+         self.isRunning = false;
+         //update ui
+         context.document.getElementById('editMissionButton').disabled = false;
+         context.document.getElementById('StartMissionButton').style.display = "";
+         context.document.getElementById('StopMissionButton').style.display = "none";
+      }
    },
 
    /*
@@ -104,9 +148,11 @@ module.exports = {
          markers[i].lat = parseFloat(context.document.forms['missionSetupForm']['lat' + i].value);
          markers[i].lng = parseFloat(context.document.forms['missionSetupForm']['lng' + i].value);
          ipcRenderer.send('post', 'moveBoundingMarker', markers[i]);
+
       }
 
-      self.toggleEnabled(false);
+      self.checkReady();
+      self.toggleEditScreen(false);
    },
 
    /*
@@ -127,7 +173,14 @@ module.exports = {
       var table = context.document.getElementById('SetupInfoTable');
 
       var area = self.findBoxArea();
-      self.findEstimatedTime(area);
+
+      var avgSecPerSqMeter = 0.1; //sample data
+      var numberOfUAVs = 1; //use number of connected devices
+
+      var estTime = self.findEstimatedTime(area, avgSecPerSqMeter, numberOfUAVs);
+
+      context.document.getElementById('totalSelectedArea').cells[1].innerText = (area/1000.0).toFixed(5) + " sq. km";
+      context.document.getElementById('estimatedCompletionTime').cells[1].innerHTML = "<span>" + estTime + "s</span><br><span style='font-size:75%;'>At "+avgSecPerSqMeter+" sec/sq.m  with "+ numberOfUAVs + ((numberOfUAVs > 1) ? " devices" : " device" )+"</span>";
    },
 
    /**
@@ -141,7 +194,6 @@ module.exports = {
       const y2 = (((markers[0].lat < markers[1].lat) ? markers[1].lat : markers[0].lat) + 90) * (2 * Math.PI) / 360;
 
       var area = R*R*(-Math.cos(y2) + Math.cos(y1))*(x2-x1);
-      context.document.getElementById('totalSelectedArea').cells[1].innerText = (area/1000.0).toFixed(5) + " sq. km";
 
       return area;
    },
@@ -149,13 +201,8 @@ module.exports = {
    /**
     * Calculates the estimated time to complete search based on devices & speed.
     */
-   findEstimatedTime: function(area) {
-      var avgSecPerSqMeter = 0.1; //sample data
-      var numberOfUAVs = 1; //use number of connected devices
-
+   findEstimatedTime: function(area, avgSecPerSqMeter, numberOfUAVs) {
       var time = ((area * avgSecPerSqMeter)/numberOfUAVs).toFixed(0);
-
-      context.document.getElementById('estimatedCompletionTime').cells[1].innerHTML = "<span>" + time + "s</span><br><span style='font-size:75%;'>At "+avgSecPerSqMeter+" sec/sq.m  with "+ numberOfUAVs + ((numberOfUAVs > 1) ? " devices" : " device" )+"</span>";
 
       return time;
    },
@@ -191,26 +238,59 @@ module.exports = {
     * Toggle the current state of the editing elements on/off
     * Or manually set the state of the elements (state must be a boolean value)
     */
-   toggleEnabled: function(state) {
+   toggleEditScreen: function(state) {
       if(state !== undefined && (state == true || state == false)) {
-         self.toggleEnabled.isOn = !state;
+         self.toggleEditScreen.isOn = !state;
       }
 
-      if(self.toggleEnabled.isOn === true) {
+      if(self.toggleEditScreen.isOn === true) {
          var subelements = context.document.getElementsByClassName('input');
          for(var i = 0; i < subelements.length; i++) {
             subelements[i].setAttribute('disabled', true);
          }
          self.showMenu(false);
-         self.toggleEnabled.isOn = false;
+         self.toggleEditScreen.isOn = false;
       } else {
          var subelements = context.document.getElementsByClassName('input');
          for(var i = 0; i < subelements.length; i++) {
             subelements[i].removeAttribute('disabled');
          }
          self.showMenu(true);
-         self.toggleEnabled.isOn = true;
+         self.toggleEditScreen.isOn = true;
       }
+   },
+
+   /*
+    * Toggles the UI to a "ready" state
+    */
+   checkReady: function() {
+      //check that bounding box is set
+
+      var boundingBoxSet = true;
+      for(var i = 0; i < 2; i++) {
+         if(markers[i].lat == undefined || markers[i].lng == undefined) {
+            boundingBoxSet = false;
+            break;
+         }
+      }
+
+      //check that at least 1 vehicle connected
+      var count = 0;
+      for(var key in self.vehicles) {
+         count++;
+      }
+
+      if(count < 1 && boundingBoxSet) {
+         self.isReady = true;
+         context.document.getElementById("StartMissionButton").disabled = false;
+      } else {
+         self.isReady = false;
+         context.document.getElementById("StartMissionButton").disabled = true;
+      }
+   },
+
+   updateBoundingBoxAngle: function(newAngle) {
+      ipcRenderer.send('post', 'setBoundingAngle', newAngle);
    },
 
    /*
@@ -223,6 +303,33 @@ module.exports = {
       } else { //state == false
          viewport.classList.remove('modalViewport-visible');
       }
+   },
+
+
+   /*
+    * Helper function to abstract getting a global variable.
+    * Ensures that the global variable is always up to date
+    *
+    * globName is the name of the global (String)
+    * variableName is the name of the local variable where a reference to the global is being stored locally (String)
+    */
+   getGlobal: function(globName, variableName) {
+      var globVal = ipcRenderer.sendSync("getGlobal", globName);
+
+      //register listener so that global is always up to date.
+      ipcRenderer.on("refreshGlobal", (event, updatedVarName, value) => {
+         this[updatedVarName] = value;
+         console.log(this[updatedVarName]);
+      });
+
+      this[variableName] = globVal;
+   },
+
+   /*
+    * Helper function to abstract the updating of global variables.
+    */
+   updateGlobal: function(globName, value) {
+      ipcRenderer.send("updateGlobal", globName, value);
    }
 
 }

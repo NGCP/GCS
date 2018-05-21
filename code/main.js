@@ -2,21 +2,48 @@ const {app, ipcMain, BrowserWindow, Menu, dialog, shell} = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
+const xbee = require('./build/Release/xbee');
+
+// =============================================================================
+//       Global program-wide variables
+// =============================================================================
+
+
+global.vehicles = {};
+
+
+// =============================================================================
+//       Set up the application window
+// =============================================================================
+
 
 let menuBar;
 let theWindow;
 global.defaultLocation = null;
 
 
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', setup);
+
+// Create the program window when the 'activate' signal is received
+// The activate should do the same as the setup
+app.on('activate', setup);
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // This method to be called to do any setup work required prior to
 // actually displaying the BrowserWindow. Called when app receives the
 // "ready" signal.
 function setup() {
-   setMenuBar();
-
-   // now create the window
+   //only do this once
    if(theWindow == null) {
+      setMenuBar();
       createWindow();
+      xbeeConnect();
    }
 }
 
@@ -37,28 +64,20 @@ function createWindow() {
    }));
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', setup);
-
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-// Create the program window when the 'activate' signal is received
-app.on('activate', () => {
-   if(theWindow == null) {
-      createWindow();
+   // On macOS it is common for applications and their menu bar
+   // to stay active until the user quits explicitly with Cmd + Q
+   if (process.platform !== 'darwin') {
+      app.quit();
    }
 });
 
 
+
+// =============================================================================
+//       Set up the application listeners, and configuration save/load
+// =============================================================================
 
 /*
  * Listener to forward all notification posts to all other renderer processes
@@ -69,7 +88,28 @@ ipcMain.on('post', (event, notif, value) => {
    theWindow.webContents.send(notif, value);
 });
 
+/*
+ * Retrieve a global variable.
+ */
+ipcMain.on('getGlobal', (event, globName) => {
+   event.returnValue = global[globName];
+});
 
+/*
+ * Set the global value to the given value. Also notifies that variable
+ * has changed so that all objects
+ */
+ipcMain.on('updateGlobal', (event, globName, value) => {
+   global[globName] = value;
+   theWindow.webContents.send('refreshGlobal', globName, value);
+});
+
+
+
+/*
+ * Request user with information about configuration save location; if
+ * successful, notify all modules to save the configuration to file
+ */
 function saveConfig() {
 
    var path = dialog.showSaveDialog(theWindow, {
@@ -85,19 +125,20 @@ function saveConfig() {
    var data = {};
    var fileInfo = { fname: path, dataToWrite: data };
 
-   theWindow.webContents.send("saveConfig", fileInfo);
-
    /*
-   fs.writeFile(path, data, (err) => {
-      if(err) {
-         dialog.showErrorBox("Error Saving Configuration File!", err.message)
-         throw err;
-      }
-
-   });
+      Because of the async nature of the configuration save, there is no
+      way to know when all the modules responding to the notification are
+      finished processing the data. Thus, each responding module must put the
+      data in the shared object, and write it to file.
    */
+   theWindow.webContents.send("saveConfig", fileInfo);
 }
 
+/*
+ * Request user with information about configuration save location; if
+ * successful, load information and notify all modules to load configuration
+ * from the object read from file.
+ */
 function loadConfig() {
 
    var paths = dialog.showOpenDialog(theWindow, {
@@ -119,8 +160,357 @@ function loadConfig() {
 
 }
 
+
+
+// =============================================================================
+//       Set up xbee bindings & begin listening for incoming messages
 // =============================================================================
 
+// default message read interval of 100ms
+const messageReadInterval = 100;
+var pois = {};
+var waitingVehicleQueue = [];
+
+
+/*
+ * Handles creating the quadcopter destinations (MSN) messages and
+ * sends the start command (START) once completed
+ */
+ipcMain.on('missionStart', (event, data) => {
+
+   //Clear leftover POIs (only the target should be left)
+   for(var key in pois) {
+      theWindow.webContents.send("removeMarker", pois[key]);
+      delete pois[key];
+   }
+
+   var quickSearchVehicles = [];
+
+   for(var key in global.vehicles) {
+      var currVehicle = global.vehicles[key];
+
+      if(currVehicle.role == 0) {
+         //set the role again
+         xbeeSend({
+            message: "NEWMSG,ROLE,Q"+ currVehicle.markerID.substring(5,) +",R0",
+            address: currVehicle.mac
+         });
+
+         quickSearchVehicles.push(currVehicle);
+      } else if(currVehicle.role == 1) {
+         //set the role again
+         xbeeSend({
+            message: "NEWMSG,ROLE,Q"+ currVehicle.markerID.substring(5,) +",R1",
+            address: currVehicle.mac
+         });
+
+         waitingVehicleQueue.push(currVehicle);
+         //start the waiting vehicles right away
+         sleep(1000).then(() => {
+            xbeeSend({
+               message: "NEWMSG,START",
+               address: currVehicle.mac
+            });
+         });
+      }
+   }
+
+   sleep(1000).then(() => {
+
+      const R = 6371008.8; //mean radius of earth in meters
+      const bottomLat = Math.min(data[0].lat, data[1].lat);
+      const bottomLng = Math.min(data[0].lng, data[1].lng);
+      const topLat = Math.max(data[0].lat, data[1].lat);
+      const topLng = Math.max(data[0].lng, data[1].lng);
+
+      const bLatR = bottomLat * (Math.PI / 180);
+      const bLngR = bottomLng * (Math.PI / 180);
+      const tLatR = topLat * (Math.PI / 180);
+      const tLngR = topLng * (Math.PI / 180);
+
+      const angleDiff = Math.abs(topLng - bottomLng) / quickSearchVehicles.length;
+      const angle = Math.acos( Math.sin(bLatR) * Math.sin(tLatR) + Math.cos(bLatR) * Math.cos(tLatR) * Math.cos(Math.abs(tLngR - bLngR) / quickSearchVehicles.length) );
+
+      for(var i = 0; i < quickSearchVehicles.length; i+=1) {
+
+         var currVehicle = quickSearchVehicles[i];
+
+         var message = "NEWMSG,MSN," +
+            "Q" + currVehicle.markerID.substring(5,) + "," +
+            "P" + bottomLat.toFixed(10) + " " + (bottomLng + angleDiff * i).toFixed(10) + " 0," +
+            "H" + ( Math.acos(((tLatR - bLatR) * R) / (angle * R)) * (180 / Math.PI) ).toFixed(10) + "," +
+            "F" + "0" + "," +
+            "D" + (angle * R).toFixed(10);
+
+         // send destinations to the connected quads
+         // set role (again -- just in case it was missed earlier)
+         xbeeSend({
+            message: message,
+            address: currVehicle.mac
+         });
+
+         sleep(1000).then(() => {
+            xbeeSend({
+               message: "NEWMSG,START",
+               address: currVehicle.mac
+            });
+         });
+
+      }
+
+   });
+
+});
+
+/*
+ * Stops the mission already in progress (STOP)
+ */
+ipcMain.on('missionStop', (event) => {
+   for(var key in global.vehicles) {
+      xbeeSend({
+         message: "NEWMSG,STOP",
+         address: global.vehicles[key].mac
+      });
+   }
+
+   //clear previous mission data
+   for(var key in pois) {
+      if(pois[key].active != "TARGET") {
+         theWindow.webContents.send("removeMarker", pois[key]);
+         delete pois[key];
+      }
+   }
+   waitingVehicleQueue = [];
+});
+
+
+/*
+* Attempts to connect with a vehicle by setting its ROLE to the specified value
+*/
+ipcMain.on('connectWithNewVehicle', (event, vehicle) => {
+
+   xbeeSend({
+      message: "NEWMSG,ROLE,Q"+ vehicle.markerID.substring(5,) +",R"+vehicle.role,
+      address: vehicle.mac
+   });
+
+});
+
+
+
+function xbeeConnect() {
+   //TODO: detect location of xbee before connection COM port/tty0/etc...
+   //uncomment for macOS
+   //var res = xbee.connect("/dev/tty.usbserial-DA01QW1R");
+
+   //uncomment for linux
+   var res = xbee.connect("/dev/ttyUSB0");
+
+   //connection failed
+   if(res != 0) { //Not EXIT_SUCCESS
+      dialog.showErrorBox("Connection Error", "Unable to connect to xbee radio. Please check connection, and restart program.");
+   }
+
+   //begin listening
+   xbeeListener();
+}
+
+/*
+ * Use the data object to send a message.
+ * data must contain a 'message' field and a 64-bit 'address' field.
+ * It can optionally contain a 16-bit destination address 'fieldAddress'.
+ */
+function xbeeSend(data) {
+   if(data.message == undefined || data.address == undefined) {
+      throw "Message or address field is not defined";
+   }
+
+   //ensure the 0x hex prefix is present
+   if(data.address.substring(0,2) !== "0x") {
+      data.address = "0x" + data.address;
+   }
+
+   theWindow.webContents.send("logMessage", { type: "SUCCESS", content: data.address + ": " + data.message });
+
+   if(data.fieldAddress != undefined) {
+      xbee.sendData(data.message, data.address, data.fieldAddress);
+   } else {
+      xbee.sendData(data.message, data.address);
+   }
+}
+
+/*
+ * Listener that will check and process incoming messages.
+ * Listener will call itself endlessly every second.
+ *
+ * TODO: modify xbee addon & this function to support interrupt type check rather than polling
+ */
+function xbeeListener() {
+   var startTime = Date.now();
+
+   var messageResponses = xbee.getData();
+   for(var i = 0; i < messageResponses.length; i++) {
+      //log each COMM message
+      theWindow.webContents.send("logMessage", { type: "COMM", content: messageResponses[i] });
+      //process each message
+      try {
+         processMessage(messageResponses[i]);
+      } catch(err) {
+         console.log(err.stack);
+         theWindow.webContents.send("logMessage", { type: "ERROR", content:  err.message + " ORIGINAL MESSAGE: " + messageResponses[i]});
+      }
+   }
+
+   setTimeout(xbeeListener, messageReadInterval - (Date.now() - startTime));
+}
+
+function processMessage(message) {
+   var messageArr = message.split(",");
+   if(messageArr[1] === "UPDT") {
+      var updatedPos = {
+         markerID: "Quad " + messageArr[2].substring(1,),
+         lat: parseFloat(messageArr[3].substring(1,).split(" ")[0]),
+         lng: parseFloat(messageArr[3].substring(1,).split(" ")[1]),
+         status: { type: messageArr[4].substring(1,).toUpperCase(), message: messageArr[4].substring(1,) },
+         role: parseInt(messageArr[5].substring(1,))
+      };
+      theWindow.webContents.send("onVehicleUpdate", updatedPos);
+
+   } else if(messageArr[1] === "TGT") {
+      var poiObj = {
+         lat: parseFloat(messageArr[6].substring(1,).split(" ")[0]),
+         lng: parseFloat(messageArr[6].substring(1,).split(" ")[1]),
+         id: messageArr[7].substring(1,),
+         active: "INACTIVE"
+      };
+      pois[messageArr[7].substring(1,)] = poiObj; //push poi to queue
+
+      //check if there are vehicles in the queue waiting for a POI
+      if(waitingVehicleQueue.length > 0) { //send POI to first vehicle
+         var currVehicle = waitingVehicleQueue.pop();
+         poiObj.active = "RUNNING";
+         xbeeSend({
+            message: "NEWMSG,POI,Q" + currVehicle.markerID.substring(5,) + ",P" + poiObj.lat.toFixed(10) + " " + poiObj.lng.toFixed(10) + ",I" + poiObj.id,
+            address: currVehicle.mac
+         });
+      }
+
+      poiObj.markerID = poiObj.id;
+      poiObj.iconType = 'poi_unkwn';
+      poiObj.iconSize = 25;
+
+      theWindow.webContents.send("moveMarker", poiObj);
+
+   } else if(messageArr[1] === "FP") { //handle a false positive
+
+      //get the vehicle that sent the message
+      var vehicle = global.vehicles["Quad " + messageArr[2].substring(1,)];
+      //set the marker as false positive
+      var poiObj = pois[messageArr[3].substring(1,)];
+      poiObj.active = "FALSE POSITIVE";
+      poiObj.iconType = 'poi_fp';
+      poiObj.iconSize = 25;
+
+      theWindow.webContents.send("moveMarker", poiObj);
+
+      //pick the next POI to scan
+      var nextPOI = pickPOI(vehicle);
+
+      if(nextPOI != undefined) { // next POI is defined, tell this quad its next destination
+         nextPOI.active = "RUNNING";
+         xbeeSend({
+            message: "NEWMSG,POI,Q" + messageArr[2].substring(1,) + ",P" + nextPOI.lat.toFixed(10) + " " + nextPOI.lng.toFixed(10) + ",I" + nextPOI.id,
+            address: vehicle.mac
+         });
+      } else { //no POIs waiting, push vehicle to queue
+         waitingVehicleQueue.push(vehicle);
+      }
+
+   } else if(messageArr[1] === "ROLE") {
+      //update GUI with role switch data
+      var updatedPos = {
+         markerID: "Quad " + messageArr[2].substring(1,),
+         lat: parseFloat(messageArr[3].substring(1,).split(" ")[0]),
+         lng: parseFloat(messageArr[3].substring(1,).split(" ")[1]),
+         status: { type: messageArr[4].substring(1,).toUpperCase(), message: messageArr[4].substring(1,) },
+         role: parseInt(messageArr[5].substring(1,))
+      };
+      theWindow.webContents.send("onVehicleUpdate", updatedPos);
+      //find the next POI to scan for the current quad
+
+      var vehicle = global.vehicles["Quad " + messageArr[2].substring(1,)];
+      var nextPOI = pickPOI(vehicle);
+
+      if(nextPOI != undefined) { // next POI is defined, tell this quad its next destination
+         nextPOI.active = "RUNNING";
+         xbeeSend({
+            message: "NEWMSG,POI,Q" + messageArr[2].substring(1,) + ",P" + nextPOI.lat.toFixed(10) + " " + nextPOI.lng.toFixed(10) + ",I" + nextPOI.id,
+            address: vehicle.mac
+         });
+      } else { //no POIs waiting, push vehicle to queue
+         waitingVehicleQueue.push(vehicle);
+      }
+   } else if(messageArr[1] == "VLD") {
+      //target found, end mission
+      for(var key in global.vehicles) {
+         xbeeSend({
+            message: "NEWMSG,STOP",
+            address: global.vehicles[key].mac
+         });
+      }
+
+      var poiObj = pois[messageArr[7].substring(1,)];
+      poiObj.iconType = 'poi_vld';
+      poiObj.active = "TARGET";
+      poiObj.iconSize = 50;
+      theWindow.webContents.send("moveMarker", poiObj);
+
+      theWindow.webContents.send("logMessage", { type: "SUCCESS", content: "TARGET FOUND: "});
+
+      //clear previous mission data
+      for(var key in pois) {
+         if(pois[key].active != "TARGET") {
+            theWindow.webContents.send("removeMarker", pois[key]);
+            delete pois[key];
+         }
+      }
+      waitingVehicleQueue = [];
+   }
+}
+
+
+/*
+ * Picks the next POI to process
+ * finds the closest POI that isnt a false positive to the given vehicle
+ */
+function pickPOI(vehicle) {
+
+   const R = 6371008.8; //mean radius of earth in meters
+   var vLat = vehicle.lat * (Math.PI / 180);
+   var vLng = vehicle.lng * (Math.PI / 180);
+   var closestPOI = undefined;
+   var poi = undefined;
+
+   for(var key in pois) {
+      var poiLat = pois[key].lat * (Math.PI / 180);
+      var poiLng = pois[key].lng * (Math.PI / 180);
+
+      var dist = Math.acos( Math.sin(vLat) * Math.sin(poiLat) + Math.cos(vLat) * Math.cos(poiLat) * Math.cos(Math.abs(poiLng - vLng)) ) * R;
+      if((closestPOI == undefined || dist < closestPOI) && pois[key].active ===  "INACTIVE") {
+         closestPOI = dist;
+         poi = pois[key];
+      }
+
+   }
+
+   return poi;
+}
+
+
+
+
+
+// =============================================================================
 
 // Method to generate and set the menu bar of the application
 function setMenuBar() {
@@ -246,6 +636,12 @@ function setMenuBar() {
                label: 'Start Mission',
                click () {
                   theWindow.webContents.send('startCurrentMission');
+               }
+            },
+            {
+               label: 'Stop Mission',
+               click() {
+                  theWindow.webContents.send('stopCurrentMission');
                }
             }
          ]

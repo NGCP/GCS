@@ -43,8 +43,9 @@
             </span>
 
             <div id="setupControls">
-               <button onclick="renderer.editMission();">Edit Mission</button>
-               <button onclick="renderer.editMission();" disabled="disabled">Start Mission</button>
+               <button onclick="renderer.editMission();" id="editMissionButton">Edit Mission</button>
+               <button onclick="renderer.startMission();" disabled="disabled" id="StartMissionButton">Start Mission</button>
+               <button onclick="renderer.stopMission();" id="StopMissionButton" style="display:none;" class="RED">Stop Mission</button>
             </div>
 
 
@@ -63,6 +64,9 @@
 
                   <input type="button" id="goToLocation1" onclick="renderer.moveMarkerToLocation(1);" value=" " class="goTo"/>
                   <input type="button" id="newPin1" onclick="renderer.createNewMarker(1);" value=" " class="newPin"/>
+
+                  <input type="range" min="0.0" max="89.0" value="0.0" id="headingSlider" oninput="renderer.updateBoundingBoxAngle(this.value);"/>
+
                </form>
             </div>
             <button class="input" id="doneEditing" disabled="disabled" onclick="renderer.doneEditing()">Done</button>
