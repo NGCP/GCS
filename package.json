@@ -11,13 +11,13 @@
     "start": "electron ."
   },
   "dependencies": {
-    "electron": "^1.8.4"
+    "electron": "^3.0.2"
   },
-  "dev-dependencies": {
-    "outdent": "^0.5.0",
-    "stylelint": "^9.2.1",
+  "devDependencies": {
+    "outdent": "^0.7.0",
+    "stylelint": "^9.6.0",
     "stylelint-config-recommended": "^2.1.0",
-    "stylelint-order": "^0.8.1"
+    "stylelint-order": "^1.0.0"
   },
   "repository": {
     "type": "git",
