@@ -1,6 +1,9 @@
+# git will ignore the following files when you push
+
 # files
 .DS_Store
 package-lock.json
 
 # folders
+dist
 node_modules
