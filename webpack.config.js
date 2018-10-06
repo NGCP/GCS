@@ -1,39 +1,50 @@
-const HtmlWebPackPlugin = require("html-webpack-plugin");
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const htmlWebpackPlugin = new HtmlWebPackPlugin({
-  template: "./src/index.html",
-  filename: "./index.html"
+const cleanWebpackPlugin = new CleanWebpackPlugin(['dist']);
+
+const htmlWebpackPlugin = new HtmlWebpackPlugin({
+  template: './src/index.html',
+  filename: './index.html',
 });
 
 module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader"
-        }
+          loader: 'babel-loader',
+        },
+      },
+      {
+        test: /\.(png|gif|jpg|jpeg)$/,
+        use: {
+          loader: 'file-loader',
+        },
       },
       {
         test: /\.css$/,
         use: [
           {
-            loader: "style-loader"
+            loader: 'style-loader',
           },
           {
-            loader: "css-loader",
+            loader: 'css-loader',
             options: {
-              modules: true,
-              importLoaders: 1,
-              localIdentName: "[name]_[local]_[hash:base64]",
               sourceMap: true,
-              minimize: true
-            }
-          }
-        ]
-      }
-    ]
+              minimize: true,
+            },
+          },
+        ],
+      },
+    ],
   },
-  plugins: [htmlWebpackPlugin]
+  plugins: [cleanWebpackPlugin, htmlWebpackPlugin],
+  devServer: {
+    port: 3000,
+    noInfo: true,
+    inline: true,
+  },
 };

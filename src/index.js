@@ -15,10 +15,13 @@ function createWindow() {
 app.on('ready', createWindow);
 */
 
-
-import React from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-const Index = () => <div>Hello React!</div>;
+class Index extends Component {
+  render() {
+    return <div>Hello React!</div>;
+  }
+}
 
 ReactDOM.render(<Index />, document.getElementById('root'));
