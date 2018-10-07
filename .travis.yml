@@ -1,0 +1,8 @@
+# testing with Travis CI, will run npm test
+
+language: node_js
+node_js:
+  - "node"
+cache:
+  directories:
+    - "node_modules"

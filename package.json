@@ -3,11 +3,8 @@
   "version": "0.4.0",
   "description": "NGCP Ground Control Station",
   "main": "src/index.js",
-  "engines": {
-    "node": "9.8.0"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "eslint . --ext .js",
     "lint": "eslint . --fix --ext .js",
     "start": "electron-webpack dev",
     "build": "electron-builder"
