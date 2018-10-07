@@ -1,3 +1,5 @@
-# eslint will ignore the following folders
+# eslint will ignore the following'
+
+# folders
 dist
 old-src

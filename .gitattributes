@@ -1,3 +1,4 @@
 # prevent newline problems between macOS and Windows
+
 * text=auto
 * text eol=lf

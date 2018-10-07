@@ -1,4 +1,4 @@
-# git will ignore the following files when you push
+# git will ignore the following when you push
 
 # files
 .DS_Store

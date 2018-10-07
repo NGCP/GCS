@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from 'electron';
-import * as path from 'path';
+import path from 'path';
 import { format as formatUrl } from 'url';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -7,31 +7,35 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 let mainWindow;
 
 function createMainWindow() {
-  const window = new BrowserWindow();
+  const w = new BrowserWindow({
+    title: 'Ground Control Station',
+  });
 
   if (isDevelopment) {
-    window.webContents.openDevTools();
-    window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
+    w.webContents.openDevTools();
+    w.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
   } else {
-    window.loadURL(formatUrl({
+    w.loadURL(formatUrl({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file',
       slashes: true,
     }));
   }
 
-  window.on('closed', () => {
+  w.maximize();
+
+  w.on('closed', () => {
     mainWindow = null;
   });
 
-  window.webContents.on('devtools-opened', () => {
-    window.focus();
+  w.webContents.on('devtools-opened', () => {
+    w.focus();
     setImmediate(() => {
-      window.focus();
+      w.focus();
     });
   });
 
-  return window;
+  return w;
 }
 
 app.on('window-all-closed', () => {
