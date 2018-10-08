@@ -116,6 +116,7 @@ function createMainWindow() {
   window = new BrowserWindow({
     title: 'NGCP Ground Control Station',
     icon: path.resolve(__dirname, '..', '..', 'resources', 'images', 'icon.png'),
+    show: false,
   });
 
   if (isDevelopment) {
@@ -131,15 +132,20 @@ function createMainWindow() {
 
   window.maximize();
 
-  window.on('closed', () => {
-    window = null;
+  window.on('ready-to-show', () => {
+    window.show();
+    window.focus();
   });
 
-  window.webContents.on('devtools-opened', () => {
-    window.focus();
-    setImmediate(() => {
-      window.focus();
-    });
+  window.on('close', event => {
+    event.preventDefault();
+    window.hide();
+  });
+
+  // this shouldn't run due to the window.on('close')
+  // but will leave this here for future testing purposes
+  window.on('closed', () => {
+    window = null;
   });
 
   return window;
@@ -239,7 +245,8 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (window === null) {
     createMainWindow();
-    createMenu();
+  } else {
+    window.show();
   }
 });
 

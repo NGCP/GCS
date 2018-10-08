@@ -2,14 +2,9 @@
 
 [![Build Status](https://travis-ci.com/NGCP/missioncontrol.svg?branch=dev-2018)](https://travis-ci.com/NGCP/missioncontrol)
 
-The Northrop Grumman Collaboration Project presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the [project](http://www.ngcpcalpoly.com/about.html).
+The [Northrop Grumman Collaboration Project] presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the [project].
 
 This is based on [Node.js], [React], [Webpack], and [Electron].
-
-[Node.js]: https://github.com/nodejs/node
-[React]: https://github.com/facebook/react
-[Webpack]: https://github.com/webpack/webpack
-[Electron]: https://github.com/electron/electron
 
 ## Getting Started
 **:pencil2: Setting Things Up**
@@ -26,5 +21,12 @@ Run the following scripts to run this application
 
 ```
 cd missioncontrol
+npm install
 npm start
 ```
+
+[Northrop Grumman Collaboration Project]: http://www.ngcpcalpoly.com/about.html
+[Node.js]: https://github.com/nodejs/node
+[React]: https://github.com/facebook/react
+[Webpack]: https://github.com/webpack/webpack
+[Electron]: https://github.com/electron/electron
