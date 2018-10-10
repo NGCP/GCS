@@ -1,6 +1,6 @@
 # NGCP Ground Control Station
 
-[![Build Status](https://travis-ci.com/NGCP/missioncontrol.svg?branch=dev-2018)](https://travis-ci.com/NGCP/missioncontrol)
+[![Build Status](https://travis-ci.com/NGCP/GCS.svg?branch=dev-2018)](https://travis-ci.com/NGCP/GCS)
 
 The [Northrop Grumman Collaboration Project] presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the [project].
 
@@ -20,7 +20,7 @@ git clone https://github.com/NGCP/missioncontrol.git
 Run the following scripts to run this application
 
 ```
-cd missioncontrol
+cd GCS
 npm install
 npm start
 ```
