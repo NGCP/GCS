@@ -153,6 +153,21 @@
     "prefer-template": "error",
     "rest-spread-spacing": "error",
     "template-curly-spacing": "error",
-    "yield-star-spacing": "error"
+    "yield-star-spacing": "error",
+
+    "jsx-quotes": ["error", "prefer-single"],
+    "react/jsx-child-element-spacing": "error",
+    "react/jsx-closing-bracket-location": "error",
+    "react/jsx-closing-tag-location": "error",
+    "react/jsx-curly-spacing": "error",
+    "react/jsx-equals-spacing": "error",
+    "react/jsx-no-bind": "error",
+    "react/jsx-no-literals": "error",
+    "react/jsx-no-target-blank": "error",
+    "react/jsx-tag-spacing": "error",
+
+    "react/no-typos": "warn",
+    "react/sort-prop-types": "error",
+    "react/style-prop-object": "error"
   }
 }
