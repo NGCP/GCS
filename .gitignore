@@ -7,3 +7,4 @@ package-lock.json
 # folders
 dist
 node_modules
+resources
