@@ -1,8 +1,11 @@
 import { ipcRenderer } from 'electron';
-import React, { Component } from 'react';
-import { Map, TileLayer } from 'react-leaflet';
+import L from 'leaflet';
+import React, { createRef, Component } from 'react';
+import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 
-import '../../../node_modules/leaflet/dist/leaflet.css';
+import './map.css';
+
+import temp_img from '../../../resources/images/markers/poi_fp.png';
 
 /**
  * Allows our map to cache online using PouchDB. Run before our map is loaded
@@ -27,17 +30,34 @@ export default class MapContainer extends Component {
     this.state = {
       latitude: 51.505,
       longitude: -0.09,
-      zoom: 13,
+      zoom: 15,
+      markers: {},
     };
+    this.ref = createRef();
+
+    this.updateMapLocation = this.updateMapLocation.bind(this);
+    this.updateMapLocationToUser = this.updateMapLocationToUser.bind(this);
+    this.updateMarkers = this.updateMarkers.bind(this);
 
     ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
 
     injectCacheIntoWebpage();
-    this.updateMapLocation = this.updateMapLocation.bind(this);
   }
 
   updateMapLocation(data) {
     this.setState(data);
+  }
+
+  updateMapLocationToUser() {
+    const map = this.ref.current;
+    if (map) {
+      // the following statement will trigger onLocationfound or onLocationerror event
+      map.leafletElement.locate();
+    }
+  }
+
+  updateMarkers(marker) {
+
   }
 
   render() {
@@ -48,14 +68,26 @@ export default class MapContainer extends Component {
         className='mapContainer container'
         center={center}
         zoom={zoom}
+        ref={this.ref}
+        onClick={this.updateMapLocationToUser}
+        onLocationfound={this.updateMapLocation}
+        onLocationerror={console.error}
       >
         <TileLayer
-          attribution='&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors'
-          url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
+          url='https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}'
+          id='mapbox.streets'
+          accessToken={process.env.MAPBOX_TOKEN}
           useCache={true}
-          useOnlyCache={true}
           crossOrigin={true}
         />
+        <Marker position={center} icon={L.icon({
+          iconUrl: temp_img,
+          popupAnchor: [25, 0],
+        })}
+        >
+          <Popup>You are here</Popup>
+        </Marker>
       </Map>
 
     );

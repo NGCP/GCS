@@ -8,7 +8,6 @@ import VehicleContainer from './vehicle/Vehicle.js';
 
 import './global.css';
 import './index.css';
-import '../../node_modules/leaflet/dist/leaflet.css';
 
 class Index extends Component {
   render() {

@@ -1,5 +1,6 @@
 # files
 .DS_Store
+.env
 package-lock.json
 
 # folders

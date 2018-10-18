@@ -12,7 +12,7 @@ body,
 .gridWrapper {
   background: #666;
   display: grid;
-  grid-gap: 5px;
+  grid-gap: 3px;
   grid-template-areas:
     "map map map vehicle"
     "map map map vehicle"

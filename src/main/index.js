@@ -4,6 +4,9 @@ import outdent from 'outdent';
 import path from 'path';
 import { format as formatUrl } from 'url';
 
+require('dotenv').config();
+process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const blankLocationJSON = outdent`
