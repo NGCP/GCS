@@ -2,6 +2,8 @@ import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { Map, TileLayer } from 'react-leaflet';
 
+import '../../../node_modules/leaflet/dist/leaflet.css';
+
 /**
  * Allows our map to cache online using PouchDB. Run before our map is loaded
  * Credit to https://github.com/MazeMap/Leaflet.TileLayer.PouchDBCached
@@ -11,8 +13,8 @@ function injectCacheIntoWebpage() {
   const pouchDBScript = document.createElement('script');
   const pouchDBCacheScript = document.createElement('script');
 
-  pouchDBScript.type = 'text/javascript';
-  pouchDBCacheScript.type = 'text/javascript';
+  pouchDBScript.src = '../../../resources/ext/pouchdb.js';
+  pouchDBCacheScript.src = '../../../resources/ext/pouchdb-cached.js';
 
   document.body.appendChild(pouchDBScript);
   document.body.appendChild(pouchDBCacheScript);
@@ -51,6 +53,7 @@ export default class MapContainer extends Component {
           attribution='&amp;copy <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors'
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
           useCache={true}
+          useOnlyCache={true}
           crossOrigin={true}
         />
       </Map>
