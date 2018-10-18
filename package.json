@@ -24,7 +24,6 @@
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-leaflet": "^2.1.0",
-    "react-leaflet-locate-control": "^0.1.6",
     "stylelint": "^9.6.0",
     "stylelint-config-standard": "^18.2.0",
     "stylelint-order": "^1.0.0",
