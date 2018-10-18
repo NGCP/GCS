@@ -162,9 +162,8 @@
     "react/jsx-curly-spacing": "error",
     "react/jsx-equals-spacing": "error",
     "react/jsx-no-bind": "error",
-    "react/jsx-no-literals": "error",
     "react/jsx-no-target-blank": "error",
-    "react/jsx-tag-spacing": "error",
+    "react/jsx-tag-spacing": ["error", { "beforeClosing": "never" }],
 
     "react/no-typos": "warn",
     "react/sort-prop-types": "error",

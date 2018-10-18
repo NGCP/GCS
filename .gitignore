@@ -1,5 +1,3 @@
-# git will ignore the following when you push
-
 # files
 .DS_Store
 package-lock.json

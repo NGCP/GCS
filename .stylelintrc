@@ -1,9 +1,9 @@
 {
-  "extends": "stylelint-config-recommended",
-  "plugins": ["stylelint-order"],
+  "extends": "stylelint-config-standard",
+  "ignoreFiles": ["dist/**", "old-src/**", "resources/**"],
   "rules": {
     "indentation": 2,
-    "order/order": ["custom-properties", "declarations"],
-    "order/properties-alphabetical-order": true
+    "declaration-block-no-duplicate-properties": true,
+    "no-empty-source": null
   }
 }

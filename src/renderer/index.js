@@ -1,22 +1,23 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import Log from './log/Log.js';
-import Map from './map/Map.js';
-import Mission from './mission/Mission.js';
-import Vehicle from './vehicle/Vehicle.js';
+import LogContainer from './log/Log.js';
+import MapContainer from './map/Map.js';
+import MissionContainer from './mission/Mission.js';
+import VehicleContainer from './vehicle/Vehicle.js';
 
 import './global.css';
 import './index.css';
+import '../../node_modules/leaflet/dist/leaflet.css';
 
 class Index extends Component {
   render() {
     return (
       <div className='gridWrapper'>
-        <Map />
-        <Log />
-        <Mission />
-        <Vehicle />
+        <MapContainer />
+        <LogContainer />
+        <MissionContainer />
+        <VehicleContainer />
       </div>
     );
   }

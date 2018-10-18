@@ -27,7 +27,13 @@ const darwinMenu = {
     { role: 'hideothers' },
     { role: 'unhide' },
     { type: 'separator' },
-    { role: 'quit' },
+    {
+      label: 'Quit',
+      accelerator: 'CommandOrControl+Q',
+      click() {
+        window.destroy();
+      },
+    },
   ],
 };
 const menu = [
@@ -112,6 +118,27 @@ const menu = [
 
 let window;
 
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (window === null) {
+    createMainWindow();
+  } else {
+    window.show();
+  }
+});
+
+app.on('ready', () => {
+  createMainWindow();
+  createMenu();
+});
+
+ipcMain.on('post', (event, notification, data) => window.webContents.send(notification, data));
+
 function createMainWindow() {
   window = new BrowserWindow({
     title: 'NGCP Ground Control Station',
@@ -120,7 +147,7 @@ function createMainWindow() {
   });
 
   if (isDevelopment) {
-    window.webContents.openDevTools();
+    // window.webContents.openDevTools();
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
   } else {
     window.loadURL(formatUrl({
@@ -130,22 +157,23 @@ function createMainWindow() {
     }));
   }
 
-  window.maximize();
+  // window.maximize();
 
   window.on('ready-to-show', () => {
     window.show();
     window.focus();
   });
 
+  // this is Command + W on macOS
   window.on('close', event => {
     event.preventDefault();
     window.hide();
   });
 
-  // this shouldn't run due to the window.on('close')
-  // but will leave this here for future testing purposes
+  // this is Command + Q on macOS
   window.on('closed', () => {
     window = null;
+    app.quit();
   });
 
   return window;
@@ -180,8 +208,8 @@ function setLocationMenu() {
     locationMenu.push({
       label: location.label,
       data: {
-        lat: location.latitude,
-        lng: location.longitude,
+        latitude: location.lat,
+        longitude: location.lng,
         zoom: location.zoom,
       },
       click(menuItem) { window.webContents.send('updateMapLocation', menuItem.data); },
@@ -235,24 +263,3 @@ function ensureLocationFileExists() {
 
   return locationFilePath;
 }
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (window === null) {
-    createMainWindow();
-  } else {
-    window.show();
-  }
-});
-
-app.on('ready', () => {
-  createMainWindow();
-  createMenu();
-});
-
-ipcMain.on('post', (event, notification, data) => window.webContents.send(notification, data));

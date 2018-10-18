@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-export default class Mission extends Component {
+export default class MissionContainer extends Component {
   render() {
-    return <div className='missionSetupContainer container'></div>;
+    return <div className='missionContainer container'></div>;
   }
 }

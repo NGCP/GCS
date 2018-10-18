@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-export default class Vehicle extends Component {
+export default class VehicleContainer extends Component {
   render() {
-    return <div className='vehicleStatusContainer container'></div>;
+    return <div className='vehicleContainer container'></div>;
   }
 }
