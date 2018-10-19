@@ -35,5 +35,5 @@ function testUpdateMarkers() {
 if (testData) {
   setTimeout(() => {
     testUpdateMarkers();
-  }, 3000);
+  }, 6000);
 }

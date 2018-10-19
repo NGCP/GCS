@@ -11,6 +11,14 @@ import ugv1 from '../../../resources/images/markers/ugv1.png';
 import ugv2 from '../../../resources/images/markers/ugv2.png';
 
 const images = { uav1: uav1, uav2: uav2, ugv1: ugv1, ugv2: ugv2 };
+const mapOptions = {
+  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
+  id: 'mapbox.satellite',
+  accessToken: process.env.MAPBOX_TOKEN,
+  useCache: true,
+  crossOrigin: true,
+};
 
 /**
  * Allows our map to cache online using PouchDB. Run before our map is loaded
@@ -84,14 +92,7 @@ export default class MapContainer extends Component {
         onLocationfound={this.updateMapLocation}
         onLocationerror={console.error}
       >
-        <TileLayer
-          attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
-          url='https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}'
-          id='mapbox.satellite'
-          accessToken={process.env.MAPBOX_TOKEN}
-          useCache={true}
-          crossOrigin={true}
-        />
+        <TileLayer {...mapOptions} />
         {
           Object.keys(markers).map(id =>
             <Marker
