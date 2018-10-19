@@ -6,6 +6,7 @@ import MapContainer from './map/Map.js';
 import MissionContainer from './mission/Mission.js';
 import VehicleContainer from './vehicle/Vehicle.js';
 
+import '../test/test.js';
 import './global.css';
 import './index.css';
 

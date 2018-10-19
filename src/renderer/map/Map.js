@@ -5,7 +5,12 @@ import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 
 import './map.css';
 
-import temp_img from '../../../resources/images/markers/poi_fp.png';
+import uav1 from '../../../resources/images/markers/uav1.png';
+import uav2 from '../../../resources/images/markers/uav2.png';
+import ugv1 from '../../../resources/images/markers/ugv1.png';
+import ugv2 from '../../../resources/images/markers/ugv2.png';
+
+const images = { uav1: uav1, uav2: uav2, ugv1: ugv1, ugv2: ugv2 };
 
 /**
  * Allows our map to cache online using PouchDB. Run before our map is loaded
@@ -40,6 +45,7 @@ export default class MapContainer extends Component {
     this.updateMarkers = this.updateMarkers.bind(this);
 
     ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
+    ipcRenderer.on('updateMarkers', (event, data) => this.updateMarkers(data));
 
     injectCacheIntoWebpage();
   }
@@ -56,12 +62,18 @@ export default class MapContainer extends Component {
     }
   }
 
-  updateMarkers(marker) {
-
+  updateMarkers(markers) {
+    const currentMarkers = this.state.markers;
+    for (const marker of markers) {
+      currentMarkers[marker.id] = marker;
+    }
+    this.setState({ markers: currentMarkers });
   }
 
   render() {
-    const { latitude, longitude, zoom } = this.state;
+    this.updateMapLocationToUser();
+
+    const { latitude, longitude, zoom, markers } = this.state;
     const center = [latitude, longitude];
     return (
       <Map
@@ -69,27 +81,34 @@ export default class MapContainer extends Component {
         center={center}
         zoom={zoom}
         ref={this.ref}
-        onClick={this.updateMapLocationToUser}
         onLocationfound={this.updateMapLocation}
         onLocationerror={console.error}
       >
         <TileLayer
           attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
           url='https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}'
-          id='mapbox.streets'
+          id='mapbox.satellite'
           accessToken={process.env.MAPBOX_TOKEN}
           useCache={true}
           crossOrigin={true}
         />
-        <Marker position={center} icon={L.icon({
-          iconUrl: temp_img,
-          popupAnchor: [25, 0],
-        })}
-        >
-          <Popup>You are here</Popup>
-        </Marker>
+        {
+          Object.keys(markers).map(id =>
+            <Marker
+              key={id}
+              position={markers[id].position || [markers[id].latitude, markers[id].longitude]}
+              icon={L.icon({
+                iconUrl: images[markers[id].type],
+                iconSize: [50, 50],
+                iconAnchor: [25, 25],
+                popupAnchor: [0, -25],
+              })}
+            >
+              <Popup>{markers[id].name}</Popup>
+            </Marker>
+          )
+        }
       </Map>
-
     );
   }
 }
