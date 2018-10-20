@@ -1,7 +1,7 @@
 {
   "extends": ["eslint:recommended", "plugin:react/recommended"],
   "parserOptions": {
-    "ecmaVersion": 2017,
+    "ecmaVersion": 9,
     "sourceType": "module"
   },
   "env": {
@@ -166,7 +166,8 @@
     "react/jsx-tag-spacing": ["error", { "beforeClosing": "never" }],
 
     "react/no-typos": "warn",
-    "react/sort-prop-types": "error",
+    "react/sort-comp": "warn",
+    "react/sort-prop-types": "warn",
     "react/style-prop-object": "error"
   }
 }

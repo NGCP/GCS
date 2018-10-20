@@ -12,8 +12,14 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const blankLocationJSON = outdent`
   ${outdent}
   {
-    "default": "",
-    "locations": []
+    "startLocation": "",
+    "locations": {
+      "Example Location": {
+        "latitude": 0,
+        "longitude": 0,
+        "zoom": 18
+      }
+    }
   }`;
 const configFilter = { name: 'GCS Configuration', extensions: ['json'] };
 const darwinMenu = {
@@ -97,7 +103,7 @@ const menu = [
       },
       {
         label: 'My Location',
-        click() { window.webContents.send('setMapToMyLocation'); },
+        click() { window.webContents.send('setMapToUserLocation'); },
       },
       { type: 'separator' },
     ],
@@ -123,6 +129,7 @@ let window;
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
+    window.destroy();
     app.quit();
   }
 });
@@ -188,7 +195,7 @@ function createMenu() {
   if (process.platform === 'darwin') {
     menu.unshift(darwinMenu);
   } else {
-    menu.push({ type: 'separator' }, { role: 'quit' });
+    menu.push({ role: 'quit' });
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
@@ -207,13 +214,14 @@ function setLocationMenu() {
     return;
   }
 
-  for (const location of locations) {
+  for (const label of Object.keys(locations)) {
+    const { latitude, longitude, zoom } = locations[label];
     locationMenu.push({
-      label: location.label,
+      label: label,
       data: {
-        latitude: location.lat,
-        longitude: location.lng,
-        zoom: location.zoom,
+        latitude: latitude,
+        longitude: longitude,
+        zoom: zoom,
       },
       click(menuItem) { window.webContents.send('updateMapLocation', menuItem.data); },
     });

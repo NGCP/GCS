@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -6,9 +7,11 @@ import MapContainer from './map/Map.js';
 import MissionContainer from './mission/Mission.js';
 import VehicleContainer from './vehicle/Vehicle.js';
 
-import '../test/test.js';
 import './global.css';
 import './index.css';
+
+const devMode = true;
+const geolocation = true;
 
 class Index extends Component {
   render() {
@@ -23,4 +26,9 @@ class Index extends Component {
   }
 }
 
-ReactDOM.render(<Index />, document.getElementById('app'));
+ReactDOM.render(<Index />, document.getElementById('app'), () => {
+  if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
+  if (devMode) {
+    require('../test/test.js');
+  }
+});

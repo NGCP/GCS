@@ -1,16 +1,13 @@
 import { ipcRenderer } from 'electron';
+import fs from 'fs';
 import L from 'leaflet';
+import path from 'path';
 import React, { createRef, Component } from 'react';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 
 import './map.css';
 
-import uav1 from '../../../resources/images/markers/uav1.png';
-import uav2 from '../../../resources/images/markers/uav2.png';
-import ugv1 from '../../../resources/images/markers/ugv1.png';
-import ugv2 from '../../../resources/images/markers/ugv2.png';
-
-const images = { uav1: uav1, uav2: uav2, ugv1: ugv1, ugv2: ugv2 };
+const vehicleIcons = {};
 const mapOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
@@ -20,10 +17,15 @@ const mapOptions = {
   crossOrigin: true,
 };
 
+// fill vehicleIcons with all images from directory below
+for (const file of fs.readdirSync(path.resolve(__dirname, '../../../resources/images/markers/vehicles'))) {
+  const name = file.split('.').slice(0, -1).join('.');
+  vehicleIcons[name] = require(`../../../resources/images/markers/vehicles/${file}`);
+}
+
 /**
- * Allows our map to cache online using PouchDB. Run before our map is loaded
+ * Allows our map to cache online using PouchDB. Run this before loading the map.
  * Credit to https://github.com/MazeMap/Leaflet.TileLayer.PouchDBCached
- * Note: no need to load leaflet (according to README tutorial) as react-leaflet includes leaflet already
  */
 function injectCacheIntoWebpage() {
   const pouchDBScript = document.createElement('script');
@@ -36,24 +38,31 @@ function injectCacheIntoWebpage() {
   document.body.appendChild(pouchDBCacheScript);
 }
 
+function getStartLocation() {
+  const { startLocation, locations } = require('../../../resources/locations.json');
+  if (!startLocation || !locations[startLocation]) {
+    return { latitude: 0, longitude: 0, zoom: 18 };
+  }
+  return locations[startLocation];
+}
+
 export default class MapContainer extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      latitude: 51.505,
-      longitude: -0.09,
-      zoom: 15,
       markers: {},
+      ...getStartLocation(),
     };
     this.ref = createRef();
 
     this.updateMapLocation = this.updateMapLocation.bind(this);
-    this.updateMapLocationToUser = this.updateMapLocationToUser.bind(this);
+    this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
     this.updateMarkers = this.updateMarkers.bind(this);
 
     ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
     ipcRenderer.on('updateMarkers', (event, data) => this.updateMarkers(data));
+    ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
 
     injectCacheIntoWebpage();
   }
@@ -62,10 +71,9 @@ export default class MapContainer extends Component {
     this.setState(data);
   }
 
-  updateMapLocationToUser() {
+  setMapToUserLocation() {
     const map = this.ref.current;
     if (map) {
-      // the following statement will trigger onLocationfound or onLocationerror event
       map.leafletElement.locate();
     }
   }
@@ -79,10 +87,9 @@ export default class MapContainer extends Component {
   }
 
   render() {
-    this.updateMapLocationToUser();
-
     const { latitude, longitude, zoom, markers } = this.state;
     const center = [latitude, longitude];
+
     return (
       <Map
         className='mapContainer container'
@@ -90,24 +97,27 @@ export default class MapContainer extends Component {
         zoom={zoom}
         ref={this.ref}
         onLocationfound={this.updateMapLocation}
-        onLocationerror={console.error}
       >
         <TileLayer {...mapOptions} />
         {
-          Object.keys(markers).map(id =>
-            <Marker
-              key={id}
-              position={markers[id].position || [markers[id].latitude, markers[id].longitude]}
-              icon={L.icon({
-                iconUrl: images[markers[id].type],
-                iconSize: [50, 50],
-                iconAnchor: [25, 25],
-                popupAnchor: [0, -25],
-              })}
-            >
-              <Popup>{markers[id].name}</Popup>
-            </Marker>
-          )
+          Object.keys(markers).map(id => {
+            const { position, latitude: lat, longitude: lng, type, name } = markers[id];
+
+            return (
+              <Marker
+                key={id}
+                position={position || [lat, lng]}
+                icon={L.icon({
+                  iconUrl: vehicleIcons[type],
+                  iconSize: [50, 50],
+                  iconAnchor: [25, 25],
+                  popupAnchor: [0, -25],
+                })}
+              >
+                <Popup>{name}</Popup>
+              </Marker>
+            );
+          })
         }
       </Map>
     );
