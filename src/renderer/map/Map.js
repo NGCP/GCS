@@ -5,6 +5,9 @@ import path from 'path';
 import React, { createRef, Component } from 'react';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 
+import GeolocationControl from './GeolocationControl.js';
+
+import 'leaflet/dist/leaflet.css';
 import './map.css';
 
 const vehicleIcons = {};
@@ -41,7 +44,7 @@ function injectCacheIntoWebpage() {
 function getStartLocation() {
   const { startLocation, locations } = require('../../../resources/locations.json');
   if (!startLocation || !locations[startLocation]) {
-    return { latitude: 0, longitude: 0, zoom: 18 };
+    return { latitude: 0, longitude: 0 };
   }
   return locations[startLocation];
 }
@@ -50,15 +53,24 @@ export default class MapContainer extends Component {
   constructor(props) {
     super(props);
 
+    const { latitude, longitude, zoom } = getStartLocation();
+
     this.state = {
       markers: {},
-      ...getStartLocation(),
+      latitude: latitude,
+      longitude: longitude,
+      zoom: zoom || 18,
+      viewport: {
+        center: [latitude, longitude],
+        zoom: zoom || 18,
+      },
     };
     this.ref = createRef();
 
     this.updateMapLocation = this.updateMapLocation.bind(this);
     this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
     this.updateMarkers = this.updateMarkers.bind(this);
+    this.onViewportChanged = this.onViewportChanged.bind(this);
 
     ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
     ipcRenderer.on('updateMarkers', (event, data) => this.updateMarkers(data));
@@ -67,8 +79,11 @@ export default class MapContainer extends Component {
     injectCacheIntoWebpage();
   }
 
-  updateMapLocation(data) {
-    this.setState(data);
+  updateMapLocation({ latitude, longitude, zoom }) {
+    this.onViewportChanged({
+      center: [latitude, longitude],
+      zoom: zoom,
+    });
   }
 
   setMapToUserLocation() {
@@ -76,6 +91,10 @@ export default class MapContainer extends Component {
     if (map) {
       map.leafletElement.locate();
     }
+  }
+
+  onViewportChanged(viewport) {
+    this.setState({ viewport });
   }
 
   updateMarkers(markers) {
@@ -87,17 +106,18 @@ export default class MapContainer extends Component {
   }
 
   render() {
-    const { latitude, longitude, zoom, markers } = this.state;
-    const center = [latitude, longitude];
+    const { viewport, markers } = this.state;
 
     return (
       <Map
         className='mapContainer container'
-        center={center}
-        zoom={zoom}
+        center={viewport.center}
+        zoom={viewport.zoom}
         ref={this.ref}
         onLocationfound={this.updateMapLocation}
+        onViewportChanged={this.onViewportChanged}
       >
+        <GeolocationControl />
         <TileLayer {...mapOptions} />
         {
           Object.keys(markers).map(id => {
