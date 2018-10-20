@@ -1,10 +1,10 @@
 import { ipcRenderer } from 'electron';
 
 // run any functions you want to run to test the program
-testUpdateMarkers();
+testUpdateVehicles();
 
-/** Tests the 'updateMarkers' notification */
-function testUpdateMarkers() {
+/** Tests the 'updateVehicles' notification */
+function testUpdateVehicles() {
   const fixtures = [
     {
       id: 1,
@@ -32,5 +32,5 @@ function testUpdateMarkers() {
     },
   ];
 
-  ipcRenderer.send('post', 'updateMarkers', fixtures);
+  ipcRenderer.send('post', 'updateVehicles', fixtures);
 }

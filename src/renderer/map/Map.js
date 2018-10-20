@@ -56,7 +56,7 @@ export default class MapContainer extends Component {
     const { latitude, longitude, zoom } = getStartLocation();
 
     this.state = {
-      markers: {},
+      vehicles: {},
       latitude: latitude,
       longitude: longitude,
       zoom: zoom || 18,
@@ -69,20 +69,32 @@ export default class MapContainer extends Component {
 
     this.updateMapLocation = this.updateMapLocation.bind(this);
     this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
-    this.updateMarkers = this.updateMarkers.bind(this);
+    this.updateVehicles = this.updateVehicles.bind(this);
     this.onViewportChanged = this.onViewportChanged.bind(this);
+    this.saveConfig = this.saveConfig.bind(this);
+
+    ipcRenderer.on('loadConfig', (event, data) => this.loadConfig(data));
+    ipcRenderer.on('saveConfig', (event, file) => this.saveConfig(file));
 
     ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
-    ipcRenderer.on('updateMarkers', (event, data) => this.updateMarkers(data));
+    ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
 
     injectCacheIntoWebpage();
   }
 
+  loadConfig(data) {
+    this.updateMapLocation(data);
+  }
+
+  saveConfig(file) {
+    fs.writeFileSync(file.filePath, JSON.stringify({ ...file.data, ...this.state }, null, 2));
+  }
+
   updateMapLocation({ latitude, longitude, zoom }) {
     this.onViewportChanged({
       center: [latitude, longitude],
-      zoom: zoom,
+      zoom: zoom || 18,
     });
   }
 
@@ -93,20 +105,20 @@ export default class MapContainer extends Component {
     }
   }
 
+  updateVehicles(vehicles) {
+    const currentMarkers = this.state.vehicles;
+    for (const vehicle of vehicles) {
+      currentMarkers[vehicle.id] = vehicle;
+    }
+    this.setState({ vehicles: currentMarkers });
+  }
+
   onViewportChanged(viewport) {
     this.setState({ viewport });
   }
 
-  updateMarkers(markers) {
-    const currentMarkers = this.state.markers;
-    for (const marker of markers) {
-      currentMarkers[marker.id] = marker;
-    }
-    this.setState({ markers: currentMarkers });
-  }
-
   render() {
-    const { viewport, markers } = this.state;
+    const { viewport, vehicles } = this.state;
 
     return (
       <Map
@@ -120,8 +132,8 @@ export default class MapContainer extends Component {
         <GeolocationControl />
         <TileLayer {...mapOptions} />
         {
-          Object.keys(markers).map(id => {
-            const { position, latitude: lat, longitude: lng, type, name } = markers[id];
+          Object.keys(vehicles).map(id => {
+            const { position, latitude: lat, longitude: lng, type, name } = vehicles[id];
 
             return (
               <Marker
