@@ -1,0 +1,23 @@
+
+.vehicleData {
+  user-select: none;
+  border-collapse: collapse;
+  width: 90%;
+  margin: auto;
+  margin-top: 5%;
+  background-color: #555;
+}
+
+th {
+  background-color: #616161;
+  border: 1px solid #000;
+  height: 10%;
+}
+
+td {
+  max-height: 10%;
+  margin-top: auto;
+  text-align: center;
+  background-color: #757575;
+  border: 1px solid #000;
+}
