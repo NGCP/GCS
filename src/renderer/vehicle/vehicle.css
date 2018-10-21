@@ -1,6 +1,5 @@
-.vehicleData {
-  height: 90%;
-  margin-top: 5%;
+.vehicleContainer {
+  height: 100%;
   overflow-y: auto;
 }
 
@@ -14,12 +13,4 @@
 
 .row-status {
   width: 40%;
-}
-
-tbody tr:nth-child(odd) {
-  background-color: #eee;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #e0e0e0;
 }

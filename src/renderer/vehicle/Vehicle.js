@@ -11,9 +11,14 @@ export default class VehicleContainer extends Component {
       vehicles: {},
     };
 
+    this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
     this.updateVehicles = this.updateVehicles.bind(this);
 
     ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
+  }
+
+  centerMapToVehicle(vehicle) {
+    ipcRenderer.send('post', 'updateMapLocation', vehicle);
   }
 
   updateVehicles(vehicles) {
@@ -29,28 +34,26 @@ export default class VehicleContainer extends Component {
 
     return (
       <div className='vehicleContainer container'>
-        <div className='vehicleData'>
-          <table>
-            <thead>
-              <tr>
-                <th className='row-id'>ID</th>
-                <th className='row-name'>Vehicle Name</th>
-                <th className='row-status'>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                Object.keys(vehicles).sort().map(id =>
-                  <tr key={id}>
-                    <td>{id}</td>
-                    <td>{vehicles[id].name}</td>
-                    <td className={vehicles[id].status.type}>{vehicles[id].status.message}</td>
-                  </tr>
-                )
-              }
-            </tbody>
-          </table>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th className='row-id'>ID</th>
+              <th className='row-name'>Vehicle Name</th>
+              <th className='row-status'>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              Object.keys(vehicles).sort().map(id =>
+                <tr key={id}>
+                  <td>{id}</td>
+                  <td>{vehicles[id].name}</td>
+                  <td className={vehicles[id].status.type}>{vehicles[id].status.message}</td>
+                </tr>
+              )
+            }
+          </tbody>
+        </table>
       </div>
     );
   }

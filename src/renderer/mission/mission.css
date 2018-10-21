@@ -1,0 +1,16 @@
+.missionContainer {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.missionContainer td {
+  white-space: normal;
+}
+
+.row-mission {
+  width: 60%;
+}
+
+.row-status {
+  width: 40%;
+}

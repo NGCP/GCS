@@ -8,7 +8,7 @@ table {
   border-collapse: collapse;
   white-space: nowrap;
   width: 90%;
-  margin-left: 1em;
+  margin: 1em auto;
 }
 
 th,
@@ -23,10 +23,23 @@ td {
 thead,
 tbody {
   border: 1px solid #000;
+  background-color: #eee;
 }
 
 thead {
   background-color: #9e9e9e;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #eee;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #e0e0e0;
+}
+
+tbody tr:hover {
+  background-color: #d0d0d0;
 }
 
 .success {
