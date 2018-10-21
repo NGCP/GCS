@@ -12,7 +12,7 @@ This is based on [Node.js], [React], [Webpack], and [Electron].
 Open up your command line application and clone this repository
 
 ```
-git clone https://github.com/NGCP/missioncontrol.git
+git clone https://github.com/NGCP/GCS.git
 ```
 
 **:scroll: Running the Program**
