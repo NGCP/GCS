@@ -106,11 +106,11 @@ export default class MapContainer extends Component {
   }
 
   updateVehicles(vehicles) {
-    const currentMarkers = this.state.vehicles;
+    const currentVehicles = this.state.vehicles;
     for (const vehicle of vehicles) {
-      currentMarkers[vehicle.id] = vehicle;
+      currentVehicles[vehicle.id] = vehicle;
     }
-    this.setState({ vehicles: currentMarkers });
+    this.setState({ vehicles: currentVehicles });
   }
 
   onViewportChanged(viewport) {
@@ -146,7 +146,7 @@ export default class MapContainer extends Component {
                   popupAnchor: [0, -25],
                 })}
               >
-                <Popup>{name}</Popup>
+                <Popup>{`${id}: ${name}`}</Popup>
               </Marker>
             );
           })

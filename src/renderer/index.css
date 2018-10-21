@@ -10,7 +10,7 @@ body,
 }
 
 .gridWrapper {
-  background: #666;
+  background: #212121;
   display: grid;
   grid-gap: 3px;
   grid-template-areas:
@@ -25,7 +25,7 @@ body,
 }
 
 .container {
-  background-color: #555;
+  background-color: #424242;
 }
 
 .logContainer {

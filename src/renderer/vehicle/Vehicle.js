@@ -1,34 +1,56 @@
+import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 
 import './vehicle.css';
-
-const WIDTH = {
-  id: 0.2,
-  name: 0.4,
-  battery: 0.4,
-};
 
 export default class VehicleContainer extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      vehicle: '',
+      vehicles: {},
     };
+
+    this.updateVehicles = this.updateVehicles.bind(this);
+
+    ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
   }
 
+  updateVehicles(vehicles) {
+    const currentVehicles = this.state.vehicles;
+    for (const vehicle of vehicles) {
+      currentVehicles[vehicle.id] = vehicle;
+    }
+    this.setState({ vehicles: currentVehicles });
+  }
 
   render() {
-    this.setState();
+    const { vehicles } = this.state;
+
     return (
       <div className='vehicleContainer container'>
-        <table className='vehicleData'>
-          <tr className='vehicleTableHeader'>
-            <th style={{ width: `${100 * WIDTH.id}%` }}>ID</th>
-            <th style={{ width: `${100 * WIDTH.name}%` }}>NAME</th>
-            <th style={{ width: `${100 * WIDTH.battery}%` }}>BATTERY</th>
-          </tr>
-        </table>
+        <div className='vehicleData'>
+          <table>
+            <thead>
+              <tr>
+                <th className='row-id'>ID</th>
+                <th className='row-name'>Vehicle Name</th>
+                <th className='row-status'>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                Object.keys(vehicles).sort().map(id =>
+                  <tr key={id}>
+                    <td>{id}</td>
+                    <td>{vehicles[id].name}</td>
+                    <td className={vehicles[id].status.type}>{vehicles[id].status.message}</td>
+                  </tr>
+                )
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }

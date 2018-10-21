@@ -1,0 +1,38 @@
+html {
+  font-family: 'Open Sans', sans-serif;
+  user-select: none;
+}
+
+table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  white-space: nowrap;
+  width: 90%;
+  margin-left: 1em;
+}
+
+th,
+td {
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 0.5em 0.8em;
+}
+
+thead,
+tbody {
+  border: 1px solid #000;
+}
+
+thead {
+  background-color: #9e9e9e;
+}
+
+.success {
+  color: #357a38;
+}
+
+.failure {
+  color: #aa2e25;
+}

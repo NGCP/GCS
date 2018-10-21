@@ -12,7 +12,10 @@ function testUpdateVehicles() {
       longitude: -117.823912,
       type: 'uav',
       name: 'Valiant',
-      status: 'Connected',
+      status: {
+        type: 'success',
+        message: 'Connected',
+      },
     },
     {
       id: 2,
@@ -20,7 +23,10 @@ function testUpdateVehicles() {
       longitude: -117.821970,
       type: 'uav',
       name: 'Multirotor',
-      status: 'Connected',
+      status: {
+        type: 'success',
+        message: 'Connected',
+      },
     },
     {
       id: 3,
@@ -28,9 +34,51 @@ function testUpdateVehicles() {
       longitude: -117.818452,
       type: 'ugv',
       name: 'UGV',
-      status: 'Connected',
+      status: {
+        type: 'success',
+        message: 'Connected',
+      },
+    },
+    {
+      id: 4,
+      latitude: 34.053509,
+      longitude: -117.818452,
+      type: 'ugv_red',
+      name: 'UGV',
+      status: {
+        type: 'failure',
+        message: 'Disconnected',
+      },
+    },
+    {
+      id: 5,
+      latitude: 34.053509,
+      longitude: -117.818452,
+      type: 'ugv',
+      name: 'UGV',
+      status: {
+        type: 'success',
+        message: 'Connected',
+      },
+    },
+    {
+      id: 6,
+      latitude: 34.053509,
+      longitude: -117.818452,
+      type: 'ugv',
+      name: 'UGV',
+      status: {
+        type: 'success',
+        message: 'Connected',
+      },
     },
   ];
 
-  ipcRenderer.send('post', 'updateVehicles', fixtures);
+  setInterval(() => {
+    for (const fixture of fixtures) {
+      fixture.latitude += (Math.random() / 5000) - 0.0001;
+      fixture.longitude += (Math.random() / 5000) - 0.0001;
+    }
+    ipcRenderer.send('post', 'updateVehicles', fixtures);
+  }, 1000);
 }

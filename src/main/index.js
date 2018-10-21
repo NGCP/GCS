@@ -153,6 +153,8 @@ function createMainWindow() {
     title: 'NGCP Ground Control Station',
     icon: path.resolve(__dirname, '..', '..', 'resources', 'images', 'icon.png'),
     show: false,
+    minWidth: 1024,
+    minHeight: 576,
   });
 
   if (isDevelopment) {

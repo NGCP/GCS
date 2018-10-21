@@ -1,23 +1,25 @@
-
 .vehicleData {
-  user-select: none;
-  border-collapse: collapse;
-  width: 90%;
-  margin: auto;
+  height: 90%;
   margin-top: 5%;
-  background-color: #555;
+  overflow-y: auto;
 }
 
-th {
-  background-color: #616161;
-  border: 1px solid #000;
-  height: 10%;
+.row-id {
+  width: 15%;
 }
 
-td {
-  max-height: 10%;
-  margin-top: auto;
-  text-align: center;
-  background-color: #757575;
-  border: 1px solid #000;
+.row-name {
+  width: 45%;
+}
+
+.row-status {
+  width: 40%;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #eee;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #e0e0e0;
 }
