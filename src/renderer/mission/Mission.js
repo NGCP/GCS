@@ -12,37 +12,50 @@ export default class MissionContainer extends Component {
       missions: [
         {
           description: 'Find targets',
-          status: 'Not started',
-          type: 'failure',
+          status: {
+            message: 'Not started',
+            type: 'failure',
+          },
         },
         {
           description: 'Verify target locations',
-          status: 'Not started',
-          type: 'failure',
+          status: {
+            message: 'Not started',
+            type: 'failure',
+          },
         },
         {
           description: 'Deliver payload to targets',
-          status: 'Not started',
-          type: 'failure',
+          status: {
+            message: 'Not started',
+            type: 'failure',
+          },
         },
         {
           description: 'Determine which target to retreive',
-          status: 'Not started',
-          type: 'failure',
+          status: {
+            message: 'Not started',
+            type: 'failure',
+          },
         },
         {
           description: 'Retreive target',
-          status: 'Not started',
-          type: 'failure',
+          status: {
+            message: 'Not started',
+            type: 'failure',
+          },
         },
         {
           description: 'Bring target to home base',
-          status: 'Not started',
-          type: 'failure',
+          status: {
+            message: 'Not started',
+            type: 'failure',
+          },
         },
       ],
     };
   }
+
   render() {
     const { missions } = this.state;
 
@@ -60,7 +73,7 @@ export default class MissionContainer extends Component {
               missions.map(mission =>
                 <TableRow key={missions.indexOf(mission)}>
                   <td>{mission.description}</td>
-                  <td className={mission.type}>{mission.status}</td>
+                  <td className={mission.status.type}>{mission.status.message}</td>
                 </TableRow>
               )
             }
