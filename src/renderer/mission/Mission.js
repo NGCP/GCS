@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import TableRow from '../../util/TableRow.js';
+
 import './mission.css';
 
 export default class MissionContainer extends Component {
@@ -56,10 +58,10 @@ export default class MissionContainer extends Component {
           <tbody>
             {
               missions.map(mission =>
-                <tr key={missions.indexOf(mission)}>
+                <TableRow key={missions.indexOf(mission)}>
                   <td>{mission.description}</td>
                   <td className={mission.type}>{mission.status}</td>
-                </tr>
+                </TableRow>
               )
             }
           </tbody>

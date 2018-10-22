@@ -1,6 +1,8 @@
 import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 
+import TableRow from '../../util/TableRow.js';
+
 import './vehicle.css';
 
 export default class VehicleContainer extends Component {
@@ -18,7 +20,7 @@ export default class VehicleContainer extends Component {
   }
 
   centerMapToVehicle(vehicle) {
-    ipcRenderer.send('post', 'updateMapLocation', vehicle);
+    ipcRenderer.send('post', 'centerMapToVehicle', vehicle);
   }
 
   updateVehicles(vehicles) {
@@ -45,11 +47,11 @@ export default class VehicleContainer extends Component {
           <tbody>
             {
               Object.keys(vehicles).sort().map(id =>
-                <tr key={id}>
+                <TableRow key={id} value={vehicles[id]} onClick={this.centerMapToVehicle}>
                   <td>{id}</td>
                   <td>{vehicles[id].name}</td>
                   <td className={vehicles[id].status.type}>{vehicles[id].status.message}</td>
-                </tr>
+                </TableRow>
               )
             }
           </tbody>

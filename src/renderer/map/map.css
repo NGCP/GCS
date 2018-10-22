@@ -7,3 +7,7 @@
 .leaflet-control-geolocation:hover {
   background-image: url('../../../resources/images/icon/geolocation_hover.png');
 }
+
+.mapContainer p {
+  margin: 0;
+}

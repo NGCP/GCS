@@ -20,7 +20,6 @@ const mapOptions = {
   crossOrigin: true,
 };
 
-// fill vehicleIcons with all images from directory below
 for (const file of fs.readdirSync(path.resolve(__dirname, '../../../resources/images/markers/vehicles'))) {
   const name = file.split('.').slice(0, -1).join('.');
   vehicleIcons[name] = require(`../../../resources/images/markers/vehicles/${file}`);
@@ -65,20 +64,25 @@ export default class MapContainer extends Component {
         zoom: zoom || 18,
       },
     };
+    this.vehicleRefs = {};
     this.ref = createRef();
 
-    this.updateMapLocation = this.updateMapLocation.bind(this);
-    this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
-    this.updateVehicles = this.updateVehicles.bind(this);
-    this.onViewportChanged = this.onViewportChanged.bind(this);
+    this.loadConfig = this.loadConfig.bind(this);
     this.saveConfig = this.saveConfig.bind(this);
+
+    this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
+    this.onViewportChanged = this.onViewportChanged.bind(this);
+    this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
+    this.updateMapLocation = this.updateMapLocation.bind(this);
+    this.updateVehicles = this.updateVehicles.bind(this);
 
     ipcRenderer.on('loadConfig', (event, data) => this.loadConfig(data));
     ipcRenderer.on('saveConfig', (event, file) => this.saveConfig(file));
 
+    ipcRenderer.on('centerMapToVehicle', (event, data) => this.centerMapToVehicle(data));
+    ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
     ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
-    ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
 
     injectCacheIntoWebpage();
   }
@@ -88,14 +92,19 @@ export default class MapContainer extends Component {
   }
 
   saveConfig(file) {
-    fs.writeFileSync(file.filePath, JSON.stringify({ ...file.data, ...this.state }, null, 2));
+    const data = this.state;
+    data.delete('vehicles');
+
+    fs.writeFileSync(file.filePath, JSON.stringify({ ...file.data, ...data }, null, 2));
   }
 
-  updateMapLocation({ latitude, longitude, zoom }) {
-    this.onViewportChanged({
-      center: [latitude, longitude],
-      zoom: zoom || 18,
-    });
+  centerMapToVehicle(vehicle) {
+    this.vehicleRefs[vehicle.id].current.leafletElement.togglePopup();
+    this.updateMapLocation(vehicle);
+  }
+
+  onViewportChanged(viewport) {
+    this.setState({ viewport });
   }
 
   setMapToUserLocation() {
@@ -105,16 +114,24 @@ export default class MapContainer extends Component {
     }
   }
 
+  updateMapLocation({ position, latitude, longitude, zoom }) {
+    this.setState({ position, latitude, longitude, zoom: zoom || this.state.viewport.zoom });
+
+    this.onViewportChanged({
+      center: position || [latitude, longitude],
+      zoom: zoom || this.state.zoom,
+    });
+  }
+
   updateVehicles(vehicles) {
     const currentVehicles = this.state.vehicles;
     for (const vehicle of vehicles) {
+      if (!this.vehicleRefs[vehicle.id]) {
+        this.vehicleRefs[vehicle.id] = createRef();
+      }
       currentVehicles[vehicle.id] = vehicle;
     }
     this.setState({ vehicles: currentVehicles });
-  }
-
-  onViewportChanged(viewport) {
-    this.setState({ viewport });
   }
 
   render() {
@@ -133,20 +150,25 @@ export default class MapContainer extends Component {
         <TileLayer {...mapOptions} />
         {
           Object.keys(vehicles).map(id => {
-            const { position, latitude: lat, longitude: lng, type, name } = vehicles[id];
+            const { position, latitude: lat, longitude: lng, type, name, status } = vehicles[id];
 
             return (
               <Marker
                 key={id}
                 position={position || [lat, lng]}
+                ref={this.vehicleRefs[id]}
                 icon={L.icon({
-                  iconUrl: vehicleIcons[type],
+                  iconUrl: vehicleIcons[`${type}${status.type === 'failure' ? '_red' : ''}`],
                   iconSize: [50, 50],
                   iconAnchor: [25, 25],
                   popupAnchor: [0, -25],
                 })}
               >
-                <Popup>{`${id}: ${name}`}</Popup>
+                <Popup>
+                  <p><b>{`#${id}: ${name} `}</b></p>
+                  <p>{`Position: [${position || [lat, lng]}]`}</p>
+                  <p>Status: <span className={status.type}>{status.message}</span></p>
+                </Popup>
               </Marker>
             );
           })
