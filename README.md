@@ -11,16 +11,21 @@ This is based on [Node.js], [React], [Webpack], and [Electron].
 
 Open up your command line application and clone this repository
 
-```
-git clone https://github.com/NGCP/GCS.git
+```console
+$ git clone https://github.com/NGCP/GCS.git
 ```
 
 **:scroll: Running the Program**
 
-Run the following scripts to run this application
+Create a [Mapbox account] and obtain a public API access token. Replace the content of the `.env` file with your access token.
 
+```sh
+MAPBOX_TOKEN=your-access-token
 ```
-cd GCS
+
+Install all required third-party libraries and run the program:
+
+```sh
 npm install
 npm start
 ```
@@ -30,3 +35,4 @@ npm start
 [React]: https://github.com/facebook/react
 [Webpack]: https://github.com/webpack/webpack
 [Electron]: https://github.com/electron/electron
+[Mapbox account]: https://www.mapbox.com/account/
