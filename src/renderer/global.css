@@ -1,3 +1,5 @@
+/* Defined styles for the whole application */
+
 html {
   font-family: 'Open Sans', sans-serif;
   user-select: none;
@@ -40,6 +42,10 @@ tbody tr:nth-child(even) {
 
 tbody tr:hover {
   background-color: #d0d0d0;
+}
+
+tbody tr:active {
+  background-color: #b9b9b9;
 }
 
 .success {

@@ -17,7 +17,7 @@ git clone https://github.com/NGCP/GCS.git
 
 **:scroll: Running the Program**
 
-Create a [Mapbox account] and obtain a public API access token. Replace the content of the `.env` file with your access token.
+Create a [Mapbox account] and obtain a public API access token. Replace the content of the `.env.example` file with your access token and rename it to `.env`.
 
 ```sh
 MAPBOX_TOKEN=your-access-token

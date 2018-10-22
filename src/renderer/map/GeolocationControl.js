@@ -2,6 +2,10 @@ import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import Control from 'react-leaflet-control';
 
+/**
+ * Control on the upper-left corner of the leaflet map to force geolocation
+ * whenever it is clicked.
+ */
 export default class GeolocationControl extends Component {
   constructor(props) {
     super(props);

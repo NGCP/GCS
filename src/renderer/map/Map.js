@@ -92,8 +92,9 @@ export default class MapContainer extends Component {
   }
 
   saveConfig(file) {
-    const data = this.state;
-    data.delete('vehicles');
+    // performs a hard copy of this.state, deletes vehicles from it, and saves it to file
+    const data = { ...this.state };
+    delete data.vehicles;
 
     fs.writeFileSync(file.filePath, JSON.stringify({ ...file.data, ...data }, null, 2));
   }

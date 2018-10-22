@@ -1,4 +1,6 @@
 import { ipcRenderer } from 'electron';
+import fs from 'fs';
+import path from 'path';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -26,9 +28,18 @@ class Index extends Component {
   }
 }
 
+/*
+ * Renders Index then...
+ *
+ * If geolocation is true, the program will trigger a geolocation request to set map center to user location
+ * If devMode is true, the program will run all tests (all located in "../test")
+ */
 ReactDOM.render(<Index />, document.getElementById('app'), () => {
   if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
+
   if (devMode) {
-    require('../test/test.js');
+    for (const file of fs.readdirSync(path.resolve(__dirname, '..', 'test'))) {
+      require(`../test/${file}`);
+    }
   }
 });
