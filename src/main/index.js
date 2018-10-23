@@ -1,5 +1,6 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
 import fs from 'fs';
+import moment from 'moment';
 import outdent from 'outdent';
 import path from 'path';
 import { format as formatUrl } from 'url';
@@ -230,11 +231,7 @@ function setLocationMenu() {
 }
 
 function saveConfig() {
-  const d = new Date();
-  const date = d.toLocaleDateString('ja-JP', { year: 'numeric', day: '2-digit', month: '2-digit' }).replace(/\//g, '-');
-  const time = d.toLocaleTimeString('en-US').replace(/:/g, '.');
-
-  const fileName = `GCS Configuration ${date} at ${time}`;
+  const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
   const filePath = dialog.showSaveDialog(window, {
     title: 'Save Configuration',
     filters: [configFilter],
