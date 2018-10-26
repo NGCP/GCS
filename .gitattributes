@@ -2,8 +2,6 @@
 
 * text=auto
 *.sln text eol=lf
-
-* text=auto
 *.c text
 *.h text
 
