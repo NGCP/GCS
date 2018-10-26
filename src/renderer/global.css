@@ -11,6 +11,7 @@ table {
   border-collapse: collapse;
   white-space: nowrap;
   width: 90%;
+  height: 90%;
   margin: 1em auto;
 }
 
@@ -27,10 +28,16 @@ thead,
 tbody {
   border: 1px solid #000;
   background-color: #eee;
+  display: block;
+}
+tbody {
+  max-height: 90%;
+  overflow-y: auto;
 }
 
 thead {
   background-color: #9e9e9e;
+
 }
 
 tbody tr:nth-child(odd) {

@@ -43,6 +43,62 @@ const fixtures = [
     type: 'ugv',
     name: 'UGV',
   },
+  {
+    id: 7,
+    latitude: 34.053509,
+    longitude: -117.818452,
+    type: 'ugv',
+    name: 'UGV',
+  },
+  {
+    id: 8,
+    latitude: 34.053509,
+    longitude: -117.818452,
+    type: 'ugv',
+    name: 'UGV',
+  },
+  {
+    id: 9,
+    latitude: 34.053509,
+    longitude: -117.818452,
+    type: 'ugv',
+    name: 'UGV',
+  },
+  {
+    id: 10,
+    latitude: 34.053509,
+    longitude: -117.818452,
+    type: 'ugv',
+    name: 'UGV',
+  },
+  {
+    id: 11,
+    latitude: 34.053509,
+    longitude: -117.818452,
+    type: 'ugv',
+    name: 'UGV',
+  },
+  {
+    id: 12,
+    latitude: 34.053509,
+    longitude: -117.818452,
+    type: 'ugv',
+    name: 'UGV',
+  },
+  {
+    id: 13,
+    latitude: 34.053509,
+    longitude: -117.818452,
+    type: 'ugv',
+    name: 'UGV',
+  },
+  {
+    id: 14,
+    latitude: 34.053509,
+    longitude: -117.818452,
+    type: 'ugv',
+    name: 'UGV',
+  },
 ];
 const status = [
   {

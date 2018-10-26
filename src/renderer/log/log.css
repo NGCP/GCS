@@ -2,18 +2,21 @@
 
 .logContainer {
   height: 100%;
+  display: block;
 }
 
 .logContainer pre {
   font-family: Menlo, monospace;
   margin: 0;
+  display: block;
+  overflow-y: auto;
 }
 
 .messages {
   background-color: #eee;
   width: 100%;
-  min-height: calc(100% - 2em);
-  max-height: calc(100% - 2em);
+  height: 85%;
+  display: block;
   overflow-y: auto;
 }
 
