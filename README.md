@@ -12,12 +12,13 @@ This is based on [Node.js], [React], [Webpack], and [Electron].
 Open up your command line application and clone this repository
 
 ```sh
-git clone https://github.com/NGCP/GCS.git
+# Command is accustomed to dev-2018 branch
+git clone -b dev-2018 --single-branch https://github.com/NGCP/GCS.git
 ```
 
 **:scroll: Running the Program**
 
-Create a [Mapbox account] and obtain a public API access token. Replace the content of the `.env.example` file with your access token and rename it to `.env`.
+Create a [Mapbox account] and obtain a public API access token. Create a `.env` file, copy the content of the `.env.example` to it, and replace `your-access-token` with your own access token.
 
 ```sh
 MAPBOX_TOKEN=your-access-token

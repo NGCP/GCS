@@ -30,6 +30,7 @@ tbody {
   background-color: #eee;
   display: block;
 }
+
 tbody {
   max-height: 90%;
   overflow-y: auto;
@@ -37,7 +38,6 @@ tbody {
 
 thead {
   background-color: #9e9e9e;
-
 }
 
 tbody tr:nth-child(odd) {

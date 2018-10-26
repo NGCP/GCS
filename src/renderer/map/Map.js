@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import fs from 'fs';
 import L from 'leaflet';
 import path from 'path';
@@ -15,7 +15,7 @@ const mapOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
-  accessToken: process.env.MAPBOX_TOKEN,
+  accessToken: remote.getGlobal('process').env.MAPBOX_TOKEN,
   useCache: true,
   crossOrigin: true,
 };
