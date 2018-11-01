@@ -83,9 +83,7 @@ const menu = [
       { role: 'reload' },
       { type: 'separator' },
       { role: 'togglefullscreen' },
-      { role: 'resetzoom' },
-      { role: 'zoomin' },
-      { role: 'zoomout' },
+      { role: 'zoom' },
       { type: 'separator' },
       { role: 'toggledevtools' },
     ],
@@ -154,7 +152,9 @@ function createMainWindow() {
     title: 'NGCP Ground Control Station',
     icon: path.resolve(__dirname, '..', '..', 'resources', 'images', 'icon.png'),
     show: false,
+    width: 1024,
     minWidth: 1024,
+    height: 576,
     minHeight: 576,
   });
 

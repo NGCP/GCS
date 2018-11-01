@@ -16,28 +16,11 @@ const mapOptions = {
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
   accessToken: remote.getGlobal('process').env.MAPBOX_TOKEN,
-  useCache: true,
-  crossOrigin: true,
 };
 
 for (const file of fs.readdirSync(path.resolve(__dirname, '../../../resources/images/markers/vehicles'))) {
   const name = file.split('.').slice(0, -1).join('.');
   vehicleIcons[name] = require(`../../../resources/images/markers/vehicles/${file}`);
-}
-
-/**
- * Allows our map to cache online using PouchDB. Run this before loading the map.
- * Credit to https://github.com/MazeMap/Leaflet.TileLayer.PouchDBCached
- */
-function injectCacheIntoWebpage() {
-  const pouchDBScript = document.createElement('script');
-  const pouchDBCacheScript = document.createElement('script');
-
-  pouchDBScript.src = '../../../resources/ext/pouchdb.js';
-  pouchDBCacheScript.src = '../../../resources/ext/pouchdb-cached.js';
-
-  document.body.appendChild(pouchDBScript);
-  document.body.appendChild(pouchDBCacheScript);
 }
 
 function getStartLocation() {
@@ -83,8 +66,6 @@ export default class MapContainer extends Component {
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
     ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
-
-    injectCacheIntoWebpage();
   }
 
   loadConfig(data) {
