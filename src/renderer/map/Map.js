@@ -17,8 +17,8 @@ const mapOptions = {
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
   accessToken: remote.getGlobal('process').env.MAPBOX_TOKEN,
-  useCache: true,
-  useOnlyCache: true,
+  useCache: false,
+  useOnlyCache: false,
   crossOrigin: true,
 };
 
