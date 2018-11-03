@@ -2,9 +2,10 @@ import { ipcRenderer, remote } from 'electron';
 import fs from 'fs';
 import L from 'leaflet';
 import path from 'path';
-import React, { createRef, Component } from 'react';
+import React, { Component, createRef } from 'react';
 import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
 
+import CachedTileLayer from './CachedTileLayer.js';
 import GeolocationControl from './GeolocationControl.js';
 
 import 'leaflet/dist/leaflet.css';
@@ -129,7 +130,7 @@ export default class MapContainer extends Component {
         onViewportChanged={this.onViewportChanged}
       >
         <GeolocationControl />
-        <TileLayer {...mapOptions} />
+        <CachedTileLayer {...mapOptions} />
         {
           Object.keys(vehicles).map(id => {
             const { position, latitude: lat, longitude: lng, type, name, status } = vehicles[id];

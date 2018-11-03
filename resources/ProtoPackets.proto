@@ -1,0 +1,172 @@
+syntax = "proto3";
+
+// Temporarily using this until we get a real library going
+package ProtoPackets;
+
+message AirVehicleGroundRelativeState {
+    uint32 vehicleid = 1;
+    float angleofattack = 2;
+    float angleofsideslip = 3;
+    float trueairspeed = 4;
+    float indicatedairspeed = 5;
+    float northwindspeed = 6;
+    float eastwindspeed = 7;
+    float northgroundspeed = 8;
+    float eastgroundspeed = 9;
+    float barometricpressure = 10;
+    float barometricaltitude = 11;
+}
+
+message ArmCommand {
+    uint32 id = 1;
+    int32 position = 2;
+}
+
+message ArmPosition {
+    int32 position1 = 1;
+    int32 position2 = 2;
+    int32 position3 = 3;
+    int32 position4 = 4;
+}
+
+message Battery {
+    uint32 batteryPercentage = 1;
+}
+
+message TargetAcknowledgement {
+    uint32 targetstatus = 1;
+}
+
+message TargetDesignationCommand {
+    uint32  vehicleid = 1;
+    uint32  payloadid = 2;
+    uint32  targetid = 3;
+    uint32  targettype = 4;
+    float  longitude = 5;
+    float  latitude = 6;
+    float  altitude = 7;
+}
+
+message TargetStatus {
+    double targetradius = 1;
+    double targetangle = 2;
+    double targetaltitude = 3;
+}
+
+message VehicleAttitude {
+    uint32 vehicleid = 1;
+    float roll = 2;
+    float pitch = 3;
+    float yaw = 4;
+}
+
+message VehicleAuthorizationReply {
+    uint32 vehicleid = 1;
+    uint32 vehicletype = 2;
+    uint32 authorizedservices = 3;
+    uint32 grantedservices = 4;
+}
+
+message VehicleAuthorizationRequest {
+    uint32 vehicleid = 1;
+    uint32 vehicletype = 2;
+    uint32 authorizedservices = 3;
+    uint32 grantedservices = 4;
+}
+
+message VehicleBodySensedState {
+    uint32 vehicleid = 1;
+    float xaccel = 2;
+    float yaccel = 3;
+    float zaccel = 4;
+    float rollrate = 5;
+    float pitchrate = 6;
+    float yawrate = 7;
+}
+
+message VehicleGlobalPosition {
+    uint32 vehicleid = 1;
+    float longitude = 2;
+    float latitude = 3;
+    float altitude = 4;
+    float xspeed = 5;
+    float yspeed = 6;
+    float zspeed = 7;
+}
+
+message VehicleIdentification {
+    uint32 vehicleid = 1;
+    uint32 vehicletype = 2;
+}
+
+message VehicleInertialState {
+    uint32 vehicleid = 1;
+    float longitude = 2;
+    float latitude = 3;
+    float altitude = 4;
+    float roll = 5;
+    float pitch = 6;
+    float heading = 7;
+    float northspeed = 8;
+    float eastspeed = 9;
+    float verticalspeed = 10;
+    float rollrate = 11;
+    float pitchrate = 12;
+    float yawrate = 13;
+    float northaccel = 14;
+    float eastaccel = 15;
+    float verticalaccel = 16;
+}
+
+message VehicleModeCommand {
+    uint32 vehicleid = 1;
+    uint32 vehiclemode = 2;
+}
+
+message VehicleSystemStatus {
+    uint32 vehicleid = 1;
+    uint32 vehiclemode = 2;
+    uint32 vehiclestate = 3;
+}
+
+message VehicleTelemetryCommand {
+    uint32 vehicleid = 1;
+    uint32 telemetryselect = 2;
+    uint32 telemetryrate = 3;
+}
+
+message VehicleTerminationCommand {
+    uint32 vehicleid = 1;
+    uint32 terminationmode = 2;
+}
+
+message VehicleWaypointCommand {
+    uint32 vehicleid = 1;
+    float longitude = 2;
+    float latitude = 3;
+    float altitude = 4;
+}
+
+message Packet {
+  oneof packet {
+    AirVehicleGroundRelativeState AirVehicleGroundRelativeState = 1;
+    ArmCommand ArmCommand = 2;
+    ArmPosition ArmPosition = 3;
+    Battery Battery = 4;
+    TargetAcknowledgement TargetAcknowledgement = 5;
+    TargetDesignationCommand TargetDesignationCommand = 6;
+    TargetStatus TargetStatus = 7;
+    VehicleAttitude VehicleAttitude = 8;
+    VehicleAuthorizationReply VehicleAuthorizationReply = 9;
+    VehicleAuthorizationRequest VehicleAuthorizationRequest = 10;
+    VehicleBodySensedState VehicleBodySensedState = 11;
+    VehicleGlobalPosition VehicleGlobalPosition = 12;
+    VehicleIdentification VehicleIdentification = 13;
+    VehicleInertialState VehicleInertialState = 14;
+    VehicleModeCommand VehicleModeCommand = 15;
+    VehicleSystemStatus VehicleSystemStatus = 16;
+    VehicleTelemetryCommand VehicleTelemetryCommand = 17;
+    VehicleTerminationCommand VehicleTerminationCommand = 18;
+    VehicleWaypointCommand VehicleWaypointCommand = 19;
+  }
+}
