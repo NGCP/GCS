@@ -3,7 +3,7 @@ import fs from 'fs';
 import L from 'leaflet';
 import path from 'path';
 import React, { Component, createRef } from 'react';
-import { Map, Marker, Popup, TileLayer } from 'react-leaflet';
+import { Map, Marker, Popup } from 'react-leaflet';
 
 import CachedTileLayer from './CachedTileLayer.js';
 import GeolocationControl from './GeolocationControl.js';
@@ -17,6 +17,9 @@ const mapOptions = {
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
   accessToken: remote.getGlobal('process').env.MAPBOX_TOKEN,
+  useCache: true,
+  useOnlyCache: true,
+  crossOrigin: true,
 };
 
 for (const file of fs.readdirSync(path.resolve(__dirname, '../../../resources/images/markers/vehicles'))) {

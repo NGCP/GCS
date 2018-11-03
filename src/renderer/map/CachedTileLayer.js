@@ -1,32 +1,21 @@
-import { ipcRenderer } from 'electron';
-import L from 'leaflet';
-import PouchDB from 'pouchdb';
-import React, { Component, createRef } from 'react';
-import { TileLayer } from 'react-leaflet';
+import { GridLayer, withLeaflet } from 'react-leaflet';
 
-const CACHE_FORMAT = 'image/png';
-const CACHE_MAX_AGE = 24 * 3600 * 1000;
+import TileLayer from './TileLayer.CachedTileLayer.js';
 
-export default class CachedTileLayer extends Component {
-  constructor(props) {
-    super(props);
-
-    this.ref = createRef();
-    this.db = new PouchDB('cached-tiles');
-    this.canvas = document.createElement('canvas');
-
-    this.cacheMapTiles = this.cacheMapTiles.bind(this);
-
-    ipcRenderer.on('cacheMapTiles', this.cacheMapTiles);
+class CachedTileLayer extends GridLayer {
+  createLeafletElement(props) {
+    const temp = new TileLayer(props.url, this.getOptions(props));
+    console.log(temp);
+    return temp;
   }
 
-  cacheMapTiles() {
-    if (!this.ref.current || !this.ref.current.leafletElement) return;
+  updateLeafletElement(fromProps, toProps) {
+    super.updateLeafletElement(fromProps, toProps);
 
-    const tileLayer = this.ref.current.leafletElement;
-  }
-
-  render() {
-    return <TileLayer ref={this.ref} {...this.props} />;
+    if (toProps.url !== fromProps.url) {
+      this.leafletElement.setUrl(toProps.url);
+    }
   }
 }
+
+export default withLeaflet(CachedTileLayer);
