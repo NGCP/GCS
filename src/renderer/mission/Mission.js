@@ -4,6 +4,8 @@ import TableRow from '../../util/TableRow.js';
 
 import './mission.css';
 
+import ScaleText from 'react-scale-text';
+
 export default class MissionContainer extends Component {
   constructor(props) {
     super(props);
@@ -61,24 +63,26 @@ export default class MissionContainer extends Component {
 
     return (
       <div className='missionContainer container'>
-        <table>
-          <thead>
-            <tr>
-              <th className='row-mission'>Mission Description</th>
-              <th className='row-status'>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              missions.map(mission =>
-                <TableRow key={missions.indexOf(mission)}>
-                  <td>{mission.description}</td>
-                  <td className={mission.status.type}>{mission.status.message}</td>
-                </TableRow>
-              )
-            }
-          </tbody>
-        </table>
+        <ScaleText maxFontSize='15'>
+          <table>
+            <thead>
+              <tr>
+                <th className='row-mission'>Mission Description</th>
+                <th className='row-status'>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                missions.map(mission =>
+                  <TableRow key={missions.indexOf(mission)}>
+                    <td>{mission.description}</td>
+                    <td className={mission.status.type}>{mission.status.message}</td>
+                  </TableRow>
+                )
+              }
+            </tbody>
+          </table>
+        </ScaleText>
       </div>
     );
   }

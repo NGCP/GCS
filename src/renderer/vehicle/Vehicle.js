@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
+import ScaleText from 'react-scale-text';
 
 import TableRow from '../../util/TableRow.js';
 
@@ -36,26 +37,28 @@ export default class VehicleContainer extends Component {
 
     return (
       <div className='vehicleContainer container'>
-        <table>
-          <thead>
-            <tr>
-              <th className='row-id'>ID</th>
-              <th className='row-name'>Vehicle Name</th>
-              <th className='row-status'>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              Object.keys(vehicles).sort().map(id =>
-                <TableRow key={id} value={vehicles[id]} onClick={this.centerMapToVehicle}>
-                  <td>{id}</td>
-                  <td>{vehicles[id].name}</td>
-                  <td className={vehicles[id].status.type}>{vehicles[id].status.message}</td>
-                </TableRow>
-              )
-            }
-          </tbody>
-        </table>
+        <ScaleText maxFontSize='15'>
+          <table>
+            <thead>
+              <tr>
+                <th className='row-id'>ID</th>
+                <th className='row-name'>Vehicle Name</th>
+                <th className='row-status'>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                Object.keys(vehicles).sort().map(id =>
+                  <TableRow key={id} value={vehicles[id]} onClick={this.centerMapToVehicle}>
+                    <td>{id}</td>
+                    <td>{vehicles[id].name}</td>
+                    <td className={vehicles[id].status.type}>{vehicles[id].status.message}</td>
+                  </TableRow>
+                )
+              }
+            </tbody>
+          </table>
+        </ScaleText>
       </div>
     );
   }
