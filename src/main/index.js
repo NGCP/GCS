@@ -6,8 +6,9 @@ import path from 'path';
 import { format as formatUrl } from 'url';
 
 import Orchestrator from './control/Orchestrator';
+import Mission from './control/Mission';
+import ISRMission from './control/ISRMission';
 
-const orchestrator = new Orchestrator(null);
 
 require('dotenv').config();
 process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
@@ -191,6 +192,10 @@ function createMainWindow() {
     window = null;
     app.quit();
   });
+
+
+  const isrmission = new ISRMission(null, null);
+  console.log(isrmission);
 
   return window;
 }
