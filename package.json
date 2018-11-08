@@ -29,7 +29,6 @@
     "react-dom": "^16.5.2",
     "react-leaflet": "^2.1.0",
     "react-leaflet-control": "^2.0.0",
-    "react-scale-text": "^1.2.2",
     "react-virtualized": "^9.21.0",
     "stylelint": "^9.6.0",
     "stylelint-config-standard": "^18.2.0",
