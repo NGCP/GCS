@@ -9,17 +9,18 @@ body,
   overflow-y: hidden;
   padding: 0;
   width: 100%;
+  font-size: 15px;
 }
 
 .gridWrapper {
-  background: #212121;
+  background: #000;
   display: grid;
   grid-gap: 3px;
   grid-template-areas:
-    "map map map vehicle"
-    "map map map vehicle"
-    "map map map mission"
-    "log log log mission";
+    'map map map vehicle'
+    'map map map vehicle'
+    'map map map mission'
+    'log log log mission';
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
   height: 100%;
@@ -27,7 +28,7 @@ body,
 }
 
 .container {
-  background-color: #424242;
+  background-color: #212121;
 }
 
 .logContainer {

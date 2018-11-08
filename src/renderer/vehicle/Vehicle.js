@@ -1,10 +1,14 @@
 import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
-import ScaleText from 'react-scale-text';
-
-import TableRow from '../../util/TableRow.js';
+import { AutoSizer, Table, Column } from 'react-virtualized';
 
 import './vehicle.css';
+
+const WIDTH = {
+  id: 0.15,
+  name: 0.4,
+  status: 0.45,
+};
 
 export default class VehicleContainer extends Component {
   constructor(props) {
@@ -14,10 +18,27 @@ export default class VehicleContainer extends Component {
       vehicles: {},
     };
 
+    this._onRowClick = this._onRowClick.bind(this);
+    this._rowGetter = this._rowGetter.bind(this);
+    this._statusRenderer = this._statusRenderer.bind(this);
     this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
     this.updateVehicles = this.updateVehicles.bind(this);
 
     ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
+  }
+
+  _onRowClick({ rowData }) {
+    this.centerMapToVehicle(this.state.vehicles[rowData.id]);
+  }
+
+  _rowGetter({ index }) {
+    const { vehicles } = this.state;
+    const v = Object.keys(this.state.vehicles).sort((a, b) => parseInt(a) - parseInt(b));
+    return vehicles[v[index]];
+  }
+
+  _statusRenderer({ rowData }) {
+    return <span className={rowData.status.type}>{rowData.status.message}</span>;
   }
 
   centerMapToVehicle(vehicle) {
@@ -33,32 +54,38 @@ export default class VehicleContainer extends Component {
   }
 
   render() {
-    const { vehicles } = this.state;
-
     return (
       <div className='vehicleContainer container'>
-        <ScaleText maxFontSize='15'>
-          <table>
-            <thead>
-              <tr>
-                <th className='row-id'>ID</th>
-                <th className='row-name'>Vehicle Name</th>
-                <th className='row-status'>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                Object.keys(vehicles).sort().map(id =>
-                  <TableRow key={id} value={vehicles[id]} onClick={this.centerMapToVehicle}>
-                    <td>{id}</td>
-                    <td>{vehicles[id].name}</td>
-                    <td className={vehicles[id].status.type}>{vehicles[id].status.message}</td>
-                  </TableRow>
-                )
-              }
-            </tbody>
-          </table>
-        </ScaleText>
+        <AutoSizer>
+          {({ height, width }) =>
+            <Table
+              width={width}
+              height={height}
+              headerHeight={40}
+              rowHeight={40}
+              rowCount={Object.keys(this.state.vehicles).length}
+              rowGetter={this._rowGetter}
+              onRowClick={this._onRowClick}
+            >
+              <Column
+                label='ID'
+                dataKey='id'
+                width={width * WIDTH.id}
+              />
+              <Column
+                label='Name'
+                dataKey='name'
+                width={width * WIDTH.name}
+              />
+              <Column
+                label='Status'
+                dataKey='status'
+                width={width * WIDTH.status}
+                cellRenderer={this._statusRenderer}
+              />
+            </Table>
+          }
+        </AutoSizer>
       </div>
     );
   }

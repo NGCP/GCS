@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-
-import TableRow from '../../util/TableRow.js';
+import { AutoSizer, Column, Table } from 'react-virtualized';
 
 import './mission.css';
 
-import ScaleText from 'react-scale-text';
+const WIDTH = {
+  description: 0.6,
+  status: 0.4,
+};
 
 export default class MissionContainer extends Component {
   constructor(props) {
@@ -56,33 +58,46 @@ export default class MissionContainer extends Component {
         },
       ],
     };
+
+    this._rowGetter = this._rowGetter.bind(this);
+    this._statusRenderer = this._statusRenderer.bind(this);
   }
 
-  render() {
-    const { missions } = this.state;
+  _rowGetter({ index }) {
+    return this.state.missions[index];
+  }
 
+  _statusRenderer({ rowData }) {
+    return <span className={rowData.status.type}>{rowData.status.message}</span>;
+  }
+  render() {
     return (
       <div className='missionContainer container'>
-        <ScaleText maxFontSize='15'>
-          <table>
-            <thead>
-              <tr>
-                <th className='row-mission'>Mission Description</th>
-                <th className='row-status'>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                missions.map(mission =>
-                  <TableRow key={missions.indexOf(mission)}>
-                    <td>{mission.description}</td>
-                    <td className={mission.status.type}>{mission.status.message}</td>
-                  </TableRow>
-                )
-              }
-            </tbody>
-          </table>
-        </ScaleText>
+        <AutoSizer>
+          {({ height, width }) =>
+            <Table
+              width={width}
+              height={height}
+              headerHeight={40}
+              rowHeight={40}
+              rowCount={this.state.missions.length}
+              rowGetter={this._rowGetter}
+              onRowClick={this._onRowClick}
+            >
+              <Column
+                label='Description'
+                dataKey='description'
+                width={width * WIDTH.description}
+              />
+              <Column
+                label='Status'
+                dataKey='status'
+                width={width * WIDTH.status}
+                cellRenderer={this._statusRenderer}
+              />
+            </Table>
+          }
+        </AutoSizer>
       </div>
     );
   }

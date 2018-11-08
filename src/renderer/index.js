@@ -10,6 +10,7 @@ import MissionContainer from './mission/Mission.js';
 import VehicleContainer from './vehicle/Vehicle.js';
 import { cache, devMode, geolocation } from '../../resources/config.json';
 
+import 'react-virtualized/styles.css';
 import './global.css';
 import './index.css';
 

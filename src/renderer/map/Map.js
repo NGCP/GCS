@@ -5,6 +5,7 @@ import path from 'path';
 import React, { Component, createRef } from 'react';
 import { Map, Marker, Popup } from 'react-leaflet';
 
+import { cache } from '../../../resources/config.json';
 import CachedTileLayer from './CachedTileLayer.js';
 import GeolocationControl from './GeolocationControl.js';
 
@@ -17,8 +18,7 @@ const mapOptions = {
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
   accessToken: remote.getGlobal('process').env.MAPBOX_TOKEN,
-  useCache: false,
-  useOnlyCache: false,
+  useCache: cache,
   crossOrigin: true,
 };
 
@@ -85,8 +85,8 @@ export default class MapContainer extends Component {
   }
 
   centerMapToVehicle(vehicle) {
-    this.vehicleRefs[vehicle.id].current.leafletElement.togglePopup();
     this.updateMapLocation(vehicle);
+    this.vehicleRefs[vehicle.id].current.leafletElement.togglePopup();
   }
 
   onViewportChanged(viewport) {
