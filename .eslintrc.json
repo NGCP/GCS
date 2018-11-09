@@ -1,5 +1,7 @@
 {
   "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "parser": "babel-eslint",
+  "plugins": ["babel", "react"],
   "parserOptions": {
     "ecmaVersion": 9,
     "sourceType": "module"
@@ -10,7 +12,10 @@
     "node": true
   },
   "overrides": [
-    { "files": ["*.browser.js"], "env": { "browser": true } }
+    {
+      "files": ["*.browser.js"],
+      "env": { "browser": true }
+    }
   ],
   "rules": {
     "no-await-in-loop": "warn",
@@ -53,7 +58,7 @@
     "eqeqeq": "error",
     "no-floating-decimal": "error",
     "no-implied-eval": "error",
-    "no-invalid-this": "error",
+    "babel/no-invalid-this": "error",
     "no-lone-blocks": "error",
     "no-multi-spaces": "error",
     "no-new-func": "error",
@@ -168,6 +173,8 @@
     "react/no-typos": "warn",
     "react/sort-comp": "warn",
     "react/sort-prop-types": "warn",
-    "react/style-prop-object": "error"
+    "react/style-prop-object": "error",
+
+    "babel/semi": 1
   }
 }

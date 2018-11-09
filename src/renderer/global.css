@@ -5,6 +5,11 @@ html {
   user-select: none;
 }
 
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
 .ReactVirtualized__Table {
   color: #bdbdbd;
 }

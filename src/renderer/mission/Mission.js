@@ -1,18 +1,10 @@
-import React, { Component } from 'react';
-import { AutoSizer, Column, Table } from 'react-virtualized';
+import React, { PureComponent } from 'react';
+import { AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table } from 'react-virtualized';
 
 import './mission.css';
 
-const WIDTH = {
-  description: 0.6,
-  status: 0.4,
-};
-
-export default class MissionContainer extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
+export default class MissionContainer extends PureComponent {
+    state = {
       missions: [
         {
           description: 'Find targets',
@@ -59,46 +51,63 @@ export default class MissionContainer extends Component {
       ],
     };
 
-    this._rowGetter = this._rowGetter.bind(this);
-    this._statusRenderer = this._statusRenderer.bind(this);
-  }
+    width = {
+      description: 0.6,
+      status: 0.4,
+    };
 
-  _rowGetter({ index }) {
-    return this.state.missions[index];
-  }
+    cellHeightCache = new CellMeasurerCache({
+      fixedWidth: true,
+      minHeight: 40,
+    });
 
-  _statusRenderer({ rowData }) {
-    return <span className={rowData.status.type}>{rowData.status.message}</span>;
-  }
-  render() {
-    return (
-      <div className='missionContainer container'>
-        <AutoSizer>
-          {({ height, width }) =>
-            <Table
-              width={width}
-              height={height}
-              headerHeight={40}
-              rowHeight={40}
-              rowCount={this.state.missions.length}
-              rowGetter={this._rowGetter}
-              onRowClick={this._onRowClick}
-            >
-              <Column
-                label='Description'
-                dataKey='description'
-                width={width * WIDTH.description}
-              />
-              <Column
-                label='Status'
-                dataKey='status'
-                width={width * WIDTH.status}
-                cellRenderer={this._statusRenderer}
-              />
-            </Table>
-          }
-        </AutoSizer>
-      </div>
-    );
-  }
+    _rowGetter = ({ index }) => this.state.missions[index];
+
+    _descriptionRenderer = ({ dataKey, parent, rowIndex, cellData }) =>
+      <CellMeasurer
+        cache={this.cellHeightCache}
+        columnIndex={0}
+        key={dataKey}
+        parent={parent}
+        rowIndex={rowIndex}
+      >
+        <div className='descriptionColumn'>
+          {cellData ? String(cellData) : ''}
+        </div>
+      </CellMeasurer>;
+
+    _statusRenderer = ({ dataKey, rowData }) => <span key={dataKey} className={rowData.status.type}>{rowData.status.message}</span>;
+
+    render() {
+      return (
+        <div className='missionContainer container'>
+          <AutoSizer>
+            {({ height, width }) =>
+              <Table
+                width={width}
+                height={height}
+                headerHeight={40}
+                rowHeight={this.cellHeightCache.rowHeight}
+                rowCount={this.state.missions.length}
+                rowGetter={this._rowGetter}
+                onRowClick={this._onRowClick}
+              >
+                <Column
+                  label='Description'
+                  dataKey='description'
+                  width={width * this.width.description}
+                  cellRenderer={this._descriptionRenderer}
+                />
+                <Column
+                  label='Status'
+                  dataKey='status'
+                  width={width * this.width.status}
+                  cellRenderer={this._statusRenderer}
+                />
+              </Table>
+            }
+          </AutoSizer>
+        </div>
+      );
+    }
 }

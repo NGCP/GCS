@@ -6,10 +6,10 @@ import React, { Component, createRef } from 'react';
 import { Map, Marker, Popup } from 'react-leaflet';
 
 import { cache } from '../../../resources/config.json';
+import { startLocation, locations } from '../../../resources/locations.json';
 import CachedTileLayer from './CachedTileLayer.js';
 import GeolocationControl from './GeolocationControl.js';
 
-import 'leaflet/dist/leaflet.css';
 import './map.css';
 
 const vehicleIcons = {};
@@ -27,42 +27,24 @@ for (const file of fs.readdirSync(path.resolve(__dirname, '../../../resources/im
   vehicleIcons[name] = require(`../../../resources/images/markers/vehicles/${file}`);
 }
 
-function getStartLocation() {
-  const { startLocation, locations } = require('../../../resources/locations.json');
-  if (!startLocation || !locations[startLocation]) {
-    return { latitude: 0, longitude: 0 };
-  }
-  return locations[startLocation];
+let start = { latitude: 0, longitude: 0, zoom: 18 };
+if (startLocation && locations[startLocation]) {
+  start = { ...start, ...locations[startLocation] };
 }
 
 export default class MapContainer extends Component {
-  constructor(props) {
-    super(props);
+  state = {
+    vehicles: {},
+    latitude: start.latitude,
+    longitude: start.longitude,
+    zoom: start.zoom,
+    viewport: {
+      center: [start.latitude, start.longitude],
+      zoom: start.zoom,
+    },
+  };
 
-    const { latitude, longitude, zoom } = getStartLocation();
-
-    this.state = {
-      vehicles: {},
-      latitude: latitude,
-      longitude: longitude,
-      zoom: zoom || 18,
-      viewport: {
-        center: [latitude, longitude],
-        zoom: zoom || 18,
-      },
-    };
-    this.vehicleRefs = {};
-    this.ref = createRef();
-
-    this.loadConfig = this.loadConfig.bind(this);
-    this.saveConfig = this.saveConfig.bind(this);
-
-    this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
-    this.onViewportChanged = this.onViewportChanged.bind(this);
-    this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
-    this.updateMapLocation = this.updateMapLocation.bind(this);
-    this.updateVehicles = this.updateVehicles.bind(this);
-
+  componentDidMount() {
     ipcRenderer.on('loadConfig', (event, data) => this.loadConfig(data));
     ipcRenderer.on('saveConfig', (event, file) => this.saveConfig(file));
 
@@ -72,44 +54,48 @@ export default class MapContainer extends Component {
     ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
   }
 
-  loadConfig(data) {
-    this.updateMapLocation(data);
-  }
+  vehicleRefs = {};
 
-  saveConfig(file) {
+  ref = createRef();
+
+  loadConfig = data => {
+    this.updateMapLocation(data);
+  };
+
+  saveConfig = file => {
     // performs a hard copy of this.state, deletes vehicles from it, and saves it to file
     const data = { ...this.state };
     delete data.vehicles;
 
     fs.writeFileSync(file.filePath, JSON.stringify({ ...file.data, ...data }, null, 2));
-  }
+  };
 
-  centerMapToVehicle(vehicle) {
+  centerMapToVehicle = vehicle => {
     this.updateMapLocation(vehicle);
     this.vehicleRefs[vehicle.id].current.leafletElement.togglePopup();
-  }
+  };
 
-  onViewportChanged(viewport) {
+  onViewportChanged = viewport => {
     this.setState({ viewport });
-  }
+  };
 
-  setMapToUserLocation() {
+  setMapToUserLocation = () => {
     const map = this.ref.current;
     if (map) {
       map.leafletElement.locate();
     }
-  }
+  };
 
-  updateMapLocation({ position, latitude, longitude, zoom }) {
+  updateMapLocation = ({ position, latitude, longitude, zoom }) => {
     this.setState({ position, latitude, longitude, zoom: zoom || this.state.viewport.zoom });
 
     this.onViewportChanged({
       center: position || [latitude, longitude],
       zoom: zoom || this.state.zoom,
     });
-  }
+  };
 
-  updateVehicles(vehicles) {
+  updateVehicles = vehicles => {
     const currentVehicles = this.state.vehicles;
     for (const vehicle of vehicles) {
       if (!this.vehicleRefs[vehicle.id]) {
@@ -118,7 +104,7 @@ export default class MapContainer extends Component {
       currentVehicles[vehicle.id] = vehicle;
     }
     this.setState({ vehicles: currentVehicles });
-  }
+  };
 
   render() {
     const { viewport, vehicles } = this.state;
