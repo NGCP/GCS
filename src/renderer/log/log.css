@@ -2,7 +2,7 @@
 
 .logContainer {
   height: 100%;
-  display: block;
+  display: table;
 }
 
 .logContainer pre {
