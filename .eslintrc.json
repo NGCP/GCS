@@ -1,5 +1,10 @@
 {
-  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:react/recommended"
+  ],
   "parser": "babel-eslint",
   "plugins": ["babel", "react"],
   "parserOptions": {
@@ -175,6 +180,8 @@
     "react/sort-prop-types": "warn",
     "react/style-prop-object": "error",
 
-    "babel/semi": 1
+    "babel/semi": 1,
+
+    "import/extensions": ["error", "always", { "ignorePackages": true }]
   }
 }
