@@ -14,7 +14,9 @@ const fixtures = [
   },
 ];
 
+const sendMe = [];
 for (let i = 0; i < 14; i++) {
-  const fixture = fixtures[Math.floor(Math.random() * 3)];
-  ipcRenderer.send('post', 'updateMessages', [fixture]);
+  sendMe.push(fixtures[Math.floor(Math.random() * 3)]);
 }
+
+ipcRenderer.send('post', 'updateMessages', sendMe);

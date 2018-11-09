@@ -1,27 +1,26 @@
 /* Defined styles for Log.js */
 
-.logContainer {
-  height: 100%;
-  display: block;
-}
-
 .logContainer pre {
-  font-family: Menlo, monospace;
+  display: inline-block;
+}
+
+.logContainer .row {
   margin: 0;
-  display: block;
-  overflow-y: auto;
 }
 
-.messages {
-  background-color: #eee;
+.logContainer .messages {
+  background-color: #000;
   width: 100%;
-  height: 85%;
-  display: block;
-  overflow-y: auto;
+  height: calc(100% - 25px);
+  color: #fff;
 }
 
-.controls {
-  height: 2em;
+.logContainer .messages .time {
+  margin-right: 2em;
+}
+
+.logContainer .controls {
+  height: 25px;
   width: 100%;
   background-color: #ccc;
   border-top: 1px solid #858585;

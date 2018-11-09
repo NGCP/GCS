@@ -1,9 +1,9 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table } from 'react-virtualized';
 
 import './mission.css';
 
-export default class MissionContainer extends PureComponent {
+export default class MissionContainer extends Component {
     state = {
       missions: [
         {
@@ -56,7 +56,7 @@ export default class MissionContainer extends PureComponent {
       status: 0.4,
     };
 
-    cellHeightCache = new CellMeasurerCache({
+    heightCache = new CellMeasurerCache({
       fixedWidth: true,
       minHeight: 40,
     });
@@ -65,7 +65,7 @@ export default class MissionContainer extends PureComponent {
 
     _descriptionRenderer = ({ dataKey, parent, rowIndex, cellData }) =>
       <CellMeasurer
-        cache={this.cellHeightCache}
+        cache={this.heightCache}
         columnIndex={0}
         key={dataKey}
         parent={parent}
@@ -87,7 +87,7 @@ export default class MissionContainer extends PureComponent {
                 width={width}
                 height={height}
                 headerHeight={40}
-                rowHeight={this.cellHeightCache.rowHeight}
+                rowHeight={this.heightCache.rowHeight}
                 rowCount={this.state.missions.length}
                 rowGetter={this._rowGetter}
                 onRowClick={this._onRowClick}

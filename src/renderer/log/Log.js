@@ -1,55 +1,94 @@
 import { ipcRenderer } from 'electron';
 import moment from 'moment';
 import React, { Component } from 'react';
+import { AutoSizer, CellMeasurerCache, CellMeasurer, List } from 'react-virtualized';
 
 import './log.css';
 
 export default class LogContainer extends Component {
-  constructor(props) {
-    super(props);
+  state = {
+    filter: '',
+    messages: [],
+    filteredMessages: [],
+  };
 
-    this.state = {
-      filter: '',
-      messages: [],
-    };
-
-    this.clearMessages = this.clearMessages.bind(this);
-    this.updateFilter = this.updateFilter.bind(this);
-    this.updateMessages = this.updateMessages.bind(this);
-
+  componentDidMount() {
     ipcRenderer.on('updateMessages', (event, data) => this.updateMessages(data));
   }
 
-  clearMessages() {
-    this.setState({ messages: [], filter: '' });
-  }
+  heightCache = new CellMeasurerCache({
+    fixedWidth: true,
+    minHeight: 20,
+  });
 
-  updateFilter(event) {
-    this.setState({ filter: event.target.value });
-  }
+  _rowRenderer = ({ index, key, parent }) => {
+    const message = this.state.filteredMessages[index];
 
-  updateMessages(messages) {
+    return (
+      <CellMeasurer
+        cache={this.heightCache}
+        columnIndex={0}
+        key={key}
+        rowIndex={index}
+        parent={parent}
+      >
+        <div className='row'>
+          <pre className='time'>{message.time}</pre>
+          <pre className={`message ${this.state.filteredMessages[index].type}`}>
+            {message.message}
+          </pre>
+        </div>
+      </CellMeasurer>
+    );
+  };
+
+  clearMessages = () => {
+    this.setState({ filter: '', messages: [], filteredMessages: [] });
+  };
+
+  updateFilter = event => {
+    const newFilter = event.target.value;
+
+    this.setState({
+      filter: newFilter,
+      filteredMessages: newFilter === '' ? { ...this.state.messages } : this.state.messages.filter(message => message.type === newFilter),
+    });
+  };
+
+  updateMessages = messages => {
     const currentMessages = this.state.messages;
+
     for (const message of messages) {
-      if (!message.type) message.type = '';
-      if (!message.time) message.time = moment().format('HH:mm:ss.SSS');
+      if (!message.type) {
+        message.type = '';
+      }
+      if (!message.time) {
+        message.time = moment().format('HH:mm:ss.SSS');
+      }
+      if (this.state.filter === '' || message.type === this.state.filter) {
+        this.state.filteredMessages.push(message);
+      }
       currentMessages.push(message);
     }
     this.setState({ messages: currentMessages });
-  }
+  };
 
   render() {
-    const { messages, filter } = this.state;
-    const display = filter === '' ? messages : messages.filter(message => message.type === filter);
-
     return (
       <div className='logContainer container'>
         <div className='messages'>
-          {
-            display.map(message =>
-              <pre key={messages.indexOf(message)} className={message.type}>{`${message.time}   ${message.message}`}</pre>
-            )
-          }
+          <AutoSizer>
+            {({ height, width }) =>
+              <List
+                deferredMeasurementCache={this.heightCache}
+                height={height}
+                width={width}
+                rowCount={this.state.filteredMessages.length}
+                rowHeight={this.heightCache.rowHeight}
+                rowRenderer={this._rowRenderer}
+              />
+            }
+          </AutoSizer>
         </div>
         <div className='controls'>
           <select onChange={this.updateFilter} value={this.state.filter}>
