@@ -2,6 +2,8 @@ import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { AutoSizer, Table, Column } from 'react-virtualized';
 
+import CustomTable from '../../util/CustomTable.js';
+
 import './vehicle.css';
 
 const WIDTH = {
