@@ -3,7 +3,15 @@ import { ipcRenderer } from 'electron';
 const fixtures = [
   {
     type: 'failure',
+    message: 'swb fnijnfineifnioen fineig rejnlj qvjevefijn eiofqoifn jnl,a dnv kjveqjnffn jalvlkavhuevenfije eve ve j fjnfuiefn ijcads fhuf a',
+  },
+  {
+    type: 'failure',
     message: 'Test failure message',
+  },
+  {
+    type: 'success',
+    message: 'zxvdfn uvoewnfnekjnan oieunqo nfrcvdfsvnad dfionfkldasklaj nio niqdnc djacnkl adsniojnjkla dvlkjvienvio anklvdnkven inkv adnklv ndanvoi',
   },
   {
     type: 'success',
@@ -14,9 +22,7 @@ const fixtures = [
   },
 ];
 
-const sendMe = [];
-for (let i = 0; i < 14; i++) {
-  sendMe.push(fixtures[Math.floor(Math.random() * 3)]);
-}
-
-ipcRenderer.send('post', 'updateMessages', sendMe);
+setInterval(() => {
+  const fixture = fixtures[Math.floor(Math.random() * 5)];
+  ipcRenderer.send('post', 'updateMessages', [fixture]);
+}, 1000);

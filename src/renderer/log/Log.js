@@ -21,7 +21,7 @@ export default class LogContainer extends Component {
     minHeight: 20,
   });
 
-  _rowRenderer = ({ index, key, parent }) => {
+  _rowRenderer = ({ index, key, parent, style }) => {
     const message = this.state.filteredMessages[index];
 
     return (
@@ -32,11 +32,9 @@ export default class LogContainer extends Component {
         rowIndex={index}
         parent={parent}
       >
-        <div className='row'>
-          <pre className='time'>{message.time}</pre>
-          <pre className={`message ${this.state.filteredMessages[index].type}`}>
-            {message.message}
-          </pre>
+        <div className='row' style={style}>
+          <div className='time'>{message.time}</div>
+          <div className={`message ${message.type}`}>{message.message}</div>
         </div>
       </CellMeasurer>
     );
@@ -51,12 +49,13 @@ export default class LogContainer extends Component {
 
     this.setState({
       filter: newFilter,
-      filteredMessages: newFilter === '' ? { ...this.state.messages } : this.state.messages.filter(message => message.type === newFilter),
+      filteredMessages: newFilter === '' ? this.state.messages.slice(0) : this.state.messages.filter(message => message.type === newFilter),
     });
   };
 
   updateMessages = messages => {
     const currentMessages = this.state.messages;
+    const currentFilteredMessages = this.state.filteredMessages;
 
     for (const message of messages) {
       if (!message.type) {
@@ -66,11 +65,14 @@ export default class LogContainer extends Component {
         message.time = moment().format('HH:mm:ss.SSS');
       }
       if (this.state.filter === '' || message.type === this.state.filter) {
-        this.state.filteredMessages.push(message);
+        currentFilteredMessages.push(message);
       }
       currentMessages.push(message);
     }
-    this.setState({ messages: currentMessages });
+    this.setState({
+      messages: currentMessages,
+      filteredMessages: currentFilteredMessages,
+    });
   };
 
   render() {
@@ -83,6 +85,7 @@ export default class LogContainer extends Component {
                 deferredMeasurementCache={this.heightCache}
                 height={height}
                 width={width}
+                overscanRowCount={0}
                 rowCount={this.state.filteredMessages.length}
                 rowHeight={this.heightCache.rowHeight}
                 rowRenderer={this._rowRenderer}

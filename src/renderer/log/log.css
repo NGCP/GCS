@@ -1,10 +1,7 @@
 /* Defined styles for Log.js */
 
-.logContainer pre {
-  display: inline-block;
-}
-
 .logContainer .row {
+  display: flex;
   margin: 0;
 }
 
@@ -15,7 +12,7 @@
   color: #fff;
 }
 
-.logContainer .messages .time {
+.logContainer .time {
   margin-right: 2em;
 }
 
