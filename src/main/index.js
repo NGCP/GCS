@@ -194,7 +194,7 @@ function createMainWindow() {
   });
 
 
-  const isrmission = new ISRMission(null, null);
+  const isrmission = new ISRMission(null, null, null);
   console.log(isrmission);
 
   return window;
