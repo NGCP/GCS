@@ -6,11 +6,13 @@
   "scripts": {
     "test": "eslint --ext .js . & stylelint \"**/*.css\"",
     "lint": "eslint --fix --ext .js . & stylelint \"**/*.css\" --fix",
+    "install": "electron-rebuild",
     "start": "electron-webpack dev",
     "build": "electron-webpack && electron-builder"
   },
   "dependencies": {
-    "source-map-support": "^0.5.9"
+    "source-map-support": "^0.5.9",
+    "serialport": "^7.0.2"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.1.0",
@@ -19,6 +21,7 @@
     "dotenv": "^6.1.0",
     "electron": "^3.0.2",
     "electron-builder": "^20.28.4",
+    "electron-rebuild": "^1.8.2",
     "electron-webpack": "^2.3.1",
     "eslint": "^5.7.0",
     "eslint-plugin-babel": "^5.2.1",
@@ -34,12 +37,16 @@
     "react-leaflet": "^2.1.0",
     "react-leaflet-control": "^2.0.0",
     "react-virtualized": "^9.21.0",
-    "serialport": "^7.0.2",
     "stylelint": "^9.6.0",
     "stylelint-config-standard": "^18.2.0",
     "stylelint-order": "^1.0.0",
     "webpack": "^4.22.0",
     "xbee-api": "^0.6.0"
+  },
+  "electronWebpack": {
+    "renderer": {
+      "webpackConfig": "webpack.renderer.additions.js"
+    }
   },
   "repository": {
     "type": "git",

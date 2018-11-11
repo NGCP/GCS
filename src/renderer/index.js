@@ -10,6 +10,8 @@ import MissionContainer from './mission/Mission.js';
 import VehicleContainer from './vehicle/Vehicle.js';
 import { cache, devMode, geolocation } from '../../resources/config.json';
 
+// import '../util/xbee.js';
+
 import 'leaflet/dist/leaflet.css';
 import 'react-virtualized/styles.css';
 import './global.css';

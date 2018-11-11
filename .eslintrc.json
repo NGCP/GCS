@@ -182,6 +182,7 @@
 
     "babel/semi": 1,
 
-    "import/extensions": ["error", "always", { "ignorePackages": true }]
+    "import/extensions": ["error", "always", { "ignorePackages": true }],
+    "import/no-named-as-default": 0
   }
 }
