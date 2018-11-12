@@ -8,7 +8,7 @@ import LogContainer from './log/Log.js';
 import MapContainer from './map/Map.js';
 import MissionContainer from './mission/Mission.js';
 import VehicleContainer from './vehicle/Vehicle.js';
-import { cache, devMode, geolocation } from '../../resources/config.json';
+import { devMode, geolocation } from '../../resources/config.json';
 
 // import '../util/xbee.js';
 
@@ -38,7 +38,6 @@ class Index extends Component {
  */
 ReactDOM.render(<Index />, document.getElementById('app'), () => {
   if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
-  if (cache) ipcRenderer.send('post', 'cacheMapTiles');
 
   if (devMode) {
     for (const file of fs.readdirSync(path.resolve(__dirname, '..', 'test'))) {

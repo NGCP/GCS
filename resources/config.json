@@ -1,5 +1,6 @@
 {
-  "cache": false,
   "devMode": true,
+
+  "cache": false,
   "geolocation": true
 }
