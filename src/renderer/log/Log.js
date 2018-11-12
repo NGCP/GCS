@@ -41,10 +41,12 @@ export default class LogContainer extends Component {
   };
 
   clearMessages = () => {
+    this.heightCache.clearAll();
     this.setState({ filter: '', messages: [], filteredMessages: [] });
   };
 
   updateFilter = event => {
+    this.heightCache.clearAll();
     const newFilter = event.target.value;
 
     this.setState({
