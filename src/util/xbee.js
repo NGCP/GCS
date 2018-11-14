@@ -22,4 +22,4 @@ serialport.on('open', () => {
   }, 1000);
 });
 
-xbee.parser.on('data', console.log);
+xbee.parser.on('data', frame => {});
