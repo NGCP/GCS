@@ -16,6 +16,11 @@
     "ecmaVersion": 9,
     "sourceType": "module"
   },
+  "settings": {
+    "react": {
+      "version": "16.5.2"
+    }
+  },
   "env": {
     "browser": true,
     "es6": true,
@@ -30,7 +35,7 @@
   "rules": {
     "no-await-in-loop": "warn",
     "no-compare-neg-zero": "error",
-    "no-console": "off",
+    "no-console": "warn",
     "no-empty-function": "error",
     "no-extra-parens": ["warn", "all", {
       "nestedBinaryExpressions": false
@@ -61,6 +66,7 @@
 
     "accessor-pairs": "warn",
     "array-callback-return": "error",
+    "camelcase": ["error", { "properties": "never", "ignoreDestructuring": false }],
     "complexity": "warn",
     "consistent-return": "error",
     "curly": ["error", "multi-line", "consistent"],
@@ -98,7 +104,7 @@
     "no-shadow": "error",
     "no-undef-init": "error",
     "callback-return": "error",
-    "handle-callback-err": "error",
+    "handle-callback-err": ["error", "^(e|err|error|^.+Error$)$"],
     "no-mixed-requires": "error",
     "no-new-require": "error",
     "no-path-concat": "error",

@@ -2,11 +2,11 @@
   "name": "GCS",
   "version": "0.4.1",
   "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
-  "main": "src/index.js",
+  "main": "src/main/index.js",
   "scripts": {
     "test": "eslint --ext .js . & stylelint \"**/*.css\"",
     "lint": "eslint --fix --ext .js . & stylelint \"**/*.css\" --fix",
-    "install": "electron-rebuild",
+    "postinstall": "electron-builder install-app-deps",
     "start": "electron-webpack dev",
     "build": "electron-webpack && electron-builder"
   },
@@ -21,8 +21,7 @@
     "dotenv": "^6.1.0",
     "electron": "^3.0.2",
     "electron-builder": "^20.28.4",
-    "electron-rebuild": "^1.8.2",
-    "electron-webpack": "^2.3.1",
+    "electron-webpack": "2.3.1",
     "eslint": "^5.7.0",
     "eslint-plugin-babel": "^5.2.1",
     "eslint-plugin-import": "^2.14.0",

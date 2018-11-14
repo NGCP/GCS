@@ -1,9 +1,7 @@
 import SerialPort from 'serialport';
 import { XBeeAPI } from 'xbee-api';
 
-import { usbport } from '../../resources/config.json';
-
-const serialport = new SerialPort('/dev/tty.usbserial-DN018YGF', { baudRate: 57600 });
+const serialport = new SerialPort('COM5', { baudRate: 57600 });
 const xbee = new XBeeAPI({ api_mode: 1 });
 
 let id;
@@ -24,6 +22,4 @@ serialport.on('open', () => {
   }, 1000);
 });
 
-xbee.parser.on('data', frame => {
-  console.log(frame);
-});
+xbee.parser.on('data', frame => {});
