@@ -7,6 +7,11 @@
   ],
   "parser": "babel-eslint",
   "plugins": ["babel", "react"],
+  "settings": {
+    "react": {
+      "version": "16.5.2"
+    }
+  },
   "parserOptions": {
     "ecmaVersion": 9,
     "sourceType": "module"
@@ -30,7 +35,8 @@
   "rules": {
     "no-await-in-loop": "warn",
     "no-compare-neg-zero": "error",
-    "no-console": "error",
+    "no-console": "warn",
+    "no-empty-function": "error",
     "no-extra-parens": ["warn", "all", {
       "nestedBinaryExpressions": false
     }],
