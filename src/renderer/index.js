@@ -1,6 +1,4 @@
 import { ipcRenderer } from 'electron';
-import fs from 'fs';
-import path from 'path';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -8,7 +6,7 @@ import LogContainer from './log/Log.js';
 import MapContainer from './map/Map.js';
 import MissionContainer from './mission/Mission.js';
 import VehicleContainer from './vehicle/Vehicle.js';
-import { devMode, geolocation } from '../../resources/config.json';
+import { devMode, geolocation } from '../../resources/index.js';
 
 import '../util/xbee.js';
 
@@ -39,9 +37,5 @@ class Index extends Component {
 ReactDOM.render(<Index />, document.getElementById('app'), () => {
   if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
 
-  if (devMode) {
-    for (const file of fs.readdirSync(path.resolve(__dirname, '..', 'test'))) {
-      require(`../test/${file}`);
-    }
-  }
+  if (devMode) require('../../test/index.js');
 });

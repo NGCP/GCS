@@ -22,4 +22,4 @@ serialport.on('open', () => {
   }, 1000);
 });
 
-xbee.parser.on('data', frame => {});
+xbee.parser.on('data', frame => {}); // eslint-disable-line no-empty-function

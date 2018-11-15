@@ -92,7 +92,6 @@ export default class LogContainer extends Component {
                 rowCount={this.state.filteredMessages.length}
                 rowHeight={this.heightCache.rowHeight}
                 rowRenderer={this._rowRenderer}
-                onScroll={console.log}
                 scrollToIndex={this.state.filteredMessages.length - 1}
               />
             }

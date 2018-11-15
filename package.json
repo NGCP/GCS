@@ -1,14 +1,14 @@
 {
   "name": "GCS",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
   "main": "src/main/index.js",
   "scripts": {
-    "test": "eslint --ext .js . & stylelint \"**/*.css\"",
-    "lint": "eslint --fix --ext .js . & stylelint \"**/*.css\" --fix",
+    "test": "eslint --ext .js .; stylelint \"**/*.css\"",
+    "lint": "eslint --fix --ext .js .; stylelint \"**/*.css\" --fix",
     "postinstall": "electron-builder install-app-deps",
     "start": "electron-webpack dev",
-    "build": "electron-webpack && electron-builder"
+    "build": "electron-webpack; electron-builder"
   },
   "dependencies": {
     "source-map-support": "^0.5.9",
@@ -18,7 +18,7 @@
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^10.0.1",
-    "dotenv": "^6.1.0",
+    "dotenv-webpack": "^1.5.7",
     "electron": "^3.0.2",
     "electron-builder": "^20.28.4",
     "electron-webpack": "2.3.1",
@@ -43,8 +43,11 @@
     "xbee-api": "^0.6.0"
   },
   "electronWebpack": {
+    "main": {
+      "webpackConfig": "webpack.config.js"
+    },
     "renderer": {
-      "webpackConfig": "webpack.renderer.additions.js"
+      "webpackConfig": "webpack.config.js"
     }
   },
   "repository": {

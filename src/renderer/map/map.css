@@ -3,11 +3,11 @@
 .leaflet-control-geolocation {
   cursor: pointer;
   background-size: 75%;
-  background-image: url('../../../resources/images/icon/geolocation.png');
+  background-image: url('../../../resources/images/other/geolocation.png');
 }
 
 .leaflet-control-geolocation:hover {
-  background-image: url('../../../resources/images/icon/geolocation_hover.png');
+  background-image: url('../../../resources/images/other/geolocation_hover.png');
 }
 
 .mapContainer p {

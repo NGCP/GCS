@@ -1,31 +1,23 @@
 import { ipcRenderer, remote } from 'electron';
 import fs from 'fs';
 import L from 'leaflet';
-import path from 'path';
 import React, { Component, createRef } from 'react';
 import { Map, Marker, Popup } from 'react-leaflet';
 
-import { cache } from '../../../resources/config.json';
-import { startLocation, locations } from '../../../resources/locations.json';
+import { cache, images, locations, startLocation } from '../../../resources/index.js';
 import CachedTileLayer from './CachedTileLayer.js';
 import GeolocationControl from './GeolocationControl.js';
 
 import './map.css';
 
-const vehicleIcons = {};
 const mapOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
-  accessToken: remote.getGlobal('process').env.MAPBOX_TOKEN,
+  accessToken: process.env.MAPBOX_TOKEN,
   useCache: cache,
   crossOrigin: true,
 };
-
-for (const file of fs.readdirSync(path.resolve(__dirname, '../../../resources/images/markers/vehicles'))) {
-  const name = file.split('.').slice(0, -1).join('.');
-  vehicleIcons[name] = require(`../../../resources/images/markers/vehicles/${file}`);
-}
 
 let start = { latitude: 0, longitude: 0, zoom: 18 };
 if (startLocation && locations[startLocation]) {
@@ -130,7 +122,7 @@ export default class MapContainer extends Component {
                 position={position || [lat, lng]}
                 ref={this.vehicleRefs[id]}
                 icon={L.icon({
-                  iconUrl: vehicleIcons[`${type}${status.type === 'failure' ? '_red' : ''}`],
+                  iconUrl: images.markers.vehicles[`${type}${status.type === 'failure' ? '_red' : ''}`] || images.pin,
                   iconSize: [50, 50],
                   iconAnchor: [25, 25],
                   popupAnchor: [0, -25],
