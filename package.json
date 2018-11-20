@@ -4,15 +4,15 @@
   "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
   "main": "src/main/index.js",
   "scripts": {
-    "test": "eslint --ext .js .; stylelint \"**/*.css\"",
-    "lint": "eslint --fix --ext .js .; stylelint \"**/*.css\" --fix",
+    "test": "eslint --ext .js \".\" && stylelint \"**/*.css\"",
     "postinstall": "electron-builder install-app-deps",
+    "lint": "eslint --fix --ext .js \".\" && stylelint \"**/*.css\" --fix",
     "start": "electron-webpack dev",
-    "build": "electron-webpack; electron-builder"
+    "build": "electron-webpack && electron-builder"
   },
   "dependencies": {
-    "source-map-support": "^0.5.9",
-    "serialport": "^7.0.2"
+    "serialport": "^7.0.2",
+    "source-map-support": "^0.5.9"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.1.0",
