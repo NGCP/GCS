@@ -61,6 +61,6 @@ describe('ISRMission', () => {
       const mapping = mission.getVehicleMapping();
 
       chai.expect(mapping).to.deep.equal({ });
-    })
+    });
   });
 });
