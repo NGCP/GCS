@@ -5,7 +5,6 @@
 
 
 export default class Mission {
-
   /**
    * Constructs a Mission, but does not start it.
    * Cannot be instatiated directly: must be executed from a subclass.
@@ -18,11 +17,13 @@ export default class Mission {
       throw new TypeError('Cannot instantiate abstract class Mission');
     }
 
+    /*
     for (let i = 0; i < this.requiredOverrideMethods.length; i++) {
       if (!(this[this.requiredOverrideMethods[i]] instanceof Function)) {
         throw new EvalError(`Method ${this.requiredOverrideMethods[i]} must be overridden in subclass`);
       }
     }
+    */
 
     // Reference to the global vehicle list is kept
     this.vehicleList = vehicleList;
@@ -48,8 +49,17 @@ export default class Mission {
    * Starts the mission with the given information and the given vehicles
    * @param {Object} missionData - the data about the mission at hand
    */
-  start() {
+  start(missionData) {
     throw new EvalError('start must be overridden in Mission subclasses');
+  }
+
+  /**
+   * Get a vehicle mapping
+   *
+   * return {Object}  An object containing the mappings between the Vehicle and its assigned job (String)
+   */
+  getVehicleMapping() {
+    throw new EvalError('getVehicleMapping must be overridden in Mission subclasses');
   }
 
   /**
@@ -68,4 +78,4 @@ export default class Mission {
 * This variable contains the names of all the functions that must be defined
 * by subclasses.
 */
-Mission.prototype.requiredOverrideMethods = ['start', 'vehicleUpdate'];
+// Mission.prototype.requiredOverrideMethods = ['start', 'vehicleUpdate'];

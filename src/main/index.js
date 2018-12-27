@@ -5,6 +5,41 @@ import outdent from 'outdent';
 import path from 'path';
 import { format as formatUrl } from 'url';
 
+/*
+const xbee_api = require('xbee-api');
+
+console.log('here')
+
+const serial_port_api = require('serialport');
+
+console.log(serial_port_api);
+
+const constants = xbee_api.constants;
+const xbeeAPI = new xbee_api.XBeeAPI();
+
+let serial_port = new serial_port_api.SerialPort("/dev/tty.usbserial-DA01R7GR", {
+  baudrate: 57600,
+});
+
+serial_port.pipe(xbeeAPI.parser);
+xbeeAPI.builder.pipe(serial_port);
+
+serial_port.on('open', () => {
+  const frame_obj = {
+    type: constants.FRAME_TYPE.ZIGBEE_TRANSMIT_REQUEST,
+    id: 0x01,
+    destination64: '0013A2004067E4AE',
+    data: 'Hello world!!',
+  };
+
+  xbeeAPI.builder.write(frame_obj);
+});
+
+xbeeAPI.parser.on('data', frame => {
+  console.log(`RECEIVED: ${frame}`);
+});
+*/
+
 import Orchestrator from './control/Orchestrator';
 import Mission from './control/Mission';
 import ISRMission from './control/ISRMission';
@@ -192,10 +227,6 @@ function createMainWindow() {
     window = null;
     app.quit();
   });
-
-
-  const isrmission = new ISRMission(null, null, null);
-  console.log(isrmission);
 
   return window;
 }
