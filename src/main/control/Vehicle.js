@@ -4,9 +4,10 @@
  */
 
 export default class Vehicle {
-  constructor(vehicleId, vehicleJobs) {
+  constructor(vehicleId, vehicleJobs, vehicleReady) {
     this.vehicleId = vehicleId;
     this.vehicleJobs = vehicleJobs;
+    this.vehicleReady = vehicleReady;
   }
 
   get jobs() {
@@ -15,5 +16,13 @@ export default class Vehicle {
 
   get id() {
     return this.vehicleId;
+  }
+
+  get ready() {
+    return this.vehicleReady;
+  }
+
+  toString() {
+    return `${this.vehicleId  } ${  this.vehicleJobs}`;
   }
 }
