@@ -3,16 +3,25 @@
  * All implementing subclasses must ensure to override the stub methods
  */
 import Mission from './Mission';
+import Task from './Task';
 
 export default class ISRMission extends Mission {
   constructor(completionCallback, vehicleList, logger) {
     super(completionCallback, vehicleList, logger);
 
-    this.missionSetup = {};
+    this.missionJobTypes = ['ISR_Plane'];
+    this.missionDataInformationRequirements = ['lat', 'lng'];
     this.missionSetupTracker = { plane_start_action: false, plane_end_action: false };
+    this.missionSetup = {};
+
+    this.missionStatus = 'WAITING';
 
     this.activeVehicleMapping = new Map();
-    this.taskList = [];
+
+    // Waiting tasks are an object with the different jobTypes as keys, and the values as arrays of Tasks
+    this.waitingTasks = {};
+    // Active tasks are objects with the vehicles as keys, and the values as the task assigned to them
+    this.activeTasks = {};
   }
 
 
@@ -28,31 +37,92 @@ export default class ISRMission extends Mission {
    * @param  {Object} missionData Object containing a point and a radius (x, y, r)
    */
   missionStart(missionData) {
-    // Get only vehicles relevant to the current mission (match job & is ready)
-    const missionVehicles = this.vehicleList.filter(vec => {
-      const jobsList = vec.getJobs();
-      let isValid = false;
-      for (let job = 0; job < jobsList.length; job++) {
-        isValid = isValid || this.missionJobTypes.includes(jobsList[job]);
-      }
-      return isValid && vec.isReady();
-    });
+    // If not already in the READY state, attempt to init the mission.
+    if (this.missionStatus !== 'READY') {
+      this.missionInit();
+    }
 
-    for (let i = 0; i < missionVehicles.length; i++) {
-      if (missionVehicles[i].getJobs().length() === 1) {
-        // pass
+    // Check that the missionData provides the required input information.
+    // Consider changing so that the requiresments are in the task objects instead.
+    for (let index = 0; index < this.missionDataInformationRequirements.length; index++) {
+      const key = this.missionDataInformationRequirements[index];
+      if (!(key in missionData)) {
+        throw new RangeError(`Value '${key}' is a required mission parameter`);
       }
     }
 
-    // Check that there exists at least one of each kind of vehicle
-    // Start by mapping all vehicles with only one job first
-    // Then check with the multi job vehicles
+    // Create tasks based on mission & create an assignment
 
-    // Create tasks based on mission
-    // Create an initial assignment
+    // ISR only has one task
+    const task = new Task(missionData.lat, missionData.lng);
+    this.waitingTasks[task.jobRequired] = [task];
+
+    // Create the initial task assignment (go through all vehicles and assign a task)
+    for (const vehc of this.activeVehicleMapping.keys()) {
+      const vehcJob = this.activeVehicleMapping.get(vehc);
+
+      // Assumption made that the array exists (has been defined already)...
+      if (this.waitingTasks[vehcJob].length > 0) {
+        const vehcTask = this.waitingTasks[vehcJob].pop();
+
+        // Set task to active
+        vehc.assignTask(vehcTask);
+        this.activeTasks[vehc] = vehcTask;
+      }
+    }
+
     // Start the mission
+    this.missionStatus = 'RUNNING';
+
+    const run_promise = new Promise((resolve, reject) => {
+      this.run();
+
+      resolve('ok');
+    });
+
+    run_promise
+      .then(() => {
+        this.completionCallback();
+      })
+      .catch(() => {
+        throw new RangeError('An error occurred when running!');
+      });
   }
 
+  /**
+   * Run the mission. Should be called asynchronously.
+   */
+  run() {
+
+  }
+
+  /**
+   * Initializes the mission. Does this by verifying that all settings are set
+   * and complete. Does all pre-mission tasks (committing assigned vehicles &
+   * sending intial messages to all the vehicles).
+   * Essentially: does everything to prepare for the mission, but does not start.
+   *
+   * If the mission cannot be initialized, an exception will be thrown.
+   */
+  missionInit() {
+    // Can only initialize missions that are in the waiting state
+    if (this.missionStatus !== 'WAITING') {
+      throw new RangeError('Cannot initialize mission: not in WAITING state');
+    }
+
+    // Check mission setup completeness & accuraccy
+    const missionIsReady = this.missionSetupComplete();
+    if (missionIsReady !== true) {
+      throw new RangeError(`Failed to initialize mission: ${missionIsReady}`);
+    }
+
+    // Assign job type to each of the vehicles in the mapping
+    for (const vehc of this.activeVehicleMapping.keys()) {
+      vehc.assignJob(this.activeVehicleMapping.get(vehc));
+    }
+
+    this.missionStatus = 'READY';
+  }
 
   // +-----------------------------------------------------------------------+
   // |                        Mission Setup Function                         |
@@ -63,7 +133,7 @@ export default class ISRMission extends Mission {
    *
    * @returns {boolean|string} true if the mission is valid and ready; String message otherwise
    */
-  missionInfoReady() {
+  missionSetupComplete() {
     // check that mission setup is complete
     let complete = true;
     let message_string = '';
@@ -87,7 +157,7 @@ export default class ISRMission extends Mission {
     for (const job of this.missionJobTypes) {
       if (!jobSet.has(job)) {
         complete = false;
-        message_string = `No vehicle assigned to '${job}'`;
+        message_string = `No vehicle assigned for the job type: '${job}'`;
       }
     }
 
@@ -104,6 +174,10 @@ export default class ISRMission extends Mission {
    * @param {Object} setupData - the data about the mission at hand.
    */
   setMissionInfo(setupData) {
+    if (this.missionStatus !== 'WAITING') {
+      throw new RangeError('Mission already initialized: cannot change Mission info!');
+    }
+
     for (const key in this.missionSetupTracker) {
       if (key in setupData) {
         this.missionSetup[key] = setupData[key];
@@ -119,6 +193,10 @@ export default class ISRMission extends Mission {
    * @param {Object} mapping of vehicle objects to an assigned job.
    */
   setVehicleMapping(mapping) {
+    if (this.missionStatus !== 'WAITING') {
+      throw new RangeError('Mission already initialized: cannot change vehicle mapping!');
+    }
+
     let isValid = true;
 
     for (const vehc of mapping.keys()) {
@@ -175,9 +253,3 @@ export default class ISRMission extends Mission {
     return null;
   }
 }
-
-
-/**
- * Static variables for the ISRMission class
- */
-ISRMission.prototype.missionJobTypes = ['ISR_Plane'];

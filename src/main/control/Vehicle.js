@@ -4,10 +4,12 @@
  */
 
 export default class Vehicle {
-  constructor(vehicleId, vehicleJobs, vehicleReady) {
+  constructor(vehicleId, vehicleJobs, vehicleStatus) {
     this.vehicleId = vehicleId;
     this.vehicleJobs = vehicleJobs;
-    this.vehicleReady = vehicleReady;
+    this.vehicleStatus = vehicleStatus;
+    this.assignedJob = null;
+    this.assignedTask = null;
   }
 
   get jobs() {
@@ -18,11 +20,33 @@ export default class Vehicle {
     return this.vehicleId;
   }
 
-  get ready() {
-    return this.vehicleReady;
+  get status() {
+    return this.vehicleStatus;
+  }
+
+  assignJob(job) {
+    if (this.assignedJob !== null) {
+      throw new RangeError('Vehicle job has already been assigned!');
+    }
+
+    this.vehicleStatus = 'WAITING';
+    this.assignedJob = job;
+  }
+
+  assignTask(task) {
+    if (this.assignedTask !== null) {
+      throw new RangeError('Vehicle task has already been assigned!');
+    }
+
+    if (task.jobRequired !== this.assignedJob) {
+      throw new RangeError('Task job required does not match with the job assigned!');
+    }
+
+    this.vehicleStatus = 'READY';
+    this.assignedTask = task;
   }
 
   toString() {
-    return `${this.vehicleId  } ${  this.vehicleJobs}`;
+    return `${this.vehicleId} ${this.vehicleJobs} ${this.vehicleStatus}`;
   }
 }

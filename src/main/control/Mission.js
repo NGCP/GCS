@@ -67,8 +67,8 @@ export default class Mission {
    *
    * returns {boolean|string} true if the mission is valid and ready; String message otherwise
    */
-  missionInfoReady() {
-    throw new EvalError('missionInfoReady must be overridden in Mission subclasses');
+  missionSetupComplete() {
+    throw new EvalError('missionSetupComplete must be overridden in Mission subclasses');
   }
 
   /**
