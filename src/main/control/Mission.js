@@ -97,4 +97,16 @@ export default class Mission {
   vehicleUpdate() {
     throw new EvalError('vehicleUpdate must be overridden in Mission subclasses');
   }
+
+  /**
+   * Update the mission based on the information received in the message.
+   * MissionUpdate happens when a message directly relating to the mission
+   * is received and the mission must take reasonable measures to apply the information.
+   *
+   * @param {Object} mesg received.
+   * @param {Vehicle} sender the vehicle object of the sender of the message.
+   */
+  missionUpdate(mesg, sender) {
+    throw new EvalError('missionUpdate must be overrided in Mission subclasses');
+  }
 }

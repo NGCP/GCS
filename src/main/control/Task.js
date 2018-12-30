@@ -11,4 +11,11 @@ export default class Task {
     this.lat = lat;
     this.lng = lng;
   }
+
+  /*
+   * Generate the task-specific addMission message
+   */
+  generateStartMessage() {
+    // generate an addMission message.
+  }
 }

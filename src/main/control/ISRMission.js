@@ -19,9 +19,30 @@ export default class ISRMission extends Mission {
     this.activeVehicleMapping = new Map();
 
     // Waiting tasks are an object with the different jobTypes as keys, and the values as arrays of Tasks
-    this.waitingTasks = {};
+    this.waitingTasks = {
+      count: 0,
+      pop: function pop(job) {
+        if (job in this && this[job].length > 0) {
+          this.count--;
+          return this[job].pop();
+        } else {
+          throw new RangeError(`No waiting tasks for: ${job}`);
+        }
+      },
+      push: function push(job, task) {
+        if (!(job in this)) {
+          this[job] = [];
+        }
+        this.count++;
+        this[job].push(task);
+      },
+    };
+
     // Active tasks are objects with the vehicles as keys, and the values as the task assigned to them
-    this.activeTasks = {};
+    this.activeTasks = new Map();
+
+    // Save all the mission results
+    this.missionDataResults = {};
   }
 
 
@@ -55,45 +76,76 @@ export default class ISRMission extends Mission {
 
     // ISR only has one task
     const task = new Task(missionData.lat, missionData.lng);
-    this.waitingTasks[task.jobRequired] = [task];
+    this.waitingTasks.push(task.jobRequired, task);
 
     // Create the initial task assignment (go through all vehicles and assign a task)
+    // In this case, since there is only one job, not verification needed that the
+    // job is being correctly assigned to a vehicle capable of doing the task
     for (const vehc of this.activeVehicleMapping.keys()) {
       const vehcJob = this.activeVehicleMapping.get(vehc);
 
       // Assumption made that the array exists (has been defined already)...
       if (this.waitingTasks[vehcJob].length > 0) {
-        const vehcTask = this.waitingTasks[vehcJob].pop();
+        const vehcTask = this.waitingTasks.pop(vehcJob);
 
         // Set task to active
         vehc.assignTask(vehcTask);
-        this.activeTasks[vehc] = vehcTask;
+        this.activeTasks.set(vehc, vehcTask);
       }
     }
 
     // Start the mission
     this.missionStatus = 'RUNNING';
-
-    const run_promise = new Promise((resolve, reject) => {
-      this.run();
-
-      resolve('ok');
-    });
-
-    run_promise
-      .then(() => {
-        this.completionCallback();
-      })
-      .catch(() => {
-        throw new RangeError('An error occurred when running!');
-      });
   }
 
   /**
-   * Run the mission. Should be called asynchronously.
+   * Triggers an update: happens when a vehicle update occurs. Causes the mission
+   * to update the state based on the new vehicle value.
+   *
+   * @param {string} field the name of the state that changed
+   * @param {Any} value the new value.
    */
-  run() {
+  vehicleUpdate(field, value) {
 
+  }
+
+  /**
+   * Update the mission based on the information received in the message.
+   * MissionUpdate happens when a message directly relating to the mission
+   * is received and the mission must take reasonable measures to apply the information.
+   *
+   * @param {Object} mesg received
+   * @param {Vehicle} sender the vehicle object of the sender of the message.
+   */
+  missionUpdate(mesg, sender) {
+    if (mesg.type === 'POI') {
+      if (!('POI' in this.missionDataResults)) {
+        this.missionDataResults.POI = [];
+      }
+      this.missionDataResults.POI.push({ lat: mesg.lat, lng: mesg.lng });
+    } else if (mesg.type === 'complete') {
+      // Get the sending vehicle
+      const vehcJob = this.activeVehicleMapping.get(sender);
+
+      // Reassign task if any are waiting.
+      if (this.waitingTasks[vehcJob].length > 0) {
+        const newTask = this.waitingTasks.pop(vehcJob);
+
+        sender.assignTask(newTask);
+        this.activeTasks.set(sender, newTask);
+      } else {
+        this.activeTasks.delete(sender);
+      }
+
+      // If there are no active tasks and no waiting tasks, then mission is considered done.
+      if (this.activeTasks.size === 0 && this.waitingTasks.count === 0) {
+        this.completionCallback(this.missionDataResults);
+      } else if (this.activeTasks.size === 0 && this.waitingTasks.count !== 0) {
+        throw new RangeError('No active tasks, but there remain tasks to do. Did vehicle jobs get messed up?');
+      }
+    } else {
+      throw new RangeError(`Unknown Mission message type ${mesg.type}. This either should have been handled by the message parser, or was incorrectly marked as a Mission update message by the Orchestrator.`);
+    }
   }
 
   /**
@@ -247,9 +299,5 @@ export default class ISRMission extends Mission {
       }
     }
     return mapping;
-  }
-
-  vehicleUpdate() {
-    return null;
   }
 }

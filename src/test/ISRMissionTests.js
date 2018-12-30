@@ -327,8 +327,8 @@ describe('ISRMission', () => {
 
       mission.missionStart(missionData);
       chai.expect(mission.missionStatus).to.equal('RUNNING');
-      chai.expect(mission.waitingTasks).to.deep.equal({ ISR_Plane: [] });
-      chai.expect(mission.activeTasks).to.deep.equal({ [vh1]: new Task(missionData.lat, missionData.lng) });
+      chai.expect(mission.waitingTasks).to.have.deep.property('ISR_Plane', []);
+      chai.expect(mission.activeTasks).to.deep.equal(new Map([[vh1, new Task(missionData.lat, missionData.lng)]]));
       chai.expect(vh1.status).to.equal('READY');
       chai.expect(vh1.assignedJob).to.equal('ISR_Plane');
       chai.expect(vh1.assignedTask).to.deep.equal(new Task(missionData.lat, missionData.lng));
@@ -345,8 +345,8 @@ describe('ISRMission', () => {
 
       mission.missionStart(missionData);
       chai.expect(mission.missionStatus).to.equal('RUNNING');
-      chai.expect(mission.waitingTasks).to.deep.equal({ ISR_Plane: [] });
-      chai.expect(mission.activeTasks).to.deep.equal({ [vh1]: new Task(missionData.lat, missionData.lng) });
+      chai.expect(mission.waitingTasks).to.have.deep.property('ISR_Plane', []);
+      chai.expect(mission.activeTasks).to.deep.equal(new Map([[vh1, new Task(missionData.lat, missionData.lng)]]));
       chai.expect(vh1.status).to.equal('READY');
       chai.expect(vh1.assignedJob).to.equal('ISR_Plane');
       chai.expect(vh1.assignedTask).to.deep.equal(new Task(missionData.lat, missionData.lng));
@@ -376,7 +376,103 @@ describe('ISRMission', () => {
   });
 
 
-  describe('- run()', () => {
-    // Add tests for the run function.
+  describe('+ missionUpdate()', () => {
+    let vh1;
+    let vh2;
+    let vh3;
+    let vh4;
+    let mission;
+    let vehicleList;
+
+    beforeEach(() => {
+      vh1 = new Vehicle(1, ['ISR_Plane'], 'UNASSIGNED');
+      vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'UNASSIGNED');
+      vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'UNASSIGNED');
+      vh4 = new Vehicle(4, ['ISR_Plane'], 'UNASSIGNED');
+      vehicleList = [vh1, vh2, vh3, vh4];
+      mission = new ISRMission(dummyCompletionCallback, vehicleList, dummyLogger);
+    });
+
+    it('should keep track of all POI messages that arrive', () => {
+      const mesg1 = { type: 'POI', lat: 1.00, lng: 2.00 };
+      const mesg2 = { type: 'POI', lat: 3.00, lng: 4.00 };
+      const mesg3 = { type: 'POI', lat: 5.00, lng: 6.00 };
+
+      chai.expect(mission.missionDataResults).to.not.have.property('POI');
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(mission.missionDataResults).to.have.deep.property('POI', [{ lat: 1.00, lng: 2.00 }]);
+      mission.missionUpdate(mesg2, vh1);
+      chai.expect(mission.missionDataResults).to.have.deep.property('POI', [{ lat: 1.00, lng: 2.00 }, { lat: 3.00, lng: 4.00 }]);
+      mission.missionUpdate(mesg3, vh1);
+      chai.expect(mission.missionDataResults).to.have.deep.property('POI', [{ lat: 1.00, lng: 2.00 }, { lat: 3.00, lng: 4.00 }, { lat: 5.00, lng: 6.00 }]);
+    });
+
+    it('should reassign tasks when a complete message arrives and call the completion callback when all tasks have been consumed', () => {
+      // start the mission
+      const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
+      const mapping = new Map([[vh1, 'ISR_Plane']]);
+
+      mission.setVehicleMapping(mapping);
+      mission.setMissionInfo(missionSetup);
+
+      const missionData = { lat: 10.000, lng: 10.000 };
+
+      mission.missionStart(missionData);
+
+      // Add new tasks
+      mission.waitingTasks.push('ISR_Plane', new Task(-100, -100));
+      mission.waitingTasks.push('ISR_Plane', new Task(-150, -150));
+
+      // Send the complete message
+      const mesg1 = { type: 'complete' };
+
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(mission.activeTasks.get(vh1)).to.deep.equal(new Task(-150, -150));
+
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(mission.activeTasks.get(vh1)).to.deep.equal(new Task(-100, -100));
+
+      completionCallbackCalled = false;
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(completionCallbackCalled).to.equal(true);
+    });
+  });
+
+
+  describe('- waitingTasks', () => {
+    let mission;
+
+    beforeEach(() => {
+      mission = new ISRMission(dummyCompletionCallback, [], dummyLogger);
+    });
+
+    it('should have pop, push and count', () => {
+      chai.expect(mission.waitingTasks).to.have.property('count', 0);
+      chai.expect(mission.waitingTasks).to.have.property('pop');
+      chai.expect(mission.waitingTasks).to.have.property('push');
+    });
+
+    it('should allow adding tasks', () => {
+      chai.expect(mission.waitingTasks).to.have.property('count', 0);
+      chai.expect(mission.waitingTasks).to.not.have.property('JOB1');
+      mission.waitingTasks.push('JOB1', new Task(1, 1));
+      chai.expect(mission.waitingTasks).to.have.deep.property('JOB1', [new Task(1, 1)]);
+      chai.expect(mission.waitingTasks).to.have.property('count', 1);
+    });
+
+    it('should allow getting tasks', () => {
+      mission.waitingTasks.push('JOB1', new Task(1, 1));
+      mission.waitingTasks.push('JOB1', new Task(2, 2));
+      mission.waitingTasks.push('JOB1', new Task(3, 3));
+      chai.expect(mission.waitingTasks).to.have.deep.property('JOB1', [new Task(1, 1), new Task(2, 2), new Task(3, 3)]);
+      chai.expect(mission.waitingTasks.pop('JOB1')).to.deep.equal(new Task(3, 3));
+      chai.expect(mission.waitingTasks.count).to.equal(2);
+      chai.expect(mission.waitingTasks.pop('JOB1')).to.deep.equal(new Task(2, 2));
+      chai.expect(mission.waitingTasks.count).to.equal(1);
+      chai.expect(mission.waitingTasks.pop('JOB1')).to.deep.equal(new Task(1, 1));
+      chai.expect(mission.waitingTasks.count).to.equal(0);
+      chai.expect(() => mission.waitingTasks.pop('JOB1')).to.throw();
+      chai.expect(() => mission.waitingTasks.pop('NOT_DEF')).to.throw();
+    });
   });
 });
