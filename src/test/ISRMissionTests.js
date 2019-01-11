@@ -327,7 +327,7 @@ describe('ISRMission', () => {
 
       mission.missionStart(missionData);
       chai.expect(mission.missionStatus).to.equal('RUNNING');
-      chai.expect(mission.waitingTasks).to.have.deep.property('ISR_Plane', []);
+      chai.expect(mission.waitingTasks.countItemsForKey('ISR_Plane')).to.equal(0);
       chai.expect(mission.activeTasks).to.deep.equal(new Map([[vh1, new Task(missionData.lat, missionData.lng)]]));
       chai.expect(vh1.status).to.equal('READY');
       chai.expect(vh1.assignedJob).to.equal('ISR_Plane');
@@ -343,13 +343,7 @@ describe('ISRMission', () => {
 
       const missionData = { lat: 10.000, lng: 10.000 };
 
-      mission.missionStart(missionData);
-      chai.expect(mission.missionStatus).to.equal('RUNNING');
-      chai.expect(mission.waitingTasks).to.have.deep.property('ISR_Plane', []);
-      chai.expect(mission.activeTasks).to.deep.equal(new Map([[vh1, new Task(missionData.lat, missionData.lng)]]));
-      chai.expect(vh1.status).to.equal('READY');
-      chai.expect(vh1.assignedJob).to.equal('ISR_Plane');
-      chai.expect(vh1.assignedTask).to.deep.equal(new Task(missionData.lat, missionData.lng));
+      chai.expect(() => mission.missionStart(missionData)).to.throw();
     });
 
     it('should reject (throw exception) a mission that has not been initialized and not all information is present', () => {
@@ -420,8 +414,8 @@ describe('ISRMission', () => {
       mission.missionStart(missionData);
 
       // Add new tasks
-      mission.waitingTasks.push('ISR_Plane', new Task(-100, -100));
       mission.waitingTasks.push('ISR_Plane', new Task(-150, -150));
+      mission.waitingTasks.push('ISR_Plane', new Task(-100, -100));
 
       // Send the complete message
       const mesg1 = { type: 'complete' };
@@ -435,44 +429,6 @@ describe('ISRMission', () => {
       completionCallbackCalled = false;
       mission.missionUpdate(mesg1, vh1);
       chai.expect(completionCallbackCalled).to.equal(true);
-    });
-  });
-
-
-  describe('- waitingTasks', () => {
-    let mission;
-
-    beforeEach(() => {
-      mission = new ISRMission(dummyCompletionCallback, [], dummyLogger);
-    });
-
-    it('should have pop, push and count', () => {
-      chai.expect(mission.waitingTasks).to.have.property('count', 0);
-      chai.expect(mission.waitingTasks).to.have.property('pop');
-      chai.expect(mission.waitingTasks).to.have.property('push');
-    });
-
-    it('should allow adding tasks', () => {
-      chai.expect(mission.waitingTasks).to.have.property('count', 0);
-      chai.expect(mission.waitingTasks).to.not.have.property('JOB1');
-      mission.waitingTasks.push('JOB1', new Task(1, 1));
-      chai.expect(mission.waitingTasks).to.have.deep.property('JOB1', [new Task(1, 1)]);
-      chai.expect(mission.waitingTasks).to.have.property('count', 1);
-    });
-
-    it('should allow getting tasks', () => {
-      mission.waitingTasks.push('JOB1', new Task(1, 1));
-      mission.waitingTasks.push('JOB1', new Task(2, 2));
-      mission.waitingTasks.push('JOB1', new Task(3, 3));
-      chai.expect(mission.waitingTasks).to.have.deep.property('JOB1', [new Task(1, 1), new Task(2, 2), new Task(3, 3)]);
-      chai.expect(mission.waitingTasks.pop('JOB1')).to.deep.equal(new Task(3, 3));
-      chai.expect(mission.waitingTasks.count).to.equal(2);
-      chai.expect(mission.waitingTasks.pop('JOB1')).to.deep.equal(new Task(2, 2));
-      chai.expect(mission.waitingTasks.count).to.equal(1);
-      chai.expect(mission.waitingTasks.pop('JOB1')).to.deep.equal(new Task(1, 1));
-      chai.expect(mission.waitingTasks.count).to.equal(0);
-      chai.expect(() => mission.waitingTasks.pop('JOB1')).to.throw();
-      chai.expect(() => mission.waitingTasks.pop('NOT_DEF')).to.throw();
     });
   });
 });

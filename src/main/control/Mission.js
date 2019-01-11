@@ -40,9 +40,7 @@ export default class Mission {
   /**
    * Starts the mission with the given information and the given vehicles.
    *
-   * The mission must have be initialized first; if not the mission will
-   * attempt to initialize the mission by calling missionInit first,
-   * but will throw an exception if unable to initialize.
+   * The mission must have been successfully initialized first.
    *
    * @param {Object} missionData - the data about the mission at hand
    */
@@ -89,14 +87,6 @@ export default class Mission {
     throw new EvalError('getVehicleMapping must be overridden in Mission subclasses');
   }
 
-  /**
-   * Triggered by the Orchestrator to signal that vehicle information has changed
-   * Causes a check to be performed to ensure that all vehicles are still active
-   * and handles reallocation of tasks as needed.
-   */
-  vehicleUpdate() {
-    throw new EvalError('vehicleUpdate must be overridden in Mission subclasses');
-  }
 
   /**
    * Update the mission based on the information received in the message.

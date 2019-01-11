@@ -10,6 +10,19 @@ export default class Vehicle {
     this.vehicleStatus = vehicleStatus;
     this.assignedJob = null;
     this.assignedTask = null;
+
+    this.vehicleValues = undefined;
+
+    this.updateEventHandlers = [];
+
+
+    this.pendingInitialization = false;
+    this.pendingCompletion = null;
+    this.pendingFailure = null;
+    this.pendingInitializationTimeout = null;
+
+    // Time (in ms) before considering that a vehicle has timed out
+    this.vehicleTimeoutLength = 15000;
   }
 
   get jobs() {
@@ -24,16 +37,36 @@ export default class Vehicle {
     return this.vehicleStatus;
   }
 
-  assignJob(job) {
-    if (this.assignedJob !== null) {
-      throw new RangeError('Vehicle job has already been assigned!');
+  /**
+   * Triggers an update: happens when a vehicle update occurs.
+   * @param {Object} updateValue the object value of the update message.
+   */
+  vehicleUpdate(updateValue) {
+    this.vehicleValues = updateValue;
+
+  }
+
+
+  assignJob(job, completion, timeout) {
+    if (this.pendingInitialization) {
+      throw new Error('Initialization is already pending; cannot assign job until current initialization is finished');
     }
 
-    this.vehicleStatus = 'WAITING';
     this.assignedJob = job;
+    this.pendingInitialization = true;
+    this.pendingCompletion = completion;
+    this.pendingFailure = timeout;
+    /*
+     Create the timeout function (after 15 seconds) to handle if the vehicle
+     does not update in time. Revert the changes, and run the timeout handler.
+    */
+    this.pendingInitializationTimeout = setTimeout(() => {
+      this.assignedJob = null;
+      this.pendingInitialization = false;
+      this.pendingFailure();
+    }, this.vehicleTimeoutLength);
 
     // Send a message to the vehicle indicating the job assignment
-
     this.sendMessage({ type: 'start', jobType: this.assignedJob });
   }
 
@@ -42,7 +75,6 @@ export default class Vehicle {
       throw new RangeError('Task job required does not match with the job assigned!');
     }
 
-    this.vehicleStatus = 'READY';
     this.assignedTask = task;
 
     this.sendMessage({ type: 'addMission', missionInfo: this.assignedTask.generateStartMessage() });
