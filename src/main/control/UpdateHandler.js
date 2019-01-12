@@ -9,7 +9,7 @@
 
 export default class UpdateHandlers {
   constructor() {
-    this.events = {};
+    this.event_dict = {};
   }
 
   /**
@@ -22,27 +22,27 @@ export default class UpdateHandlers {
    * @param {Function} timeout_f the timeout function to run if the event expires
    * @param {integer} timeout_time the time in milliseconds before running the timeout function
    */
-  addEvent(event_str, handler_f, timeout_f, timeout_time) {
+  addHandler(event_str, handler_f, timeout_f, timeout_time) {
     if (event_str === undefined || handler_f === undefined) {
       throw new Error('event string and the handler function must both be specified');
     }
 
-    if (!(event_str in this.events)) {
-      this.events[event_str] = [];
+    if (!(event_str in this.event_dict)) {
+      this.event_dict[event_str] = [];
     }
 
     const event_obj = { handler: handler_f, expiry: null };
 
     if (timeout_f !== undefined && timeout_time !== undefined) {
       event_obj.expiry = setTimeout(() => {
-        this.events[event_str] = this.events[event_str].filter(v => v !== event_obj);
+        this.event_dict[event_str] = this.event_dict[event_str].filter(v => v !== event_obj);
         timeout_f();
       }, timeout_time);
     } else if (timeout_f !== undefined || timeout_time !== undefined) {
       throw new Error('Both the timeout function and the timeout time must be specified, if at all');
     }
 
-    this.events[event_str].push(event_obj);
+    this.event_dict[event_str].push(event_obj);
   }
 
   /**
@@ -52,11 +52,11 @@ export default class UpdateHandlers {
    * @param {any} value the value being updated
    */
   event(event_str, value) {
-    if (!(event_str in this.events)) {
+    if (!(event_str in this.event_dict)) {
       return;
     }
 
-    this.events[event_str] = this.events[event_str].filter(v => {
+    this.event_dict[event_str] = this.event_dict[event_str].filter(v => {
       const r = v.handler(value);
       if (r === true) {
         // Remove handler
@@ -85,7 +85,7 @@ export default class UpdateHandlers {
    */
   events(events_kv_pair) {
     for (const key in events_kv_pair) {
-      event(key, events_kv_pair[key]);
+      this.event(key, events_kv_pair[key]);
     }
   }
 }

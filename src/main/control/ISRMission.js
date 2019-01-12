@@ -151,16 +151,16 @@ export default class ISRMission extends Mission {
 
     for (const vehc of this.pendingInitializingVehicles) {
       vehc.assignJob(this.activeVehicleMapping.get(vehc), () => {
-        this.pendingInitializingVehicles.filter(v => vehc !== v);
+        this.pendingInitializingVehicles = this.pendingInitializingVehicles.filter(v => vehc !== v);
 
         if (this.pendingInitializingVehicles.length === 0) {
           // Mission is ready (done initializing)
-          super.logger.log('Mission initialization successful');
-          this.missionState = 'READY';
+          this.logger.log('Mission initialization successful');
+          this.missionStatus = 'READY';
         }
       }, () => {
-        super.logger.log(`Mission initialization timed out while waiting for the vehicle ${vehc} to initialize`);
-        this.missionState = 'WAITING';
+        this.logger.log(`Mission initialization timed out while waiting for the vehicle ${vehc} to initialize`);
+        this.missionStatus = 'WAITING';
       });
     }
 

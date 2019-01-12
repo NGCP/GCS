@@ -3,6 +3,8 @@
  * This class still needs to be fully fleshed out.
  */
 
+import UpdateHandlers from './UpdateHandler';
+
 export default class Vehicle {
   constructor(vehicleId, vehicleJobs, vehicleStatus) {
     this.vehicleId = vehicleId;
@@ -11,16 +13,9 @@ export default class Vehicle {
     this.assignedJob = null;
     this.assignedTask = null;
 
-    this.vehicleValues = undefined;
-
-    this.updateEventHandlers = [];
-
+    this.updateEventHandlers = new UpdateHandlers();
 
     this.pendingInitialization = false;
-    this.pendingCompletion = null;
-    this.pendingFailure = null;
-    this.pendingInitializationTimeout = null;
-
     // Time (in ms) before considering that a vehicle has timed out
     this.vehicleTimeoutLength = 15000;
   }
@@ -38,12 +33,13 @@ export default class Vehicle {
   }
 
   /**
-   * Triggers an update: happens when a vehicle update occurs.
+   * Triggers an update on any value that changed relative to the
+   * stored vehicle values. Happens when a vehicle update occurs.
+   *
    * @param {Object} updateValue the object value of the update message.
    */
   vehicleUpdate(updateValue) {
-    this.vehicleValues = updateValue;
-
+    this.updateEventHandlers.events(updateValue);
   }
 
 
@@ -54,16 +50,19 @@ export default class Vehicle {
 
     this.assignedJob = job;
     this.pendingInitialization = true;
-    this.pendingCompletion = completion;
-    this.pendingFailure = timeout;
-    /*
-     Create the timeout function (after 15 seconds) to handle if the vehicle
-     does not update in time. Revert the changes, and run the timeout handler.
-    */
-    this.pendingInitializationTimeout = setTimeout(() => {
-      this.assignedJob = null;
+
+    // Add a handler for when status is set to READY & timeout
+    this.updateEventHandlers.addHandler('status', value => {
+      this.vehicleStatus = value;
+      if (value === 'READY') {
+        completion();
+        this.pendingInitialization = false;
+        return true;
+      }
+      return false;
+    }, () => {
       this.pendingInitialization = false;
-      this.pendingFailure();
+      timeout();
     }, this.vehicleTimeoutLength);
 
     // Send a message to the vehicle indicating the job assignment

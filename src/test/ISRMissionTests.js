@@ -39,10 +39,10 @@ const dummyLogger = {
 describe('ISRMission', () => {
   describe('+ getVehicleMapping()', () => {
     // Using dummy vehicle objects until vehicle is implemented
-    const vh1 = new Vehicle(1, ['ISR_Plane'], 'UNASSIGNED');
-    const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'UNASSIGNED');
-    const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'UNASSIGNED');
-    const vh4 = new Vehicle(4, ['ISR_Plane'], 'UNASSIGNED');
+    const vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
+    const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
+    const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
+    const vh4 = new Vehicle(4, ['ISR_Plane'], 'WAITING');
 
     it('should return a valid mapping (with simple maps)', () => {
       const vehicleList = [vh1, vh2];
@@ -72,10 +72,10 @@ describe('ISRMission', () => {
 
   describe('+ setVehicleMapping()', () => {
     // Using dummy vehicle objects until vehicle is implemented
-    const vh1 = new Vehicle(1, ['ISR_Plane'], 'UNASSIGNED');
-    const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'UNASSIGNED');
-    const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'UNASSIGNED');
-    const vh4 = new Vehicle(4, ['ISR_Plane'], 'UNASSIGNED');
+    const vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
+    const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
+    const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
+    const vh4 = new Vehicle(4, ['ISR_Plane'], 'WAITING');
     const vehicleList = [vh1, vh2, vh3, vh4];
 
     let mission;
@@ -172,10 +172,10 @@ describe('ISRMission', () => {
 
 
   describe('+ missionSetupComplete()', () => {
-    const vh1 = new Vehicle(1, ['ISR_Plane'], 'UNASSIGNED');
-    const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'UNASSIGNED');
-    const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'UNASSIGNED');
-    const vh4 = new Vehicle(4, ['ISR_Plane'], 'UNASSIGNED');
+    const vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
+    const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
+    const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
+    const vh4 = new Vehicle(4, ['ISR_Plane'], 'WAITING');
     const vehicleList = [vh1, vh2, vh3, vh4];
     let mission;
 
@@ -211,7 +211,7 @@ describe('ISRMission', () => {
       mission.setVehicleMapping(mapping);
       mission.setMissionInfo(missionSetup);
 
-      chai.expect(mission.missionSetupComplete()).to.be.a('string').that.includes('Mission property is not set');
+      chai.expect(mission.missionSetupComplete()).to.be.a('string').that.includes('mission parameter property is not set');
     });
 
     it('should reject an invalid mission setup when vehicles assignments are missing', () => {
@@ -219,7 +219,7 @@ describe('ISRMission', () => {
 
       mission.setMissionInfo(missionSetup);
 
-      chai.expect(mission.missionSetupComplete()).to.be.a('string').that.includes('No vehicle assigned for the job');
+      chai.expect(mission.missionSetupComplete()).to.be.a('string').that.includes('No vehicle assigned for job type');
     });
 
     it('should reject an invalid mission setup when nothing is set', () => {
@@ -237,15 +237,15 @@ describe('ISRMission', () => {
     let vehicleList;
 
     beforeEach(() => {
-      vh1 = new Vehicle(1, ['ISR_Plane'], 'UNASSIGNED');
-      vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'UNASSIGNED');
-      vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'UNASSIGNED');
-      vh4 = new Vehicle(4, ['ISR_Plane'], 'UNASSIGNED');
+      vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
+      vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
+      vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
+      vh4 = new Vehicle(4, ['ISR_Plane'], 'WAITING');
       vehicleList = [vh1, vh2, vh3, vh4];
       mission = new ISRMission(dummyCompletionCallback, vehicleList, dummyLogger);
     });
 
-    it('should accept a valid mission setup', () => {
+    it('should initialize a valid mission setup', () => {
       const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
       const mapping = new Map([[vh1, 'ISR_Plane']]);
 
@@ -254,6 +254,11 @@ describe('ISRMission', () => {
 
       chai.expect(mission.missionStatus).to.equal('WAITING');
       mission.missionInit();
+      chai.expect(mission.missionStatus).to.equal('INITIALIZING');
+
+      // Trigger a vehicle update to emulate an incoming message with the updated status
+      vh1.vehicleUpdate({ status: 'READY' });
+
       chai.expect(mission.missionStatus).to.equal('READY');
     });
 
@@ -307,10 +312,10 @@ describe('ISRMission', () => {
     let vehicleList;
 
     beforeEach(() => {
-      vh1 = new Vehicle(1, ['ISR_Plane'], 'UNASSIGNED');
-      vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'UNASSIGNED');
-      vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'UNASSIGNED');
-      vh4 = new Vehicle(4, ['ISR_Plane'], 'UNASSIGNED');
+      vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
+      vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
+      vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
+      vh4 = new Vehicle(4, ['ISR_Plane'], 'WAITING');
       vehicleList = [vh1, vh2, vh3, vh4];
       mission = new ISRMission(dummyCompletionCallback, vehicleList, dummyLogger);
     });
@@ -323,6 +328,7 @@ describe('ISRMission', () => {
       mission.setMissionInfo(missionSetup);
       mission.missionInit();
 
+      vh1.vehicleUpdate({ status: 'READY' });
       const missionData = { lat: 10.000, lng: 10.000 };
 
       mission.missionStart(missionData);
@@ -379,10 +385,10 @@ describe('ISRMission', () => {
     let vehicleList;
 
     beforeEach(() => {
-      vh1 = new Vehicle(1, ['ISR_Plane'], 'UNASSIGNED');
-      vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'UNASSIGNED');
-      vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'UNASSIGNED');
-      vh4 = new Vehicle(4, ['ISR_Plane'], 'UNASSIGNED');
+      vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
+      vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
+      vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
+      vh4 = new Vehicle(4, ['ISR_Plane'], 'WAITING');
       vehicleList = [vh1, vh2, vh3, vh4];
       mission = new ISRMission(dummyCompletionCallback, vehicleList, dummyLogger);
     });
@@ -409,6 +415,8 @@ describe('ISRMission', () => {
       mission.setVehicleMapping(mapping);
       mission.setMissionInfo(missionSetup);
 
+      mission.missionInit();
+      vh1.vehicleUpdate({ status: 'READY' });
       const missionData = { lat: 10.000, lng: 10.000 };
 
       mission.missionStart(missionData);

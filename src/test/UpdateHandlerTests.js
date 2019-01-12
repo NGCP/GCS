@@ -12,14 +12,14 @@ const beforeEach = mocha.beforeEach;
 import UpdateHandler from '../main/control/UpdateHandler';
 
 describe('UpdateHandler', () => {
-  describe('+ addEvent() & + event()', () => {
+  describe('+ addHandler() & + event()', () => {
     let handler;
 
     it('should allow adding a simple one time event', () => {
       handler = new UpdateHandler();
       let counter = 0;
 
-      handler.addEvent('status', v => {
+      handler.addHandler('status', v => {
         if (v === 10) {
           counter += 1;
           return true;
@@ -44,7 +44,7 @@ describe('UpdateHandler', () => {
       handler = new UpdateHandler();
       let counter = 0;
 
-      handler.addEvent('status', v => {
+      handler.addHandler('status', v => {
         if (v === 10) {
           counter += 1;
           return true;
@@ -65,7 +65,7 @@ describe('UpdateHandler', () => {
       handler = new UpdateHandler();
       let counter = 0;
 
-      handler.addEvent('status', v => {
+      handler.addHandler('status', v => {
         counter += 1;
         if (v === 10) {
           return true;
@@ -95,7 +95,7 @@ describe('UpdateHandler', () => {
       handler = new UpdateHandler();
       let counter = 0;
 
-      handler.addEvent('status', v => {
+      handler.addHandler('status', v => {
         counter += 1;
         if (v === 10) {
           return true;
@@ -103,7 +103,7 @@ describe('UpdateHandler', () => {
         return false;
       });
 
-      handler.addEvent('job', v => {
+      handler.addHandler('job', v => {
         counter += 100;
         if (v === 'ERROR') {
           return true;
@@ -140,7 +140,7 @@ describe('UpdateHandler', () => {
       let counter_a = 0;
       let counter_b = 0;
 
-      handler.addEvent('status', v => {
+      handler.addHandler('status', v => {
         counter_a += 1;
         if (v === 10) {
           return true;
@@ -148,7 +148,7 @@ describe('UpdateHandler', () => {
         return false;
       });
 
-      handler.addEvent('status', v => {
+      handler.addHandler('status', v => {
         counter_b += 100;
         if (v === 'ERROR') {
           return true;
@@ -202,7 +202,7 @@ describe('UpdateHandler', () => {
         done();
       };
 
-      my_handler.addEvent('status', v => {
+      my_handler.addHandler('status', v => {
         counter += 1;
         if (v === 10) {
           return true;
@@ -244,7 +244,7 @@ describe('UpdateHandler', () => {
         done();
       };
 
-      my_handler.addEvent('status', v => {
+      my_handler.addHandler('status', v => {
         counter_a += 1;
         if (v === 10) {
           return true;
@@ -255,7 +255,7 @@ describe('UpdateHandler', () => {
         t_handler();
       }, 25);
 
-      my_handler.addEvent('status', v => {
+      my_handler.addHandler('status', v => {
         counter_b += 1;
         if (v === 'ERROR') {
           return true;
@@ -273,6 +273,39 @@ describe('UpdateHandler', () => {
       my_handler.event('status', 0);
       chai.expect(counter_a).to.equal(2);
       chai.expect(counter_b).to.equal(2);
+    });
+  });
+
+  describe('+ events()', () => {
+    let handler;
+
+    it('should processing many events at once', () => {
+      handler = new UpdateHandler();
+      let counter_status = 0;
+      let counter_location = 0;
+
+      handler.addHandler('status', v => {
+        counter_status += v;
+        return false;
+      });
+
+      handler.addHandler('location', v => {
+        counter_location += v;
+        return false;
+      });
+
+      chai.expect(counter_status).to.equal(0);
+      chai.expect(counter_location).to.equal(0);
+
+      handler.events({ status: 1, location: 1 });
+
+      chai.expect(counter_status).to.equal(1);
+      chai.expect(counter_location).to.equal(1);
+
+      handler.events({ status: 5 });
+
+      chai.expect(counter_status).to.equal(6);
+      chai.expect(counter_location).to.equal(1);
     });
   });
 });
