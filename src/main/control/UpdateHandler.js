@@ -21,6 +21,7 @@ export default class UpdateHandlers {
    * @param {Function} handler_f the function to handle the event
    * @param {Function} timeout_f the timeout function to run if the event expires
    * @param {integer} timeout_time the time in milliseconds before running the timeout function
+   * @returns {Object} the event object; can be ignored if the event will not be removed manually.
    */
   addHandler(event_str, handler_f, timeout_f, timeout_time) {
     if (event_str === undefined || handler_f === undefined) {
@@ -43,6 +44,8 @@ export default class UpdateHandlers {
     }
 
     this.event_dict[event_str].push(event_obj);
+
+    return event_obj;
   }
 
   /**
@@ -50,24 +53,19 @@ export default class UpdateHandlers {
    *
    * @param {string} event_str the name of the event
    * @param {any} value the value being updated
+   * @param {Object} full the entire update message, used when an event may need
+   * information beside just the current key/value pair. Optional.
    */
-  event(event_str, value) {
+  event(event_str, value, full) {
     if (!(event_str in this.event_dict)) {
       return;
     }
 
     this.event_dict[event_str] = this.event_dict[event_str].filter(v => {
-      const r = v.handler(value);
+      const r = v.handler(value, full);
       if (r === true) {
         // Remove handler
-        if (v !== null) {
-          clearTimeout(v.expiry);
-        }
-        return false;
-      } else if (r !== false) {
-        // Remove handler because it is invalid
-        console.log(`Expected handler function to return a boolean value, but got ${r}; handler will be removed.`);
-        if (v !== null) {
+        if (v.expiry !== null) {
           clearTimeout(v.expiry);
         }
         return false;
@@ -85,7 +83,22 @@ export default class UpdateHandlers {
    */
   events(events_kv_pair) {
     for (const key in events_kv_pair) {
-      this.event(key, events_kv_pair[key]);
+      this.event(key, events_kv_pair[key], events_kv_pair);
     }
+  }
+
+  /**
+   * Remove the given handler, the name of the event must be the same as the one
+   * used when creating the handler, and the object must be thesame as the one
+   * returned by addHandler().
+   *
+   * @param {string} event_str the name of the event handler string
+   * @param {Object} event_obj the event object
+   */
+  removeHandler(event_str, event_obj) {
+    if (this.event_dict[event_str].exipry !== null) {
+      clearTimeout(this.event_dict[event_str].expiry);
+    }
+    this.event_dict[event_str] = this.event_dict[event_str].filter(v => v !== event_obj);
   }
 }

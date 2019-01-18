@@ -68,6 +68,7 @@ describe('ListDict', () => {
     });
   });
 
+
   describe('+ push()', () => {
     let list_dict;
 
@@ -113,6 +114,7 @@ describe('ListDict', () => {
     });
   });
 
+
   describe('+ keys', () => {
     it('should return a list of all the keys with values', () => {
       const list_dict = new ListDict();
@@ -127,6 +129,48 @@ describe('ListDict', () => {
       list_dict.get('P3');
 
       chai.expect(list_dict.keys.sort()).to.deep.equal(['P1', 'P2'].sort());
+    });
+  });
+
+
+  describe('+ remove()', () => {
+    it('should remove the values equal to that specified for the given key', () => {
+      const list_dict = new ListDict();
+
+      list_dict.push('P1', 100);
+      list_dict.push('P1', 101);
+      list_dict.push('P2', 200);
+      list_dict.push('P3', 300);
+
+      chai.expect(list_dict.countItemsForKey('P1')).to.equal(2);
+      chai.expect(list_dict.count).to.equal(4);
+
+      list_dict.remove('P1', 101);
+      chai.expect(list_dict.countItemsForKey('P1')).to.equal(1);
+
+      list_dict.remove('P1', 100);
+      chai.expect(list_dict.countItemsForKey('P1')).to.equal(0);
+      chai.expect(list_dict.count).to.equal(2);
+    });
+
+    it('should remove all the values equal to that specified for the given key, other keys are untouched', () => {
+      const list_dict = new ListDict();
+
+      list_dict.push('P1', 101);
+      list_dict.push('P1', 101);
+      list_dict.push('P1', 101);
+      list_dict.push('P1', 102);
+      list_dict.push('P1', 101);
+
+      list_dict.push('P2', 101);
+
+      chai.expect(list_dict.countItemsForKey('P1')).to.equal(5);
+      chai.expect(list_dict.count).to.equal(6);
+
+      list_dict.remove('P1', 101);
+      chai.expect(list_dict.countItemsForKey('P1')).to.equal(1);
+
+      chai.expect(list_dict.count).to.equal(2);
     });
   });
 });

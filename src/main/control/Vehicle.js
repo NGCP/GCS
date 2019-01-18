@@ -1,21 +1,47 @@
 /**
- * This is a stub class implemented just to allow for testing.
- * This class still needs to be fully fleshed out.
+ * Vehicle class describes data held by a vehicle as well as functions used
+ * by a vehicle to describe how it functions with the rest of the system.
  */
 
 import UpdateHandlers from './UpdateHandler';
 
 export default class Vehicle {
   constructor(vehicleId, vehicleJobs, vehicleStatus) {
+    // This is the information assigned to the vehicles by the system
     this.vehicleId = vehicleId;
-    this.vehicleJobs = vehicleJobs;
-    this.vehicleStatus = vehicleStatus;
     this.assignedJob = null;
     this.assignedTask = null;
+    this.pendingInitialization = false;
 
+    // These is information about the vehicles given by the vehicles (not set)
+    this.vehicleStatus = vehicleStatus;
+    this.vehicleJobs = vehicleJobs;
+    this.lat = null;
+    this.lng = null;
+    this.errorMessage = '';
+    this.errorHandler = () => {};
+
+    // Event update handler object
     this.updateEventHandlers = new UpdateHandlers();
 
-    this.pendingInitialization = false;
+    // Add the default update event UpdateHandlers
+    this.updateEventHandlers.addHandler('status', (value, full) => {
+      this.vehicleStatus = value;
+      if (value === 'ERROR') {
+        this.errorMessage = full.errorMessage;
+        this.errorHandler(this.errorMessage);
+      }
+    });
+
+    this.updateEventHandlers.addHandler('lat', value => {
+      this.lat = value;
+    });
+
+    this.updateEventHandlers.addHandler('lat', value => {
+      this.lng = value;
+    });
+
+    // Variables & constants
     // Time (in ms) before considering that a vehicle has timed out
     this.vehicleTimeoutLength = 15000;
   }
@@ -42,18 +68,27 @@ export default class Vehicle {
     this.updateEventHandlers.events(updateValue);
   }
 
-
-  assignJob(job, completion, timeout) {
+  /**
+   * Assign Job to the vehicle.
+   * Assigns the completion callback to call when the job has been successfully set
+   * Assigns the timeout callback to call when the job setting has timed out
+   * Assigns the error callback to call if the vehicle enters an error state
+   * @param  {string} job        job string to assign for this vehicle
+   * @param  {Function} completion the callback function to call when the vehicle enters the READY state
+   * @param  {Function} timeout    the callback function to call when the vehicle fails to enter the READY state in time
+   * @param  {Function} error      the callback function to call when the vehicle enters an ERROR state
+   */
+  assignJob(job, completion, timeout, error) {
     if (this.pendingInitialization) {
       throw new Error('Initialization is already pending; cannot assign job until current initialization is finished');
     }
 
     this.assignedJob = job;
     this.pendingInitialization = true;
+    this.errorHandler = error;
 
     // Add a handler for when status is set to READY & timeout
     this.updateEventHandlers.addHandler('status', value => {
-      this.vehicleStatus = value;
       if (value === 'READY') {
         completion();
         this.pendingInitialization = false;

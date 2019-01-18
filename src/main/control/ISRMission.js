@@ -10,13 +10,14 @@ export default class ISRMission extends Mission {
   constructor(completionCallback, vehicleList, logger) {
     super(completionCallback, vehicleList, logger);
 
+    // Mission required information
     this.missionJobTypes = ['ISR_Plane'];
     this.missionDataInformationRequirements = ['lat', 'lng'];
     this.missionSetupTracker = { plane_start_action: false, plane_end_action: false };
 
+    // Mission status / setup data
     this.missionSetup = {};
     this.missionStatus = 'WAITING';
-
     this.activeVehicleMapping = new Map();
 
     // Keep track of waiting tasks and waiting vehicles using the job as the key
@@ -88,6 +89,28 @@ export default class ISRMission extends Mission {
   }
 
   /**
+   * Used to add a task to a currently running mission. This helper function handles
+   * the assigning of the task to a waiting vehicle if there are any. Otherwise, it saves
+   * the task into the waitingTasks until a vehicle becomes available.
+   *
+   * @param {string} jobType the vehicle job requirement for the new task
+   * @param  {Task} task new task to insert
+   */
+  missionNewTask(jobType, task) {
+    if (this.missionStatus !== 'RUNNING' && this.missionStatus !== 'PAUSED') {
+      throw new Error('Cannot add a new task to a mission that is not actively running');
+    }
+
+    // Assign the task right away if a vehicle capable of doing the task is waiting, else add to waitingTasks
+    if (this.waitingVehicles.countItemsForKey(jobType) > 0) {
+      const new_vehc = this.waitingVehicles.get(jobType);
+      this.activeTasks.set(new_vehc, task);
+    } else {
+      this.waitingTasks.push(jobType, task);
+    }
+  }
+
+  /**
    * Update the mission based on the information received in the message.
    * MissionUpdate happens when a message directly relating to the mission
    * is received and the mission must take reasonable measures to apply the information.
@@ -112,11 +135,14 @@ export default class ISRMission extends Mission {
         sender.assignTask(newTask);
         this.activeTasks.set(sender, newTask);
       } else {
+        // No tasks available for vehicle, add to waitingVehicles & remove from active
+        this.waitingVehicles.push(vehcJob, sender);
         this.activeTasks.delete(sender);
       }
 
       // If there are no active tasks and no waiting tasks, then mission is considered done.
       if (this.activeTasks.size === 0 && this.waitingTasks.count === 0) {
+        this.missionStatus = 'COMPLETE';
         this.completionCallback(this.missionDataResults);
       } else if (this.activeTasks.size === 0 && this.waitingTasks.count > 0) {
         throw new Error('No active tasks, but there remain tasks to do. Did vehicle jobs get messed up?');
@@ -159,8 +185,11 @@ export default class ISRMission extends Mission {
           this.missionStatus = 'READY';
         }
       }, () => {
-        this.logger.log(`Mission initialization timed out while waiting for the vehicle ${vehc} to initialize`);
+        this.logger.log(`Mission initialization timed out while waiting for the vehicle '${vehc}' to initialize`);
         this.missionStatus = 'WAITING';
+      }, mesg => {
+        this.logger.log(`'${vehc}' entered an ERROR state: ${mesg}`);
+        this.handleUnresponsiveVehicle(vehc);
       });
     }
 
@@ -244,7 +273,7 @@ export default class ISRMission extends Mission {
     let isValid = true;
 
     for (const vehc of mapping.keys()) {
-      // Check mission supports job assigned and check vehicle supports job assigned
+      // Check mission supports assigned job, and check vehicle supports job assigned, and vehicle in vehicleList
       isValid = isValid &&
         this.missionJobTypes.includes(mapping.get(vehc)) &&
         vehc.jobs.includes(mapping.get(vehc)) &&
@@ -291,5 +320,54 @@ export default class ISRMission extends Mission {
       }
     }
     return mapping;
+  }
+
+  /**
+   * Handle when a vehicle gets flagged as being 'unresponsive'.
+   * This can happen after a vehicle fails to send a message to the GCS after a
+   * certain amount of time has passed.
+   *
+   * @param {Vehicle} vehc the vehicle object of the unresponsive vehicle
+   */
+  handleUnresponsiveVehicle(vehc) {
+    // If initializing, let vehicle time out.
+    if (this.missionStatus === 'READY') {
+      if (this.activeVehicleMapping.has(vehc)) {
+        // Reset the entire active vehicle mapping
+        this.activeVehicleMapping.clear();
+        this.missionStatus = 'WAITING';
+      }
+    } else if (this.missionStatus === 'RUNNING' || this.missionStatus === 'PAUSED') {
+      if (this.activeVehicleMapping.has(vehc)) {
+        // Get the job assigned to the vehicle
+        const vehcJob = this.activeVehicleMapping.get(vehc);
+
+        // Remove the vehicle from the vehicle mapping
+        this.activeVehicleMapping.delete(vehc);
+
+        // Remove the vehicle from the active tasks and reinsert the task into the waiting tasks
+        if (this.activeTasks.has(vehc)) {
+          const task_to_reassign = this.activeTasks.get(vehc);
+          this.activeTasks.delete(vehc);
+
+          this.missionNewTask(vehcJob, task_to_reassign);
+        }
+
+        // Remove the vehicle from the waitingVehicles
+        this.waitingVehicles.remove(vehcJob, vehc);
+
+        // Caution! IF there are NO vehicles capable of completing all the tasks, user interaction required.
+        const jobSet = new Set();
+        for (const activeVehc of this.activeVehicleMapping.keys()) {
+          jobSet.add(this.activeVehicleMapping.get(activeVehc));
+        }
+        for (const job of this.missionJobTypes) {
+          if (!jobSet.has(job)) {
+            // TODO: USER Interaction required!
+            throw new Error('Mission cannot complete because a required mission job cannot be completed with the current vehicles');
+          }
+        }
+      }
+    }
   }
 }

@@ -276,6 +276,7 @@ describe('UpdateHandler', () => {
     });
   });
 
+
   describe('+ events()', () => {
     let handler;
 
@@ -306,6 +307,47 @@ describe('UpdateHandler', () => {
 
       chai.expect(counter_status).to.equal(6);
       chai.expect(counter_location).to.equal(1);
+    });
+  });
+
+
+  describe('+ removeHandler()', () => {
+    let handler;
+
+    it('should allow the removal of the given handler', () => {
+      handler = new UpdateHandler();
+      let counter_status = 0;
+      let counter_location = 0;
+
+      const status_handler = handler.addHandler('status', v => {
+        counter_status += v;
+        return false;
+      });
+
+      const location_handler = handler.addHandler('location', v => {
+        counter_location += v;
+        return false;
+      });
+
+      chai.expect(counter_status).to.equal(0);
+      chai.expect(counter_location).to.equal(0);
+
+      handler.events({ status: 1, location: 1 });
+
+      chai.expect(counter_status).to.equal(1);
+      chai.expect(counter_location).to.equal(1);
+
+      handler.removeHandler('status', status_handler);
+      handler.events({ status: 1, location: 1 });
+
+      chai.expect(counter_status).to.equal(1);
+      chai.expect(counter_location).to.equal(2);
+
+      handler.removeHandler('location', location_handler);
+      handler.events({ status: 1, location: 1 });
+
+      chai.expect(counter_status).to.equal(1);
+      chai.expect(counter_location).to.equal(2);
     });
   });
 });

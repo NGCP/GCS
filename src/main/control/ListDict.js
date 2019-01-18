@@ -44,6 +44,20 @@ export default class ListDict {
   }
 
   /**
+   * Remove the value from the list pointed at by the specified key. This will remove
+   * all the values equal to the value given (not just the first one).
+   * @param  {string} key   the key to the list from which to remove the value
+   * @param  {Any} value the value to remove
+   */
+  remove(key, value) {
+    if (key in this.dict) {
+      const filtered_list = this.dict[key].filter(v => v !== value);
+      this.item_count -= this.dict[key].length - filtered_list.length;
+      this.dict[key] = filtered_list;
+    }
+  }
+
+  /**
    * Push an item to the array for the given key.
    *
    * @param {Any} key the key for the item

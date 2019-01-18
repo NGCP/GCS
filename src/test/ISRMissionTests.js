@@ -38,7 +38,6 @@ const dummyLogger = {
 
 describe('ISRMission', () => {
   describe('+ getVehicleMapping()', () => {
-    // Using dummy vehicle objects until vehicle is implemented
     const vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
     const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
     const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
@@ -71,7 +70,7 @@ describe('ISRMission', () => {
 
 
   describe('+ setVehicleMapping()', () => {
-    // Using dummy vehicle objects until vehicle is implemented
+
     const vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
     const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
     const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
@@ -300,6 +299,28 @@ describe('ISRMission', () => {
       mission.missionInit();
       chai.expect(() => mission.missionInit()).to.throw();
     });
+
+    it('should return to WAITING state if a setup or vehicle state changes while in the READY state', () => {
+      const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
+      const mapping = new Map([[vh1, 'ISR_Plane']]);
+
+      mission.setVehicleMapping(mapping);
+      mission.setMissionInfo(missionSetup);
+
+      chai.expect(mission.missionStatus).to.equal('WAITING');
+      mission.missionInit();
+      chai.expect(mission.missionStatus).to.equal('INITIALIZING');
+
+      // Trigger a vehicle update to emulate an incoming message with the updated status
+      vh1.vehicleUpdate({ status: 'READY' });
+
+      chai.expect(mission.missionStatus).to.equal('READY');
+
+      // Trigger a change in a vehicle status
+      vh1.vehicleUpdate({ status: 'ERROR', errorMessage: 'An unknown error has occurred' });
+
+      chai.expect(mission.missionStatus).to.equal('WAITING');
+    });
   });
 
 
@@ -340,7 +361,7 @@ describe('ISRMission', () => {
       chai.expect(vh1.assignedTask).to.deep.equal(new Task(missionData.lat, missionData.lng));
     });
 
-    it('should start a mission that has not been initialized, but all required information is present', () => {
+    it('should reject (throw exception) a mission that has not been initialize even if all required information is present', () => {
       const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
       const mapping = new Map([[vh1, 'ISR_Plane']]);
 
@@ -370,6 +391,19 @@ describe('ISRMission', () => {
       mission.missionInit();
 
       const missionData = { lat: 10.000 };
+
+      chai.expect(() => mission.missionStart(missionData)).to.throw();
+    });
+
+    it('should reject a mission that has not finished initializing', () => {
+      const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
+      const mapping = new Map([[vh1, 'ISR_Plane']]);
+
+      mission.setVehicleMapping(mapping);
+      mission.setMissionInfo(missionSetup);
+      mission.missionInit();
+
+      const missionData = { lat: 10.000, lng: 10.000 };
 
       chai.expect(() => mission.missionStart(missionData)).to.throw();
     });
@@ -437,6 +471,150 @@ describe('ISRMission', () => {
       completionCallbackCalled = false;
       mission.missionUpdate(mesg1, vh1);
       chai.expect(completionCallbackCalled).to.equal(true);
+    });
+
+    it('should reassign tasks when a vehicle becomes unavailable', () => {
+      // start the mission
+      const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
+      const mapping = new Map([[vh1, 'ISR_Plane'], [vh4, 'ISR_Plane']]);
+
+      mission.setVehicleMapping(mapping);
+      mission.setMissionInfo(missionSetup);
+
+      mission.missionInit();
+      vh1.vehicleUpdate({ status: 'READY' });
+      vh4.vehicleUpdate({ status: 'READY' });
+      const missionData = { lat: 10.000, lng: 10.000 };
+
+      // Force the additiion of new tasks
+      mission.waitingTasks.push('ISR_Plane', new Task(-150, -150));
+      mission.waitingTasks.push('ISR_Plane', new Task(-100, -100));
+      mission.waitingTasks.push('ISR_Plane', new Task(-50, -50));
+
+      mission.missionStart(missionData);
+
+      chai.expect(mission.activeTasks.get(vh1)).to.deep.equal(new Task(-150, -150));
+      chai.expect(mission.activeTasks.get(vh4)).to.deep.equal(new Task(-100, -100));
+
+      // Send the complete message
+      const mesg1 = { type: 'complete' };
+
+      // Send V1 first complete message
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(mission.activeTasks.get(vh1)).to.deep.equal(new Task(-50, -50));
+
+      // Send V4 the Error message (should cause reallocation of tasks)
+      vh4.vehicleUpdate({ status: 'ERROR', errorMessage: 'An unexpected error occurred' });
+      chai.expect(mission.activeTasks.get(vh4)).to.equal(undefined);
+
+      // Send V1 the second complete message
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(mission.activeTasks.get(vh1)).to.deep.equal(new Task(10, 10));
+
+      // Send V1 the third complete message
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(mission.activeTasks.get(vh1)).to.deep.equal(new Task(-100, -100));
+
+      // Send V1 the fourth complete message
+      // Since no tasks are remaining to complete, should call the completion callback
+      completionCallbackCalled = false;
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(completionCallbackCalled).to.equal(true);
+    });
+  });
+
+  describe('+ missionNewTask()', () => {
+    let vh1;
+    let vh2;
+    let vh3;
+    let vh4;
+    let mission;
+    let vehicleList;
+
+    beforeEach(() => {
+      vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
+      vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
+      vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');
+      vh4 = new Vehicle(4, ['ISR_Plane'], 'WAITING');
+      vehicleList = [vh1, vh2, vh3, vh4];
+      mission = new ISRMission(dummyCompletionCallback, vehicleList, dummyLogger);
+    });
+
+    it('should add new tasks to a running mission', () => {
+      // start the mission
+      const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
+      const mapping = new Map([[vh1, 'ISR_Plane']]);
+
+      mission.setVehicleMapping(mapping);
+      mission.setMissionInfo(missionSetup);
+
+      mission.missionInit();
+      vh1.vehicleUpdate({ status: 'READY' });
+      const missionData = { lat: 10.000, lng: 10.000 };
+
+      mission.missionStart(missionData);
+
+      // Add a new task to a running mission
+      mission.missionNewTask('ISR_Plane', new Task(12, 34));
+      chai.expect(mission.waitingTasks.countItemsForKey('ISR_Plane')).to.equal(1);
+
+      // Send V1 a complete message & make sure vehicle is assigned to newly added task
+      const mesg1 = { type: 'complete' };
+      mission.missionUpdate(mesg1, vh1);
+      chai.expect(mission.activeTasks.get(vh1)).to.deep.equal(new Task(12, 34));
+    });
+
+    it('should cause an immediate reassignment of tasks if possible', () => {
+      // start the mission
+      const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
+      const mapping = new Map([[vh1, 'ISR_Plane'], [vh4, 'ISR_Plane']]);
+
+      mission.setVehicleMapping(mapping);
+      mission.setMissionInfo(missionSetup);
+
+      mission.missionInit();
+      vh1.vehicleUpdate({ status: 'READY' });
+      vh4.vehicleUpdate({ status: 'READY' });
+      const missionData = { lat: 10.000, lng: 10.000 };
+
+      mission.missionStart(missionData);
+
+      // vh4 should be waiting for a task
+      chai.expect(mission.waitingVehicles.countItemsForKey('ISR_Plane')).to.equal(1);
+
+      // Add a new task to a running mission
+      mission.missionNewTask('ISR_Plane', new Task(12, 34));
+
+      chai.expect(mission.activeTasks.get(vh1)).to.deep.equal(new Task(10, 10));
+      chai.expect(mission.activeTasks.get(vh4)).to.deep.equal(new Task(12, 34));
+      chai.expect(mission.waitingTasks.countItemsForKey('ISR_Plane')).to.equal(0);
+      chai.expect(mission.waitingVehicles.countItemsForKey('ISR_Plane')).to.equal(0);
+    });
+
+    it('should reject adding a task to a mission not in RUNNING or PAUSED state', () => {
+      // start the mission
+      const missionSetup = { plane_end_action: 'land', plane_start_action: 'takeoff' };
+      const mapping = new Map([[vh1, 'ISR_Plane'], [vh4, 'ISR_Plane']]);
+
+      mission.setVehicleMapping(mapping);
+      mission.setMissionInfo(missionSetup);
+
+      // Cannot add task while still in WAITING
+      chai.expect(() => mission.missionNewTask('ISR_Plane', new Task(12, 34))).to.throw();
+
+      mission.missionInit();
+
+      // Cannot add task while still in INITIALIZING
+      chai.expect(() => mission.missionNewTask('ISR_Plane', new Task(12, 34))).to.throw();
+
+      vh1.vehicleUpdate({ status: 'READY' });
+      vh4.vehicleUpdate({ status: 'READY' });
+      const missionData = { lat: 10.000, lng: 10.000 };
+
+      // Cannot add task while still in READY
+      chai.expect(() => mission.missionNewTask('ISR_Plane', new Task(12, 34))).to.throw();
+
+      mission.missionStart(missionData);
     });
   });
 });
