@@ -3,7 +3,7 @@
  * by a vehicle to describe how it functions with the rest of the system.
  */
 
-import UpdateHandlers from './UpdateHandler';
+import UpdateHandlers from './DataStructures/UpdateHandler';
 
 export default class Vehicle {
   constructor(vehicleId, vehicleJobs, vehicleStatus) {
@@ -112,6 +112,10 @@ export default class Vehicle {
     this.assignedTask = task;
 
     this.sendMessage({ type: 'addMission', missionInfo: this.assignedTask.generateStartMessage() });
+  }
+
+  terminate() {
+    // Send STOP message & do all terminate sequence
   }
 
   toString() {

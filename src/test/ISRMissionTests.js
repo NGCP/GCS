@@ -9,7 +9,7 @@ const describe = mocha.describe;
 const it = mocha.it;
 const beforeEach = mocha.beforeEach;
 
-import ISRMission from '../main/control/ISRMission';
+import ISRMission from '../main/control/Missions/ISRMission';
 import Vehicle from '../main/control/Vehicle';
 import Task from '../main/control/Task';
 
@@ -70,7 +70,6 @@ describe('ISRMission', () => {
 
 
   describe('+ setVehicleMapping()', () => {
-
     const vh1 = new Vehicle(1, ['ISR_Plane'], 'WAITING');
     const vh2 = new Vehicle(2, ['VTOL', 'Quick_Search'], 'WAITING');
     const vh3 = new Vehicle(3, ['ISR_Plane', 'Payload_drop'], 'WAITING');

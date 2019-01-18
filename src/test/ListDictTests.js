@@ -9,7 +9,7 @@ const describe = mocha.describe;
 const it = mocha.it;
 const beforeEach = mocha.beforeEach;
 
-import ListDict from '../main/control/ListDict';
+import ListDict from '../main/control/DataStructures/ListDict';
 
 describe('ListDict', () => {
   describe('+ get()', () => {
@@ -171,6 +171,84 @@ describe('ListDict', () => {
       chai.expect(list_dict.countItemsForKey('P1')).to.equal(1);
 
       chai.expect(list_dict.count).to.equal(2);
+    });
+  });
+
+
+  describe('+ setGetterForKey()', () => {
+    let list_dict;
+
+    it('should add a custom getter just for the given key', () => {
+      list_dict = new ListDict();
+
+      list_dict.push('P1', 100);
+      list_dict.push('P1', 101);
+      list_dict.push('P1', 102);
+      list_dict.push('P2', 200);
+      list_dict.push('P2', 201);
+      list_dict.push('P2', 202);
+
+      list_dict.setGetterForKey(arr => arr.length - 1, 'P1');
+
+      // Custom getter in LIFO
+      chai.expect(list_dict.get('P1')).to.equal(102);
+      chai.expect(list_dict.get('P1')).to.equal(101);
+      chai.expect(list_dict.get('P1')).to.equal(100);
+      // Default getter in FIFO
+      chai.expect(list_dict.get('P2')).to.equal(200);
+      chai.expect(list_dict.get('P2')).to.equal(201);
+      chai.expect(list_dict.get('P2')).to.equal(202);
+    });
+  });
+
+
+  describe('+ removeGetterForKey()', () => {
+    let list_dict;
+
+    it('should remove a custom getter just for the given key', () => {
+      list_dict = new ListDict();
+
+      list_dict.push('P1', 100);
+      list_dict.push('P1', 101);
+      list_dict.push('P1', 102);
+
+      list_dict.setGetterForKey(arr => arr.length - 1, 'P1');
+
+      // Custom getter in LIFO
+      chai.expect(list_dict.get('P1')).to.equal(102);
+      chai.expect(list_dict.get('P1')).to.equal(101);
+      chai.expect(list_dict.get('P1')).to.equal(100);
+
+      list_dict.push('P1', 100);
+      list_dict.push('P1', 101);
+      list_dict.push('P1', 102);
+
+      list_dict.removeGetterForKey('P1');
+      chai.expect(list_dict.get('P1')).to.equal(100);
+      chai.expect(list_dict.get('P1')).to.equal(101);
+      chai.expect(list_dict.get('P1')).to.equal(102);
+    });
+  });
+
+
+  describe('+ setGetter()', () => {
+    let list_dict;
+
+    it('should modify the global getter method', () => {
+      list_dict = new ListDict();
+      list_dict.setGetter(arr => arr.length - 1);
+
+      list_dict.push('P1', 100);
+      list_dict.push('P1', 101);
+      list_dict.push('P1', 102);
+      list_dict.push('P1', 103);
+
+      // In pop order as defined (LIFO)
+      chai.expect(list_dict.get('P1')).to.equal(103);
+      chai.expect(list_dict.get('P1')).to.equal(102);
+      chai.expect(list_dict.get('P1')).to.equal(101);
+      chai.expect(list_dict.get('P1')).to.equal(100);
+      chai.expect(() => list_dict.get('P1')).to.throw();
     });
   });
 });

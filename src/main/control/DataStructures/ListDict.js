@@ -20,6 +20,7 @@ export default class ListDict {
       this.get_method = () => 0;
     }
 
+    this.key_get_methods = {};
     this.dict = {};
     this.item_count = 0;
   }
@@ -39,6 +40,9 @@ export default class ListDict {
       }
     } else {
       this.item_count--;
+      if (key in this.key_get_methods) {
+        return this.dict[key].splice(this.key_get_methods[key](this.dict[key]), 1)[0];
+      }
       return this.dict[key].splice(this.get_method(this.dict[key]), 1)[0];
     }
   }
@@ -83,6 +87,36 @@ export default class ListDict {
     } else {
       return 0;
     }
+  }
+
+  /**
+   * Set the global getter function. This is the global get function
+   *
+   * @param {Function} getter the new getter function to use
+   */
+  setGetter(getter) {
+    this.get_method = getter;
+  }
+
+  /**
+   * Set the getter function for the key. This is to allow for different
+   * keys to have different getter methods than the global getter function.
+   * If none is defined for the particular key, the global getter is used.
+   *
+   * @param {Function} getter the new getter function to use
+   * @param {Any} key the key used to assign the getter to
+   */
+  setGetterForKey(getter, key) {
+    this.key_get_methods[key] = getter;
+  }
+
+  /**
+   * Removes the getter for the given key.
+   *
+   * @param {Any} key the key to remove the getter for
+   */
+  removeGetterForKey(key) {
+    delete this.key_get_methods[key];
   }
 
   get keys() {

@@ -7,9 +7,8 @@ const chai = require('chai');
 const mocha = require('mocha');
 const describe = mocha.describe;
 const it = mocha.it;
-const beforeEach = mocha.beforeEach;
 
-import UpdateHandler from '../main/control/UpdateHandler';
+import UpdateHandler from '../main/control/DataStructures/UpdateHandler';
 
 describe('UpdateHandler', () => {
   describe('+ addHandler() & + event()', () => {
