@@ -32,14 +32,7 @@ class Index extends Component {
  * Renders Index then...
  *
  * If geolocation is true, the program will trigger a geolocation request to set map center to user location
- * If devMode is true, the program will run all tests (all located in "../test")
  */
 ReactDOM.render(<Index />, document.getElementById('app'), () => {
   if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
-
-  if (devMode) {
-    for (const file of fs.readdirSync(path.resolve(__dirname, '..', 'test'))) {
-      require(`../test/${file}`);
-    }
-  }
 });

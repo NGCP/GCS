@@ -5,10 +5,6 @@ import outdent from 'outdent';
 import path from 'path';
 import { format as formatUrl } from 'url';
 
-import Orchestrator from './control/Orchestrator';
-
-const orchestrator = new Orchestrator(null);
-
 require('dotenv').config();
 process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 
