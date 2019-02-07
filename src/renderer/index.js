@@ -8,8 +8,6 @@ import MapContainer from './map/Map.js';
 import MissionContainer from './mission/Mission.js';
 import VehicleContainer from './vehicle/Vehicle.js';
 
-import '../util/xbee.js';
-
 import 'leaflet/dist/leaflet.css';
 import 'react-virtualized/styles.css';
 import './global.css';
