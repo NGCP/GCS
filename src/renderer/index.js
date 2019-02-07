@@ -2,13 +2,11 @@ import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
+import { devMode, geolocation } from '../../resources/index.js';
 import LogContainer from './log/Log.js';
 import MapContainer from './map/Map.js';
 import MissionContainer from './mission/Mission.js';
 import VehicleContainer from './vehicle/Vehicle.js';
-import { devMode, geolocation } from '../../resources/index.js';
-
-import '../util/xbee.js';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-virtualized/styles.css';

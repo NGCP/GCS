@@ -16,11 +16,6 @@
     "ecmaVersion": 9,
     "sourceType": "module"
   },
-  "settings": {
-    "react": {
-      "version": "16.5.2"
-    }
-  },
   "env": {
     "browser": true,
     "es6": true,
@@ -66,7 +61,7 @@
 
     "accessor-pairs": "warn",
     "array-callback-return": "error",
-    "camelcase": ["error", { "properties": "never", "ignoreDestructuring": false }],
+    "camelcase": ["error", { "properties": "never" }],
     "complexity": "warn",
     "consistent-return": "error",
     "curly": ["error", "multi-line", "consistent"],
