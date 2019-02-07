@@ -22,6 +22,7 @@ import geolocation_hover from './images/other/geolocation_hover.png';
 import geolocation from './images/other/geolocation.png';
 
 export { default as config, cache, devMode, geolocation, locations, startLocation } from './config.json';
+export * as macAddress from './mac-address.json';
 
 export const images = {
   arrow: arrow,
