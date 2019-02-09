@@ -1,4 +1,4 @@
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import fs from 'fs';
 import L from 'leaflet';
 import React, { Component, createRef } from 'react';

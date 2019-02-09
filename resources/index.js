@@ -21,7 +21,7 @@ import ugv from './images/markers/vehicles/ugv.png';
 import geolocation_hover from './images/other/geolocation_hover.png';
 import geolocation from './images/other/geolocation.png';
 
-export { default as config, cache, devMode, geolocation, locations, startLocation } from './config.json';
+export { default as config, cache, fixtures, geolocation, locations, startLocation } from './config.json';
 export * as macAddress from './mac-address.json';
 
 export const images = {

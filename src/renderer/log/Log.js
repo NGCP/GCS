@@ -21,7 +21,7 @@ export default class LogContainer extends Component {
     minHeight: 20,
   });
 
-  _rowRenderer = ({ index, key, parent, style }) => {
+  rowRenderer = ({ index, key, parent, style }) => {
     const message = this.state.filteredMessages[index];
 
     return (
@@ -91,7 +91,7 @@ export default class LogContainer extends Component {
                 overscanRowCount={0}
                 rowCount={this.state.filteredMessages.length}
                 rowHeight={this.heightCache.rowHeight}
-                rowRenderer={this._rowRenderer}
+                rowRenderer={this.rowRenderer}
                 scrollToIndex={this.state.filteredMessages.length - 1}
               />
             }

@@ -61,9 +61,9 @@ export default class MissionContainer extends Component {
       minHeight: 40,
     });
 
-    _rowGetter = ({ index }) => this.state.missions[index];
+    rowGetter = ({ index }) => this.state.missions[index];
 
-    _descriptionRenderer = ({ dataKey, parent, rowIndex, cellData }) =>
+    descriptionRenderer = ({ dataKey, parent, rowIndex, cellData }) =>
       <CellMeasurer
         cache={this.heightCache}
         columnIndex={0}
@@ -76,7 +76,7 @@ export default class MissionContainer extends Component {
         </div>
       </CellMeasurer>;
 
-    _statusRenderer = ({ dataKey, rowData }) => <span key={dataKey} className={rowData.status.type}>{rowData.status.message}</span>;
+    statusRenderer = ({ dataKey, rowData }) => <span key={dataKey} className={rowData.status.type}>{rowData.status.message}</span>;
 
     render() {
       return (
@@ -89,20 +89,20 @@ export default class MissionContainer extends Component {
                 headerHeight={40}
                 rowHeight={this.heightCache.rowHeight}
                 rowCount={this.state.missions.length}
-                rowGetter={this._rowGetter}
-                onRowClick={this._onRowClick}
+                rowGetter={this.rowGetter}
+                onRowClick={this.onRowClick}
               >
                 <Column
                   label='Description'
                   dataKey='description'
                   width={width * this.width.description}
-                  cellRenderer={this._descriptionRenderer}
+                  cellRenderer={this.descriptionRenderer}
                 />
                 <Column
                   label='Status'
                   dataKey='status'
                   width={width * this.width.status}
-                  cellRenderer={this._statusRenderer}
+                  cellRenderer={this.statusRenderer}
                 />
               </Table>
             }

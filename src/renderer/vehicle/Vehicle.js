@@ -20,17 +20,17 @@ export default class VehicleContainer extends Component {
     status: 0.45,
   };
 
-  _onRowClick = ({ rowData }) => {
+  onRowClick = ({ rowData }) => {
     this.centerMapToVehicle(this.state.vehicles[rowData.id]);
   };
 
-  _rowGetter = ({ index }) => {
+  rowGetter = ({ index }) => {
     const { vehicles } = this.state;
     const v = Object.keys(this.state.vehicles).sort((a, b) => parseInt(a) - parseInt(b));
     return vehicles[v[index]];
   };
 
-  _statusRenderer = ({ rowData }) => <span className={rowData.status.type}>{rowData.status.message}</span>;
+  statusRenderer = ({ rowData }) => <span className={rowData.status.type}>{rowData.status.message}</span>;
 
   centerMapToVehicle = vehicle => {
     ipcRenderer.send('post', 'centerMapToVehicle', vehicle);
@@ -55,8 +55,8 @@ export default class VehicleContainer extends Component {
               headerHeight={40}
               rowHeight={40}
               rowCount={Object.keys(this.state.vehicles).length}
-              rowGetter={this._rowGetter}
-              onRowClick={this._onRowClick}
+              rowGetter={this.rowGetter}
+              onRowClick={this.onRowClick}
             >
               <Column
                 label='ID'
@@ -72,7 +72,7 @@ export default class VehicleContainer extends Component {
                 label='Status'
                 dataKey='status'
                 width={width * this.width.status}
-                cellRenderer={this._statusRenderer}
+                cellRenderer={this.statusRenderer}
               />
             </Table>
           }

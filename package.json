@@ -4,7 +4,8 @@
   "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
   "main": "src/main/index.js",
   "scripts": {
-    "test": "eslint --ext .js \".\" && stylelint \"**/*.css\"",
+    "test": "npm run linttest",
+    "linttest": "eslint --ext .js \".\" && stylelint \"**/*.css\"",
     "postinstall": "electron-builder install-app-deps",
     "lint": "eslint --fix --ext .js \".\" && stylelint \"**/*.css\" --fix",
     "start": "electron-webpack dev",

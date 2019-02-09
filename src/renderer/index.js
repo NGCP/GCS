@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import { devMode, geolocation } from '../../resources/index.js';
+import { fixtures, geolocation } from '../../resources/index.js';
 import LogContainer from './log/Log.js';
 import MapContainer from './map/Map.js';
 import MissionContainer from './mission/Mission.js';
@@ -35,5 +35,5 @@ class Index extends Component {
 ReactDOM.render(<Index />, document.getElementById('app'), () => {
   if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
 
-  if (devMode) require('../../test/index.js');
+  if (fixtures) require('./fixtures/index.js');
 });
