@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell } from 'electron';
 import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
@@ -131,7 +131,7 @@ ipcMain.on('post', (event, notification, data) => window.webContents.send(notifi
 function createMainWindow() {
   window = new BrowserWindow({
     title: 'NGCP Ground Control Station',
-    icon: images.icon,
+    icon: nativeImage.createFromDataURL(images.icon),
     show: false,
     width: 1024,
     minWidth: 1024,
