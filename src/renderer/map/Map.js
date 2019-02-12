@@ -19,6 +19,7 @@ const mapOptions = {
   crossOrigin: true,
 };
 
+// default location is 0, 0 unless there is a locations file defined already
 let start = { latitude: 0, longitude: 0, zoom: 18 };
 if (startLocation && locations[startLocation]) {
   start = { ...start, ...locations[startLocation] };
@@ -36,19 +37,13 @@ export default class MapContainer extends Component {
     },
   };
 
-  componentDidMount() {
-    ipcRenderer.on('loadConfig', (event, data) => this.loadConfig(data));
-    ipcRenderer.on('saveConfig', (event, file) => this.saveConfig(file));
-
-    ipcRenderer.on('centerMapToVehicle', (event, data) => this.centerMapToVehicle(data));
-    ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
-    ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
-    ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
-  }
-
   vehicleRefs = {};
 
   ref = createRef();
+
+  onViewportChanged = viewport => {
+    this.setState({ viewport });
+  };
 
   loadConfig = data => {
     this.updateMapLocation(data);
@@ -65,10 +60,6 @@ export default class MapContainer extends Component {
   centerMapToVehicle = vehicle => {
     this.updateMapLocation(vehicle);
     this.vehicleRefs[vehicle.id].current.leafletElement.togglePopup();
-  };
-
-  onViewportChanged = viewport => {
-    this.setState({ viewport });
   };
 
   setMapToUserLocation = () => {
@@ -97,6 +88,16 @@ export default class MapContainer extends Component {
     }
     this.setState({ vehicles: currentVehicles });
   };
+
+  componentDidMount() {
+    ipcRenderer.on('loadConfig', (event, data) => this.loadConfig(data));
+    ipcRenderer.on('saveConfig', (event, file) => this.saveConfig(file));
+
+    ipcRenderer.on('centerMapToVehicle', (event, data) => this.centerMapToVehicle(data));
+    ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
+    ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
+    ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
+  }
 
   render() {
     const { viewport, vehicles } = this.state;

@@ -183,9 +183,28 @@
     "react/jsx-tag-spacing": ["error", { "beforeClosing": "never" }],
 
     "react/no-typos": "warn",
-    "react/sort-comp": "warn",
     "react/sort-prop-types": "warn",
     "react/style-prop-object": "error",
+
+    "react/sort-comp": ["error", {
+      "order": [
+        "everything-else",
+        "lifecycle",
+        "render"
+      ],
+      "groups": {
+        "lifecycle": [
+          "componentWillMount",
+          "componentDidMount",
+          "componentWillReceiveProps",
+          "shouldComponentUpdate",
+          "componentWillUpdate",
+          "componentDidUpdate",
+          "componentDidCatch",
+          "componentWillUnmount"
+        ]
+      }
+    }],
 
     "babel/semi": 1,
 

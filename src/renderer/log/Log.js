@@ -12,10 +12,6 @@ export default class LogContainer extends Component {
     filteredMessages: [],
   };
 
-  componentDidMount() {
-    ipcRenderer.on('updateMessages', (event, data) => this.updateMessages(data));
-  }
-
   heightCache = new CellMeasurerCache({
     fixedWidth: true,
     minHeight: 20,
@@ -77,6 +73,10 @@ export default class LogContainer extends Component {
       filteredMessages: currentFilteredMessages,
     });
   };
+
+  componentDidMount() {
+    ipcRenderer.on('updateMessages', (event, data) => this.updateMessages(data));
+  }
 
   render() {
     return (
