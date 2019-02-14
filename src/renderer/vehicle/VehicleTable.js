@@ -2,10 +2,7 @@ import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import { AutoSizer, Table, Column } from 'react-virtualized';
 
-import './vehicle.css';
-
-
-export default class VehicleContainer extends Component {
+export default class VehicleTable extends Component {
   state = {
     vehicles: {},
   };
@@ -46,38 +43,41 @@ export default class VehicleContainer extends Component {
 
   render() {
     return (
-      <div className='vehicleContainer container'>
-        <AutoSizer>
-          {({ height, width }) =>
-            <Table
-              width={width}
-              height={height}
-              headerHeight={40}
-              rowHeight={40}
-              rowCount={Object.keys(this.state.vehicles).length}
-              rowGetter={this.rowGetter}
-              onRowClick={this.onRowClick}
-            >
-              <Column
-                label='ID'
-                dataKey='id'
-                width={width * this.width.id}
-              />
-              <Column
-                label='Name'
-                dataKey='name'
-                width={width * this.width.name}
-              />
-              <Column
-                label='Status'
-                dataKey='status'
-                width={width * this.width.status}
-                cellRenderer={this.statusRenderer}
-              />
-            </Table>
-          }
-        </AutoSizer>
-      </div>
+      <AutoSizer>
+        {({ height, width }) =>
+          <Table
+            style={{
+              position: 'relative',
+              top: 0,
+              right: 0,
+            }}
+            width={width}
+            height={height}
+            headerHeight={40}
+            rowHeight={40}
+            rowCount={Object.keys(this.state.vehicles).length}
+            rowGetter={this.rowGetter}
+            onRowClick={this.onRowClick}
+          >
+            <Column
+              label='ID'
+              dataKey='id'
+              width={width * this.width.id}
+            />
+            <Column
+              label='Name'
+              dataKey='name'
+              width={width * this.width.name}
+            />
+            <Column
+              label='Status'
+              dataKey='status'
+              width={width * this.width.status}
+              cellRenderer={this.statusRenderer}
+            />
+          </Table>
+        }
+      </AutoSizer>
     );
   }
 }
