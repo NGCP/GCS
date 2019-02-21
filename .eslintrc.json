@@ -1,5 +1,17 @@
 {
-  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:react/recommended"
+  ],
+  "parser": "babel-eslint",
+  "plugins": ["babel", "react"],
+  "settings": {
+    "react": {
+      "version": "16.5.2"
+    }
+  },
   "parserOptions": {
     "ecmaVersion": 9,
     "sourceType": "module"
@@ -10,12 +22,16 @@
     "node": true
   },
   "overrides": [
-    { "files": ["*.browser.js"], "env": { "browser": true } }
+    {
+      "files": ["*.browser.js"],
+      "env": { "browser": true }
+    }
   ],
   "rules": {
     "no-await-in-loop": "warn",
     "no-compare-neg-zero": "error",
-    "no-console": "off",
+    "no-console": "warn",
+    "no-empty-function": "error",
     "no-extra-parens": ["warn", "all", {
       "nestedBinaryExpressions": false
     }],
@@ -45,6 +61,7 @@
 
     "accessor-pairs": "warn",
     "array-callback-return": "error",
+    "camelcase": ["error", { "properties": "never" }],
     "complexity": "warn",
     "consistent-return": "error",
     "curly": ["error", "multi-line", "consistent"],
@@ -53,7 +70,7 @@
     "eqeqeq": "error",
     "no-floating-decimal": "error",
     "no-implied-eval": "error",
-    "no-invalid-this": "error",
+    "babel/no-invalid-this": "error",
     "no-lone-blocks": "error",
     "no-multi-spaces": "error",
     "no-new-func": "error",
@@ -82,7 +99,7 @@
     "no-shadow": "error",
     "no-undef-init": "error",
     "callback-return": "error",
-    "handle-callback-err": "error",
+    "handle-callback-err": ["error", "^(e|err|error|^.+Error$)$"],
     "no-mixed-requires": "error",
     "no-new-require": "error",
     "no-path-concat": "error",
@@ -166,8 +183,32 @@
     "react/jsx-tag-spacing": ["error", { "beforeClosing": "never" }],
 
     "react/no-typos": "warn",
-    "react/sort-comp": "warn",
     "react/sort-prop-types": "warn",
-    "react/style-prop-object": "error"
+    "react/style-prop-object": "error",
+
+    "react/sort-comp": ["error", {
+      "order": [
+        "everything-else",
+        "lifecycle",
+        "render"
+      ],
+      "groups": {
+        "lifecycle": [
+          "componentWillMount",
+          "componentDidMount",
+          "componentWillReceiveProps",
+          "shouldComponentUpdate",
+          "componentWillUpdate",
+          "componentDidUpdate",
+          "componentDidCatch",
+          "componentWillUnmount"
+        ]
+      }
+    }],
+
+    "babel/semi": 1,
+
+    "import/extensions": ["error", "always", { "ignorePackages": true }],
+    "import/no-named-as-default": 0
   }
 }

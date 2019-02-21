@@ -91,7 +91,8 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
    * @returns {Function}
    */
   _onCacheLookup: function _onCacheLookup(tile, tileUrl, done) {
-    return function onCacheLookupCallback(e, data) {
+    return function onCacheLookupCallback(err, data) {
+      if (err) {} // eslint-disable-line no-empty, silently ignoring err
       if (data) {
         this.fire('tilecachehit', {
           tile: tile,

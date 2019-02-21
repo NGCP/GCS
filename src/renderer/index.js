@@ -1,15 +1,15 @@
 import { ipcRenderer } from 'electron';
-import fs from 'fs';
-import path from 'path';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import LogContainer from './log/Log.js';
-import MapContainer from './map/Map.js';
-import MissionContainer from './mission/Mission.js';
-import VehicleContainer from './vehicle/Vehicle.js';
-import { cache, devMode, geolocation } from '../../resources/config.json';
+import { fixtures, geolocation } from '../../resources/index.js';
+import LogContainer from './log/LogContainer.js';
+import MapContainer from './map/MapContainer.js';
+import MissionContainer from './mission/MissionContainer.js';
+import VehicleContainer from './vehicle/VehicleContainer.js';
 
+import 'leaflet/dist/leaflet.css';
+import 'react-virtualized/styles.css';
 import './global.css';
 import './index.css';
 
@@ -34,11 +34,6 @@ class Index extends Component {
  */
 ReactDOM.render(<Index />, document.getElementById('app'), () => {
   if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
-  if (cache) ipcRenderer.send('post', 'cacheMapTiles');
 
-  if (devMode) {
-    for (const file of fs.readdirSync(path.resolve(__dirname, '..', 'test'))) {
-      require(`../test/${file}`);
-    }
-  }
+  if (fixtures) require('./fixtures/index.js');
 });

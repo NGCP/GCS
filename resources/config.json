@@ -1,8 +1,5 @@
 {
-  "host": "127.0.0.1",
-  "port": 9200,
-
-  "cache": true,
-  "devMode": true,
+  "fixtures": true,
+  "cache": false,
   "geolocation": true
 }

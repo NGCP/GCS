@@ -1,65 +1,69 @@
 /* Defined styles for the whole application */
 
 html {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
   user-select: none;
 }
 
-table {
-  table-layout: fixed;
-  border-collapse: collapse;
-  white-space: nowrap;
-  width: 90%;
-  height: 90%;
-  margin: 1em auto;
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
 }
 
-th,
-td {
-  text-align: left;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  padding: 0.5em 0.8em;
+div:focus {
+  outline: none;
+}
+
+.ReactVirtualized__Table {
+  color: #bdbdbd;
+}
+
+.ReactVirtualized__Table__headerRow {
+  color: #fff;
+  background-color: rgb(255, 255, 255, 0.15);
+  text-transform: none;
+}
+
+.ReactVirtualized__Table__row {
   width: 100%;
+  border-top: 2px solid #626262;
+  cursor: pointer;
 }
 
-thead,
-tbody {
-  border: 1px solid #000;
-  background-color: #eee;
-  display: block;
+.ReactVirtualized__Table__row:first-child {
+  border-top: 0;
 }
 
-tbody {
-  max-height: 90%;
-  overflow-y: auto;
+.ReactVirtualized__Table__row:hover {
+  color: #e9e9e9;
+  background-color: rgb(255, 255, 255, 0.025);
 }
 
-thead {
-  background-color: #9e9e9e;
-}
-
-tbody tr:nth-child(odd) {
-  background-color: #eee;
-}
-
-tbody tr:nth-child(even) {
-  background-color: #e0e0e0;
-}
-
-tbody tr:hover {
-  background-color: #d0d0d0;
-}
-
-tbody tr:active {
-  background-color: #b9b9b9;
+.ReactVirtualized__Table__row:active {
+  color: #fff;
+  background-color: rgb(255, 255, 255, 0.05);
 }
 
 .success {
-  color: #357a38;
+  color: #2e7d32;
 }
 
 .failure {
-  color: #aa2e25;
+  color: #c62828;
+}
+
+.ReactVirtualized__Table__row:hover .success {
+  color: #43a047;
+}
+
+.ReactVirtualized__Table__row:active .success {
+  color: #76d275;
+}
+
+.ReactVirtualized__Table__row:hover .failure {
+  color: #f44336;
+}
+
+.ReactVirtualized__Table__row:active .failure {
+  color: #ff7961;
 }

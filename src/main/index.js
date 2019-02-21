@@ -1,26 +1,15 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell } from 'electron';
 import fs from 'fs';
 import moment from 'moment';
-import outdent from 'outdent';
 import path from 'path';
 import { format as formatUrl } from 'url';
 
-require('dotenv').config();
+import { images, locations } from '../../resources/index.js';
+
+const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
+
 process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 
-const blankLocationJSON = outdent`
-  ${outdent}
-  {
-    "startLocation": "",
-    "locations": {
-      "Example Location": {
-        "latitude": 0,
-        "longitude": 0,
-        "zoom": 18
-      }
-    }
-  }`;
-const configFilter = { name: 'GCS Configuration', extensions: ['json'] };
 const darwinMenu = {
   label: 'NGCP Ground Control System',
   submenu: [
@@ -92,14 +81,6 @@ const menu = [
     label: 'Locations',
     submenu: [
       {
-        label: 'Edit Locations',
-        accelerator: 'CommandOrControl+E',
-        click() {
-          const locationFilePath = ensureLocationFileExists();
-          shell.openItem(locationFilePath);
-        },
-      },
-      {
         label: 'My Location',
         click() { window.webContents.send('setMapToUserLocation'); },
       },
@@ -150,7 +131,7 @@ ipcMain.on('post', (event, notification, data) => window.webContents.send(notifi
 function createMainWindow() {
   window = new BrowserWindow({
     title: 'NGCP Ground Control Station',
-    icon: path.resolve(__dirname, '..', '..', 'resources', 'images', 'icon.png'),
+    icon: nativeImage.createFromDataURL(images.icon),
     show: false,
     width: 1024,
     minWidth: 1024,
@@ -204,9 +185,7 @@ function createMenu() {
 }
 
 function setLocationMenu() {
-  ensureLocationFileExists();
   const locationMenu = menu.find(m => m.label === 'Locations').submenu;
-  const { locations } = require('../../resources/locations.json');
 
   if (!locations || locations.length === 0) {
     locationMenu.push({
@@ -234,8 +213,8 @@ function saveConfig() {
   const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
   const filePath = dialog.showSaveDialog(window, {
     title: 'Save Configuration',
-    filters: [configFilter],
-    defaultPath: `./${fileName}.${configFilter.extensions[0]}`,
+    filters: [FILTER],
+    defaultPath: `./${fileName}.${FILTER.extensions[0]}`,
   });
 
   if (!filePath) return;
@@ -250,7 +229,7 @@ function saveConfig() {
 function loadConfig() {
   const filePaths = dialog.showOpenDialog(window, {
     title: 'Open Configuration',
-    filters: [configFilter],
+    filters: [FILTER],
     properties: ['openFile', 'createDirectory'],
   });
 
@@ -261,14 +240,4 @@ function loadConfig() {
   if (!data) return;
 
   window.webContents.send('loadConfig', data);
-}
-
-function ensureLocationFileExists() {
-  const locationFilePath = path.resolve(__dirname, '..', '..', 'resources', 'locations.json');
-
-  if (!fs.existsSync(locationFilePath)) {
-    fs.writeFileSync(locationFilePath, blankLocationJSON);
-  }
-
-  return locationFilePath;
 }

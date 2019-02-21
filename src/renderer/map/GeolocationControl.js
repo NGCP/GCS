@@ -7,15 +7,9 @@ import Control from 'react-leaflet-control';
  * whenever it is clicked.
  */
 export default class GeolocationControl extends Component {
-  constructor(props) {
-    super(props);
-
-    this.onClick = this.onClick.bind(this);
-  }
-
-  onClick() {
+  onClick = () => {
     ipcRenderer.send('post', 'setMapToUserLocation');
-  }
+  };
 
   render() {
     return (
