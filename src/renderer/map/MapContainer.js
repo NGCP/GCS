@@ -7,6 +7,7 @@ import { Map, Marker, Popup } from 'react-leaflet';
 import { cache, images, locations, startLocation } from '../../../resources/index.js';
 import CachedTileLayer from './CachedTileLayer.js';
 import GeolocationControl from './GeolocationControl.js';
+import ThemeControl from './ThemeControl.js';
 
 import './map.css';
 
@@ -69,6 +70,10 @@ export default class MapContainer extends Component {
     }
   };
 
+  // switchTheme = () => {
+  //
+  // };
+
   updateMapLocation = ({ position, latitude, longitude, zoom }) => {
     this.setState({ position, latitude, longitude, zoom: zoom || this.state.viewport.zoom });
 
@@ -112,6 +117,7 @@ export default class MapContainer extends Component {
         onViewportChanged={this.onViewportChanged}
       >
         <GeolocationControl />
+        <ThemeControl />
         <CachedTileLayer {...mapOptions} />
         {
           Object.keys(vehicles).map(id => {

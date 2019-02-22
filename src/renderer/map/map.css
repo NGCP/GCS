@@ -17,9 +17,9 @@
 .theme-control {
   cursor: pointer;
   background-size: 75%;
-  background-image: url();
+  background-image: url('../../../resources/images/other/sun.png');
 }
 
 .theme-control:hover {
-  background-image: url();
+  background-image: url('../../../resources/images/other/sun_hover.png');
 }

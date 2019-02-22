@@ -8,7 +8,6 @@ import Control from 'react-leaflet-control';
  *  Dark -> Light
  *  Light -> Dark
  */
-
 export default class ThemeControl extends Component {
   onClick = () => {
     ipcRenderer.send('post', 'switchTheme');
