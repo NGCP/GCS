@@ -14,13 +14,31 @@ import './global.css';
 import './index.css';
 
 class Index extends Component {
+  state = {
+    theme: 'light',
+  };
+
+  toggleTheme = () => {
+    if (this.state.theme === 'dark') {
+      this.setState({ theme: 'light' });
+    } else {
+      this.setState({ theme: 'dark' });
+    }
+  };
+
+  componentDidMount() {
+    ipcRenderer.on('toggleTheme', this.toggleTheme);
+  }
+
   render() {
+    const { theme } = this.state;
+
     return (
-      <div className='gridWrapper'>
+      <div className={`gridWrapper${theme === 'dark' ? '_dark' : ''}`}>
         <MapContainer />
-        <LogContainer />
-        <MissionContainer />
-        <VehicleContainer />
+        <LogContainer theme={theme} />
+        <MissionContainer theme={theme} />
+        <VehicleContainer theme={theme} />
       </div>
     );
   }

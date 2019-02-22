@@ -6,8 +6,8 @@ import { Map, Marker, Popup } from 'react-leaflet';
 
 import { cache, images, locations, startLocation } from '../../../resources/index.js';
 import CachedTileLayer from './CachedTileLayer.js';
-import GeolocationControl from './GeolocationControl.js';
-import ThemeControl from './ThemeControl.js';
+import GeolocationControl from './control/GeolocationControl.js';
+import ThemeControl from './control/ThemeControl.js';
 
 import './map.css';
 

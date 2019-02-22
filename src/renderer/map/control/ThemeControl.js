@@ -10,7 +10,7 @@ import Control from 'react-leaflet-control';
  */
 export default class ThemeControl extends Component {
   onClick = () => {
-    ipcRenderer.send('post', 'switchTheme');
+    ipcRenderer.send('post', 'toggleTheme');
   };
 
   render() {

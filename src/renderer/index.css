@@ -13,6 +13,21 @@ body,
 }
 
 .gridWrapper {
+  background: #fff;
+  display: grid;
+  grid-gap: 3px;
+  grid-template-areas:
+    'map map map vehicle'
+    'map map map vehicle'
+    'map map map mission'
+    'log log log mission';
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  height: 100%;
+  width: 100%;
+}
+
+.gridWrapper_dark {
   background: #000;
   display: grid;
   grid-gap: 3px;
