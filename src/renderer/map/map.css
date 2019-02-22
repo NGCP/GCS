@@ -13,3 +13,13 @@
 .mapContainer p {
   margin: 0;
 }
+
+.theme-control {
+  cursor: pointer;
+  background-size: 75%;
+  background-image: url();
+}
+
+.theme-control:hover {
+  background-image: url();
+}
