@@ -19,11 +19,7 @@ class Index extends Component {
   };
 
   toggleTheme = () => {
-    if (this.state.theme === 'dark') {
-      this.setState({ theme: 'light' });
-    } else {
-      this.setState({ theme: 'dark' });
-    }
+    this.setState({ theme: this.state.theme === 'light' ? 'dark' : 'light' });
   };
 
   componentDidMount() {
