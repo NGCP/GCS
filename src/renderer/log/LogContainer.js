@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron';
 import moment from 'moment';
 import React, { Component } from 'react';
@@ -10,6 +11,10 @@ export default class LogContainer extends Component {
     filter: '',
     messages: [],
     filteredMessages: [],
+  };
+
+  static propTypes = {
+    theme: PropTypes.string,
   };
 
   heightCache = new CellMeasurerCache({
@@ -80,8 +85,8 @@ export default class LogContainer extends Component {
 
   render() {
     return (
-      <div className='logContainer container'>
-        <div className='messages'>
+      <div className={`logContainer container${this.props.theme === 'dark' ? '_dark' : ''}`}>
+        <div className={`messages${this.props.theme === 'dark' ? '_dark' : ''}`}>
           <AutoSizer>
             {({ height, width }) =>
               <List
@@ -97,7 +102,7 @@ export default class LogContainer extends Component {
             }
           </AutoSizer>
         </div>
-        <div className='controls'>
+        <div className='control'>
           <select onChange={this.updateFilter} value={this.state.filter}>
             <option value=''>No Filter</option>
             <option className='success' value='success'>Success</option>

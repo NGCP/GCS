@@ -35,7 +35,7 @@ class Index extends Component {
 
     return (
       <div className={`gridWrapper${theme === 'dark' ? '_dark' : ''}`}>
-        <MapContainer />
+        <MapContainer theme={theme} />
         <LogContainer theme={theme} />
         <MissionContainer theme={theme} />
         <VehicleContainer theme={theme} />

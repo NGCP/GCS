@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table } from 'react-virtualized';
 
@@ -51,6 +52,10 @@ export default class MissionContainer extends Component {
       ],
     };
 
+    static propTypes = {
+      theme: PropTypes.string,
+    };
+
     width = {
       description: 0.6,
       status: 0.4,
@@ -80,7 +85,7 @@ export default class MissionContainer extends Component {
 
     render() {
       return (
-        <div className='missionContainer container'>
+        <div className={`missionContainer container${this.props.theme === 'dark' ? '_dark' : ''}`}>
           <AutoSizer>
             {({ height, width }) =>
               <Table

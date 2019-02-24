@@ -70,10 +70,6 @@ export default class MapContainer extends Component {
     }
   };
 
-  // switchTheme = () => {
-  //
-  // };
-
   updateMapLocation = ({ position, latitude, longitude, zoom }) => {
     this.setState({ position, latitude, longitude, zoom: zoom || this.state.viewport.zoom });
 
@@ -117,7 +113,7 @@ export default class MapContainer extends Component {
         onViewportChanged={this.onViewportChanged}
       >
         <GeolocationControl />
-        <ThemeControl />
+        <ThemeControl theme={this.props.theme} />
         <CachedTileLayer {...mapOptions} />
         {
           Object.keys(vehicles).map(id => {

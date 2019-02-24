@@ -17,9 +17,19 @@
 .theme-control {
   cursor: pointer;
   background-size: 75%;
-  background-image: url('../../../resources/images/other/sun.png');
+  background-image: url('../../../resources/images/other/moon.png');
 }
 
 .theme-control:hover {
+  background-image: url('../../../resources/images/other/moon_hover.png');
+}
+
+.theme-control_dark {
+  cursor: pointer;
+  background-size: 75%;
+  background-image: url('../../../resources/images/other/sun.png');
+}
+
+.theme-control_dark:hover {
   background-image: url('../../../resources/images/other/sun_hover.png');
 }
