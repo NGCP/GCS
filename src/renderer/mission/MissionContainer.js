@@ -53,7 +53,7 @@ export default class MissionContainer extends Component {
     };
 
     static propTypes = {
-      theme: PropTypes.string,
+      theme: PropTypes.oneOf(['light', 'dark']).isRequired,
     };
 
     width = {
@@ -68,6 +68,15 @@ export default class MissionContainer extends Component {
 
     rowGetter = ({ index }) => this.state.missions[index];
 
+    rowClassName = ({ index }) => {
+      if (this.props.theme === 'dark' && index === -1) {
+        return 'ReactVirtualized__Table__headerRow_dark';
+      } else if (this.props.theme === 'dark') {
+        return 'ReactVirtualized__Table__row_dark';
+      } else {
+        return '';
+      }
+    };
     descriptionRenderer = ({ dataKey, parent, rowIndex, cellData }) =>
       <CellMeasurer
         cache={this.heightCache}
@@ -96,18 +105,22 @@ export default class MissionContainer extends Component {
                 rowCount={this.state.missions.length}
                 rowGetter={this.rowGetter}
                 onRowClick={this.onRowClick}
+                className={this.props.theme === 'dark' ? 'ReactVirtualized__Table_dark' : ''}
+                rowClassName={this.rowClassName}
               >
                 <Column
                   label='Description'
                   dataKey='description'
                   width={width * this.width.description}
                   cellRenderer={this.descriptionRenderer}
+                  rowClassName={this.rowClassName}
                 />
                 <Column
                   label='Status'
                   dataKey='status'
                   width={width * this.width.status}
                   cellRenderer={this.statusRenderer}
+                  rowClassName={this.rowClassName}
                 />
               </Table>
             }
