@@ -42,7 +42,15 @@ export default class VehicleTable extends Component {
     return vehicles[v[index]];
   };
 
-  rowClassName = ({ index }) => this.props.theme === 'dark' && index === -1 ? 'ReactVirtualized__Table__headerRow_dark' : '';
+  rowClassName = ({ index }) => {
+    if (this.props.theme === 'dark' && index === -1) {
+      return 'ReactVirtualized__Table__headerRow_dark';
+    } else if (this.props.theme === 'dark') {
+      return 'ReactVirtualized__Table__row_dark';
+    } else {
+      return '';
+    }
+  };
 
   componentDidMount() {
     ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
@@ -65,23 +73,27 @@ export default class VehicleTable extends Component {
             rowCount={Object.keys(this.state.vehicles).length}
             rowGetter={this.rowGetter}
             onRowClick={this.onRowClick}
+            className={this.props.theme === 'dark' ? 'ReactVirtualized__Table_dark' : ''}
             rowClassName={this.rowClassName}
           >
             <Column
               label='ID'
               dataKey='id'
               width={width * this.width.id}
+              rowClassName={this.rowClassName}
             />
             <Column
               label='Name'
               dataKey='name'
               width={width * this.width.name}
+              rowClassName={this.rowClassName}
             />
             <Column
               label='Status'
               dataKey='status'
               width={width * this.width.status}
               cellRenderer={this.statusRenderer}
+              rowClassName={this.rowClassName}
             />
           </Table>
         }
