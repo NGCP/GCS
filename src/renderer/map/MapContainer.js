@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import fs from 'fs';
 import L from 'leaflet';
+import PropTypes from 'prop-types';
 import React, { Component, createRef } from 'react';
 import { Map, Marker, Popup } from 'react-leaflet';
 
@@ -27,6 +28,10 @@ if (startLocation && locations[startLocation]) {
 }
 
 export default class MapContainer extends Component {
+  static propTypes = {
+    theme: PropTypes.oneOf(['light', 'dark']).isRequired,
+  };
+
   state = {
     vehicles: {},
     latitude: start.latitude,

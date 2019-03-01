@@ -6,18 +6,18 @@ import VehicleTable from './VehicleTable.js';
 import './vehicle.css';
 
 export default class VehicleContainer extends Component {
-  state = {
-    xbeeConnected: false,
+  static propTypes = {
+    theme: PropTypes.oneOf(['light', 'dark']).isRequired,
   };
 
-  static propTypes = {
-    theme: PropTypes.string,
+  state = {
+    xbeeConnected: false,
   };
 
   render() {
     return (
       <div className={`vehicleContainer container${this.props.theme === 'dark' ? '_dark' : ''}`}>
-        {<VehicleTable />}
+        {<VehicleTable theme={this.props.theme} />}
       </div>
     );
   }

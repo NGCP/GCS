@@ -23,11 +23,11 @@
   width: 100%;
   background-color: #ccc;
   border-top: 1px solid #858585;
+
   .dark {
     background-color: #000;
   }
 }
-
 
 /* dark theme */
 
@@ -38,5 +38,4 @@
   font-size: 14px;
   width: 100%;
   height: calc(100% - 25px);
-
 }

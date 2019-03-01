@@ -1,8 +1,13 @@
 import { ipcRenderer } from 'electron';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { AutoSizer, Table, Column } from 'react-virtualized';
 
 export default class VehicleTable extends Component {
+  static propTypes = {
+    theme: PropTypes.oneOf(['light', 'dark']).isRequired,
+  };
+
   state = {
     vehicles: {},
   };
@@ -37,6 +42,8 @@ export default class VehicleTable extends Component {
     return vehicles[v[index]];
   };
 
+  rowClassName = ({ index }) => this.props.theme === 'dark' && index === -1 ? 'ReactVirtualized__Table__headerRow_dark' : '';
+
   componentDidMount() {
     ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
   }
@@ -58,6 +65,7 @@ export default class VehicleTable extends Component {
             rowCount={Object.keys(this.state.vehicles).length}
             rowGetter={this.rowGetter}
             onRowClick={this.onRowClick}
+            rowClassName={this.rowClassName}
           >
             <Column
               label='ID'
