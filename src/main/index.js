@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, Tray } from 'electron';
 import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
@@ -7,6 +7,14 @@ import { format as formatUrl } from 'url';
 import { images, locations } from '../../resources/index.js';
 
 const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
+const QUIT_LABEL = {
+  label: 'Quit',
+  accelerator: 'CommandOrControl+Q',
+  click() {
+    quitting = true;
+    app.quit();
+  },
+};
 
 process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 
@@ -24,15 +32,10 @@ const darwinMenu = {
     { role: 'hideothers' },
     { role: 'unhide' },
     { type: 'separator' },
-    {
-      label: 'Quit',
-      accelerator: 'CommandOrControl+Q',
-      click() {
-        window.destroy();
-      },
-    },
+    QUIT_LABEL,
   ],
 };
+const icon = nativeImage.createFromDataURL(images.icon);
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const menu = [
   {
@@ -103,15 +106,18 @@ const menu = [
     ],
   },
 ];
+const trayMenu = [
+  {
+    label: 'NGCP Ground Control Station',
+    click() { window.show(); },
+  },
+  { type: 'separator' },
+  QUIT_LABEL,
+];
 
+let quitting = false;
+let tray;
 let window;
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    window.destroy();
-    app.quit();
-  }
-});
 
 app.on('activate', () => {
   if (window === null) {
@@ -126,12 +132,16 @@ app.on('ready', () => {
   createMenu();
 });
 
+app.on('before-quit', () => {
+  quitting = true;
+});
+
 ipcMain.on('post', (event, notification, data) => window.webContents.send(notification, data));
 
 function createMainWindow() {
   window = new BrowserWindow({
     title: 'NGCP Ground Control Station',
-    icon: nativeImage.createFromDataURL(images.icon),
+    icon: icon,
     show: false,
     width: 1024,
     minWidth: 1024,
@@ -140,7 +150,6 @@ function createMainWindow() {
   });
 
   if (isDevelopment) {
-    window.webContents.openDevTools();
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
   } else {
     window.loadURL(formatUrl({
@@ -150,23 +159,17 @@ function createMainWindow() {
     }));
   }
 
-  // window.maximize();
-
   window.on('ready-to-show', () => {
     window.show();
     window.focus();
   });
 
-  // this is Command + W on macOS
   window.on('close', event => {
-    event.preventDefault();
-    window.hide();
-  });
-
-  // this is Command + Q on macOS
-  window.on('closed', () => {
-    window = null;
-    app.quit();
+    if (!quitting) {
+      event.preventDefault();
+      window.hide();
+      event.returnValue = false;
+    }
   });
 
   return window;
@@ -178,10 +181,15 @@ function createMenu() {
   if (process.platform === 'darwin') {
     menu.unshift(darwinMenu);
   } else {
-    menu.push({ role: 'quit' });
+    menu.push(QUIT_LABEL);
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
+
+  tray = new Tray(icon);
+  tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
+
+  tray.on('click', () => window.show());
 }
 
 function setLocationMenu() {
