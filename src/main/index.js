@@ -75,7 +75,6 @@ const menu = [
       { role: 'reload' },
       { type: 'separator' },
       { role: 'togglefullscreen' },
-      { role: 'zoom' },
       { type: 'separator' },
       { role: 'toggledevtools' },
     ],

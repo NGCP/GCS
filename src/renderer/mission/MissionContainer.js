@@ -5,6 +5,10 @@ import { AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table } from 'react
 import './mission.css';
 
 export default class MissionContainer extends Component {
+    static propTypes = {
+      theme: PropTypes.oneOf(['light', 'dark']).isRequired,
+    };
+
     state = {
       missions: [
         {
@@ -50,10 +54,6 @@ export default class MissionContainer extends Component {
           },
         },
       ],
-    };
-
-    static propTypes = {
-      theme: PropTypes.oneOf(['light', 'dark']).isRequired,
     };
 
     width = {

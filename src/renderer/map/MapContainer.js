@@ -21,7 +21,7 @@ const mapOptions = {
   crossOrigin: true,
 };
 
-// default location is 0, 0 unless there is a locations file defined already
+// default location is (0, 0) unless there is a locations file defined already
 let start = { latitude: 0, longitude: 0, zoom: 18 };
 if (startLocation && locations[startLocation]) {
   start = { ...start, ...locations[startLocation] };

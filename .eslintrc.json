@@ -9,17 +9,21 @@
   "plugins": ["babel", "react"],
   "settings": {
     "react": {
-      "version": "16.5.2"
+      "version": "16.3"
     }
   },
   "parserOptions": {
-    "ecmaVersion": 9,
-    "sourceType": "module"
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
   "env": {
     "browser": true,
     "es6": true,
-    "node": true
+    "node": true,
+    "mocha": true
   },
   "overrides": [
     {
@@ -70,7 +74,6 @@
     "eqeqeq": "error",
     "no-floating-decimal": "error",
     "no-implied-eval": "error",
-    "babel/no-invalid-this": "error",
     "no-lone-blocks": "error",
     "no-multi-spaces": "error",
     "no-new-func": "error",
@@ -188,6 +191,8 @@
 
     "react/sort-comp": ["error", {
       "order": [
+        "propTypes",
+        "state",
         "everything-else",
         "lifecycle",
         "render"
@@ -206,7 +211,8 @@
       }
     }],
 
-    "babel/semi": 1,
+    "babel/no-invalid-this": "error",
+    "babel/semi": ["error", "always"],
 
     "import/extensions": ["error", "always", { "ignorePackages": true }],
     "import/no-named-as-default": 0

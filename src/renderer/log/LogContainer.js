@@ -7,14 +7,14 @@ import { AutoSizer, CellMeasurerCache, CellMeasurer, List } from 'react-virtuali
 import './log.css';
 
 export default class LogContainer extends Component {
+  static propTypes = {
+    theme: PropTypes.string,
+  };
+
   state = {
     filter: '',
     messages: [],
     filteredMessages: [],
-  };
-
-  static propTypes = {
-    theme: PropTypes.string,
   };
 
   heightCache = new CellMeasurerCache({
