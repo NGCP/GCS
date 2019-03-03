@@ -141,14 +141,14 @@ export default class MissionContainer extends Component {
               <Column
                 label="Description"
                 dataKey="description"
-                width={width * this.width.description}
+                width={tableWidth * this.width.description}
                 cellRenderer={this.descriptionRenderer}
                 rowClassName={this.rowClassName}
               />
               <Column
                 label="Status"
                 dataKey="status"
-                width={width * this.width.status}
+                width={tableWidth * this.width.status}
                 cellRenderer={MissionContainer.statusRenderer}
                 rowClassName={this.rowClassName}
               />

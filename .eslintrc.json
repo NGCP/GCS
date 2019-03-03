@@ -4,5 +4,8 @@
     "browser": true,
     "node": true
   },
-  "extends": "airbnb"
+  "extends": "airbnb",
+  "rules": {
+    "linebreak-style": "off"
+  }
 }

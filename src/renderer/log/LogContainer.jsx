@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
 import moment from 'moment';
 import React, { Component } from 'react';
 import {
@@ -83,7 +83,7 @@ export default class LogContainer extends Component {
     messages.forEach((message) => {
       const msg = {
         type: '',
-        tile: moment().format('HH:mm:ss.SSS'),
+        time: moment().format('HH:mm:ss.SSS'),
         ...message,
       };
 
@@ -127,7 +127,7 @@ export default class LogContainer extends Component {
             <option className="success" value="success">Success</option>
             <option className="failure" value="failure">Failure</option>
           </select>
-          <button onClick={this.clearMessages}>Clear Log</button>
+          <button type="button" onClick={this.clearMessages}>Clear Log</button>
         </div>
       </div>
     );

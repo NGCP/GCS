@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { AutoSizer, Table, Column } from 'react-virtualized';
@@ -103,19 +103,19 @@ export default class VehicleTable extends Component {
             <Column
               label="ID"
               dataKey="id"
-              width={width * this.width.id}
+              width={tableWidth * this.width.id}
               rowClassName={this.rowClassName}
             />
             <Column
               label="Name"
               dataKey="name"
-              width={width * this.width.name}
+              width={tableWidth * this.width.name}
               rowClassName={this.rowClassName}
             />
             <Column
               label="Status"
               dataKey="status"
-              width={width * this.width.status}
+              width={tableWidth * this.width.status}
               cellRenderer={VehicleTable.statusRenderer}
               rowClassName={this.rowClassName}
             />

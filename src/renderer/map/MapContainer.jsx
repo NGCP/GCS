@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
 import fs from 'fs';
 import L from 'leaflet';
 import PropTypes from 'prop-types';
@@ -167,7 +167,7 @@ export default class MapContainer extends Component {
                   <p><b>{`#${id}: ${name} `}</b></p>
                   <p>{`Position: [${position || [lat, lng]}]`}</p>
                   <p>
- Status:
+                    {'Status: '}
                     <span className={status.type}>{status.message}</span>
                   </p>
                 </Popup>

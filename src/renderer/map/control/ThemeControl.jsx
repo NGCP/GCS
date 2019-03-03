@@ -5,7 +5,7 @@
 */
 
 import PropTypes from 'prop-types';
-import { ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
 import React, { Component } from 'react';
 import Control from 'react-leaflet-control';
 
