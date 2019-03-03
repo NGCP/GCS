@@ -5,10 +5,14 @@ import PropTypes from 'prop-types';
 import React, { Component, createRef } from 'react';
 import { Map, Marker, Popup } from 'react-leaflet';
 
-import { cache, images, locations, startLocation } from '../../../resources/index.js';
-import CachedTileLayer from './CachedTileLayer.js';
-import GeolocationControl from './control/GeolocationControl.js';
-import ThemeControl from './control/ThemeControl.js';
+import {
+  cache, images, locations, startLocation,
+} from '../../../resources/index';
+
+import GeolocationControl from './control/GeolocationControl';
+import ThemeControl from './control/ThemeControl';
+
+import CachedTileLayer from './CachedTileLayer';
 
 import './map.css';
 
@@ -27,73 +31,37 @@ if (startLocation && locations[startLocation]) {
   start = { ...start, ...locations[startLocation] };
 }
 
+const propTypes = {
+  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
+};
+
 export default class MapContainer extends Component {
-  static propTypes = {
-    theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-  };
+  constructor(props) {
+    super(props);
 
-  state = {
-    vehicles: {},
-    latitude: start.latitude,
-    longitude: start.longitude,
-    zoom: start.zoom,
-    viewport: {
-      center: [start.latitude, start.longitude],
+    this.state = {
+      vehicles: {},
+      latitude: start.latitude,
+      longitude: start.longitude,
       zoom: start.zoom,
-    },
-  };
+      viewport: {
+        center: [start.latitude, start.longitude],
+        zoom: start.zoom,
+      },
+    };
 
-  vehicleRefs = {};
+    this.vehicleRefs = {};
 
-  ref = createRef();
+    this.ref = createRef();
 
-  onViewportChanged = viewport => {
-    this.setState({ viewport });
-  };
-
-  loadConfig = data => {
-    this.updateMapLocation(data);
-  };
-
-  saveConfig = file => {
-    // performs a hard copy of this.state, deletes vehicles from it, and saves it to file
-    const data = { ...this.state };
-    delete data.vehicles;
-
-    fs.writeFileSync(file.filePath, JSON.stringify({ ...file.data, ...data }, null, 2));
-  };
-
-  centerMapToVehicle = vehicle => {
-    this.updateMapLocation(vehicle);
-    this.vehicleRefs[vehicle.id].current.leafletElement.togglePopup();
-  };
-
-  setMapToUserLocation = () => {
-    const map = this.ref.current;
-    if (map) {
-      map.leafletElement.locate();
-    }
-  };
-
-  updateMapLocation = ({ position, latitude, longitude, zoom }) => {
-    this.setState({ position, latitude, longitude, zoom: zoom || this.state.viewport.zoom });
-
-    this.onViewportChanged({
-      center: position || [latitude, longitude],
-      zoom: zoom || this.state.zoom,
-    });
-  };
-
-  updateVehicles = vehicles => {
-    const currentVehicles = this.state.vehicles;
-    for (const vehicle of vehicles) {
-      if (!this.vehicleRefs[vehicle.id]) {
-        this.vehicleRefs[vehicle.id] = createRef();
-      }
-      currentVehicles[vehicle.id] = vehicle;
-    }
-    this.setState({ vehicles: currentVehicles });
-  };
+    this.onViewportChanged = this.onViewportChanged.bind(this);
+    this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
+    this.loadConfig = this.loadConfig.bind(this);
+    this.saveConfig = this.saveConfig.bind(this);
+    this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
+    this.updateMapLocation = this.updateMapLocation.bind(this);
+    this.updateVehicles = this.updateVehicles.bind(this);
+  }
 
   componentDidMount() {
     ipcRenderer.on('loadConfig', (event, data) => this.loadConfig(data));
@@ -105,12 +73,69 @@ export default class MapContainer extends Component {
     ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
   }
 
+  onViewportChanged(viewport) {
+    this.setState({ viewport });
+  }
+
+  setMapToUserLocation() {
+    const map = this.ref.current;
+    if (map) {
+      map.leafletElement.locate();
+    }
+  }
+
+  loadConfig(data) {
+    this.updateMapLocation(data);
+  }
+
+  saveConfig(file) {
+    // performs a hard copy of this.state, deletes vehicles from it, and saves it to file
+    const data = { ...this.state };
+    delete data.vehicles;
+
+    fs.writeFileSync(file.filePath, JSON.stringify({ ...file.data, ...data }, null, 2));
+  }
+
+  centerMapToVehicle(vehicle) {
+    this.updateMapLocation(vehicle);
+    this.vehicleRefs[vehicle.id].current.leafletElement.togglePopup();
+  }
+
+  updateMapLocation({
+    position, latitude, longitude, zoom,
+  }) {
+    const { viewport, zoom: thisZoom } = this.state;
+
+    this.setState({
+      position, latitude, longitude, zoom: zoom || viewport.zoom,
+    });
+
+    this.onViewportChanged({
+      center: position || [latitude, longitude],
+      zoom: zoom || thisZoom,
+    });
+  }
+
+  updateVehicles(vehicles) {
+    const { vehicles: thisVehicles } = this.state;
+    const currentVehicles = thisVehicles;
+
+    vehicles.forEach((vehicle) => {
+      if (!this.vehicleRefs[vehicle.id]) {
+        this.vehicleRefs[vehicle.id] = createRef();
+      }
+      currentVehicles[vehicle.id] = vehicle;
+    });
+    this.setState({ vehicles: currentVehicles });
+  }
+
   render() {
+    const { theme } = this.props;
     const { viewport, vehicles } = this.state;
 
     return (
       <Map
-        className='mapContainer container'
+        className="mapContainer container"
         center={viewport.center}
         zoom={viewport.zoom}
         ref={this.ref}
@@ -118,11 +143,13 @@ export default class MapContainer extends Component {
         onViewportChanged={this.onViewportChanged}
       >
         <GeolocationControl />
-        <ThemeControl theme={this.props.theme} />
+        <ThemeControl theme={theme} />
         <CachedTileLayer {...mapOptions} />
         {
-          Object.keys(vehicles).map(id => {
-            const { position, latitude: lat, longitude: lng, type, name, status } = vehicles[id];
+          Object.keys(vehicles).map((id) => {
+            const {
+              position, latitude: lat, longitude: lng, type, name, status,
+            } = vehicles[id];
 
             return (
               <Marker
@@ -139,7 +166,10 @@ export default class MapContainer extends Component {
                 <Popup>
                   <p><b>{`#${id}: ${name} `}</b></p>
                   <p>{`Position: [${position || [lat, lng]}]`}</p>
-                  <p>Status: <span className={status.type}>{status.message}</span></p>
+                  <p>
+ Status:
+                    <span className={status.type}>{status.message}</span>
+                  </p>
                 </Popup>
               </Marker>
             );
@@ -149,3 +179,5 @@ export default class MapContainer extends Component {
     );
   }
 }
+
+MapContainer.propTypes = propTypes;

@@ -29,33 +29,35 @@ import { cache, fixtures, geolocation } from './config.json';
 import { startLocation, locations } from './locations.json';
 import * as macAddress from './mac-address.json';
 
-export { cache, fixtures, geolocation, startLocation, locations, macAddress };
+export {
+  cache, fixtures, geolocation, startLocation, locations, macAddress,
+};
 
 export const images = {
-  arrow: arrow,
-  icon: icon,
-  pin: pin,
+  arrow,
+  icon,
+  pin,
   logo: {
-    ngcp_calpoly: ngcp_calpoly,
-    ngcp_pomona: ngcp_pomona,
+    ngcp_calpoly,
+    ngcp_pomona,
   },
   markers: {
-    poi_fp: poi_fp,
-    poi_unknwn: poi_unknwn,
-    poi_vld: poi_vld,
+    poi_fp,
+    poi_unknwn,
+    poi_vld,
     vehicles: {
-      uav_red: uav_red,
-      uav: uav,
-      ugv_red: ugv_red,
-      ugv: ugv,
+      uav_red,
+      uav,
+      ugv_red,
+      ugv,
     },
   },
   other: {
     geolocation_hover: geolocation_img_hover,
     geolocation: geolocation_img,
-    moon_hover: moon_hover,
-    moon: moon,
-    sun_hover: sun_hover,
-    sun: sun,
+    moon_hover,
+    moon,
+    sun_hover,
+    sun,
   },
 };

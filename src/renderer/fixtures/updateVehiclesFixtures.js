@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 
-const fixtures = [
+let fixtures = [
   {
     id: 1,
     latitude: 34.056482,
@@ -112,10 +112,13 @@ const status = [
 ];
 
 setInterval(() => {
-  for (const fixture of fixtures) {
-    fixture.latitude += (Math.random() / 5000) - 0.0001;
-    fixture.longitude += (Math.random() / 5000) - 0.0001;
-    fixture.status = status[Math.floor(Math.random() * 2)];
-  }
+  const newFixtures = fixtures.map(fixture => ({
+    ...fixture,
+    latitude: fixture.latitude + (Math.random() / 5000) - 0.0001,
+    longitude: fixture.longitude + (Math.random() / 5000) - 0.0001,
+    status: status[Math.floor(Math.random() * 2)],
+  }));
+
+  fixtures = newFixtures;
   ipcRenderer.send('post', 'updateVehicles', fixtures);
 }, 1000);

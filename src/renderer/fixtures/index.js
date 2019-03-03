@@ -6,5 +6,5 @@
  * errors from happening in the first place.
  */
 
-import './updateMessagesFixtures.js';
-import './updateVehiclesFixtures.js';
+import './updateMessagesFixtures';
+import './updateVehiclesFixtures';
