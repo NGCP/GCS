@@ -57,5 +57,7 @@ class Index extends Component {
 ReactDOM.render(<Index />, document.getElementById('app'), () => {
   if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
 
-  if (isDevelopment && fixtures) require('./fixtures/index.js'); // eslint-disable-line global-require
+  if (isDevelopment && fixtures) {
+    require('./fixtures/index.js'); // eslint-disable-line global-require
+  }
 });
