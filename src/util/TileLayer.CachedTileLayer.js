@@ -1,11 +1,16 @@
+/*
+ * Credits:
+ *   MazeMap's Leaflet PouchDBCached: https://github.com/MazeMap/Leaflet.TileLayer.PouchDBCached/blob/master/L.TileLayer.PouchDBCached.js
+ *   Leaflet's TileLayer:             https://github.com/Leaflet/Leaflet/blob/master/src/layer/tile/TileLayer.js
+ *
+ * No linting here as code is not written by us.
+ */
+
+/* eslint-disable */
+
 import L from 'leaflet';
 import PouchDB from 'pouchdb';
 
-/**
- * All credits go to
- *   MazeMap's Leaflet PouchDBCached: https://github.com/MazeMap/Leaflet.TileLayer.PouchDBCached/blob/master/L.TileLayer.PouchDBCached.js
- *   Leaflet's TileLayer:             https://github.com/Leaflet/Leaflet/blob/master/src/layer/tile/TileLayer.js
- */
 export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
   options: {
     useCache: false,
@@ -98,11 +103,11 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
 
   _onCacheHit: function _onCacheHit(tile, tileUrl, data, done) {
     this.fire('tilecachehit', {
-      tile: tile,
+      tile,
       url: tileUrl,
     });
 
-    this._db.getAttachment(tileUrl, 'tile').then(blob => {
+    this._db.getAttachment(tileUrl, 'tile').then((blob) => {
       const url = URL.createObjectURL(blob);
 
       if (Date.now() > data.timestamp + this.options.cacheMaxAge && !this.options.useOnlyCache) {
@@ -122,7 +127,7 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
 
   _onCacheMiss: function _onCacheMiss(tile, tileUrl, done) {
     this.fire('tilecachemiss', {
-      tile: tile,
+      tile,
       url: tileUrl,
     });
 
@@ -162,15 +167,13 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
 
     const format = this.options.cacheFormat;
 
-    canvas.toBlob(blob => {
+    canvas.toBlob((blob) => {
       this._db.put({
         _id: tileUrl,
         _rev: existingRevision,
         timestamp: Date.now(),
       })
-        .then(status =>
-          this._db.putAttachment(tileUrl, 'tile', status.rev, blob, format)
-        )
+        .then(status => this._db.putAttachment(tileUrl, 'tile', status.rev, blob, format))
         .then(() => {
           if (done) done();
         })
@@ -209,9 +212,9 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
     }
 
     const seedData = {
-      bbox: bbox,
-      minZoom: minZoom,
-      maxZoom: maxZoom,
+      bbox,
+      minZoom,
+      maxZoom,
       queueLength: queue.length,
     };
 

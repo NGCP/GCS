@@ -1,13 +1,18 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, Tray } from 'electron';
+import { // eslint-disable-line import/no-extraneous-dependencies
+  app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, Tray,
+} from 'electron';
 import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
 import { format as formatUrl } from 'url';
 
-import { images, locations } from '../../resources/index.js';
+import { images, locations } from '../../resources/index';
+
+let quitting = false;
+let window;
 
 const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
-const QUIT_LABEL = {
+const quitRole = {
   label: 'Quit',
   accelerator: 'CommandOrControl+Q',
   click() {
@@ -32,11 +37,45 @@ const darwinMenu = {
     { role: 'hideothers' },
     { role: 'unhide' },
     { type: 'separator' },
-    QUIT_LABEL,
+    quitRole,
   ],
 };
 const icon = nativeImage.createFromDataURL(images.icon);
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+function saveConfig() {
+  const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
+  const filePath = dialog.showSaveDialog(window, {
+    title: 'Save Configuration',
+    filters: [FILTER],
+    defaultPath: `./${fileName}.${FILTER.extensions[0]}`,
+  });
+
+  if (!filePath) return;
+
+  const data = {};
+  window.webContents.send('saveConfig', {
+    filePath,
+    data,
+  });
+}
+
+function loadConfig() {
+  const filePaths = dialog.showOpenDialog(window, {
+    title: 'Open Configuration',
+    filters: [FILTER],
+    properties: ['openFile', 'createDirectory'],
+  });
+
+  if (!filePaths || filePaths.length === 0) return;
+
+  const data = JSON.parse(fs.readFileSync(filePaths[0]), 'utf8');
+
+  if (!data) return;
+
+  window.webContents.send('loadConfig', data);
+}
+
 const menu = [
   {
     label: 'File',
@@ -111,36 +150,40 @@ const trayMenu = [
     click() { window.show(); },
   },
   { type: 'separator' },
-  QUIT_LABEL,
+  quitRole,
 ];
 
-let quitting = false;
 let tray;
-let window;
 
-app.on('activate', () => {
-  if (window === null) {
-    createMainWindow();
-  } else {
-    window.show();
+function setLocationMenu() {
+  const locationMenu = menu.find(m => m.label === 'Locations').submenu;
+
+  if (!locations || locations.length === 0) {
+    locationMenu.push({
+      label: 'No locations defined',
+      enabled: false,
+    });
+    return;
   }
-});
 
-app.on('ready', () => {
-  createMainWindow();
-  createMenu();
-});
-
-app.on('before-quit', () => {
-  quitting = true;
-});
-
-ipcMain.on('post', (event, notification, data) => window.webContents.send(notification, data));
+  Object.keys(locations).forEach((label) => {
+    const { latitude, longitude, zoom } = locations[label];
+    locationMenu.push({
+      label,
+      data: {
+        latitude,
+        longitude,
+        zoom,
+      },
+      click(menuItem) { window.webContents.send('updateMapLocation', menuItem.data); },
+    });
+  });
+}
 
 function createMainWindow() {
   window = new BrowserWindow({
     title: 'NGCP Ground Control Station',
-    icon: icon,
+    icon,
     show: false,
     width: 1024,
     minWidth: 1024,
@@ -163,11 +206,10 @@ function createMainWindow() {
     window.focus();
   });
 
-  window.on('close', event => {
+  window.on('close', (event) => {
     if (!quitting) {
       event.preventDefault();
       window.hide();
-      event.returnValue = false;
     }
   });
 
@@ -180,7 +222,7 @@ function createMenu() {
   if (process.platform === 'darwin') {
     menu.unshift(darwinMenu);
   } else {
-    menu.push(QUIT_LABEL);
+    menu.push(quitRole);
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
@@ -191,60 +233,22 @@ function createMenu() {
   tray.on('click', () => window.show());
 }
 
-function setLocationMenu() {
-  const locationMenu = menu.find(m => m.label === 'Locations').submenu;
 
-  if (!locations || locations.length === 0) {
-    locationMenu.push({
-      label: 'No locations defined',
-      enabled: false,
-    });
-    return;
+app.on('activate', () => {
+  if (window === null) {
+    createMainWindow();
+  } else {
+    window.show();
   }
+});
 
-  for (const label of Object.keys(locations)) {
-    const { latitude, longitude, zoom } = locations[label];
-    locationMenu.push({
-      label: label,
-      data: {
-        latitude: latitude,
-        longitude: longitude,
-        zoom: zoom,
-      },
-      click(menuItem) { window.webContents.send('updateMapLocation', menuItem.data); },
-    });
-  }
-}
+app.on('ready', () => {
+  createMainWindow();
+  createMenu();
+});
 
-function saveConfig() {
-  const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
-  const filePath = dialog.showSaveDialog(window, {
-    title: 'Save Configuration',
-    filters: [FILTER],
-    defaultPath: `./${fileName}.${FILTER.extensions[0]}`,
-  });
+app.on('before-quit', () => {
+  quitting = true;
+});
 
-  if (!filePath) return;
-
-  const data = {};
-  window.webContents.send('saveConfig', {
-    filePath: filePath,
-    data: data,
-  });
-}
-
-function loadConfig() {
-  const filePaths = dialog.showOpenDialog(window, {
-    title: 'Open Configuration',
-    filters: [FILTER],
-    properties: ['openFile', 'createDirectory'],
-  });
-
-  if (!filePaths || filePaths.length === 0) return;
-
-  const data = JSON.parse(fs.readFileSync(filePaths[0]), 'utf8');
-
-  if (!data) return;
-
-  window.webContents.send('loadConfig', data);
-}
+ipcMain.on('post', (event, notification, data) => window.webContents.send(notification, data));
