@@ -4,7 +4,7 @@
                   jsx-a11y/anchor-is-valid,
 */
 
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import React, { Component } from 'react';
 import Control from 'react-leaflet-control';
 

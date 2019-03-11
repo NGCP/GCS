@@ -1,13 +1,16 @@
-import L from 'leaflet';
-import PouchDB from 'pouchdb';
+/*
+ * Credits:
+ *   MazeMap's Leaflet PouchDBCached: https://github.com/MazeMap/Leaflet.TileLayer.PouchDBCached/blob/master/L.TileLayer.PouchDBCached.js
+ *   Leaflet's TileLayer:             https://github.com/Leaflet/Leaflet/blob/master/src/layer/tile/TileLayer.js
+ *
+ * No linting here as code is not written by us.
+ */
 
 /* eslint-disable */
 
-/**
- * All credits go to:
- *   MazeMap's Leaflet PouchDBCached: https://github.com/MazeMap/Leaflet.TileLayer.PouchDBCached/blob/master/L.TileLayer.PouchDBCached.js
- *   Leaflet's TileLayer:             https://github.com/Leaflet/Leaflet/blob/master/src/layer/tile/TileLayer.js
- */
+import L from 'leaflet';
+import PouchDB from 'pouchdb';
+
 export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
   options: {
     useCache: false,

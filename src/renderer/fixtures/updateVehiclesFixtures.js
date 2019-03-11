@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 
 let fixtures = [
   {

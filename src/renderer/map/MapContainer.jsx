@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import fs from 'fs';
 import L from 'leaflet';
 import PropTypes from 'prop-types';

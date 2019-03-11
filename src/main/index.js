@@ -1,4 +1,4 @@
-import { // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
+import { // eslint-disable-line import/no-extraneous-dependencies
   app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, Tray,
 } from 'electron';
 import fs from 'fs';

@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies, electron must be a devDependency
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { AutoSizer, Table, Column } from 'react-virtualized';

@@ -37,10 +37,7 @@ export const images = {
   arrow,
   icon,
   pin,
-  logo: {
-    ngcp_calpoly,
-    ngcp_pomona,
-  },
+  logo: { ngcp_calpoly, ngcp_pomona },
   markers: {
     poi_fp,
     poi_unknwn,
