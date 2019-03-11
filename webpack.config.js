@@ -1,3 +1,5 @@
+/* eslint-disable import/no-commonjs, webpack config does not support ES6 import/export */
+
 const Dotenv = require('dotenv-webpack');
 
 module.exports = {
