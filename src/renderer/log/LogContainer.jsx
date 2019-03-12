@@ -52,7 +52,7 @@ export default class LogContainer extends Component {
         parent={parent}
       >
         <div className="row" style={style}>
-          <div className="time">{message.time}</div>
+          <div className="time">{message.time.format('HH:mm:ss.SSS')}</div>
           <div className={`message ${message.type}`}>{message.message}</div>
         </div>
       </CellMeasurer>
@@ -84,7 +84,7 @@ export default class LogContainer extends Component {
     messages.forEach((message) => {
       const msg = {
         type: '',
-        time: moment().format('HH:mm:ss.SSS'),
+        time: moment(),
         ...message,
       };
 
