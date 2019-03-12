@@ -18,18 +18,7 @@
   margin-right: 2em;
 }
 
-.logContainer .controls {
-  height: 25px;
-  width: 100%;
-  background-color: #ccc;
-  border-top: 1px solid #858585;
-
-  .dark {
-    background-color: #000;
-  }
-}
-
-/* dark theme */
+/* Dark theme */
 
 .logContainer .messages_dark {
   background-color: #141414;

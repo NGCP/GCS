@@ -18,12 +18,12 @@ import uav from './images/markers/vehicles/uav.png';
 import ugv_red from './images/markers/vehicles/ugv_red.png';
 import ugv from './images/markers/vehicles/ugv.png';
 
+import fullmoon_hover from './images/other/fullmoon_hover.png';
+import fullmoon from './images/other/fullmoon.png';
 import geolocation_img_hover from './images/other/geolocation_hover.png';
 import geolocation_img from './images/other/geolocation.png';
 import moon_hover from './images/other/moon_hover.png';
 import moon from './images/other/moon.png';
-import sun_hover from './images/other/sun_hover.png';
-import sun from './images/other/sun.png';
 
 import { cache, fixtures, geolocation } from './config.json';
 import { startLocation, locations } from './locations.json';
@@ -50,11 +50,11 @@ export const images = {
     },
   },
   other: {
+    fullmoon_hover,
+    fullmoon,
     geolocation_hover: geolocation_img_hover,
     geolocation: geolocation_img,
     moon_hover,
     moon,
-    sun_hover,
-    sun,
   },
 };

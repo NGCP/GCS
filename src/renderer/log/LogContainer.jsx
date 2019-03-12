@@ -29,6 +29,7 @@ export default class LogContainer extends Component {
 
     this.rowRenderer = this.rowRenderer.bind(this);
     this.clearMessages = this.clearMessages.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
     this.updateMessages = this.updateMessages.bind(this);
   }
 

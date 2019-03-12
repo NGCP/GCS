@@ -222,15 +222,14 @@ function createMenu() {
   if (process.platform === 'darwin') {
     menu.unshift(darwinMenu);
   } else {
+    tray = new Tray(icon);
+    tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
+    tray.on('click', () => window.show());
+
     menu.push(quitRole);
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
-
-  tray = new Tray(icon);
-  tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
-
-  tray.on('click', () => window.show());
 }
 
 
