@@ -12,25 +12,6 @@ body,
   font-size: 15px;
 }
 
-.gridWrapper {
-  background: #000;
-  display: grid;
-  grid-gap: 3px;
-  grid-template-areas:
-    'map map map vehicle'
-    'map map map vehicle'
-    'map map map mission'
-    'log log log mission';
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  height: 100%;
-  width: 100%;
-}
-
-.container {
-  background-color: #212121;
-}
-
 .logContainer {
   grid-area: log;
 }
@@ -45,4 +26,48 @@ body,
 
 .vehicleContainer {
   grid-area: vehicle;
+}
+
+/* Light theme */
+
+.gridWrapper {
+  background: #928b8a;
+  color: #000;
+  display: grid;
+  grid-gap: 3px;
+  grid-template-areas:
+    'map map map vehicle'
+    'map map map vehicle'
+    'map map map mission'
+    'log log log mission';
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  height: 100%;
+  width: 100%;
+}
+
+.container {
+  background-color: #eee;
+}
+
+/* Dark theme */
+
+.gridWrapper_dark {
+  background: #000;
+  color: #fff;
+  display: grid;
+  grid-gap: 3px;
+  grid-template-areas:
+    'map map map vehicle'
+    'map map map vehicle'
+    'map map map mission'
+    'log log log mission';
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  height: 100%;
+  width: 100%;
+}
+
+.container_dark {
+  background-color: #212121;
 }

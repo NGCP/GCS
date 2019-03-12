@@ -6,8 +6,8 @@
 }
 
 .logContainer .messages {
-  background-color: #141414;
-  color: #fff;
+  background-color: #fff;
+  color: #000;
   font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
   font-size: 14px;
   width: 100%;
@@ -18,9 +18,13 @@
   margin-right: 2em;
 }
 
-.logContainer .controls {
-  height: 25px;
+/* Dark theme */
+
+.logContainer .messages_dark {
+  background-color: #141414;
+  color: #fff;
+  font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+  font-size: 14px;
   width: 100%;
-  background-color: #ccc;
-  border-top: 1px solid #858585;
+  height: calc(100% - 25px);
 }

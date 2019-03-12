@@ -18,34 +18,43 @@ import uav from './images/markers/vehicles/uav.png';
 import ugv_red from './images/markers/vehicles/ugv_red.png';
 import ugv from './images/markers/vehicles/ugv.png';
 
-import geolocation_hover from './images/other/geolocation_hover.png';
-import geolocation from './images/other/geolocation.png';
+import fullmoon_hover from './images/other/fullmoon_hover.png';
+import fullmoon from './images/other/fullmoon.png';
+import geolocation_img_hover from './images/other/geolocation_hover.png';
+import geolocation_img from './images/other/geolocation.png';
+import moon_hover from './images/other/moon_hover.png';
+import moon from './images/other/moon.png';
 
-export { default as config, cache, fixtures, geolocation } from './config.json';
-export { default as locations, startLocation } from './locations.json';
-export * as macAddress from './mac-address.json';
+import { cache, fixtures, geolocation } from './config.json';
+import { startLocation, locations } from './locations.json';
+import * as macAddress from './mac-address.json';
+
+export {
+  cache, fixtures, geolocation, startLocation, locations, macAddress,
+};
 
 export const images = {
-  arrow: arrow,
-  icon: icon,
-  pin: pin,
-  logo: {
-    ngcp_calpoly: ngcp_calpoly,
-    ngcp_pomona: ngcp_pomona,
-  },
+  arrow,
+  icon,
+  pin,
+  logo: { ngcp_calpoly, ngcp_pomona },
   markers: {
-    poi_fp: poi_fp,
-    poi_unknwn: poi_unknwn,
-    poi_vld: poi_vld,
+    poi_fp,
+    poi_unknwn,
+    poi_vld,
     vehicles: {
-      uav_red: uav_red,
-      uav: uav,
-      ugv_red: ugv_red,
-      ugv: ugv,
+      uav_red,
+      uav,
+      ugv_red,
+      ugv,
     },
   },
   other: {
-    geolocation_hover: geolocation_hover,
-    geolocation: geolocation,
+    fullmoon_hover,
+    fullmoon,
+    geolocation_hover: geolocation_img_hover,
+    geolocation: geolocation_img,
+    moon_hover,
+    moon,
   },
 };
