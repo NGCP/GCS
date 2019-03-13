@@ -13,10 +13,10 @@ import poi_fp from './images/markers/poi_fp.png';
 import poi_unknwn from './images/markers/poi_unkwn.png';
 import poi_vld from './images/markers/poi_vld.png';
 
-import uav_red from './images/markers/vehicles/uav_red.png';
-import uav from './images/markers/vehicles/uav.png';
-import ugv_red from './images/markers/vehicles/ugv_red.png';
-import ugv from './images/markers/vehicles/ugv.png';
+import plane_red from './images/markers/vehicles/plane_red.png';
+import plane from './images/markers/vehicles/plane.png';
+import rover_red from './images/markers/vehicles/rover_red.png';
+import rover from './images/markers/vehicles/rover.png';
 
 import fullmoon_hover from './images/other/fullmoon_hover.png';
 import fullmoon from './images/other/fullmoon.png';
@@ -27,10 +27,10 @@ import moon from './images/other/moon.png';
 
 import { cache, fixtures, geolocation } from './config.json';
 import { startLocation, locations } from './locations.json';
-import * as macAddress from './mac-address.json';
+import { vehicleIds, vehicleInfos, vehicleStatuses } from './vehicle.json';
 
 export {
-  cache, fixtures, geolocation, startLocation, locations, macAddress,
+  cache, fixtures, geolocation, startLocation, locations, vehicleIds, vehicleInfos, vehicleStatuses,
 };
 
 export const images = {
@@ -43,10 +43,10 @@ export const images = {
     poi_unknwn,
     poi_vld,
     vehicles: {
-      uav_red,
-      uav,
-      ugv_red,
-      ugv,
+      plane_red,
+      plane,
+      rover_red,
+      rover,
     },
   },
   other: {
@@ -57,4 +57,16 @@ export const images = {
     moon_hover,
     moon,
   },
+};
+
+export default {
+  cache,
+  fixtures,
+  images,
+  geolocation,
+  startLocation,
+  locations,
+  vehicleIds,
+  vehicleInfos,
+  vehicleStatuses,
 };

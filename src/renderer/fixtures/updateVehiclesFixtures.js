@@ -2,121 +2,30 @@ import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extrane
 
 let fixtures = [
   {
-    id: 1,
-    latitude: 34.056482,
-    longitude: -117.823912,
-    type: 'uav',
-    name: 'Valiant',
+    sid: 100,
+    lat: 34.056482,
+    lng: -117.823912,
   },
   {
-    id: 2,
-    latitude: 34.053095,
-    longitude: -117.821970,
-    type: 'uav',
-    name: 'Multirotor',
+    sid: 400,
+    lat: 34.053095,
+    lng: -117.821970,
   },
   {
-    id: 3,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 4,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 5,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 6,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 7,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 8,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 9,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 10,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 11,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 12,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 13,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
-  },
-  {
-    id: 14,
-    latitude: 34.053509,
-    longitude: -117.818452,
-    type: 'ugv',
-    name: 'UGV',
+    sid: 200,
+    lat: 34.053509,
+    lng: -117.818452,
   },
 ];
-const status = [
-  {
-    type: 'success',
-    message: 'Connected',
-  },
-  {
-    type: 'failure',
-    message: 'Disconnected',
-  },
-];
+
+const status = ['ready', 'error', 'waiting', 'running', 'paused'];
 
 setInterval(() => {
   const newFixtures = fixtures.map(fixture => ({
     ...fixture,
-    latitude: fixture.latitude + (Math.random() / 5000) - 0.0001,
-    longitude: fixture.longitude + (Math.random() / 5000) - 0.0001,
-    status: status[Math.floor(Math.random() * 2)],
+    lat: fixture.lat + (Math.random() / 5000) - 0.0001,
+    lng: fixture.lng + (Math.random() / 5000) - 0.0001,
+    status: status[Math.floor(Math.random() * status.length)],
   }));
 
   fixtures = newFixtures;

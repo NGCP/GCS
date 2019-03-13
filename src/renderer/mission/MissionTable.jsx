@@ -1,31 +1,32 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { AutoSizer, Table, Column } from 'react-virtualized';
+import {
+  AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table,
+} from 'react-virtualized';
 
 const width = {
-  id: 0.2,
-  name: 0.4,
+  description: 0.6,
   status: 0.4,
 };
 
 const propTypes = {
   theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-  vehicles: PropTypes.objectOf(
+  missions: PropTypes.arrayOf(
     PropTypes.shape({
-      sid: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
       status: {
-        type: PropTypes.oneOf(['failure', 'progress', 'success']).isRequired,
+        type: PropTypes.oneOf(['failure', 'interim', 'success']).isRequired,
         message: PropTypes.string.isRequired,
       },
     }),
   ).isRequired,
 };
 
-export default class VehicleTable extends Component {
-  static statusRenderer({ rowData }) {
-    return <span className={rowData.status.type}>{rowData.status.message}</span>;
+export default class MissionTable extends Component {
+  static statusRenderer({ dataKey, rowData }) {
+    const { type, message } = rowData.status;
+
+    return <span key={dataKey} className={type}>{message}</span>;
   }
 
   constructor(props) {
@@ -33,23 +34,20 @@ export default class VehicleTable extends Component {
 
     this.width = width;
 
-    this.onRowClick = this.onRowClick.bind(this);
+    this.heightCache = new CellMeasurerCache({
+      fixedWidth: true,
+      minHeight: 40,
+    });
+
     this.rowGetter = this.rowGetter.bind(this);
     this.rowClassName = this.rowClassName.bind(this);
-  }
-
-
-  onRowClick({ rowData }) {
-    const { vehicles } = this.props;
-
-    ipcRenderer.send('post', 'centerMapToVehicle', vehicles[rowData.sid]);
+    this.descriptionRenderer = this.descriptionRenderer.bind(this);
   }
 
   rowGetter({ index }) {
-    const { vehicles } = this.props;
+    const { missions } = this.props;
 
-    const v = Object.keys(vehicles).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
-    return vehicles[v[index]];
+    return missions[index];
   }
 
   rowClassName({ index }) {
@@ -63,8 +61,26 @@ export default class VehicleTable extends Component {
     return '';
   }
 
+  descriptionRenderer({
+    dataKey, parent, rowIndex, cellData,
+  }) {
+    return (
+      <CellMeasurer
+        cache={this.heightCache}
+        columnIndex={0}
+        key={dataKey}
+        parent={parent}
+        rowIndex={rowIndex}
+      >
+        <div className="descriptionColumn">
+          {cellData ? String(cellData) : ''}
+        </div>
+      </CellMeasurer>
+    );
+  }
+
   render() {
-    const { theme, vehicles } = this.props;
+    const { theme, missions } = this.props;
 
     return (
       <AutoSizer>
@@ -73,30 +89,25 @@ export default class VehicleTable extends Component {
             width={tableWidth}
             height={height}
             headerHeight={40}
-            rowHeight={40}
-            rowCount={Object.keys(vehicles).length}
+            rowHeight={this.heightCache.rowHeight}
+            rowCount={missions.length}
             rowGetter={this.rowGetter}
             onRowClick={this.onRowClick}
             className={theme === 'dark' ? 'ReactVirtualized__Table_dark' : ''}
             rowClassName={this.rowClassName}
           >
             <Column
-              label="ID"
-              dataKey="sid"
-              width={tableWidth * this.width.id}
-              rowClassName={this.rowClassName}
-            />
-            <Column
-              label="Name"
-              dataKey="name"
-              width={tableWidth * this.width.name}
+              label="Description"
+              dataKey="description"
+              width={tableWidth * this.width.description}
+              cellRenderer={this.descriptionRenderer}
               rowClassName={this.rowClassName}
             />
             <Column
               label="Status"
               dataKey="status"
               width={tableWidth * this.width.status}
-              cellRenderer={VehicleTable.statusRenderer}
+              cellRenderer={MissionTable.statusRenderer}
               rowClassName={this.rowClassName}
             />
           </Table>
@@ -106,4 +117,4 @@ export default class VehicleTable extends Component {
   }
 }
 
-VehicleTable.propTypes = propTypes;
+MissionTable.propTypes = propTypes;

@@ -1,18 +1,20 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import fs from 'fs';
-import L from 'leaflet';
 import PropTypes from 'prop-types';
-import React, { Component, createRef } from 'react';
-import { Map, Marker, Popup } from 'react-leaflet';
+import React, { Component, createRef, Fragment } from 'react';
+import { Map } from 'react-leaflet';
 
 import {
-  cache, images, locations, startLocation,
+  cache, locations, startLocation,
 } from '../../../resources/index';
+
+import { updateVehicles } from '../../util/util';
 
 import GeolocationControl from './control/GeolocationControl';
 import ThemeControl from './control/ThemeControl';
 
 import CachedTileLayer from './CachedTileLayer';
+import VehicleMarker from './VehicleMarker';
 
 import './map.css';
 
@@ -26,7 +28,7 @@ const mapOptions = {
 };
 
 // default location is (0, 0) unless there is a locations file defined already
-let start = { latitude: 0, longitude: 0, zoom: 18 };
+let start = { lat: 0, lng: 0, zoom: 18 };
 if (startLocation && locations[startLocation]) {
   start = { ...start, ...locations[startLocation] };
 }
@@ -41,11 +43,9 @@ export default class MapContainer extends Component {
 
     this.state = {
       vehicles: {},
-      latitude: start.latitude,
-      longitude: start.longitude,
-      zoom: start.zoom,
+      ...start,
       viewport: {
-        center: [start.latitude, start.longitude],
+        center: [start.lat, start.lng],
         zoom: start.zoom,
       },
     };
@@ -60,7 +60,6 @@ export default class MapContainer extends Component {
     this.saveConfig = this.saveConfig.bind(this);
     this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
     this.updateMapLocation = this.updateMapLocation.bind(this);
-    this.updateVehicles = this.updateVehicles.bind(this);
   }
 
   componentDidMount() {
@@ -70,7 +69,7 @@ export default class MapContainer extends Component {
     ipcRenderer.on('centerMapToVehicle', (event, data) => this.centerMapToVehicle(data));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
-    ipcRenderer.on('updateVehicles', (event, data) => this.updateVehicles(data));
+    ipcRenderer.on('updateVehicles', (event, data) => updateVehicles(this, data));
   }
 
   onViewportChanged(viewport) {
@@ -98,40 +97,44 @@ export default class MapContainer extends Component {
 
   centerMapToVehicle(vehicle) {
     this.updateMapLocation(vehicle);
-    this.vehicleRefs[vehicle.id].current.leafletElement.togglePopup();
   }
 
-  updateMapLocation({
-    position, latitude, longitude, zoom,
-  }) {
-    const { viewport, zoom: thisZoom } = this.state;
+  updateMapLocation(location) {
+    const { zoom } = location;
+
+    // we default to (lat, lng), however geolocation api calls provide (latitude, longitude)
+    const lat = location.lat || location.latitude;
+    const lng = location.lng || location.longitude;
+
+    const { viewport } = this.state;
 
     this.setState({
-      position, latitude, longitude, zoom: zoom || viewport.zoom,
+      lat, lng, zoom: zoom || viewport.zoom,
     });
 
     this.onViewportChanged({
-      center: position || [latitude, longitude],
-      zoom: zoom || thisZoom,
+      center: [lat, lng],
+      zoom: zoom || viewport.zoom,
     });
-  }
-
-  updateVehicles(vehicles) {
-    const { vehicles: thisVehicles } = this.state;
-    const currentVehicles = thisVehicles;
-
-    vehicles.forEach((vehicle) => {
-      if (!this.vehicleRefs[vehicle.id]) {
-        this.vehicleRefs[vehicle.id] = createRef();
-      }
-      currentVehicles[vehicle.id] = vehicle;
-    });
-    this.setState({ vehicles: currentVehicles });
   }
 
   render() {
     const { theme } = this.props;
     const { viewport, vehicles } = this.state;
+
+    const markers = Object.keys(vehicles).map((sid) => {
+      if (!this.vehicleRefs[sid]) {
+        this.vehicleRefs[sid] = createRef();
+      }
+
+      return (
+        <VehicleMarker
+          {...vehicles[sid]}
+          key={sid}
+          vehicleRef={this.vehicleRefs[sid]}
+        />
+      );
+    });
 
     return (
       <Map
@@ -145,36 +148,7 @@ export default class MapContainer extends Component {
         <GeolocationControl />
         <ThemeControl theme={theme} />
         <CachedTileLayer {...mapOptions} />
-        {
-          Object.keys(vehicles).map((id) => {
-            const {
-              position, latitude: lat, longitude: lng, type, name, status,
-            } = vehicles[id];
-
-            return (
-              <Marker
-                key={id}
-                position={position || [lat, lng]}
-                ref={this.vehicleRefs[id]}
-                icon={L.icon({
-                  iconUrl: images.markers.vehicles[`${type}${status.type === 'failure' ? '_red' : ''}`] || images.pin,
-                  iconSize: [50, 50],
-                  iconAnchor: [25, 25],
-                  popupAnchor: [0, -25],
-                })}
-              >
-                <Popup>
-                  <p><b>{`#${id}: ${name} `}</b></p>
-                  <p>{`Position: [${position || [lat, lng]}]`}</p>
-                  <p>
-                    {'Status: '}
-                    <span className={status.type}>{status.message}</span>
-                  </p>
-                </Popup>
-              </Marker>
-            );
-          })
-        }
+        <Fragment>{markers}</Fragment>
       </Map>
     );
   }

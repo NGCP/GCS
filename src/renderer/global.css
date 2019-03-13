@@ -22,6 +22,10 @@ div:focus {
   color: #c62828;
 }
 
+.progress {
+  color: #a7ad00;
+}
+
 .ReactVirtualized__Table__row:hover .success,
 .ReactVirtualized__Table__row_dark:hover .success {
   color: #43a047;
@@ -31,12 +35,22 @@ div:focus {
   color: #76d275;
 }
 
-.ReactVirtualized__Table__row:hover .failure {
+.ReactVirtualized__Table__row:hover .failure,
+.ReactVirtualized__Table__row_dark:hover .failure {
   color: #f44336;
 }
 
 .ReactVirtualized__Table__row:active .failure {
   color: #ff7961;
+}
+
+.ReactVirtualized__Table__row:hover .progress,
+.ReactVirtualized__Table__row_dark:hover .progress {
+  color: #bfc600;
+}
+
+.ReactVirtualized__Table__row:active .progress {
+  color: #d3da00;
 }
 
 /* Light Theme */

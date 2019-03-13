@@ -1,0 +1,74 @@
+{
+  "vehicleIds": {
+    "UAV": 100,
+    "UGV": 200,
+    "UUV": 300,
+    "VTOL 1": 400,
+    "VTOL 2": 401,
+    "ROV": 500,
+    "Blimp": 600
+  },
+  "vehicleInfos": {
+    "100": {
+      "macAddress": "",
+      "name": "UAV",
+      "type": "plane"
+    },
+    "200": {
+      "macAddress": "",
+      "name": "UGV",
+      "type": "rover"
+    },
+    "300": {
+      "macAddress": "",
+      "name": "UUV",
+      "type": "rover"
+    },
+    "400": {
+      "macAddress": "",
+      "name": "VTOL 1",
+      "type": "plane"
+    },
+    "401": {
+      "macAddress": "",
+      "name": "VTOL 2",
+      "type": "plane"
+    },
+    "500": {
+      "macAddress": "",
+      "name": "ROV",
+      "type": "plane"
+    },
+    "600": {
+      "macAddress": "",
+      "name": "Blimp",
+      "type": "plane"
+    }
+  },
+  "vehicleStatuses": {
+    "ready": {
+      "type": "success",
+      "message": "Ready"
+    },
+    "error": {
+      "type": "failure",
+      "message": "Error"
+    },
+    "waiting": {
+      "type": "progress",
+      "message": "Waiting"
+    },
+    "running": {
+      "type": "progress",
+      "message": "Running"
+    },
+    "paused": {
+      "type": "progress",
+      "message": "Paused"
+    },
+    "disconnected": {
+      "type": "failure",
+      "message": "Disconnected"
+    }
+  }
+}

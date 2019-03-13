@@ -167,14 +167,10 @@ function setLocationMenu() {
   }
 
   Object.keys(locations).forEach((label) => {
-    const { latitude, longitude, zoom } = locations[label];
+    const { lat, lng, zoom } = locations[label];
     locationMenu.push({
       label,
-      data: {
-        latitude,
-        longitude,
-        zoom,
-      },
+      data: { lat, lng, zoom },
       click(menuItem) { window.webContents.send('updateMapLocation', menuItem.data); },
     });
   });
