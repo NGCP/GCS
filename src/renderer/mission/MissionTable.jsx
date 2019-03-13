@@ -14,10 +14,10 @@ const propTypes = {
   missions: PropTypes.arrayOf(
     PropTypes.shape({
       description: PropTypes.string.isRequired,
-      status: {
-        type: PropTypes.oneOf(['failure', 'interim', 'success']).isRequired,
+      status: PropTypes.shape({
+        type: PropTypes.oneOf(['failure', 'progress', 'success']).isRequired,
         message: PropTypes.string.isRequired,
-      },
+      }).isRequired,
     }),
   ).isRequired,
 };

@@ -50,8 +50,6 @@ export default class MapContainer extends Component {
       },
     };
 
-    this.vehicleRefs = {};
-
     this.ref = createRef();
 
     this.onViewportChanged = this.onViewportChanged.bind(this);
@@ -122,19 +120,12 @@ export default class MapContainer extends Component {
     const { theme } = this.props;
     const { viewport, vehicles } = this.state;
 
-    const markers = Object.keys(vehicles).map((sid) => {
-      if (!this.vehicleRefs[sid]) {
-        this.vehicleRefs[sid] = createRef();
-      }
-
-      return (
-        <VehicleMarker
-          {...vehicles[sid]}
-          key={sid}
-          vehicleRef={this.vehicleRefs[sid]}
-        />
-      );
-    });
+    const markers = Object.keys(vehicles).map(sid => (
+      <VehicleMarker
+        {...vehicles[sid]}
+        key={sid}
+      />
+    ));
 
     return (
       <Map

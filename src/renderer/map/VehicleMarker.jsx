@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 
 import { images } from '../../../resources/index';
@@ -15,19 +15,17 @@ const propTypes = {
     type: PropTypes.oneOf(['failure', 'progress', 'success']).isRequired,
     message: PropTypes.string.isRequired,
   }).isRequired,
-  vehicleRef: PropTypes.object.isRequired, // eslint-disable-line
 };
 
-export default class VehicleMarker extends Component {
+export default class VehicleMarker extends PureComponent {
   render() {
     const {
-      sid, name, lat, lng, type, status, vehicleRef,
+      sid, name, lat, lng, type, status,
     } = this.props;
 
     return (
       <Marker
         position={[lat, lng]}
-        ref={vehicleRef}
         icon={L.icon({
           iconUrl: images.markers.vehicles[`${type}${status.type === 'failure' ? '_red' : ''}`] || images.pin,
           iconSize: [50, 50],

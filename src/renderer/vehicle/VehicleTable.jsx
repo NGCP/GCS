@@ -15,10 +15,10 @@ const propTypes = {
     PropTypes.shape({
       sid: PropTypes.number.isRequired,
       name: PropTypes.string.isRequired,
-      status: {
+      status: PropTypes.shape({
         type: PropTypes.oneOf(['failure', 'progress', 'success']).isRequired,
         message: PropTypes.string.isRequired,
-      },
+      }).isRequired,
     }),
   ).isRequired,
 };

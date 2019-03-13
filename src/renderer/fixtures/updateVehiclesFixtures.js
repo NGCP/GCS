@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { vehicleStatuses } from '../../../resources/index';
 
 let fixtures = [
   {
@@ -18,12 +19,12 @@ let fixtures = [
   },
 ];
 
-const status = ['ready', 'error', 'waiting', 'running', 'paused'];
+const status = Object.keys(vehicleStatuses);
 
 setInterval(() => {
   const newFixtures = fixtures.map(fixture => ({
     ...fixture,
-    lat: fixture.lat + (Math.random() / 5000) - 0.0001,
+    // lat: fixture.lat + (Math.random() / 5000) - 0.0001,
     lng: fixture.lng + (Math.random() / 5000) - 0.0001,
     status: status[Math.floor(Math.random() * status.length)],
   }));
