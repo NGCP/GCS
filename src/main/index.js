@@ -4,14 +4,24 @@ import { // eslint-disable-line import/no-extraneous-dependencies
 import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
-import { format as formatUrl } from 'url';
+import url from 'url';
 
 import { images, locations } from '../../resources/index';
 
-let quitting = false;
-let window;
+process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 
 const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
+const WIDTH = 1024;
+const HEIGHT = 576;
+
+const icon = nativeImage.createFromDataURL(images.icon);
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+let quitting = false;
+let window;
+let missionWindow;
+let tray;
+
 const quitRole = {
   label: 'Quit',
   accelerator: 'CommandOrControl+Q',
@@ -20,8 +30,6 @@ const quitRole = {
     app.quit();
   },
 };
-
-process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 
 const darwinMenu = {
   label: 'NGCP Ground Control System',
@@ -40,8 +48,6 @@ const darwinMenu = {
     quitRole,
   ],
 };
-const icon = nativeImage.createFromDataURL(images.icon);
-const isDevelopment = process.env.NODE_ENV !== 'production';
 
 function saveConfig() {
   const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
@@ -144,16 +150,6 @@ const menu = [
     ],
   },
 ];
-const trayMenu = [
-  {
-    label: 'NGCP Ground Control Station',
-    click() { window.show(); },
-  },
-  { type: 'separator' },
-  quitRole,
-];
-
-let tray;
 
 function setLocationMenu() {
   const locationMenu = menu.find(m => m.label === 'Locations').submenu;
@@ -181,16 +177,16 @@ function createMainWindow() {
     title: 'NGCP Ground Control Station',
     icon,
     show: false,
-    width: 1024,
-    minWidth: 1024,
-    height: 576,
-    minHeight: 576,
+    width: WIDTH,
+    minWidth: WIDTH,
+    height: HEIGHT,
+    minHeight: HEIGHT,
   });
 
   if (isDevelopment) {
     window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
   } else {
-    window.loadURL(formatUrl({
+    window.loadURL(url.format({
       pathname: path.resolve(__dirname, 'index.html'),
       protocol: 'file',
       slashes: true,
@@ -199,18 +195,82 @@ function createMainWindow() {
 
   window.on('ready-to-show', () => {
     window.show();
-    window.focus();
   });
 
   window.on('close', (event) => {
     if (!quitting) {
       event.preventDefault();
       window.hide();
+      if (missionWindow) {
+        window.webContents.send('setSelectedMission', -1);
+        missionWindow.hide();
+      }
+    } else {
+      window = null;
     }
   });
-
-  return window;
 }
+
+function createMissionWindow() {
+  missionWindow = new BrowserWindow({
+    title: 'NGCP Mission User Interface',
+    show: false,
+    width: WIDTH,
+    minWidth: WIDTH,
+    height: HEIGHT,
+    minHeight: HEIGHT,
+  });
+
+  missionWindow.loadURL(url.format({
+    pathname: path.resolve(__dirname, 'ui.html'),
+    protocol: 'file',
+    slashes: true,
+  }));
+
+  missionWindow.show();
+
+  /*
+  missionWindow.on('ready-to-show', () => {
+    missionWindow.show();
+  });
+  */
+
+  missionWindow.on('close', (event) => {
+    if (!quitting) {
+      event.preventDefault();
+      // following line allows MissionContainer to update to closed mission window
+      window.webContents.send('setSelectedMission', -1);
+      missionWindow.hide();
+    } else {
+      missionWindow = null;
+    }
+  });
+}
+
+function showWindow() {
+  if (!window) {
+    createMainWindow();
+  } else {
+    window.show();
+  }
+}
+
+function showMissionWindow() {
+  if (!missionWindow) {
+    createMissionWindow();
+  } else {
+    missionWindow.show();
+  }
+}
+
+const trayMenu = [
+  {
+    label: 'NGCP Ground Control Station',
+    click() { showWindow(); },
+  },
+  { type: 'separator' },
+  quitRole,
+];
 
 function createMenu() {
   setLocationMenu();
@@ -220,7 +280,7 @@ function createMenu() {
   } else {
     tray = new Tray(icon);
     tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
-    tray.on('click', () => window.show());
+    tray.on('click', () => { showWindow(); });
 
     menu.push(quitRole);
   }
@@ -228,17 +288,10 @@ function createMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 }
 
-
-app.on('activate', () => {
-  if (window === null) {
-    createMainWindow();
-  } else {
-    window.show();
-  }
-});
+app.on('activate', showWindow);
 
 app.on('ready', () => {
-  createMainWindow();
+  showWindow();
   createMenu();
 });
 
@@ -246,4 +299,13 @@ app.on('before-quit', () => {
   quitting = true;
 });
 
-ipcMain.on('post', (event, notification, data) => window.webContents.send(notification, data));
+ipcMain.on('post', (event, notification, data) => {
+  if (notification === 'showMissionWindow') {
+    showMissionWindow();
+  }
+
+  window.webContents.send(notification, data);
+  if (missionWindow) {
+    missionWindow.webContents.send(notification, data);
+  }
+});

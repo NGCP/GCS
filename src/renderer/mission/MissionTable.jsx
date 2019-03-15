@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
@@ -27,6 +28,10 @@ export default class MissionTable extends Component {
     const { type, message } = rowData.status;
 
     return <span key={dataKey} className={type}>{message}</span>;
+  }
+
+  static onRowClick({ index }) {
+    ipcRenderer.send('post', 'setSelectedMission', index);
   }
 
   constructor(props) {
@@ -92,7 +97,7 @@ export default class MissionTable extends Component {
             rowHeight={this.heightCache.rowHeight}
             rowCount={missions.length}
             rowGetter={this.rowGetter}
-            onRowClick={this.onRowClick}
+            onRowClick={MissionTable.onRowClick}
             className={theme === 'dark' ? 'ReactVirtualized__Table_dark' : ''}
             rowClassName={this.rowClassName}
           >
