@@ -1,6 +1,6 @@
 import { GridLayer, withLeaflet } from 'react-leaflet';
 
-import TileLayer from '../../util/TileLayer.CachedTileLayer';
+import TileLayer from '../../../util/TileLayer.CachedTileLayer';
 
 class CachedTileLayer extends GridLayer {
   createLeafletElement(props) {

@@ -6,10 +6,8 @@ import ReactDOM from 'react-dom';
 
 import { fixtures, geolocation } from '../../resources/index';
 
-import LogContainer from './log/LogContainer';
-import MapContainer from './map/MapContainer';
-import MissionContainer from './mission/MissionContainer';
-import VehicleContainer from './vehicle/VehicleContainer';
+import MainWindow from './mainWindow/MainWindow';
+import MissionWindow from './missionWindow/MissionWindow';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-virtualized/styles.css';
@@ -18,6 +16,12 @@ import './global.css';
 import './index.css';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+function Router({ routes }) {
+  const route = new URLSearchParams(window.location.search).get('route') || 'default';
+
+  return routes[route] || routes.default;
+}
 
 class Index extends Component {
   constructor(props) {
@@ -44,12 +48,12 @@ class Index extends Component {
     const { theme } = this.state;
 
     return (
-      <div className={`gridWrapper${theme === 'dark' ? '_dark' : ''}`}>
-        <MapContainer theme={theme} />
-        <LogContainer theme={theme} />
-        <MissionContainer theme={theme} />
-        <VehicleContainer theme={theme} />
-      </div>
+      <Router
+        routes={{
+          default: <MainWindow theme={theme} />,
+          mission: <MissionWindow theme={theme} />,
+        }}
+      />
     );
   }
 }

@@ -1,0 +1,42 @@
+/* Defined styles for Map.js */
+
+.mapContainer p {
+  margin: 0;
+}
+
+.leaflet-control-custom {
+  cursor: pointer;
+  background-size: 75%;
+}
+
+.geolocation-control {
+  background-image: url('../../../../resources/images/other/geolocation.png');
+}
+
+.geolocation-control:hover {
+  background-image: url('../../../../resources/images/other/geolocation_hover.png');
+}
+
+/* Light theme */
+
+.theme-control {
+  cursor: pointer;
+  background-size: 75%;
+  background-image: url('../../../../resources/images/other/moon.png');
+}
+
+.theme-control:hover {
+  background-image: url('../../../../resources/images/other/moon_hover.png');
+}
+
+/* Dark theme */
+
+.theme-control_dark {
+  cursor: pointer;
+  background-size: 75%;
+  background-image: url('../../../../resources/images/other/fullmoon.png');
+}
+
+.theme-control_dark:hover {
+  background-image: url('../../../../resources/images/other/fullmoon_hover.png');
+}

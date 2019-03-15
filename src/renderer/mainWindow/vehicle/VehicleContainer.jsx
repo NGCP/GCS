@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 
 import VehicleTable from './VehicleTable';
 
-import { updateVehicles } from '../../util/util';
+import { updateVehicles } from '../../../util/util';
 
 import './vehicle.css';
 

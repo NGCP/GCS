@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 
-import { images } from '../../../resources/index';
+import { images } from '../../../../resources/index';
 
 const propTypes = {
   sid: PropTypes.number.isRequired,

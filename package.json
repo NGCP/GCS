@@ -1,6 +1,6 @@
 {
   "name": "GCS",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
   "scripts": {
     "test": "npm run linttest",

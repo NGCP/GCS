@@ -6,9 +6,9 @@ import { Map } from 'react-leaflet';
 
 import {
   cache, locations, startLocation,
-} from '../../../resources/index';
+} from '../../../../resources/index';
 
-import { updateVehicles } from '../../util/util';
+import { updateVehicles } from '../../../util/util';
 
 import GeolocationControl from './control/GeolocationControl';
 import ThemeControl from './control/ThemeControl';

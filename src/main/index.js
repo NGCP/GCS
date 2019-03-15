@@ -221,11 +221,15 @@ function createMissionWindow() {
     minHeight: HEIGHT,
   });
 
-  missionWindow.loadURL(url.format({
-    pathname: path.resolve(__dirname, 'ui.html'),
-    protocol: 'file',
-    slashes: true,
-  }));
+  if (isDevelopment) {
+    missionWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?route=mission`);
+  } else {
+    missionWindow.loadURL(url.format({
+      pathname: path.resolve(__dirname, 'index.html'),
+      protocol: 'file',
+      slashes: true,
+    }));
+  }
 
   missionWindow.show();
 
