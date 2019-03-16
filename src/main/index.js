@@ -3,8 +3,6 @@ import { // eslint-disable-line import/no-extraneous-dependencies
 } from 'electron';
 import fs from 'fs';
 import moment from 'moment';
-import path from 'path';
-import url from 'url';
 
 import { images, locations } from '../../resources/index';
 
@@ -14,12 +12,18 @@ const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
 const WIDTH = 1024;
 const HEIGHT = 576;
 
-const icon = nativeImage.createFromDataURL(images.icon);
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+// todo: put icon tray back to macOS but resize it so that its not huge on macOS's menu
+const icon = nativeImage.createFromDataURL(images.icon);
+
 let quitting = false;
-let window;
+
+// References to window objects
+let mainWindow;
 let missionWindow;
+
+// Tray object
 let tray;
 
 const quitRole = {
@@ -51,7 +55,7 @@ const darwinMenu = {
 
 function saveConfig() {
   const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
-  const filePath = dialog.showSaveDialog(window, {
+  const filePath = dialog.showSaveDialog(mainWindow, {
     title: 'Save Configuration',
     filters: [FILTER],
     defaultPath: `./${fileName}.${FILTER.extensions[0]}`,
@@ -60,14 +64,14 @@ function saveConfig() {
   if (!filePath) return;
 
   const data = {};
-  window.webContents.send('saveConfig', {
+  mainWindow.webContents.send('saveConfig', {
     filePath,
     data,
   });
 }
 
 function loadConfig() {
-  const filePaths = dialog.showOpenDialog(window, {
+  const filePaths = dialog.showOpenDialog(mainWindow, {
     title: 'Open Configuration',
     filters: [FILTER],
     properties: ['openFile', 'createDirectory'],
@@ -79,7 +83,7 @@ function loadConfig() {
 
   if (!data) return;
 
-  window.webContents.send('loadConfig', data);
+  mainWindow.webContents.send('loadConfig', data);
 }
 
 const menu = [
@@ -129,13 +133,13 @@ const menu = [
     submenu: [
       {
         label: 'My Location',
-        click() { window.webContents.send('setMapToUserLocation'); },
+        click() { mainWindow.webContents.send('setMapToUserLocation'); },
       },
       { type: 'separator' },
     ],
   },
   {
-    role: 'window',
+    role: 'mainWindow',
     submenu: [
       { role: 'minimize' },
     ],
@@ -167,13 +171,13 @@ function setLocationMenu() {
     locationMenu.push({
       label,
       data: { lat, lng, zoom },
-      click(menuItem) { window.webContents.send('updateMapLocation', menuItem.data); },
+      click(menuItem) { mainWindow.webContents.send('updateMapLocation', menuItem.data); },
     });
   });
 }
 
 function createMainWindow() {
-  window = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     title: 'NGCP Ground Control Station',
     icon,
     show: false,
@@ -184,29 +188,25 @@ function createMainWindow() {
   });
 
   if (isDevelopment) {
-    window.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
+    mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#main`);
   } else {
-    window.loadURL(url.format({
-      pathname: path.resolve(__dirname, 'index.html'),
-      protocol: 'file',
-      slashes: true,
-    }));
+    mainWindow.loadURL(`file:///${__dirname}/index.html#main`);
   }
 
-  window.on('ready-to-show', () => {
-    window.show();
+  mainWindow.on('ready-to-show', () => {
+    mainWindow.show();
   });
 
-  window.on('close', (event) => {
+  mainWindow.on('close', (event) => {
     if (!quitting) {
       event.preventDefault();
-      window.hide();
+      mainWindow.hide();
       if (missionWindow) {
-        window.webContents.send('setSelectedMission', -1);
+        mainWindow.webContents.send('setSelectedMission', -1);
         missionWindow.hide();
       }
     } else {
-      window = null;
+      mainWindow = null;
     }
   });
 }
@@ -214,6 +214,7 @@ function createMainWindow() {
 function createMissionWindow() {
   missionWindow = new BrowserWindow({
     title: 'NGCP Mission User Interface',
+    icon,
     show: false,
     width: WIDTH,
     minWidth: WIDTH,
@@ -222,28 +223,22 @@ function createMissionWindow() {
   });
 
   if (isDevelopment) {
-    missionWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}?route=mission`);
+    missionWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#mission`);
   } else {
-    missionWindow.loadURL(url.format({
-      pathname: path.resolve(__dirname, 'index.html'),
-      protocol: 'file',
-      slashes: true,
-    }));
+    missionWindow.loadURL(`file:///${__dirname}/index.html#mission`);
   }
 
-  missionWindow.show();
+  missionWindow.setMenu(null);
 
-  /*
   missionWindow.on('ready-to-show', () => {
     missionWindow.show();
   });
-  */
 
   missionWindow.on('close', (event) => {
     if (!quitting) {
       event.preventDefault();
-      // following line allows MissionContainer to update to closed mission window
-      window.webContents.send('setSelectedMission', -1);
+      // following line allows MissionContainer to update to closed mission mainWindow
+      mainWindow.webContents.send('setSelectedMission', -1);
       missionWindow.hide();
     } else {
       missionWindow = null;
@@ -252,10 +247,10 @@ function createMissionWindow() {
 }
 
 function showWindow() {
-  if (!window) {
+  if (!mainWindow) {
     createMainWindow();
   } else {
-    window.show();
+    mainWindow.show();
   }
 }
 
@@ -282,14 +277,18 @@ function createMenu() {
   if (process.platform === 'darwin') {
     menu.unshift(darwinMenu);
   } else {
-    tray = new Tray(icon);
-    tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
-    tray.on('click', () => { showWindow(); });
-
     menu.push(quitRole);
   }
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
+}
+
+function createTray() {
+  tray = new Tray(icon);
+
+  tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
+
+  tray.on('click', () => { showWindow(); });
 }
 
 app.on('activate', showWindow);
@@ -297,6 +296,7 @@ app.on('activate', showWindow);
 app.on('ready', () => {
   showWindow();
   createMenu();
+  createTray();
 });
 
 app.on('before-quit', () => {
@@ -308,7 +308,7 @@ ipcMain.on('post', (event, notification, data) => {
     showMissionWindow();
   }
 
-  window.webContents.send(notification, data);
+  mainWindow.webContents.send(notification, data);
   if (missionWindow) {
     missionWindow.webContents.send(notification, data);
   }

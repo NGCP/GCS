@@ -22,7 +22,9 @@ const fixtures = [
   },
 ];
 
-setInterval(() => {
+export function sendFixtures() {
   const fixture = fixtures[Math.floor(Math.random() * 5)];
   ipcRenderer.send('post', 'updateMessages', [fixture]);
-}, 1000);
+}
+
+export default { sendFixtures };

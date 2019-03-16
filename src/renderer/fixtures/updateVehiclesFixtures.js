@@ -21,7 +21,7 @@ let fixtures = [
 
 const status = Object.keys(vehicleStatuses);
 
-setInterval(() => {
+export function sendFixtures() {
   const newFixtures = fixtures.map(fixture => ({
     ...fixture,
     // lat: fixture.lat + (Math.random() / 5000) - 0.0001,
@@ -31,4 +31,6 @@ setInterval(() => {
 
   fixtures = newFixtures;
   ipcRenderer.send('post', 'updateVehicles', fixtures);
-}, 1000);
+}
+
+export default { sendFixtures };

@@ -17,11 +17,10 @@ import './index.css';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-function Router({ routes }) {
-  const route = new URLSearchParams(window.location.search).get('route') || 'default';
-
-  return routes[route] || routes.default;
-}
+const windows = {
+  '#main': MainWindow,
+  '#mission': MissionWindow,
+};
 
 class Index extends Component {
   constructor(props) {
@@ -47,14 +46,9 @@ class Index extends Component {
   render() {
     const { theme } = this.state;
 
-    return (
-      <Router
-        routes={{
-          default: <MainWindow theme={theme} />,
-          mission: <MissionWindow theme={theme} />,
-        }}
-      />
-    );
+    const Window = windows[window.location.hash];
+
+    return <Window theme={theme} />;
   }
 }
 

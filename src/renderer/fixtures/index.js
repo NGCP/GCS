@@ -6,5 +6,10 @@
  * errors from happening in the first place.
  */
 
-import './updateMessagesFixtures';
-import './updateVehiclesFixtures';
+import * as updateMessages from './updateMessagesFixtures';
+import * as updateVehicles from './updateVehiclesFixtures';
+
+setInterval(() => {
+  updateMessages.sendFixtures();
+  updateVehicles.sendFixtures();
+}, 1000);

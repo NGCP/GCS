@@ -26,7 +26,7 @@ export default class Control extends Component {
       <LeafletControl className="leaflet-bar" position={position}>
         <a
           className={`leaflet-control-custom ${className}`}
-          href="#"
+          href={window.location.hash}
           title={title}
           role="button"
           aria-label={title}
