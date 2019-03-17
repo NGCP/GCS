@@ -21,10 +21,10 @@ let fixtures = [
 
 const status = Object.keys(vehicleStatuses);
 
-export function sendFixtures() {
+export default function updateVehicles() {
   const newFixtures = fixtures.map(fixture => ({
     ...fixture,
-    // lat: fixture.lat + (Math.random() / 5000) - 0.0001,
+    lat: fixture.lat + (Math.random() / 5000) - 0.0001,
     lng: fixture.lng + (Math.random() / 5000) - 0.0001,
     status: status[Math.floor(Math.random() * status.length)],
   }));
@@ -32,5 +32,3 @@ export function sendFixtures() {
   fixtures = newFixtures;
   ipcRenderer.send('post', 'updateVehicles', fixtures);
 }
-
-export default { sendFixtures };

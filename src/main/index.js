@@ -6,6 +6,8 @@ import moment from 'moment';
 
 import { images, locations } from '../../resources/index';
 
+// This key is required to enable geolocation in the application.
+// Others cannot use this key outside of geolocation access so no need to hide it.
 process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 
 const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
@@ -17,6 +19,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 // todo: put icon tray back to macOS but resize it so that its not huge on macOS's menu
 const icon = nativeImage.createFromDataURL(images.icon);
 
+// Variable to keep track when the app will quit, which is different from hiding the app.
 let quitting = false;
 
 // References to window objects
@@ -26,6 +29,7 @@ let missionWindow;
 // Tray object
 let tray;
 
+// Role added to menus to allow the user to quit the app. Shortcut is Ctrl/Cmd + Q.
 const quitRole = {
   label: 'Quit',
   accelerator: 'CommandOrControl+Q',
@@ -35,6 +39,7 @@ const quitRole = {
   },
 };
 
+// Menu prepended to menu if application is running on a Darwin-based OS.
 const darwinMenu = {
   label: 'NGCP Ground Control System',
   submenu: [
@@ -53,39 +58,60 @@ const darwinMenu = {
   ],
 };
 
+/**
+ * Runs when the user wants to save a configuration of the GCS.
+ * The configuration currently includes the map location loaded.
+ */
 function saveConfig() {
   const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
+
+  // Loads a window that allows the user to choose the file path for the file to be saved.
   const filePath = dialog.showSaveDialog(mainWindow, {
     title: 'Save Configuration',
     filters: [FILTER],
     defaultPath: `./${fileName}.${FILTER.extensions[0]}`,
   });
 
+  // Returns if the user chooses to close the window instead of choosing a file path.
   if (!filePath) return;
 
+  // Loads data up with information returned from main and mission windows.
   const data = {};
   mainWindow.webContents.send('saveConfig', {
     filePath,
     data,
   });
+  missionWindow.webContents.send('saveConfig', {
+    filePath,
+    data,
+  });
 }
 
+/**
+ * Runs when the user wants to load a configuration of the GCS.
+ * The configuration currently includes the map location loaded.
+ */
 function loadConfig() {
+  // Loads a window that allows the user to choose the filePath of the file to be loaded.
   const filePaths = dialog.showOpenDialog(mainWindow, {
     title: 'Open Configuration',
     filters: [FILTER],
     properties: ['openFile', 'createDirectory'],
   });
 
+  // Returns if the user chooses to close the window instead of choosing a file path.
   if (!filePaths || filePaths.length === 0) return;
 
   const data = JSON.parse(fs.readFileSync(filePaths[0]), 'utf8');
 
   if (!data) return;
 
+  // Loads parsed data into main and mission windows.
   mainWindow.webContents.send('loadConfig', data);
+  missionWindow.webContents.send('loadConfig', data);
 }
 
+// Menu displayed on main window.
 const menu = [
   {
     label: 'File',
@@ -155,6 +181,10 @@ const menu = [
   },
 ];
 
+/**
+ * Adds a list of locations on the menu to allow user to pan to specific location in the map.
+ * The list of locations comes from ../../resources/locations.json.
+ */
 function setLocationMenu() {
   const locationMenu = menu.find(m => m.label === 'Locations').submenu;
 
@@ -176,6 +206,9 @@ function setLocationMenu() {
   });
 }
 
+/**
+ * Creates the main window. This window's hash is #main.
+ */
 function createMainWindow() {
   mainWindow = new BrowserWindow({
     title: 'NGCP Ground Control Station',
@@ -211,6 +244,11 @@ function createMainWindow() {
   });
 }
 
+/**
+ * Creates the mission window. This window's hash is #mission.
+ * Does not show up once app is loaded (will be hidden) and is shown only when it is opened from
+ * the main window.
+ */
 function createMissionWindow() {
   missionWindow = new BrowserWindow({
     title: 'NGCP Mission User Interface',
@@ -229,10 +267,6 @@ function createMissionWindow() {
   }
 
   missionWindow.setMenu(null);
-
-  missionWindow.on('ready-to-show', () => {
-    missionWindow.show();
-  });
 
   missionWindow.on('close', (event) => {
     if (!quitting) {
@@ -262,6 +296,9 @@ function showMissionWindow() {
   }
 }
 
+/**
+ * Small menu displayed on the bottom-right corner of windows, or upper-right corner of macOS.
+ */
 const trayMenu = [
   {
     label: 'NGCP Ground Control Station',
@@ -294,7 +331,8 @@ function createTray() {
 app.on('activate', showWindow);
 
 app.on('ready', () => {
-  showWindow();
+  createMainWindow();
+  createMissionWindow();
   createMenu();
   createTray();
 });

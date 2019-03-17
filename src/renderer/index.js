@@ -4,8 +4,6 @@ import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extrane
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import { fixtures, geolocation } from '../../resources/index';
-
 import MainWindow from './mainWindow/MainWindow';
 import MissionWindow from './missionWindow/MissionWindow';
 
@@ -15,12 +13,30 @@ import 'react-virtualized/styles.css';
 import './global.css';
 import './index.css';
 
+import { fixtures, geolocation } from '../../resources/index';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const windows = {
   '#main': MainWindow,
   '#mission': MissionWindow,
 };
+
+function runGeolocationAndFixtures() {
+  // Forces this function to only run once, when it is loaded through the main window.
+  // Running this function more than once (through both main and mission windows) causes
+  // fixtures to be sent twice a second, as well as the setMapToUserLocation command,
+  // and we want to prevent this.
+  if (window.location.hash !== '#main') return;
+
+  if (geolocation) {
+    ipcRenderer.send('post', 'setMapToUserLocation');
+  }
+
+  if (isDevelopment && fixtures) {
+    require('./fixtures/index'); // eslint-disable-line global-require
+  }
+}
 
 class Index extends Component {
   constructor(props) {
@@ -52,10 +68,4 @@ class Index extends Component {
   }
 }
 
-ReactDOM.render(<Index />, document.getElementById('app'), () => {
-  if (geolocation) ipcRenderer.send('post', 'setMapToUserLocation');
-
-  if (isDevelopment && fixtures) {
-    require('./fixtures/index.js'); // eslint-disable-line global-require
-  }
-});
+ReactDOM.render(<Index />, document.getElementById('app'), runGeolocationAndFixtures);
