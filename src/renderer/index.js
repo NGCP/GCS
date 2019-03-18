@@ -23,10 +23,12 @@ const windows = {
 };
 
 function runGeolocationAndFixtures() {
-  // Forces this function to only run once, when it is loaded through the main window.
-  // Running this function more than once (through both main and mission windows) causes
-  // fixtures to be sent twice a second, as well as the setMapToUserLocation command,
-  // and we want to prevent this.
+  /*
+   * Forces this function to only run once, when it is loaded through the main window.
+   * Running this function more than once (through both main and mission windows) causes
+   * fixtures to be sent twice a second, as well as the setMapToUserLocation command,
+   * and we want to prevent this.
+   */
   if (window.location.hash !== '#main') return;
 
   if (geolocation) {

@@ -6,8 +6,10 @@ import moment from 'moment';
 
 import { images, locations } from '../../resources/index';
 
-// This key is required to enable geolocation in the application.
-// Others cannot use this key outside of geolocation access so no need to hide it.
+/*
+ * This key is required to enable geolocation in the application.
+ * Others cannot use this key outside of geolocation access so no need to hide it.
+ */
 process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 
 const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
