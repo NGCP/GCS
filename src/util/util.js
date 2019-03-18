@@ -1,3 +1,5 @@
+import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+
 import {
   vehicleInfos, vehicleStatuses,
 } from '../../resources/index';
@@ -17,6 +19,18 @@ export function updateVehicles(component, vehicles) {
   component.setState({ vehicles: currentVehicles });
 }
 
+export function startMission() {
+  ipcRenderer.send('post', 'startMission');
+}
+
+export function stopMission() {
+  ipcRenderer.send('post', 'stopMission');
+}
+
+export function completeMission() {
+  ipcRenderer.send('post', 'completeMission');
+}
+
 export default {
-  updateVehicles,
+  updateVehicles, startMission, stopMission, completeMission,
 };

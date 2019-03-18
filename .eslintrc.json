@@ -7,6 +7,7 @@
   "extends": "airbnb",
   "rules": {
     "linebreak-style": "off",
+    "multiline-comment-style": "error",
     "import/no-commonjs": "error"
   }
 }

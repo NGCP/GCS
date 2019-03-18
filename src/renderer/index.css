@@ -28,6 +28,11 @@ body,
   grid-area: vehicle;
 }
 
+.missionWrapper {
+  height: 100%;
+  width: 100%;
+}
+
 /* Light theme */
 
 .gridWrapper {

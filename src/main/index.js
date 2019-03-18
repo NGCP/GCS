@@ -16,7 +16,7 @@ const HEIGHT = 576;
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-// todo: put icon tray back to macOS but resize it so that its not huge on macOS's menu
+// TODO: put icon tray back to macOS but resize it so that its not huge on macOS's menu
 const icon = nativeImage.createFromDataURL(images.icon);
 
 // Variable to keep track when the app will quit, which is different from hiding the app.
