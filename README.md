@@ -1,6 +1,6 @@
 # NGCP Ground Control Station
 
-[![Build Status](https://travis-ci.com/NGCP/GCS)](https://travis-ci.com/NGCP/GCS)
+[![Build Status](https://travis-ci.com/NGCP/GCS.svg)](https://travis-ci.com/NGCP/GCS)
 
 The [Northrop Grumman Collaboration Project] presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the project.
 
