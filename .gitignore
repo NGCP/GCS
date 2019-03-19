@@ -1,8 +1,8 @@
-# files
+# Ignore system generated files/folders
 .DS_Store
-.env
 package-lock.json
-
-# folders
 dist
 node_modules
+
+# Ignore .env file (should be set per system)
+.env

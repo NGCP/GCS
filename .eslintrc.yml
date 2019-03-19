@@ -1,0 +1,17 @@
+# Rules to lint JavaScript
+
+# Use Babel as we use ES6 code
+parser: babel-eslint
+
+env:
+  browser: true
+  node: true
+
+# Use Airbnb rules to lint code
+extends: airbnb
+
+# Added rules
+rules:
+  linebreak-style: off
+  multiline-comment-style: error
+  import/no-commonjs: error

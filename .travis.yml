@@ -1,8 +1,10 @@
-# testing with Travis CI, will run npm test
+# Travis CI testing configuration
 
 language: node_js
+
+# Use latest version of Node.js
 node_js:
-  - "node"
-cache:
-  directories:
-    - "node_modules"
+  - node
+
+# Cache node_modules after testing
+cache: npm

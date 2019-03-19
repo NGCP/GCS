@@ -1,5 +1,7 @@
 /* eslint-disable import/no-commonjs */
 
+// Webpack configuration cannot be written with ES6 import/export so we disable no-commonjs.
+
 const Dotenv = require('dotenv-webpack');
 
 module.exports = {
