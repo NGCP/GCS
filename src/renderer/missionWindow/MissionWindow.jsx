@@ -2,10 +2,10 @@ import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extrane
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import DeliverTarget from './deliverTarget/DeliverTarget';
-import ISRSearch from './isrSearch/ISRSearch';
-import PayloadDrop from './payloadDrop/PayloadDrop';
-import RetrieveTarget from './retrieveTarget/RetrieveTarget';
+import DeliverTarget from './missions/DeliverTarget';
+import ISRSearch from './missions/ISRSearch';
+import PayloadDrop from './missions/PayloadDrop';
+import RetrieveTarget from './missions/RetrieveTarget';
 
 const layouts = {
   deliverTarget: DeliverTarget,

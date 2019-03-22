@@ -3,10 +3,6 @@
 # Use stylelint preset rules to lint
 extends: stylelint-config-standard
 
-# Directories for stylelint to ignore
-ignore-files:
-  - dist/**
-
 # Added rules
 rules:
   indentation: 2
