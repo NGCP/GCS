@@ -10,7 +10,6 @@ import MissionWindow from './missionWindow/MissionWindow';
 import 'leaflet/dist/leaflet.css';
 import 'react-virtualized/styles.css';
 
-import './global.css';
 import './index.css';
 
 import { fixtures, geolocation } from '../../resources/index';

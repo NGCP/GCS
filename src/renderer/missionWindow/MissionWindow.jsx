@@ -7,6 +7,8 @@ import ISRSearch from './missions/ISRSearch';
 import PayloadDrop from './missions/PayloadDrop';
 import RetrieveTarget from './missions/RetrieveTarget';
 
+import './mission.css';
+
 const layouts = {
   deliverTarget: DeliverTarget,
   isrSearch: ISRSearch,
@@ -44,7 +46,7 @@ export default class MissionWindow extends Component {
     const Layout = layouts[openedMission] || BlankMission;
 
     return (
-      <div className={`missionWrapper container${theme === 'dark' ? '_dark' : ''}`}>
+      <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
         <Layout theme={theme} />
       </div>
     );

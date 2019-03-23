@@ -23,6 +23,6 @@ module.exports = {
     new Dotenv(),
   ],
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.jsx'],
   },
 };

@@ -1,0 +1,23 @@
+/* Defined styles for MissionWindow.jsx */
+
+.missionWrapper,
+.missionWrapper_dark,
+.mission,
+.job {
+  height: 100%;
+  width: 100;
+}
+
+/* Light theme */
+
+.missionWrapper {
+  background-color: #eee;
+  color: #000;
+}
+
+/* Dark theme */
+
+.missionWrapper_dark {
+  background-color: #212121;
+  color: #fff;
+}

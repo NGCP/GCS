@@ -1,15 +1,10 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 
 import { startMission, stopMission, completeMission } from '../../../util/util';
 
-const propTypes = {
-  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-};
-
-export default function PayloadDrop({ theme }) {
+export default function PayloadDrop() {
   return (
-    <div className={`payloadDrop${theme === 'dark' ? '_dark' : ''}`}>
+    <div className="mission">
       <h2>Payload Drop</h2>
       <button type="button" onClick={startMission}>Start Mission</button>
       <button type="button" onClick={stopMission}>Stop Mission</button>
@@ -17,5 +12,3 @@ export default function PayloadDrop({ theme }) {
     </div>
   );
 }
-
-PayloadDrop.propTypes = propTypes;

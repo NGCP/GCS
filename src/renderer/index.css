@@ -1,4 +1,4 @@
-/* Defined styles for index.js */
+/* Defined styles for the whole application */
 
 html,
 body,
@@ -9,70 +9,126 @@ body,
   overflow-y: hidden;
   padding: 0;
   width: 100%;
-  font-size: 15px;
 }
 
-.logContainer {
-  grid-area: log;
+html {
+  font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  user-select: none;
 }
 
-.mapContainer {
-  grid-area: map;
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
 }
 
-.missionContainer {
-  grid-area: mission;
+div:focus {
+  outline: none;
 }
 
-.vehicleContainer {
-  grid-area: vehicle;
+.success {
+  color: #2e7d32;
 }
 
-.missionWrapper {
-  height: 100%;
-  width: 100%;
+.failure {
+  color: #c62828;
 }
 
-/* Light theme */
+.progress {
+  color: #a7ad00;
+}
 
-.gridWrapper {
-  background: #928b8a;
+.ReactVirtualized__Table,
+.ReactVirtualized__Tabl_dark {
+  font-size: 1em;
+}
+
+.ReactVirtualized__Table__row:hover .success,
+.ReactVirtualized__Table__row_dark:hover .success {
+  color: #43a047;
+}
+
+.ReactVirtualized__Table__row:active .success {
+  color: #76d275;
+}
+
+.ReactVirtualized__Table__row:hover .failure,
+.ReactVirtualized__Table__row_dark:hover .failure {
+  color: #f44336;
+}
+
+.ReactVirtualized__Table__row:active .failure {
+  color: #ff7961;
+}
+
+.ReactVirtualized__Table__row:hover .progress,
+.ReactVirtualized__Table__row_dark:hover .progress {
+  color: #bfc600;
+}
+
+.ReactVirtualized__Table__row:active .progress {
+  color: #d3da00;
+}
+
+/* Light Theme */
+
+.ReactVirtualized__Table {
+  color: #4a4241;
+}
+
+.ReactVirtualized__Table__headerRow {
   color: #000;
-  display: grid;
-  grid-gap: 3px;
-  grid-template-areas:
-    'map map map vehicle'
-    'map map map vehicle'
-    'map map map mission'
-    'log log log mission';
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  height: 100%;
+  background-color: rgb(0, 0, 0, 0.15);
+  text-transform: none;
+}
+
+.ReactVirtualized__Table__row {
   width: 100%;
+  border-top: 2px solid #626262;
+  cursor: pointer;
 }
 
-.container {
-  background-color: #eee;
+.ReactVirtualized__Table__row:first-child {
+  border-top: 0;
 }
 
-/* Dark theme */
+.ReactVirtualized__Table__row:hover {
+  color: #211e1d;
+  background-color: rgb(0, 0, 0, 0.05);
+}
 
-.gridWrapper_dark {
-  background: #000;
+.ReactVirtualized__Table__row:active {
+  color: #000;
+  background-color: rgb(0, 0, 0, 0.1);
+}
+
+/* Dark Theme */
+
+.ReactVirtualized__Table_dark {
+  color: #bdbdbd;
+}
+
+.ReactVirtualized__Table__headerRow_dark {
   color: #fff;
-  display: grid;
-  grid-gap: 3px;
-  grid-template-areas:
-    'map map map vehicle'
-    'map map map vehicle'
-    'map map map mission'
-    'log log log mission';
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  height: 100%;
-  width: 100%;
+  background-color: rgb(255, 255, 255, 0.15);
+  text-transform: none;
 }
 
-.container_dark {
-  background-color: #212121;
+.ReactVirtualized__Table__row_dark {
+  width: 100%;
+  border-top: 2px solid #626262;
+  cursor: pointer;
+}
+
+.ReactVirtualized__Table__row_dark:first-child {
+  border-top: 0;
+}
+
+.ReactVirtualized__Table__row_dark:hover {
+  color: #e9e9e9;
+  background-color: rgb(255, 255, 255, 0.025);
+}
+
+.ReactVirtualized__Table__row_dark:active {
+  color: #fff;
+  background-color: rgb(255, 255, 255, 0.05);
 }
