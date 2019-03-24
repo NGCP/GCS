@@ -19,11 +19,6 @@ const propTypes = {
   theme: PropTypes.oneOf(['light', 'dark']).isRequired,
 };
 
-/*
- * Variable is -1 if no mission is running, otherwise it's the index of the mission in missions.
- * If a mission is paused, it will still be the index of that mission.
- */
-let startedMissionIndex = -1;
 
 const statusTypes = {
   notStarted: {
@@ -41,7 +36,7 @@ const statusTypes = {
     message: 'Paused',
     type: 'progress',
   },
-  finished: {
+  completed: {
     name: 'completed',
     message: 'Completed',
     type: 'success',
@@ -58,6 +53,12 @@ export default class MissionContainer extends Component {
        * Value of -1 means that no mission is currently opened.
        */
       openedMissionIndex: -1,
+
+      /*
+       * Variable is -1 if no mission is running, otherwise it's the index of the
+       * mission in missions. If a mission is paused, it will still be the index of that mission.
+       */
+      startedMissionIndex: -1,
 
       /*
        * We have four missions in the mission state, with each mission having a certain
@@ -201,9 +202,9 @@ export default class MissionContainer extends Component {
     };
 
     if (name === 'started') {
-      startedMissionIndex = openedMissionIndex;
+      this.setState({ startedMissionIndex: openedMissionIndex });
     } else if (name === 'notStarted') {
-      startedMissionIndex = -1;
+      this.setState({ startedMissionIndex: -1 });
 
       // Closes the mission window.
       ipcRenderer.send('post', 'hideMissionWindow');
@@ -213,16 +214,22 @@ export default class MissionContainer extends Component {
   }
 
   completeMission() {
-    const { missions } = this.state;
+    const { missions, startedMissionIndex } = this.state;
     const newMissions = missions;
 
+    if (startedMissionIndex === -1) {
+      throw new Error('Mission must be started before completing it');
+    }
+
     newMissions[startedMissionIndex].status = statusTypes.completed;
-    startedMissionIndex = -1;
 
     // Closes the mission window.
     ipcRenderer.send('post', 'hideMissionWindow');
 
-    this.setState({ missions: newMissions });
+    this.setState({
+      missions: newMissions,
+      startedMissionIndex: -1,
+    });
   }
 
   render() {
