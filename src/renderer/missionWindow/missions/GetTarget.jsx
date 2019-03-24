@@ -48,6 +48,7 @@ export default class GetTarget extends Component {
       ],
     };
 
+    this.nextJob = this.nextJob.bind(this);
     this.completeJob = this.completeJob.bind(this);
   }
 
