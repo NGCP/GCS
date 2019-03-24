@@ -55,12 +55,6 @@ export default class MissionContainer extends Component {
       openedMissionIndex: -1,
 
       /*
-       * Variable is -1 if no mission is running, otherwise it's the index of the
-       * mission in missions. If a mission is paused, it will still be the index of that mission.
-       */
-      startedMissionIndex: -1,
-
-      /*
        * We have four missions in the mission state, with each mission having a certain
        * number of jobs required to accomplish that mission.
        *
@@ -114,10 +108,10 @@ export default class MissionContainer extends Component {
 
     ipcRenderer.on('startMission', () => this.updateMission('started'));
     ipcRenderer.on('stopMission', () => this.updateMission('notStarted'));
-    ipcRenderer.on('pauseMission', () => this.updateMission('paused'));
-    ipcRenderer.on('resumeMission', () => this.updateMission('started'));
+    ipcRenderer.on('pauseJob', () => this.updateMission('paused'));
+    ipcRenderer.on('resumeJob', () => this.updateMission('started'));
 
-    ipcRenderer.on('completeMission', this.completeMission);
+    ipcRenderer.on('completeMission', (event, index) => this.completeMission(index));
   }
 
   /**
@@ -138,7 +132,15 @@ export default class MissionContainer extends Component {
       // Does not open any window for completed missions.
       if (missions[index].status.name === 'completed') return;
 
-      ipcRenderer.send('post', 'showMissionWindow', missions[index]);
+      /*
+       * Passes index to mission window so that when mission is completed, the mission
+       * window can forward that index back to the mission container to update.
+       * This helps us have multiple missions running at once.
+       */
+      ipcRenderer.send('post', 'showMissionWindow', {
+        ...missions[index],
+        index,
+      });
     }
 
     /*
@@ -184,10 +186,10 @@ export default class MissionContainer extends Component {
    * Updates mission description in mission container whenever a start/stop/pause/resume
    * mission notification is sent.
    *
-   * @param {string} name Consists of notStarted/started/paused. See the componentDidMount
+   * @param {string} type Consists of notStarted/started/paused. See the componentDidMount
    * function to see which name corresponds with which notification.
    */
-  updateMission(name) {
+  updateMission(statusName) {
     const { missions, openedMissionIndex } = this.state;
     const newMissions = missions;
 
@@ -197,39 +199,32 @@ export default class MissionContainer extends Component {
      * end of the mission description.
      */
     newMissions[openedMissionIndex].status = {
-      ...statusTypes[name],
-      message: `${statusTypes[name].message} (Open)`,
+      ...statusTypes[statusName],
+      message: `${statusTypes[statusName].message} (Open)`,
     };
 
-    if (name === 'started') {
-      this.setState({ startedMissionIndex: openedMissionIndex });
-    } else if (name === 'notStarted') {
-      this.setState({ startedMissionIndex: -1 });
-
-      // Closes the mission window.
+    // Closes the mission window on stop mission.
+    if (statusName === 'notStarted') {
       ipcRenderer.send('post', 'hideMissionWindow');
     }
 
     this.setState({ missions: newMissions });
   }
 
-  completeMission() {
-    const { missions, startedMissionIndex } = this.state;
+  completeMission(index) {
+    const { missions } = this.state;
     const newMissions = missions;
 
-    if (startedMissionIndex === -1) {
+    if (missions[index].status.name !== 'started') {
       throw new Error('Mission must be started before completing it');
     }
 
-    newMissions[startedMissionIndex].status = statusTypes.completed;
+    newMissions[index].status = statusTypes.completed;
 
     // Closes the mission window.
     ipcRenderer.send('post', 'hideMissionWindow');
 
-    this.setState({
-      missions: newMissions,
-      startedMissionIndex: -1,
-    });
+    this.setState({ missions: newMissions });
   }
 
   render() {

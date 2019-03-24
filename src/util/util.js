@@ -37,9 +37,15 @@ function sendStopMission() {
   ipcRenderer.send('post', 'stopMission');
 }
 
-function sendCompleteMission() {
-  ipcRenderer.send('post', 'completeMission');
+function sendCompleteMission(index) {
+  ipcRenderer.send('post', 'completeMission', index);
 }
+
+export const mission = {
+  sendStartMission,
+  sendStopMission,
+  sendCompleteMission,
+};
 
 // We can have this or directly call function from Orchestrator.
 function sendStartJob(data) {
@@ -61,7 +67,6 @@ function sendCompleteJob() {
   ipcRenderer.send('post', 'completeJob');
 }
 
-export const mission = { sendStartMission, sendStopMission, sendCompleteMission };
 export const job = {
   sendStartJob,
   sendPauseJob,

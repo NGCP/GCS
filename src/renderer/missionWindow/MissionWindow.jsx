@@ -25,13 +25,13 @@ export default class MissionWindow extends Component {
     super(props);
 
     this.state = {
-      openedMission: '',
+      openedMission: {},
     };
   }
 
   componentDidMount() {
     ipcRenderer.on('showMissionWindow', (event, mission) => {
-      this.setState({ openedMission: mission.name });
+      this.setState({ openedMission: mission });
     });
   }
 
@@ -39,11 +39,11 @@ export default class MissionWindow extends Component {
     const { theme } = this.props;
     const { openedMission } = this.state;
 
-    const Layout = layouts[openedMission] || div;
+    const Layout = layouts[openedMission.name] || div;
 
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
-        <Layout theme={theme} />
+        <Layout theme={theme} index={openedMission.index} />
       </div>
     );
   }
