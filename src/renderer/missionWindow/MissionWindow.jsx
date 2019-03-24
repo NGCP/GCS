@@ -2,27 +2,23 @@ import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extrane
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import DeliverTarget from './missions/DeliverTarget';
-import ISRSearch from './missions/ISRSearch';
-import PayloadDrop from './missions/PayloadDrop';
-import RetrieveTarget from './missions/RetrieveTarget';
+import DeliverPayload from './missions/DeliverPayload';
+import FindTarget from './missions/FindTarget';
+import GetTarget from './missions/GetTarget';
 
 import './mission.css';
 
 const layouts = {
-  deliverTarget: DeliverTarget,
-  isrSearch: ISRSearch,
-  payloadDrop: PayloadDrop,
-  retrieveTarget: RetrieveTarget,
+  deliverPayload: DeliverPayload,
+  findTarget: FindTarget,
+  getTarget: GetTarget,
 };
 
 const propTypes = {
   theme: PropTypes.oneOf(['light', 'dark']).isRequired,
 };
 
-function BlankMission() {
-  return <div />;
-}
+const div = () => <div />;
 
 export default class MissionWindow extends Component {
   constructor(props) {
@@ -43,7 +39,7 @@ export default class MissionWindow extends Component {
     const { theme } = this.props;
     const { openedMission } = this.state;
 
-    const Layout = layouts[openedMission] || BlankMission;
+    const Layout = layouts[openedMission] || div;
 
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>

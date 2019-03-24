@@ -42,8 +42,8 @@ const statusTypes = {
     type: 'progress',
   },
   finished: {
-    name: 'finished',
-    message: 'Finished',
+    name: 'completed',
+    message: 'Completed',
     type: 'success',
   },
 };
@@ -86,23 +86,18 @@ export default class MissionContainer extends Component {
        */
       missions: [
         {
-          name: 'isrSearch',
-          description: 'Find target',
+          name: 'findTarget',
+          description: "Find target's location",
           status: statusTypes.notStarted,
         },
         {
-          name: 'payloadDrop',
+          name: 'deliverPayload',
           description: 'Deliver payload to target',
           status: statusTypes.notStarted,
         },
         {
-          name: 'retrieveTarget',
-          description: 'Retreive target',
-          status: statusTypes.notStarted,
-        },
-        {
-          name: 'deliverTarget',
-          description: 'Deliver target',
+          name: 'getTarget',
+          description: 'Get the target',
           status: statusTypes.notStarted,
         },
       ],
@@ -139,6 +134,9 @@ export default class MissionContainer extends Component {
 
     // Opens mission window for specified mission.
     if (index !== -1) {
+      // Does not open any window for completed missions.
+      if (missions[index].status.name === 'completed') return;
+
       ipcRenderer.send('post', 'showMissionWindow', missions[index]);
     }
 
@@ -206,26 +204,23 @@ export default class MissionContainer extends Component {
       startedMissionIndex = openedMissionIndex;
     } else if (name === 'notStarted') {
       startedMissionIndex = -1;
+
+      // Closes the mission window.
+      ipcRenderer.send('post', 'hideMissionWindow');
     }
 
     this.setState({ missions: newMissions });
   }
 
   completeMission() {
-    const { missions, openedMissionIndex } = this.state;
+    const { missions } = this.state;
     const newMissions = missions;
 
-    // It is possible that the mission window for started mission is currently open or closed.
-    if (openedMissionIndex === startedMissionIndex) {
-      newMissions[startedMissionIndex].status = {
-        ...statusTypes.finished,
-        message: `${statusTypes.finished.message} (Open)`,
-      };
-    } else {
-      newMissions[startedMissionIndex].status = statusTypes.finished;
-    }
-
+    newMissions[startedMissionIndex].status = statusTypes.completed;
     startedMissionIndex = -1;
+
+    // Closes the mission window.
+    ipcRenderer.send('post', 'hideMissionWindow');
 
     this.setState({ missions: newMissions });
   }

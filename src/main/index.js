@@ -18,13 +18,13 @@ const HEIGHT = 576;
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-// TODO: put icon tray back to macOS but resize it so that its not huge on macOS's menu
+// TODO: put icon tray back to macOS but resize it so that its not huge on macOS's menu.
 const icon = nativeImage.createFromDataURL(images.icon);
 
 // Variable to keep track when the app will quit, which is different from hiding the app.
 let quitting = false;
 
-// References to window objects
+// References to window objects.
 let mainWindow;
 let missionWindow;
 
@@ -208,6 +208,11 @@ function setLocationMenu() {
   });
 }
 
+function hideMissionWindow() {
+  mainWindow.webContents.send('setSelectedMission', -1);
+  missionWindow.hide();
+}
+
 /**
  * Creates the main window. This window's hash is #main.
  */
@@ -237,8 +242,7 @@ function createMainWindow() {
       event.preventDefault();
       mainWindow.hide();
       if (missionWindow) {
-        mainWindow.webContents.send('setSelectedMission', -1);
-        missionWindow.hide();
+        hideMissionWindow();
       }
     } else {
       mainWindow = null;
@@ -256,9 +260,10 @@ function createMissionWindow() {
     title: 'NGCP Mission User Interface',
     icon,
     show: false,
-    width: WIDTH,
-    minWidth: WIDTH,
+    width: Math.floor(WIDTH / 3),
+    minWidth: Math.floor(WIDTH / 3),
     height: HEIGHT,
+    autoHideMenuBar: true,
     minHeight: HEIGHT,
   });
 
@@ -266,16 +271,21 @@ function createMissionWindow() {
     missionWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#mission`);
   } else {
     missionWindow.loadURL(`file:///${__dirname}/index.html#mission`);
+
+    /*
+     * Generally we should not have a menu on the mission window, but the menu helps us when
+     * developing the mission window (mainly gives us access to developer console, which then
+     * allows us to see which elements are loaded, as well as the browser's console log).
+     */
+    missionWindow.setMenu(null);
   }
 
-  missionWindow.setMenu(null);
 
   missionWindow.on('close', (event) => {
     if (!quitting) {
       event.preventDefault();
-      // following line allows MissionContainer to update to closed mission mainWindow
-      mainWindow.webContents.send('setSelectedMission', -1);
-      missionWindow.hide();
+      // This allows the mission container to update to closed mission window.
+      hideMissionWindow();
     } else {
       missionWindow = null;
     }
@@ -334,8 +344,9 @@ app.on('activate', showWindow);
 
 app.on('ready', () => {
   createMainWindow();
-  createMissionWindow();
   createMenu();
+
+  createMissionWindow();
   createTray();
 });
 
@@ -346,8 +357,15 @@ app.on('before-quit', () => {
 ipcMain.on('post', (event, notification, data) => {
   if (notification === 'showMissionWindow') {
     showMissionWindow();
+  } else if (notification === 'hideMissionWindow') {
+    hideMissionWindow();
   }
 
+  /*
+   * We must forward ipc notifications to both windows or else
+   * some notifications will not be picked up. Of course we can filter out which
+   * notifications go for which window, but its simpler to have it forwarded to both.
+   */
   mainWindow.webContents.send(notification, data);
   if (missionWindow) {
     missionWindow.webContents.send(notification, data);

@@ -4,8 +4,24 @@
 .missionWrapper_dark,
 .mission,
 .job {
+  display: grid;
   height: 100%;
   width: 100;
+}
+
+.job {
+  grid-template-areas:
+    'info'
+    'button';
+  grid-template-rows: 7fr 1fr;
+}
+
+.infoContainer {
+  grid-area: info;
+}
+
+.buttonContainer {
+  grid-area: button;
 }
 
 /* Light theme */
