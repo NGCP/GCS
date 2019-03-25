@@ -10,8 +10,9 @@ import completeJob from './completeJobFixture';
 import updateMessages from './updateMessagesFixtures';
 import updateVehicles from './updateVehiclesFixtures';
 
+completeJob();
+
 setInterval(() => {
-  completeJob();
   updateMessages();
   updateVehicles();
-}, 5000);
+}, 1000);

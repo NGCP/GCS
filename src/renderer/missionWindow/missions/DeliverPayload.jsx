@@ -19,11 +19,14 @@ const jobs = [
     name: 'payloadDrop',
     description: 'Drop payload to target',
     layout: PayloadDrop,
+    optional: false,
+    pausable: false,
   },
   {
     name: 'land',
     description: 'Land',
     layout: Land,
+    optional: false,
     pausable: false,
   },
 ];

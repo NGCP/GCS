@@ -2,18 +2,16 @@ import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extrane
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { job, mission } from '../../../../util/util';
+import { job as jobUtil, mission } from '../../../../util/util';
 
 const propTypes = {
-  description: PropTypes.string.isRequired,
+  job: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    optional: PropTypes.bool.isRequired,
+    pausable: PropTypes.bool.isRequired,
+  }).isRequired,
   lastJob: PropTypes.bool.isRequired,
-  optional: PropTypes.bool,
-  pausable: PropTypes.bool,
-};
-
-const defaultProps = {
-  optional: false,
-  pausable: true,
 };
 
 const defaultState = {
@@ -30,7 +28,7 @@ export default class Job extends Component {
   constructor(props) {
     super(props);
 
-    const { lastJob, pausable } = this.props;
+    const { lastJob, job } = this.props;
 
     this.state = { ...defaultState };
 
@@ -44,7 +42,7 @@ export default class Job extends Component {
     this.buttons = {
       startJobButton: <button type="button" onClick={this.sendStartJob}>Start</button>,
       stopMissionButton: <button type="button" onClick={this.sendStopMission}>Stop</button>,
-      pauseJobButton: <button type="button" disabled={!pausable} onClick={this.sendPauseJob}>Pause</button>,
+      pauseJobButton: <button type="button" disabled={!job.pausable} onClick={this.sendPauseJob}>Pause</button>,
       resumeJobButton: <button type="button" onClick={this.sendResumeJob}>Resume</button>,
       nextJobButton: <button type="button" onClick={this.sendNextJob}>Next</button>,
       completeMissionButton: <button type="button" onClick={this.sendCompleteMission}>Complete Mission</button>,
@@ -62,14 +60,17 @@ export default class Job extends Component {
   }
 
   sendStartJob() {
-    console.log(this.state);
+    const { job } = this.props;
 
     this.setState({
       startJobButton: false,
       pauseJobButton: true,
     });
 
-    job.sendStartJob();
+    jobUtil.sendStartJob({
+      jobType: job.name,
+      // TODO: Add missionInfo.
+    });
   }
 
   sendStopMission() {
@@ -85,7 +86,7 @@ export default class Job extends Component {
       resumeJobButton: true,
     });
 
-    job.sendPauseJob();
+    jobUtil.sendPauseJob();
   }
 
   sendResumeJob() {
@@ -94,7 +95,7 @@ export default class Job extends Component {
       pauseJobButton: true,
     });
 
-    job.sendResumeJob();
+    jobUtil.sendResumeJob();
   }
 
   sendNextJob() {
@@ -112,7 +113,7 @@ export default class Job extends Component {
   }
 
   render() {
-    const { description, optional } = this.props;
+    const { job } = this.props;
     const {
       startJobButton,
       stopMissionButton,
@@ -125,7 +126,7 @@ export default class Job extends Component {
     return (
       <div className="job">
         <div className="infoContainer">
-          <h2>{description}</h2>
+          <h2>{job.description}</h2>
         </div>
         <div className="buttonContainer">
           {startJobButton && this.buttons.startJobButton}
@@ -136,7 +137,7 @@ export default class Job extends Component {
           {nextJobButton && this.buttons.nextJobButton}
           {completeMissionButton && this.buttons.completeMissionButton}
           {stopMissionButton && this.buttons.stopMissionButton}
-          {!nextJobButton && !completeMissionButton && optional && this.buttons.skipJobButton}
+          {!nextJobButton && !completeMissionButton && job.optional && this.buttons.skipJobButton}
         </div>
       </div>
     );
@@ -144,4 +145,3 @@ export default class Job extends Component {
 }
 
 Job.propTypes = propTypes;
-Job.defaultProps = defaultProps;

@@ -5,10 +5,10 @@ import React, { Component } from 'react';
 import { mission as missionUtil } from '../../../util/util';
 
 // TODO: Make this component more pretty.
-const Default = ({ description }) => (
+const Default = ({ job }) => (
   <div className="job">
     <div className="infoContainer">
-      <h2>{description}</h2>
+      <h2>{job.description}</h2>
     </div>
     <div className="buttonContainer">
       <button type="button" onClick={missionUtil.sendStartMission}>Start Mission</button>
@@ -17,7 +17,9 @@ const Default = ({ description }) => (
 );
 
 Default.propTypes = {
-  description: PropTypes.string.isRequired,
+  job: PropTypes.shape({
+    description: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 const propTypes = {
@@ -28,7 +30,10 @@ const propTypes = {
   jobs: PropTypes.arrayOf(
     PropTypes.shape({
       name: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
       layout: PropTypes.func.isRequired,
+      pausable: PropTypes.bool.isRequired,
+      optional: PropTypes.bool.isRequired,
     }).isRequired,
   ).isRequired,
 };
@@ -67,6 +72,8 @@ export default class Mission extends Component {
     const { currentJobIndex } = this.state;
     const { jobs } = this.props;
 
+    console.log('completed', jobs[currentJobIndex].name);
+
     if (currentJobIndex === jobs.length - 1) {
       /*
        * This will forward a notification to the job window that will create a button
@@ -81,17 +88,18 @@ export default class Mission extends Component {
   }
 
   render() {
-    const { currentJobIndex: index } = this.state;
+    const { currentJobIndex } = this.state;
     const { mission, jobs } = this.props;
 
-    const Layout = index >= 0 ? jobs[index].layout : Default;
+    console.log('now going to', currentJobIndex >= 0 ? jobs[currentJobIndex].name : 'main page');
+
+    const Layout = currentJobIndex >= 0 ? jobs[currentJobIndex].layout : Default;
 
     return (
       <div className="mission">
         <Layout
-          lastJob={index === jobs.length - 1}
-          description={index >= 0 ? jobs[index].description : mission.description}
-          optional={index >= 0 && jobs[index].optional}
+          lastJob={currentJobIndex === jobs.length - 1}
+          job={currentJobIndex >= 0 ? jobs[currentJobIndex] : mission}
         />
       </div>
     );

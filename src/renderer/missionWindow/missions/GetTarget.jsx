@@ -11,11 +11,15 @@ const jobs = [
     name: 'retrieveTarget',
     description: 'Retrieve the target',
     layout: RetrieveTarget,
+    optional: false,
+    pausable: true,
   },
   {
     name: 'deliverTarget',
     description: 'Deliver the target back to base',
     layout: DeliverTarget,
+    optional: false,
+    pausable: true,
   },
 ];
 
