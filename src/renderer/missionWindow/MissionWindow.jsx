@@ -43,7 +43,7 @@ export default class MissionWindow extends Component {
 
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
-        <Layout theme={theme} index={openedMission.index} />
+        <Layout mission={openedMission} />
       </div>
     );
   }

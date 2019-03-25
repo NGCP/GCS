@@ -6,10 +6,12 @@
  * errors from happening in the first place.
  */
 
+import completeJob from './completeJobFixture';
 import updateMessages from './updateMessagesFixtures';
 import updateVehicles from './updateVehiclesFixtures';
 
 setInterval(() => {
+  completeJob();
   updateMessages();
   updateVehicles();
-}, 1000);
+}, 5000);

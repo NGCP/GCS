@@ -19,7 +19,6 @@ const propTypes = {
   theme: PropTypes.oneOf(['light', 'dark']).isRequired,
 };
 
-
 const statusTypes = {
   notStarted: {
     name: 'notStarted',
@@ -100,7 +99,6 @@ export default class MissionContainer extends Component {
 
     this.setSelectedMission = this.setSelectedMission.bind(this);
     this.updateMission = this.updateMission.bind(this);
-    this.completeMission = this.completeMission.bind(this);
   }
 
   componentDidMount() {
@@ -108,10 +106,10 @@ export default class MissionContainer extends Component {
 
     ipcRenderer.on('startMission', () => this.updateMission('started'));
     ipcRenderer.on('stopMission', () => this.updateMission('notStarted'));
+    ipcRenderer.on('completeMission', () => this.updateMission('completed'));
+
     ipcRenderer.on('pauseJob', () => this.updateMission('paused'));
     ipcRenderer.on('resumeJob', () => this.updateMission('started'));
-
-    ipcRenderer.on('completeMission', (event, index) => this.completeMission(index));
   }
 
   /**
@@ -137,10 +135,7 @@ export default class MissionContainer extends Component {
        * window can forward that index back to the mission container to update.
        * This helps us have multiple missions running at once.
        */
-      ipcRenderer.send('post', 'showMissionWindow', {
-        ...missions[index],
-        index,
-      });
+      ipcRenderer.send('post', 'showMissionWindow', missions[index]);
     }
 
     /*
@@ -193,8 +188,12 @@ export default class MissionContainer extends Component {
     const { missions, openedMissionIndex } = this.state;
     const newMissions = missions;
 
+    if (statusName === 'completed' && missions[openedMissionIndex].status.name !== 'started') {
+      throw new Error('Mission must be started before completing it');
+    }
+
     /*
-     * All four actions can only be done through the mission window,
+     * All of the actions that change status are done while mission window is opened,
      * so we can assume that the mission is currently open, hence we can add (Open) to the
      * end of the mission description.
      */
@@ -204,25 +203,9 @@ export default class MissionContainer extends Component {
     };
 
     // Closes the mission window on stop mission.
-    if (statusName === 'notStarted') {
+    if (statusName === 'notStarted' || statusName === 'completed') {
       ipcRenderer.send('post', 'hideMissionWindow');
     }
-
-    this.setState({ missions: newMissions });
-  }
-
-  completeMission(index) {
-    const { missions } = this.state;
-    const newMissions = missions;
-
-    if (missions[index].status.name !== 'started') {
-      throw new Error('Mission must be started before completing it');
-    }
-
-    newMissions[index].status = statusTypes.completed;
-
-    // Closes the mission window.
-    ipcRenderer.send('post', 'hideMissionWindow');
 
     this.setState({ missions: newMissions });
   }
@@ -233,10 +216,7 @@ export default class MissionContainer extends Component {
 
     return (
       <div className={`missionContainer container${theme === 'dark' ? '_dark' : ''}`}>
-        <MissionTable
-          theme={theme}
-          missions={missions}
-        />
+        <MissionTable theme={theme} missions={missions} />
       </div>
     );
   }

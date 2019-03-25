@@ -1,21 +1,44 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { job, mission } from '../../../util/util';
+import Land from './jobs/Land';
+import PayloadDrop from './jobs/PayloadDrop';
+import Takeoff from './jobs/Takeoff';
 
-export default function DeliverPayload({ index }) {
+import Mission from './Mission';
+
+const jobs = [
+  {
+    name: 'takeoff',
+    description: 'Takeoff',
+    layout: Takeoff,
+    optional: true,
+    pausable: false,
+  },
+  {
+    name: 'payloadDrop',
+    description: 'Drop payload to target',
+    layout: PayloadDrop,
+  },
+  {
+    name: 'land',
+    description: 'Land',
+    layout: Land,
+    pausable: false,
+  },
+];
+
+const propTypes = {
+  mission: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+  }).isRequired,
+};
+
+export default function GetTarget({ mission }) {
   return (
-    <div className="mission">
-      <h2>Deliver payload to target</h2>
-      <button type="button" onClick={mission.sendStartMission}>Start Mission</button>
-      <button type="button" onClick={job.sendPauseJob}>Pause Job</button>
-      <button type="button" onClick={job.sendResumeJob}>Resume Job</button>
-      <button type="button" onClick={mission.sendStopMission}>Stop Mission</button>
-      <button type="button" onClick={() => mission.sendCompleteMission(index)}>Complete Mission</button>
-    </div>
+    <Mission mission={mission} jobs={jobs} />
   );
 }
 
-DeliverPayload.propTypes = {
-  index: PropTypes.number.isRequired,
-};
+GetTarget.propTypes = propTypes;
