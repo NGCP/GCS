@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 
-export default function completeJob() {
+export default function completeJob(): void {
   // Sends completeJob notification after receiving startJob notification.
   ipcRenderer.on('startJob', () => {
     setTimeout(() => {

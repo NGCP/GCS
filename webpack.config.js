@@ -1,4 +1,4 @@
-/* eslint-disable import/no-commonjs */
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 // Webpack configuration cannot be written with ES6 import/export so we disable no-commonjs.
 

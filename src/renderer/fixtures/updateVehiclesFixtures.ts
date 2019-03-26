@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
-import { vehicleStatuses } from '../../../resources/index';
+import { vehicleStatuses } from '../../config/index';
 
 let fixtures = [
   {
@@ -21,7 +21,7 @@ let fixtures = [
 
 const status = Object.keys(vehicleStatuses);
 
-export default function updateVehicles() {
+export default function updateVehicles(): void {
   const newFixtures = fixtures.map(fixture => ({
     ...fixture,
     lat: fixture.lat + (Math.random() / 5000) - 0.0001,

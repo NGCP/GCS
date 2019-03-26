@@ -6,7 +6,7 @@
  * No linting here as code is not written by us.
  */
 
-/* eslint-disable */
+/* eslint-disable no-underscore-dangle, no-param-reassign, no-plusplus, max-len */
 
 import L from 'leaflet';
 import PouchDB from 'pouchdb';
@@ -61,7 +61,7 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
   createTile: function createTile(coords, done) {
     const tile = document.createElement('img');
 
-    tile.onerror = L.bind(this._tileOnError, this, done, tile);
+    tile.onerror = L.Util.bind(this._tileOnError, this, done, tile);
 
     if (this.options.crossOrigin) {
       tile.crossOrigin = '';
@@ -75,7 +75,7 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
     if (this.options.useCache) {
       this._db.get(tileUrl, { revs_info: true }, this._onCacheLookup(tile, tileUrl, done));
     } else {
-      tile.onload = L.bind(this._tileOnLoad, this, done, tile);
+      tile.onload = L.Util.bind(this._tileOnLoad, this, done, tile);
       tile.src = tileUrl;
     }
 
@@ -112,14 +112,14 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
 
       if (Date.now() > data.timestamp + this.options.cacheMaxAge && !this.options.useOnlyCache) {
         if (this.options.saveToCache) {
-          tile.onload = L.bind(this._saveTile, this, tile, tileUrl, data._revs_info[0].rev, done);
+          tile.onload = L.Util.bind(this._saveTile, this, tile, tileUrl, data._revs_info[0].rev, done);
         }
 
         tile.crossOrigin = 'Anonymous';
         tile.src = tileUrl;
         tile.onerror = () => { this.src = url; };
       } else {
-        tile.onload = L.bind(this._tileOnLoad, this, done, tile);
+        tile.onload = L.Util.bind(this._tileOnLoad, this, done, tile);
         tile.src = url;
       }
     });
@@ -136,9 +136,9 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
       tile.src = L.Util.emptyImageUrl;
     } else {
       if (this.options.saveToCache) {
-        tile.onload = L.bind(this._saveTile, this, tile, tileUrl, undefined, done);
+        tile.onload = L.Util.bind(this._saveTile, this, tile, tileUrl, undefined, done);
       } else {
-        tile.onload = L.bind(this._tileOnLoad, this, done, tile);
+        tile.onload = L.Util.bind(this._tileOnLoad, this, done, tile);
       }
 
       tile.crossOrigin = 'Anonymous';
@@ -204,7 +204,7 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
 
       for (let j = tileBounds.min.y; j <= tileBounds.max.y; j++) {
         for (let i = tileBounds.min.x; i <= tileBounds.max.x; i++) {
-          const point = new L.point(i, j);
+          const point = new L.Point(i, j);
           point.z = z;
           queue.push(this._getTileUrl(point));
         }
@@ -240,7 +240,7 @@ export default L.TileLayer.CachedTileLayer = L.TileLayer.extend({
     }
     zoom += this.options.zoomOffset;
 
-    return L.Util.template(this._url, L.extend({
+    return L.Util.template(this._url, L.Util.extend({
       r: this.options.detectRetina && L.Browser.retina && this.optiona.maxZoom > 0 ? '@2x' : '',
       s: this._getSubdomain(coords),
       x: coords.x,

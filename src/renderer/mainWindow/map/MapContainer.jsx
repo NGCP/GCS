@@ -6,7 +6,7 @@ import { Map } from 'react-leaflet';
 
 import {
   cache, locations, startLocation,
-} from '../../../../resources/index';
+} from '../../../config/index';
 
 import { updateVehicles } from '../../../util/util';
 

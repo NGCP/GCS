@@ -1,19 +1,35 @@
-import PropTypes from 'prop-types';
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
-import moment from 'moment';
-import React, { Component } from 'react';
+import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import moment, { Moment } from 'moment';
+import React, { ChangeEvent, Component, ReactNode } from 'react';
 import {
-  AutoSizer, CellMeasurerCache, CellMeasurer, List,
+  AutoSizer, CellMeasurerCache, CellMeasurer, List, ListRowProps,
 } from 'react-virtualized';
+
+// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
+import { MessageType, ThemeProps } from '../../../util/types'; // eslint-disable-line import/named
 
 import './log.css';
 
-const propTypes = {
-  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-};
+interface Message {
+  type: MessageType;
+  message: string;
+  time: Moment;
+}
 
-export default class LogContainer extends Component {
-  constructor(props) {
+type Filter = '' | 'success' | 'failure';
+
+function isFilter(filter: string): boolean {
+  return filter === '' || filter === 'success' || filter === 'failure';
+}
+
+interface State {
+  filter: Filter;
+  messages: Message[];
+  filteredMessages: Message[];
+}
+
+export default class LogContainer extends Component<ThemeProps, State> {
+  public constructor(props: ThemeProps) {
     super(props);
 
     this.state = {
@@ -33,13 +49,15 @@ export default class LogContainer extends Component {
     this.updateMessages = this.updateMessages.bind(this);
   }
 
-  componentDidMount() {
-    ipcRenderer.on('updateMessages', (event, data) => this.updateMessages(data));
+  public componentDidMount(): void {
+    ipcRenderer.on('updateMessages', (_: Event, data: Message[]) => this.updateMessages(data));
   }
 
-  rowRenderer({
+  private heightCache: CellMeasurerCache;
+
+  private rowRenderer({
     index, key, parent, style,
-  }) {
+  }: ListRowProps): ReactNode {
     const { filteredMessages } = this.state;
     const message = filteredMessages[index];
 
@@ -59,24 +77,26 @@ export default class LogContainer extends Component {
     );
   }
 
-  clearMessages() {
+  private clearMessages(): void {
     this.heightCache.clearAll();
     this.setState({ filter: '', messages: [], filteredMessages: [] });
   }
 
-  updateFilter(event) {
+  private updateFilter(event: ChangeEvent): void {
     const { messages } = this.state;
 
     this.heightCache.clearAll();
-    const newFilter = event.target.value;
+    const newFilter = event.target.nodeValue;
+
+    if (!newFilter || !isFilter(newFilter)) return;
 
     this.setState({
-      filter: newFilter,
+      filter: newFilter as Filter,
       filteredMessages: newFilter === '' ? messages.slice(0) : messages.filter(message => message.type === newFilter),
     });
   }
 
-  updateMessages(messages) {
+  private updateMessages(messages: Message[]): void {
     const { filteredMessages, messages: thisMessages, filter } = this.state;
     const currentMessages = thisMessages;
     const currentFilteredMessages = filteredMessages;
@@ -100,7 +120,7 @@ export default class LogContainer extends Component {
     });
   }
 
-  render() {
+  public render(): ReactNode {
     const { theme } = this.props;
     const { filter, filteredMessages } = this.state;
 
@@ -134,5 +154,3 @@ export default class LogContainer extends Component {
     );
   }
 }
-
-LogContainer.propTypes = propTypes;

@@ -1,6 +1,6 @@
 /* When importing anything inside resources, please import through this file */
 
-/* eslint-disable camelcase */
+/* eslint-disable @typescript-eslint/camelcase */
 
 import arrow from './images/arrow.png';
 import icon from './images/icon.png';

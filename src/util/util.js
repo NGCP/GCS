@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extrane
 
 import {
   vehicleInfos, vehicleStatuses,
-} from '../../resources/index';
+} from '../config/index';
 
 // Called by map container and vehicle container to update vehicles being shown.
 export function updateVehicles(component, vehicles) {

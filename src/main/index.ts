@@ -1,10 +1,26 @@
 import { // eslint-disable-line import/no-extraneous-dependencies
-  app, BrowserWindow, dialog, ipcMain, Menu, nativeImage, shell, Tray,
+  app,
+  BrowserWindow,
+  dialog,
+  Event,
+  ipcMain,
+  Menu,
+  MenuItemConstructorOptions,
+  nativeImage,
+  shell,
+  Tray,
 } from 'electron';
 import fs from 'fs';
 import moment from 'moment';
 
-import { images, locations } from '../../resources/index';
+import { images, locations as locationsConfig } from '../config/index';
+
+interface LocationLabel {
+  [key: string]: { lat: number; lng: number; zoom: number };
+}
+
+// Recast locations to LocationLabel to allow us to use keys properly.
+const locations: LocationLabel = locationsConfig;
 
 /*
  * This key is required to enable geolocation in the application.
@@ -25,24 +41,24 @@ const icon = nativeImage.createFromDataURL(images.icon);
 let quitting = false;
 
 // References to window objects.
-let mainWindow;
-let missionWindow;
+let mainWindow: BrowserWindow | null;
+let missionWindow: BrowserWindow | null;
 
-// Tray object
-let tray;
+// Tray object.
+let tray: Tray;
 
 // Role added to menus to allow the user to quit the app. Shortcut is Ctrl/Cmd + Q.
-const quitRole = {
+const quitRole: MenuItemConstructorOptions = {
   label: 'Quit',
   accelerator: 'CommandOrControl+Q',
-  click() {
+  click(): void {
     quitting = true;
     app.quit();
   },
 };
 
 // Menu prepended to menu if application is running on a Darwin-based OS.
-const darwinMenu = {
+const darwinMenu: MenuItemConstructorOptions = {
   label: 'NGCP Ground Control System',
   submenu: [
     { role: 'about' },
@@ -64,7 +80,9 @@ const darwinMenu = {
  * Runs when the user wants to save a configuration of the GCS.
  * The configuration currently includes the map location loaded.
  */
-function saveConfig() {
+function saveConfig(): void {
+  if (!mainWindow) return;
+
   const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
 
   // Loads a window that allows the user to choose the file path for the file to be saved.
@@ -83,17 +101,22 @@ function saveConfig() {
     filePath,
     data,
   });
-  missionWindow.webContents.send('saveConfig', {
-    filePath,
-    data,
-  });
+
+  if (missionWindow) {
+    missionWindow.webContents.send('saveConfig', {
+      filePath,
+      data,
+    });
+  }
 }
 
 /**
  * Runs when the user wants to load a configuration of the GCS.
  * The configuration currently includes the map location loaded.
  */
-function loadConfig() {
+function loadConfig(): void {
+  if (!mainWindow) return;
+
   // Loads a window that allows the user to choose the filePath of the file to be loaded.
   const filePaths = dialog.showOpenDialog(mainWindow, {
     title: 'Open Configuration',
@@ -102,19 +125,22 @@ function loadConfig() {
   });
 
   // Returns if the user chooses to close the window instead of choosing a file path.
-  if (!filePaths || filePaths.length === 0) return;
+  if (filePaths.length === 0) return;
 
-  const data = JSON.parse(fs.readFileSync(filePaths[0]), 'utf8');
+  // TODO: Add type for data.
+  const data = JSON.parse(fs.readFileSync(filePaths[0]).toString());
 
   if (!data) return;
 
   // Loads parsed data into main and mission windows.
   mainWindow.webContents.send('loadConfig', data);
-  missionWindow.webContents.send('loadConfig', data);
+  if (missionWindow) {
+    missionWindow.webContents.send('loadConfig', data);
+  }
 }
 
 // Menu displayed on main window.
-const menu = [
+const menu: MenuItemConstructorOptions[] = [
   {
     label: 'File',
     submenu: [
@@ -161,7 +187,11 @@ const menu = [
     submenu: [
       {
         label: 'My Location',
-        click() { mainWindow.webContents.send('setMapToUserLocation'); },
+        click() {
+          if (mainWindow) {
+            mainWindow.webContents.send('setMapToUserLocation');
+          }
+        },
       },
       { type: 'separator' },
     ],
@@ -187,11 +217,15 @@ const menu = [
  * Adds a list of locations on the menu to allow user to pan to specific location in the map.
  * The list of locations comes from ../../resources/locations.json.
  */
-function setLocationMenu() {
-  const locationMenu = menu.find(m => m.label === 'Locations').submenu;
+function setLocationMenu(): void {
+  const location = menu.find(m => m.label === 'Locations');
+  if (!location) return;
 
-  if (!locations || locations.length === 0) {
-    locationMenu.push({
+  const locationMenu = location.submenu;
+  if (!locationMenu) return;
+
+  if (!locations || Object.keys(locations).length === 0) {
+    (locationMenu as MenuItemConstructorOptions[]).push({
       label: 'No locations defined',
       enabled: false,
     });
@@ -199,24 +233,30 @@ function setLocationMenu() {
   }
 
   Object.keys(locations).forEach((label) => {
-    const { lat, lng, zoom } = locations[label];
-    locationMenu.push({
+    (locationMenu as MenuItemConstructorOptions[]).push({
       label,
-      data: { lat, lng, zoom },
-      click(menuItem) { mainWindow.webContents.send('updateMapLocation', menuItem.data); },
+      click(menuItem) {
+        if (mainWindow) {
+          mainWindow.webContents.send('updateMapLocation', locations[menuItem.label]);
+        }
+      },
     });
   });
 }
 
-function hideMissionWindow() {
-  mainWindow.webContents.send('setSelectedMission', -1);
-  missionWindow.hide();
+function hideMissionWindow(): void {
+  if (mainWindow) {
+    mainWindow.webContents.send('setSelectedMission', -1);
+  }
+  if (missionWindow) {
+    missionWindow.hide();
+  }
 }
 
 /**
  * Creates the main window. This window's hash is #main.
  */
-function createMainWindow() {
+function createMainWindow(): void {
   mainWindow = new BrowserWindow({
     title: 'NGCP Ground Control Station',
     icon,
@@ -234,13 +274,15 @@ function createMainWindow() {
   }
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show();
+    if (mainWindow) mainWindow.show();
   });
 
   mainWindow.on('close', (event) => {
     if (!quitting) {
       event.preventDefault();
-      mainWindow.hide();
+      if (mainWindow) {
+        mainWindow.hide();
+      }
       if (missionWindow) {
         hideMissionWindow();
       }
@@ -255,7 +297,7 @@ function createMainWindow() {
  * Does not show up once app is loaded (will be hidden) and is shown only when it is opened from
  * the main window.
  */
-function createMissionWindow() {
+function createMissionWindow(): void {
   missionWindow = new BrowserWindow({
     title: 'NGCP Mission User Interface',
     icon,
@@ -292,7 +334,7 @@ function createMissionWindow() {
   });
 }
 
-function showWindow() {
+function showWindow(): void {
   if (!mainWindow) {
     createMainWindow();
   } else {
@@ -300,7 +342,7 @@ function showWindow() {
   }
 }
 
-function showMissionWindow() {
+function showMissionWindow(): void {
   if (!missionWindow) {
     createMissionWindow();
   } else {
@@ -311,7 +353,7 @@ function showMissionWindow() {
 /**
  * Small menu displayed on the bottom-right corner of windows, or upper-right corner of macOS.
  */
-const trayMenu = [
+const trayMenu: MenuItemConstructorOptions[] = [
   {
     label: 'NGCP Ground Control Station',
     click() { showWindow(); },
@@ -320,7 +362,7 @@ const trayMenu = [
   quitRole,
 ];
 
-function createMenu() {
+function createMenu(): void {
   setLocationMenu();
 
   if (process.platform === 'darwin') {
@@ -332,7 +374,7 @@ function createMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 }
 
-function createTray() {
+function createTray(): void {
   tray = new Tray(icon);
 
   tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
@@ -354,7 +396,7 @@ app.on('before-quit', () => {
   quitting = true;
 });
 
-ipcMain.on('post', (event, notification, data) => {
+ipcMain.on('post', (_: Event, notification: string, data: object) => {
   if (notification === 'showMissionWindow') {
     showMissionWindow();
   } else if (notification === 'hideMissionWindow') {
@@ -366,7 +408,9 @@ ipcMain.on('post', (event, notification, data) => {
    * some notifications will not be picked up. Of course we can filter out which
    * notifications go for which window, but its simpler to have it forwarded to both.
    */
-  mainWindow.webContents.send(notification, data);
+  if (mainWindow) {
+    mainWindow.webContents.send(notification, data);
+  }
   if (missionWindow) {
     missionWindow.webContents.send(notification, data);
   }
