@@ -197,7 +197,7 @@ const menu: MenuItemConstructorOptions[] = [
     ],
   },
   {
-    role: 'mainWindow',
+    role: 'window',
     submenu: [
       { role: 'minimize' },
     ],

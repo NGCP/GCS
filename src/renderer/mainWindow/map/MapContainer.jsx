@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extrane
 import fs from 'fs';
 import PropTypes from 'prop-types';
 import React, { Component, createRef, Fragment } from 'react';
-import { Map } from 'react-leaflet';
+import { Map, TileLayer } from 'react-leaflet';
 
 import {
   cache, locations, startLocation,
@@ -13,7 +13,7 @@ import { updateVehicles } from '../../../util/util';
 import GeolocationControl from './control/GeolocationControl';
 import ThemeControl from './control/ThemeControl';
 
-import CachedTileLayer from './CachedTileLayer';
+// import CachedTileLayer from './CachedTileLayer';
 import VehicleMarker from './VehicleMarker';
 
 import './map.css';
@@ -138,7 +138,7 @@ export default class MapContainer extends Component {
       >
         <GeolocationControl />
         <ThemeControl theme={theme} />
-        <CachedTileLayer {...mapOptions} />
+        <TileLayer {...mapOptions} />
         <Fragment>{markers}</Fragment>
       </Map>
     );

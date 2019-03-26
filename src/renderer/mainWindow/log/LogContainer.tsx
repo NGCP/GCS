@@ -53,12 +53,14 @@ export default class LogContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('updateMessages', (_: Event, data: Message[]) => this.updateMessages(data));
   }
 
+  // Must declare instance variables after componentDidMount function. See react/sort-comp.
   private heightCache: CellMeasurerCache;
 
-  private rowRenderer({
-    index, key, parent, style,
-  }: ListRowProps): ReactNode {
+  private rowRenderer(props: ListRowProps): ReactNode {
     const { filteredMessages } = this.state;
+    const {
+      index, key, parent, style,
+    } = props;
     const message = filteredMessages[index];
 
     return (
@@ -79,7 +81,12 @@ export default class LogContainer extends Component<ThemeProps, State> {
 
   private clearMessages(): void {
     this.heightCache.clearAll();
-    this.setState({ filter: '', messages: [], filteredMessages: [] });
+
+    this.setState({
+      filter: '',
+      messages: [],
+      filteredMessages: [],
+    });
   }
 
   private updateFilter(event: ChangeEvent): void {
@@ -102,8 +109,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
     const currentFilteredMessages = filteredMessages;
 
     messages.forEach((message) => {
-      const msg = {
-        type: '',
+      const msg: Message = {
         time: moment(),
         ...message,
       };
