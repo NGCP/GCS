@@ -1,6 +1,7 @@
 # NGCP Ground Control Station
 
 [![Build Status](https://travis-ci.com/NGCP/GCS.svg?branch=dev-2018)](https://travis-ci.com/NGCP/GCS)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FNGCP%2FGCS.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FNGCP%2FGCS?ref=badge_shield)
 
 The [Northrop Grumman Collaboration Project] presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the project.
 
@@ -37,3 +38,7 @@ npm start
 [Webpack]: https://github.com/webpack/webpack
 [Electron]: https://github.com/electron/electron
 [Mapbox account]: https://www.mapbox.com/account/
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FNGCP%2FGCS.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FNGCP%2FGCS?ref=badge_large)
