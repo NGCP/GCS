@@ -110,8 +110,8 @@ export default class LogContainer extends Component<ThemeProps, State> {
 
     messages.forEach((message) => {
       const msg: Message = {
-        time: moment(),
         ...message,
+        time: moment(),
       };
 
       if (filter === '' || msg.type === filter) {
