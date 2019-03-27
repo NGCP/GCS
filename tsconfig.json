@@ -3,8 +3,6 @@
   "compilerOptions": {
     "jsx": "react",
 
-    "noUnusedLocals": false,
-
     "resolveJsonModule": true,
     "esModuleInterop": true
   }

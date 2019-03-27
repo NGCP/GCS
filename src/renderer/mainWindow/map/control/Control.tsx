@@ -9,7 +9,7 @@ export interface ControlProps {
   className: string;
   onClick: () => void;
   position: ControlPosition;
-  title: string;
+  title?: string;
 }
 
 export default class Control extends Component<ControlProps> {

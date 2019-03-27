@@ -11,19 +11,13 @@ import { MessageType, ThemeProps } from '../../../util/types'; // eslint-disable
 import './log.css';
 
 interface Message {
-  type: MessageType;
+  type?: MessageType;
   message: string;
   time: Moment;
 }
 
-type Filter = '' | 'success' | 'failure';
-
-function isFilter(filter: string): boolean {
-  return filter === '' || filter === 'success' || filter === 'failure';
-}
-
 interface State {
-  filter: Filter;
+  filter: MessageType;
   messages: Message[];
   filteredMessages: Message[];
 }
@@ -50,7 +44,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateMessages', (_: Event, data: Message[]) => this.updateMessages(data));
+    ipcRenderer.on('updateMessages', (_: Event, messages: Message[]) => this.updateMessages(messages));
   }
 
   // Must declare instance variables after componentDidMount function. See react/sort-comp.
@@ -95,10 +89,8 @@ export default class LogContainer extends Component<ThemeProps, State> {
     this.heightCache.clearAll();
     const newFilter = event.target.nodeValue;
 
-    if (!newFilter || !isFilter(newFilter)) return;
-
     this.setState({
-      filter: newFilter as Filter,
+      filter: newFilter as MessageType,
       filteredMessages: newFilter === '' ? messages.slice(0) : messages.filter(message => message.type === newFilter),
     });
   }
@@ -110,6 +102,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
 
     messages.forEach((message) => {
       const msg: Message = {
+        type: message.type || '',
         ...message,
         time: moment(),
       };
@@ -152,6 +145,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
           <select onChange={this.updateFilter} value={filter}>
             <option value="">No Filter</option>
             <option className="success" value="success">Success</option>
+            <option className="progress" value="progress">Progress</option>
             <option className="failure" value="failure">Failure</option>
           </select>
           <button type="button" onClick={this.clearMessages}>Clear Log</button>

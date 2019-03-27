@@ -1,24 +1,20 @@
 import L from 'leaflet';
-import PropTypes from 'prop-types';
-import React, { PureComponent } from 'react';
+import React, { PureComponent, ReactNode } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 
 import { images } from '../../../config/index';
 
-const propTypes = {
-  sid: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
-  lat: PropTypes.number.isRequired,
-  lng: PropTypes.number.isRequired,
-  type: PropTypes.string.isRequired,
-  status: PropTypes.shape({
-    type: PropTypes.oneOf(['failure', 'progress', 'success']).isRequired,
-    message: PropTypes.string.isRequired,
-  }).isRequired,
-};
+// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
+import { VehicleUI } from '../../../util/types'; // eslint-disable-line import/named
 
-export default class VehicleMarker extends PureComponent {
-  render() {
+interface VehicleSignature {
+  [key: string]: string;
+}
+
+const { vehicles }: { vehicles: VehicleSignature } = images.markers;
+
+export default class VehicleMarker extends PureComponent<VehicleUI> {
+  public render(): ReactNode {
     const {
       sid, name, lat, lng, type, status,
     } = this.props;
@@ -27,7 +23,7 @@ export default class VehicleMarker extends PureComponent {
       <Marker
         position={[lat, lng]}
         icon={L.icon({
-          iconUrl: images.markers.vehicles[`${type}${status.type === 'failure' ? '_red' : ''}`] || images.pin,
+          iconUrl: vehicles[`${type}${status.type === 'failure' ? '_red' : ''}`] || images.pin,
           iconSize: [50, 50],
           iconAnchor: [25, 25],
           popupAnchor: [0, -25],
@@ -47,5 +43,3 @@ export default class VehicleMarker extends PureComponent {
     );
   }
 }
-
-VehicleMarker.propTypes = propTypes;

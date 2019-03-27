@@ -15,12 +15,10 @@ import moment from 'moment';
 
 import { images, locations as locationsConfig } from '../config/index';
 
-interface LocationLabel {
-  [key: string]: { lat: number; lng: number; zoom: number };
-}
+import { LocationSignature } from '../util/types';
 
 // Recast locations to LocationLabel to allow us to use keys properly.
-const locations: LocationLabel = locationsConfig;
+const locations: LocationSignature = locationsConfig;
 
 /*
  * This key is required to enable geolocation in the application.

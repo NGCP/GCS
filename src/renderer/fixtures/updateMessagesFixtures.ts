@@ -1,6 +1,9 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 
-const fixtures = [
+// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
+import { MessageType } from '../../util/types'; // eslint-disable-line import/named
+
+const fixtures: { type?: MessageType; message: string }[] = [
   {
     type: 'failure',
     message: 'Test failure message',

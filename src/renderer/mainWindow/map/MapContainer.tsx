@@ -1,13 +1,18 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer, Event } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import fs from 'fs';
-import PropTypes from 'prop-types';
-import React, { Component, createRef, Fragment } from 'react';
-import { Map, TileLayer } from 'react-leaflet';
+import { LocationEvent } from 'leaflet';
+import React, {
+  Component, createRef, Fragment, ReactNode, RefObject,
+} from 'react';
+import { Map, TileLayer, Viewport } from 'react-leaflet';
 
 import {
-  cache, locations, startLocation,
+  cache, locations as locationsConfig, startLocation,
 } from '../../../config/index';
 
+import {
+  FileLoadOptions, FileSaveOptions, LatLngZoom, LocationSignature, ThemeProps, Vehicle, VehicleUI,
+} from '../../../util/types';
 import { updateVehicles } from '../../../util/util';
 
 import GeolocationControl from './control/GeolocationControl';
@@ -17,6 +22,8 @@ import ThemeControl from './control/ThemeControl';
 import VehicleMarker from './VehicleMarker';
 
 import './map.css';
+
+const locations: LocationSignature = locationsConfig;
 
 const mapOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -33,12 +40,13 @@ if (startLocation && locations[startLocation]) {
   start = { ...start, ...locations[startLocation] };
 }
 
-const propTypes = {
-  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-};
+interface State extends LatLngZoom {
+  vehicles: { [sid: string]: VehicleUI };
+  viewport: Viewport;
+}
 
-export default class MapContainer extends Component {
-  constructor(props) {
+export default class MapContainer extends Component<ThemeProps, State> {
+  public constructor(props: ThemeProps) {
     super(props);
 
     this.state = {
@@ -53,6 +61,7 @@ export default class MapContainer extends Component {
     this.ref = createRef();
 
     this.onViewportChanged = this.onViewportChanged.bind(this);
+    this.onlocationfound = this.onlocationfound.bind(this);
     this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
     this.loadConfig = this.loadConfig.bind(this);
     this.saveConfig = this.saveConfig.bind(this);
@@ -60,54 +69,61 @@ export default class MapContainer extends Component {
     this.updateMapLocation = this.updateMapLocation.bind(this);
   }
 
-  componentDidMount() {
-    ipcRenderer.on('loadConfig', (event, data) => this.loadConfig(data));
-    ipcRenderer.on('saveConfig', (event, file) => this.saveConfig(file));
+  public componentDidMount(): void {
+    ipcRenderer.on('loadConfig', (_: Event, data: FileLoadOptions) => this.loadConfig(data));
+    ipcRenderer.on('saveConfig', (_: Event, data: FileSaveOptions) => this.saveConfig(data));
 
-    ipcRenderer.on('centerMapToVehicle', (event, data) => this.centerMapToVehicle(data));
+    ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleUI) => this.centerMapToVehicle(vehicle));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
-    ipcRenderer.on('updateMapLocation', (event, data) => this.updateMapLocation(data));
-    ipcRenderer.on('updateVehicles', (event, data) => updateVehicles(this, data));
+    ipcRenderer.on('updateMapLocation', (_: Event, location: LatLngZoom) => this.updateMapLocation(location));
+    ipcRenderer.on('updateVehicles', (_: Event, vehicles: Vehicle[]) => updateVehicles(this, vehicles));
   }
 
-  onViewportChanged(viewport) {
+  private onViewportChanged(viewport: Viewport): void {
     this.setState({ viewport });
   }
 
-  setMapToUserLocation() {
+  private onlocationfound(location: LocationEvent): void {
+    this.updateMapLocation(location.latlng);
+  }
+
+  private setMapToUserLocation(): void {
     const map = this.ref.current;
     if (map) {
       map.leafletElement.locate();
     }
   }
 
-  loadConfig(data) {
-    this.updateMapLocation(data);
+  private ref: RefObject<Map>;
+
+  private loadConfig({ map }: FileLoadOptions): void {
+    this.updateMapLocation(map);
   }
 
-  saveConfig(file) {
-    // performs a hard copy of this.state, deletes vehicles from it, and saves it to file
+  private saveConfig(file: FileSaveOptions): void {
+    // Performs a hard copy of this.state, deletes vehicles from it, and saves it to file.
     const data = { ...this.state };
     delete data.vehicles;
 
-    fs.writeFileSync(file.filePath, JSON.stringify({ ...file.data, ...data }, null, 2));
+    fs.writeFileSync(file.filePath, JSON.stringify({
+      ...file.data,
+      map: data,
+    }, null, 2));
   }
 
-  centerMapToVehicle(vehicle) {
+  private centerMapToVehicle(vehicle: VehicleUI): void {
     this.updateMapLocation(vehicle);
   }
 
-  updateMapLocation(location) {
-    const { zoom } = location;
-
-    // we default to (lat, lng), however geolocation api calls provide (latitude, longitude)
-    const lat = location.lat || location.latitude;
-    const lng = location.lng || location.longitude;
+  public updateMapLocation(location: LatLngZoom): void {
+    const { lat, lng, zoom } = location;
 
     const { viewport } = this.state;
 
     this.setState({
-      lat, lng, zoom: zoom || viewport.zoom,
+      lat,
+      lng,
+      zoom: zoom || (viewport.zoom as number | undefined),
     });
 
     this.onViewportChanged({
@@ -116,7 +132,7 @@ export default class MapContainer extends Component {
     });
   }
 
-  render() {
+  public render(): ReactNode {
     const { theme } = this.props;
     const { viewport, vehicles } = this.state;
 
@@ -130,10 +146,10 @@ export default class MapContainer extends Component {
     return (
       <Map
         className="mapContainer container"
-        center={viewport.center}
-        zoom={viewport.zoom}
+        center={viewport.center as [number, number]}
+        zoom={viewport.zoom as number | undefined}
         ref={this.ref}
-        onLocationfound={this.updateMapLocation}
+        onlocationfound={this.onlocationfound}
         onViewportChanged={this.onViewportChanged}
       >
         <GeolocationControl />
@@ -144,5 +160,3 @@ export default class MapContainer extends Component {
     );
   }
 }
-
-MapContainer.propTypes = propTypes;
