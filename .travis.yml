@@ -18,6 +18,7 @@ script:
   - fossa init
   - fossa analyze
 
-# Test with fossa-cli (after passing all other tests)
+# Test application if analysis was a success
 after_success:
   - fossa test
+  - npm test

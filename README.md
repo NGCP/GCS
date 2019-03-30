@@ -36,6 +36,10 @@ npm start
 ```
 
 ## License
+[MIT](https://github.com/NGCP/GCS/blob/dev-2018/LICENSE)
+
+Licences of this project's dependencies are tracked by FOSSA:
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FNGCP%2FGCS.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FNGCP%2FGCS?ref=badge_large)
 
 [Northrop Grumman Collaboration Project]: http://www.ngcpcalpoly.com/about.html
