@@ -1,19 +1,19 @@
-import PropTypes from 'prop-types';
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
+
+import { ThemeProps } from '../../../../util/types';
 
 import Control from './Control';
 
-const propTypes = {
-  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-};
-
-export default class ThemeControl extends Component {
-  static onClick() {
+/**
+ * Control that toggles theme when clicked.
+ */
+export default class ThemeControl extends Component<ThemeProps> {
+  private static onClick(): void {
     ipcRenderer.send('post', 'toggleTheme');
   }
 
-  render() {
+  public render(): ReactNode {
     const { theme } = this.props;
 
     return (
@@ -26,5 +26,3 @@ export default class ThemeControl extends Component {
     );
   }
 }
-
-ThemeControl.propTypes = propTypes;

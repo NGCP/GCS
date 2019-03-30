@@ -7,19 +7,16 @@
  * container can provide this information.
  */
 
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import React, { Component, ReactNode } from 'react';
 
 import MissionTable from './MissionTable';
 
+import { Mission, MissionStatus, ThemeProps } from '../../../util/types';
+
 import './mission.css';
 
-const propTypes = {
-  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-};
-
-const statusTypes = {
+const statusTypes: { [key: string]: MissionStatus } = {
   notStarted: {
     name: 'notStarted',
     message: 'Not started',
@@ -42,23 +39,31 @@ const statusTypes = {
   },
 };
 
-export default class MissionContainer extends Component {
-  constructor(props) {
+/**
+ * State of the mission container.
+ */
+interface State {
+  /**
+   * Index of the mission that is currently opened in mission window.
+   * Value of -1 means that no mission is currently opened.
+   */
+  openedMissionIndex: number;
+
+  /**
+   * Array of missions that needs to be performed.
+   */
+  missions: Mission[];
+}
+
+export default class MissionContainer extends Component<ThemeProps, State> {
+  public constructor(props: ThemeProps) {
     super(props);
 
     this.state = {
-      /*
-       * Index of the mission that is currently opened in mission window.
-       * Value of -1 means that no mission is currently opened.
-       */
       openedMissionIndex: -1,
 
       /*
-       * We have four missions in the mission state, with each mission having a certain
-       * number of jobs required to accomplish that mission.
-       *
-       * The name field allows the mission window to determine which layout to load for which
-       * mission. The description and status are for the mission container to render.
+       * Missions to perform:
        *
        * 1) isrSearch: UAV will search for the target. The jobs are the following:
        *    step 1: Assign `takeoff`  to UAV.
@@ -101,8 +106,8 @@ export default class MissionContainer extends Component {
     this.updateMission = this.updateMission.bind(this);
   }
 
-  componentDidMount() {
-    ipcRenderer.on('setSelectedMission', (event, index) => this.setSelectedMission(index));
+  public componentDidMount(): void {
+    ipcRenderer.on('setSelectedMission', (_: Event, index: number) => this.setSelectedMission(index));
 
     ipcRenderer.on('startMission', () => this.updateMission('started'));
     ipcRenderer.on('stopMission', () => this.updateMission('notStarted'));
@@ -122,7 +127,7 @@ export default class MissionContainer extends Component {
    *
    * @param {index} number index that points to mission to open, -1 means mission window was closed.
    */
-  setSelectedMission(index) {
+  private setSelectedMission(index: number): void {
     const { missions, openedMissionIndex } = this.state;
 
     // Opens mission window for specified mission.
@@ -184,7 +189,7 @@ export default class MissionContainer extends Component {
    * @param {string} type Consists of notStarted/started/paused. See the componentDidMount
    * function to see which name corresponds with which notification.
    */
-  updateMission(statusName) {
+  private updateMission(statusName: 'notStarted' |'started' | 'paused' | 'completed'): void {
     const { missions, openedMissionIndex } = this.state;
     const newMissions = missions;
 
@@ -210,7 +215,7 @@ export default class MissionContainer extends Component {
     this.setState({ missions: newMissions });
   }
 
-  render() {
+  public render(): ReactNode {
     const { theme } = this.props;
     const { missions } = this.state;
 
@@ -221,5 +226,3 @@ export default class MissionContainer extends Component {
     );
   }
 }
-
-MissionContainer.propTypes = propTypes;

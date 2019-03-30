@@ -1,18 +1,20 @@
-import PropTypes from 'prop-types';
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 import LogContainer from './log/LogContainer';
 import MapContainer from './map/MapContainer';
 import MissionContainer from './mission/MissionContainer';
 import VehicleContainer from './vehicle/VehicleContainer';
 
+import { ThemeProps } from '../../util/types';
+
 import './main.css';
 
-const propTypes = {
-  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-};
+/**
+ * Main window component.
+ */
+export default function MainWindow(props: ThemeProps): ReactNode {
+  const { theme } = props;
 
-export default function MainWindow({ theme }) {
   return (
     <div className={`mainWrapper${theme === 'dark' ? '_dark' : ''}`}>
       <MapContainer theme={theme} />
@@ -22,5 +24,3 @@ export default function MainWindow({ theme }) {
     </div>
   );
 }
-
-MainWindow.propTypes = propTypes;

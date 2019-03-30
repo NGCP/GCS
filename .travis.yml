@@ -2,9 +2,23 @@
 
 language: node_js
 
+# Install fossa-cli
+before_script:
+  - "curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | sudo bash"
+
 # Use latest version of Node.js
 node_js:
   - node
 
 # Cache node_modules after testing
 cache: npm
+
+# Run analysis with fossa-cli
+script:
+  - fossa init
+  - fossa analyze
+
+# Test application if analysis was a success
+after_success:
+  - fossa test
+  - npm test

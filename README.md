@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.com/NGCP/GCS.svg?branch=dev-2018)](https://travis-ci.com/NGCP/GCS)
 [![dependencies Status](https://david-dm.org/NGCP/GCS/status.svg)](https://david-dm.org/NGCP/GCS)
 [![devDependencies Status](https://david-dm.org/NGCP/GCS/dev-status.svg)](https://david-dm.org/NGCP/GCS?type=dev)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FNGCP%2FGCS.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FNGCP%2FGCS?ref=badge_shield)
 
 The [Northrop Grumman Collaboration Project] presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the project.
 
@@ -12,7 +13,7 @@ This is based on [Node.js], [React], [Webpack], and [Electron].
 **:pencil2: Setting Things Up**
 
 Install [Node.js]. The program will not be able to run without it.
-
+Â
 Open up your command line application and clone this repository:
 
 ```sh
@@ -33,6 +34,13 @@ Install all required third-party libraries and run the program:
 npm install
 npm start
 ```
+
+## License
+[MIT](https://github.com/NGCP/GCS/blob/dev-2018/LICENSE)
+
+Licences of this project's dependencies are tracked by FOSSA:
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FNGCP%2FGCS.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FNGCP%2FGCS?ref=badge_large)
 
 [Northrop Grumman Collaboration Project]: http://www.ngcpcalpoly.com/about.html
 [Node.js]: https://github.com/nodejs/node

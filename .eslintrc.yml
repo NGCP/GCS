@@ -1,17 +1,73 @@
-# Rules to lint JavaScript
+# Use typescript-eslint to lint our TypeScript code
+parser: "@typescript-eslint/parser"
 
-# Use Babel as we use ES6 code
-parser: babel-eslint
+# Use Airbnb rules to check code
+extends:
+  - airbnb
+  - plugin:@typescript-eslint/recommended
+
+plugins:
+  - import
 
 env:
   browser: true
   node: true
 
-# Use Airbnb rules to lint code
-extends: airbnb
+# TypeScript compatibility
+settings:
+  import/parsers:
+    "@typescript-eslint/parser":
+      - .ts
+      - .tsx
+  import/resolver:
+    typescript: {}
 
-# Added rules
+# Additional rules
 rules:
   linebreak-style: off
+
+  "@typescript-eslint/explicit-function-return-type": error
+  "@typescript-eslint/no-explicit-any": error
   multiline-comment-style: error
-  import/no-commonjs: error
+
+  # Modifying react/jsx-filename-extension to support TypeScript React files
+  'react/jsx-filename-extension':
+    - error
+    - extensions:
+      - .jsx
+      - .tsx
+
+  # @typescript-eslint/no-use-before-define is already defined
+  no-use-before-define: off
+
+  # Re-adding changed Airbnb rules (removed most likely from @typescript-eslint/recommended)
+  "@typescript-eslint/camelcase":
+    - error
+    - properties: never
+
+  "@typescript-eslint/indent":
+    - error
+    - 2
+    - SwitchCase: 1
+      VariableDeclarator: 1
+      outerIIFEBody: 1
+      FunctionDeclaration:
+        parameters: 1
+        body: 1
+      FunctionExpression:
+        parameters: 1
+        body: 1
+      CallExpression:
+        arguments: 1
+      ArrayExpression: 1
+      ObjectExpression: 1
+      ImportDeclaration: 1
+      flatTernaryExpressions: false
+      ignoreComments: false
+
+
+  "@typescript-eslint/no-unused-vars":
+    - error
+    - vars: all
+      args: after-used
+      ignoreRestSiblings: true

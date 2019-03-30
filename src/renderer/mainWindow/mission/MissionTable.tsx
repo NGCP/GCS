@@ -1,40 +1,60 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
 import {
-  AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table,
+  AutoSizer,
+  CellMeasurer,
+  CellMeasurerCache,
+  Column,
+  Index,
+  RowMouseEventHandlerParams,
+  Table,
+  TableCellProps,
 } from 'react-virtualized';
 
-const width = {
+import { Mission, ThemeProps } from '../../../util/types';
+
+interface WidthSignature {
+  [key: string]: number;
+}
+
+const width: WidthSignature = {
   description: 0.6,
   status: 0.4,
 };
 
-const propTypes = {
-  theme: PropTypes.oneOf(['light', 'dark']).isRequired,
-  missions: PropTypes.arrayOf(
-    PropTypes.shape({
-      description: PropTypes.string.isRequired,
-      status: PropTypes.shape({
-        type: PropTypes.oneOf(['failure', 'progress', 'success']).isRequired,
-        message: PropTypes.string.isRequired,
-      }).isRequired,
-    }),
-  ).isRequired,
-};
+/**
+ * Props for the misson table.
+ */
+export interface MissionTableProps extends ThemeProps {
+  /**
+   * Array of mission to display.
+   */
+  missions: Mission[];
+}
 
-export default class MissionTable extends Component {
-  static statusRenderer({ dataKey, rowData }) {
+/**
+ * Table to render all missions in the mission container.
+ */
+export default class MissionTable extends Component<MissionTableProps> {
+  /**
+   * Renderer for the status column.
+   */
+  private static statusRenderer(props: TableCellProps): ReactNode {
+    const { dataKey, rowData } = props;
     const { type, message } = rowData.status;
 
     return <span key={dataKey} className={type}>{message}</span>;
   }
 
-  static onRowClick({ index }) {
+  /**
+   * Callback when a row is clicked in the table.
+   */
+  private static onRowClick(info: RowMouseEventHandlerParams): void {
+    const { index } = info;
     ipcRenderer.send('post', 'setSelectedMission', index);
   }
 
-  constructor(props) {
+  public constructor(props: MissionTableProps) {
     super(props);
 
     this.width = width;
@@ -49,13 +69,28 @@ export default class MissionTable extends Component {
     this.descriptionRenderer = this.descriptionRenderer.bind(this);
   }
 
-  rowGetter({ index }) {
-    const { missions } = this.props;
+  /**
+   * Width for columns in table.
+   */
+  private width: WidthSignature;
 
+  /**
+   * Cache that stores the height for rows. Allows the messages to have proper height.
+   */
+  private heightCache: CellMeasurerCache;
+
+  /**
+   * Callback to obtain data for a certain row in the table.
+   */
+  private rowGetter({ index }: Index): Mission {
+    const { missions } = this.props;
     return missions[index];
   }
 
-  rowClassName({ index }) {
+  /**
+   * Callback to generate classname for a certain row in the table.
+   */
+  private rowClassName({ index }: Index): string {
     const { theme } = this.props;
 
     if (theme === 'dark' && index === -1) {
@@ -66,9 +101,17 @@ export default class MissionTable extends Component {
     return '';
   }
 
-  descriptionRenderer({
-    dataKey, parent, rowIndex, cellData,
-  }) {
+  /**
+   * Callback to render data for the description column.
+   */
+  private descriptionRenderer(props: TableCellProps): ReactNode {
+    const {
+      cellData,
+      dataKey,
+      parent,
+      rowIndex,
+    } = props;
+
     return (
       <CellMeasurer
         cache={this.heightCache}
@@ -84,7 +127,7 @@ export default class MissionTable extends Component {
     );
   }
 
-  render() {
+  public render(): ReactNode {
     const { theme, missions } = this.props;
 
     return (
@@ -98,7 +141,7 @@ export default class MissionTable extends Component {
             rowCount={missions.length}
             rowGetter={this.rowGetter}
             onRowClick={MissionTable.onRowClick}
-            className={theme === 'dark' ? 'ReactVirtualized__Table_dark' : ''}
+            className={`ReactVirtualized__Table${theme === 'dark' ? '_dark' : ''}`}
             rowClassName={this.rowClassName}
           >
             <Column
@@ -106,14 +149,12 @@ export default class MissionTable extends Component {
               dataKey="description"
               width={tableWidth * this.width.description}
               cellRenderer={this.descriptionRenderer}
-              rowClassName={this.rowClassName}
             />
             <Column
               label="Status"
               dataKey="status"
               width={tableWidth * this.width.status}
               cellRenderer={MissionTable.statusRenderer}
-              rowClassName={this.rowClassName}
             />
           </Table>
         )}
@@ -121,5 +162,3 @@ export default class MissionTable extends Component {
     );
   }
 }
-
-MissionTable.propTypes = propTypes;

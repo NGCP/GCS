@@ -1,14 +1,17 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
-import React, { Component } from 'react';
+import React, { Component, ReactNode } from 'react';
 
 import Control from './Control';
 
+/**
+ * Control that centers map when clicked.
+ */
 export default class GeolocationControl extends Component {
-  static onClick() {
+  private static onClick(): void{
     ipcRenderer.send('post', 'setMapToUserLocation');
   }
 
-  render() {
+  public render(): ReactNode {
     return (
       <Control
         className="geolocation-control"

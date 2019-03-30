@@ -1,11 +1,28 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { Component } from 'react';
 
 import {
-  vehicleInfos, vehicleStatuses,
-} from '../../resources/index';
+  vehicleInfos as vehicleInfosConfig, vehicleStatuses as vehicleStatusesConfig,
+} from '../config/index';
 
-// Called by map container and vehicle container to update vehicles being shown.
-export function updateVehicles(component, vehicles) {
+// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
+import {
+  MessageType, // eslint-disable-line import/named
+  Vehicle,
+  VehicleInfoSignature,
+  VehicleStatusSignature,
+  VehicleUI,
+} from './types';
+
+const vehicleInfos: VehicleInfoSignature = vehicleInfosConfig;
+const vehicleStatuses: VehicleStatusSignature = vehicleStatusesConfig;
+
+/**
+ * Updates vehicles being shown.
+ */
+export function updateVehicles(
+  component: Component<{}, { vehicles: { [key: string]: VehicleUI } }>, vehicles: Vehicle[],
+): void {
   const { vehicles: thisVehicles } = component.state;
   const currentVehicles = thisVehicles;
 
@@ -13,7 +30,7 @@ export function updateVehicles(component, vehicles) {
     currentVehicles[vehicle.sid] = {
       ...vehicle,
       ...vehicleInfos[vehicle.sid],
-      status: vehicleStatuses[vehicle.status],
+      status: vehicleStatuses[vehicle.status] as { type: MessageType; message: string },
     };
   });
 
@@ -29,15 +46,15 @@ export function updateVehicles(component, vehicles) {
  * function that sends out this notification.
  */
 
-function sendStartMission() {
+function sendStartMission(): void {
   ipcRenderer.send('post', 'startMission');
 }
 
-function sendStopMission() {
+function sendStopMission(): void {
   ipcRenderer.send('post', 'stopMission');
 }
 
-function sendCompleteMission(index) {
+function sendCompleteMission(index: number): void {
   ipcRenderer.send('post', 'completeMission', index);
 }
 
@@ -47,23 +64,22 @@ export const mission = {
   sendCompleteMission,
 };
 
-// We can have this or directly call function from Orchestrator.
-function sendStartJob(data) {
+function sendStartJob(data: {
+  jobType: string;
+  missionInfo: {};
+}): void {
   ipcRenderer.send('post', 'startJob', data);
 }
 
-// We can have this or directly call function from Orchestrator.
-function sendPauseJob() {
+function sendPauseJob(): void {
   ipcRenderer.send('post', 'pauseJob');
 }
 
-// We can have this or directly call function from Orchestrator.
-function sendResumeJob() {
+function sendResumeJob(): void {
   ipcRenderer.send('post', 'resumeJob');
 }
 
-// Orchestrator should call this function, or send the notification directly.
-function sendCompleteJob() {
+function sendCompleteJob(): void {
   ipcRenderer.send('post', 'completeJob');
 }
 
@@ -76,19 +92,21 @@ export const job = {
 
 /* eslint-disable no-bitwise */
 
-/*
- * Bitshifting allows us to switch between hex and float.
- * We will use hex for all floats so these functions will be in help.
+/**
+ * Converts a float number to a hex string.
  */
+function toHexString(float: number): string {
+  const getHex = (i: number): string => `00${i.toString(16)}`.slice(-2);
 
-function toHexString(float) {
-  const getHex = i => `00${i.toString(16)}`.slice(-2);
   const view = new DataView(new ArrayBuffer(4));
   view.setFloat32(0, float);
   return [0, 0, 0, 0].map((_, i) => getHex(view.getUint8(i))).join('');
 }
 
-function toFloat(hexString) {
+/**
+ * Converts a hex string to a float number.
+ */
+function toFloat(hexString: string): number {
   const int = parseInt(hexString, 16);
   if (int > 0 || int < 0) {
     const sign = (int >>> 31) ? -1 : 1;
@@ -111,10 +129,3 @@ function toFloat(hexString) {
 export const floatHex = { toHexString, toFloat };
 
 /* eslint-enable no-bitwise */
-
-export default {
-  updateVehicles,
-  job,
-  mission,
-  floatHex,
-};
