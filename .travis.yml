@@ -2,6 +2,10 @@
 
 language: node_js
 
+# Install fossa-cli
+before_script:
+  - "curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | sudo bash"
+
 # Use latest version of Node.js
 node_js:
   - node
@@ -9,14 +13,11 @@ node_js:
 # Cache node_modules after testing
 cache: npm
 
-# Install FOSSA to integrate this testing to Travis.
-before_script:
-  - "curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | sudo bash"
-
-# Run the following scripts to analyze build with FOSSA.
+# Run analysis with fossa-cli
 script:
   - fossa init
   - fossa analyze
 
+# Test with fossa-cli (after passing all other tests)
 after_success:
   - fossa test
