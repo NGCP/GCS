@@ -21,7 +21,7 @@ const vehicleStatuses: VehicleStatusSignature = vehicleStatusesConfig;
  * Updates vehicles being shown.
  */
 export function updateVehicles(
-  component: Component<{}, { vehicles: { [sid: string]: VehicleUI } }>, vehicles: Vehicle[],
+  component: Component<{}, { vehicles: { [key: string]: VehicleUI } }>, vehicles: Vehicle[],
 ): void {
   const { vehicles: thisVehicles } = component.state;
   const currentVehicles = thisVehicles;

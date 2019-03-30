@@ -2,7 +2,11 @@ import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-
 import moment, { Moment } from 'moment';
 import React, { ChangeEvent, Component, ReactNode } from 'react';
 import {
-  AutoSizer, CellMeasurerCache, CellMeasurer, List, ListRowProps,
+  AutoSizer,
+  CellMeasurerCache,
+  CellMeasurer,
+  List,
+  ListRowProps,
 } from 'react-virtualized';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
@@ -30,6 +34,9 @@ interface Message {
   time: Moment;
 }
 
+/**
+ * State of the log container.
+ */
 interface State {
   /**
    * The current filter being applied to messages. If the filter is not "", then only messages

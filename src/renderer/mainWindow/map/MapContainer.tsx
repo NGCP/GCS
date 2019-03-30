@@ -1,8 +1,12 @@
-import { ipcRenderer, Event } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import fs from 'fs';
 import { LocationEvent } from 'leaflet';
 import React, {
-  Component, createRef, Fragment, ReactNode, RefObject,
+  Component,
+  createRef,
+  Fragment,
+  ReactNode,
+  RefObject,
 } from 'react';
 import { Map, TileLayer, Viewport } from 'react-leaflet';
 
@@ -29,19 +33,37 @@ const mapOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
+  accessToken: process.env.MAPBOX_TOKEN,
 };
 
-// Default location is (0, 0) unless there is a locations file defined already.
-let start = { lat: 0, lng: 0, zoom: 18 };
+/*
+ * Logic to set up the start location for the map.
+ * Default location is (0, 0) unless there is a locations file defined already.
+ */
+let start: LatLngZoom = { lat: 0, lng: 0, zoom: 18 };
 if (startLocation && locations[startLocation]) {
   start = { ...start, ...locations[startLocation] };
 }
 
+/**
+ * State of the map container.
+ */
 interface State extends LatLngZoom {
+  /**
+   * Object of vehicles displayed in the user interface.
+   */
   vehicles: { [sid: string]: VehicleUI };
+
+  /**
+   * Viewport storing locations on location of map. This is more precise than
+   * the (lat, lng, zoom) coordinates.
+   */
   viewport: Viewport;
 }
 
+/**
+ * Container that displays all vehicles and mission related info in a map.
+ */
 export default class MapContainer extends Component<ThemeProps, State> {
   public constructor(props: ThemeProps) {
     super(props);

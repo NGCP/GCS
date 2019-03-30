@@ -146,9 +146,48 @@ export interface VehicleUI {
  * Types for maps to use.
  */
 export interface LatLngZoom {
+  /**
+   * Latitude of center of map.
+   */
   lat: number;
+
+  /**
+   * Longitude of center of map.
+   */
   lng: number;
+
+  /**
+   * Zoom level of map.
+   */
   zoom?: number;
+}
+
+/**
+ * Status of a mission.
+ */
+export interface MissionStatus {
+  name: 'notStarted' |'started' | 'paused' | 'completed';
+  message: string;
+  type: MessageType;
+}
+
+/**
+ * Structure of a typical mission.
+ */
+export interface Mission {
+  /**
+   * Name of the mission.
+   */
+  name?: string;
+  /**
+   * Description of the mission.
+   */
+  description: string;
+
+  /**
+   * Status of the misison.
+   */
+  status: MissionStatus;
 }
 
 /**
@@ -180,7 +219,7 @@ export interface FileSaveOptions {
  * Signature to the locations variable in locations.json.
  */
 export interface LocationSignature {
-  [key: string]: { lat: number; lng: number; zoom: number };
+  [key: string]: LatLngZoom;
 }
 
 /**
