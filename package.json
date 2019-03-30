@@ -11,6 +11,7 @@
     "build": "electron-webpack && electron-builder"
   },
   "dependencies": {
+    "@yaga/leaflet-cached-tile-layer": "^1.0.0",
     "leaflet": "^1.4.0",
     "moment": "^2.24.0",
     "pouchdb": "^7.0.0",

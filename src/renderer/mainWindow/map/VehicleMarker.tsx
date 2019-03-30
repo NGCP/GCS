@@ -13,7 +13,12 @@ interface VehicleSignature {
 
 const { vehicles }: { vehicles: VehicleSignature } = images.markers;
 
-export default class VehicleMarker extends PureComponent<VehicleUI> {
+type VehicleMarkerProps = VehicleUI;
+
+/**
+ * Marker that will represent a vehicle. Used by the map container.
+ */
+export default class VehicleMarker extends PureComponent<VehicleMarkerProps> {
   public render(): ReactNode {
     const {
       sid, name, lat, lng, type, status,

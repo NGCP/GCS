@@ -1,5 +1,4 @@
 {
   "fixtures": true,
-  "cache": false,
   "geolocation": true
 }

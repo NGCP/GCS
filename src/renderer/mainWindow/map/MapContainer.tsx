@@ -7,7 +7,7 @@ import React, {
 import { Map, TileLayer, Viewport } from 'react-leaflet';
 
 import {
-  cache, locations as locationsConfig, startLocation,
+  locations as locationsConfig, startLocation,
 } from '../../../config/index';
 
 import {
@@ -29,12 +29,9 @@ const mapOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
-  accessToken: process.env.MAPBOX_TOKEN,
-  useCache: cache,
-  crossOrigin: true,
 };
 
-// default location is (0, 0) unless there is a locations file defined already
+// Default location is (0, 0) unless there is a locations file defined already.
 let start = { lat: 0, lng: 0, zoom: 18 };
 if (startLocation && locations[startLocation]) {
   start = { ...start, ...locations[startLocation] };
@@ -79,14 +76,23 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('updateVehicles', (_: Event, vehicles: Vehicle[]) => updateVehicles(this, vehicles));
   }
 
+  /**
+   * Callback to whenever map viewport is changed.
+   */
   private onViewportChanged(viewport: Viewport): void {
     this.setState({ viewport });
   }
 
+  /**
+   * Callback to whenever geolocation call is successful.
+   */
   private onlocationfound(location: LocationEvent): void {
     this.updateMapLocation(location.latlng);
   }
 
+  /**
+   * Centers map to user location using geolocation (if possible).
+   */
   private setMapToUserLocation(): void {
     const map = this.ref.current;
     if (map) {
@@ -94,12 +100,21 @@ export default class MapContainer extends Component<ThemeProps, State> {
     }
   }
 
+  /**
+   * Reference to map (to access its leaflet element).
+   */
   private ref: RefObject<Map>;
 
+  /**
+   * Callback whenever a "loadConfig" notification is received.
+   */
   private loadConfig({ map }: FileLoadOptions): void {
     this.updateMapLocation(map);
   }
 
+  /**
+   * Callback whenever a "saveConfig" notification is received.
+   */
   private saveConfig(file: FileSaveOptions): void {
     // Performs a hard copy of this.state, deletes vehicles from it, and saves it to file.
     const data = { ...this.state };
@@ -111,10 +126,16 @@ export default class MapContainer extends Component<ThemeProps, State> {
     }, null, 2));
   }
 
+  /**
+   * Centers map around a certain vehicle.
+   */
   private centerMapToVehicle(vehicle: VehicleUI): void {
     this.updateMapLocation(vehicle);
   }
 
+  /**
+   * Callback to whenever the map location has been changed.
+   */
   public updateMapLocation(location: LatLngZoom): void {
     const { lat, lng, zoom } = location;
 

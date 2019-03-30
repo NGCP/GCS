@@ -17,7 +17,9 @@ import {
 const vehicleInfos: VehicleInfoSignature = vehicleInfosConfig;
 const vehicleStatuses: VehicleStatusSignature = vehicleStatusesConfig;
 
-// Called by map container and vehicle container to update vehicles being shown.
+/**
+ * Updates vehicles being shown.
+ */
 export function updateVehicles(
   component: Component<{}, { vehicles: { [sid: string]: VehicleUI } }>, vehicles: Vehicle[],
 ): void {
@@ -62,22 +64,21 @@ export const mission = {
   sendCompleteMission,
 };
 
-// We can have this or directly call function from Orchestrator.
-function sendStartJob(data: { jobType: string; missionInfo: {} }): void {
+function sendStartJob(data: {
+  jobType: string;
+  missionInfo: {};
+}): void {
   ipcRenderer.send('post', 'startJob', data);
 }
 
-// We can have this or directly call function from Orchestrator.
 function sendPauseJob(): void {
   ipcRenderer.send('post', 'pauseJob');
 }
 
-// We can have this or directly call function from Orchestrator.
 function sendResumeJob(): void {
   ipcRenderer.send('post', 'resumeJob');
 }
 
-// Orchestrator should call this function, or send the notification directly.
 function sendCompleteJob(): void {
   ipcRenderer.send('post', 'completeJob');
 }
@@ -91,11 +92,9 @@ export const job = {
 
 /* eslint-disable no-bitwise */
 
-/*
- * Bitshifting allows us to switch between hex and float.
- * We will use hex for all floats so these functions will be in help.
+/**
+ * Converts a float number to a hex string.
  */
-
 function toHexString(float: number): string {
   const getHex = (i: number): string => `00${i.toString(16)}`.slice(-2);
 
@@ -104,6 +103,9 @@ function toHexString(float: number): string {
   return [0, 0, 0, 0].map((_, i) => getHex(view.getUint8(i))).join('');
 }
 
+/**
+ * Converts a hex string to a float number.
+ */
 function toFloat(hexString: string): number {
   const int = parseInt(hexString, 16);
   if (int > 0 || int < 0) {

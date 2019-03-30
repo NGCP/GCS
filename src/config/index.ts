@@ -25,12 +25,23 @@ import geolocation_img from './images/other/geolocation.png';
 import moon_hover from './images/other/moon_hover.png';
 import moon from './images/other/moon.png';
 
-import { cache, fixtures, geolocation } from './config.json';
+import { fixtures, geolocation } from './config.json';
 import { startLocation, locations } from './locations.json';
 import { vehicleIds, vehicleInfos, vehicleStatuses } from './vehicle.json';
 
+/*
+ * TODO: add typings to all variables before exporting (and remove the corresponding typings)
+ * in types.ts.
+ */
+
 export {
-  cache, fixtures, geolocation, startLocation, locations, vehicleIds, vehicleInfos, vehicleStatuses,
+  fixtures,
+  geolocation,
+  startLocation,
+  locations,
+  vehicleIds,
+  vehicleInfos,
+  vehicleStatuses,
 };
 
 export const images = {
@@ -60,7 +71,6 @@ export const images = {
 };
 
 export default {
-  cache,
   fixtures,
   images,
   geolocation,

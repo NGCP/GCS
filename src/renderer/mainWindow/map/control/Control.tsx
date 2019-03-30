@@ -6,9 +6,24 @@ import LeafletControl from 'react-leaflet-control';
 type ControlPosition = 'topleft' | 'topright' | 'bottomleft' | 'bottomright';
 
 export interface ControlProps {
+  /**
+   * Name of the control.
+   */
   className: string;
+
+  /**
+   * Callback function to whenever the control is clicked.
+   */
   onClick: () => void;
+
+  /**
+   * Position in the map the control is in.
+   */
   position: ControlPosition;
+
+  /**
+   * Title to display when hovering over the control.
+   */
   title?: string;
 }
 

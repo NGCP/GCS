@@ -1,18 +1,20 @@
-// TODO: Use TileLayer from https://github.com/yagajs/leaflet-cached-tile-layer
-
 /*
- * import { GridLayer, withLeaflet } from 'react-leaflet';
+ * import { CachedTileLayer as LeafletCachedTileLayer } from '@yaga/leaflet-cached-tile-layer'
+ * import { GridLayer, GridLayerProps, withLeaflet } from 'react-leaflet';
  *
- * class CachedTileLayer extends GridLayer {
- *   public createLeafletElement(props: any): L.GridLayer {
- *     return new TileLayer(props.url, this.getOptions(props));
+ * type LeafletElement = LeafletCachedTileLayer;
+ * type Props = { url: string } & GridLayerProps
+ *
+ * class CachedTileLayer extends GridLayer<LeafletElement, Props> {
+ *   public createLeafletElement(props: Props): LeafletElement {
+ *     return new CachedTileLayer(props.url, this.getOptions(props));
  *   }
  *
- *   public updateLeafletElement(fromProps: any, toProps: any): void {
+ *   public updateLafletElement(fromProps: Props, toProps: Props): void {
  *     super.updateLeafletElement(fromProps, toProps);
  *
- *     if (toProps.url !== fromProps.url) {
- *       (this.leafletElement as any).setUrl(toProps.url);
+ *     if(toProps.url !== fromProps.url) {
+ *       this.leafletElement.setUrl(toProps.url);
  *     }
  *   }
  * }

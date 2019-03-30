@@ -17,35 +17,66 @@ import { images, locations as locationsConfig } from '../config/index';
 
 import { LocationSignature } from '../util/types';
 
-// Recast locations to LocationLabel to allow us to use keys properly.
+/**
+ * List of locations that are in the locations configuration file.
+ * Will be loaded under the locations column in the menu.
+ */
 const locations: LocationSignature = locationsConfig;
 
-/*
+/**
  * This key is required to enable geolocation in the application.
  * Others cannot use this key outside of geolocation access so no need to hide it.
  */
 process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 
+/**
+ * Filter constant for all configuration files.
+ */
 const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
+
+/**
+ * Width of the application. Main window will have this width while mission window
+ * will have 1/3rd of it.
+ */
 const WIDTH = 1024;
+
+/**
+ * Height of the application. Both main and mission windows will have this height.
+ */
 const HEIGHT = 576;
 
+/**
+ * Returns true if running as development (npm start) but false if running in build
+ * (the app that has come from npm build).
+ */
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // TODO: Put icon tray back to macOS but resize it so that its not huge on macOS's menu.
 const icon = nativeImage.createFromDataURL(images.icon);
 
-// Variable to keep track when the app will quit, which is different from hiding the app.
+/**
+ *Variable to keep track when the app will quit, which is different from hiding the app.
+ */
 let quitting = false;
 
-// References to window objects.
+/**
+ * Reference to the main window of the application.
+ */
 let mainWindow: BrowserWindow | null;
+
+/**
+ * Reference to the mission window of the application.
+ */
 let missionWindow: BrowserWindow | null;
 
-// Tray object.
+/**
+ * Reference to the tray object of the application.
+ */
 let tray: Tray;
 
-// Role added to menus to allow the user to quit the app. Shortcut is Ctrl/Cmd + Q.
+/**
+ * Role added to menus to allow the user to quit the app. Shortcut is Ctrl/Cmd + Q.
+ */
 const quitRole: MenuItemConstructorOptions = {
   label: 'Quit',
   accelerator: 'CommandOrControl+Q',
@@ -55,7 +86,9 @@ const quitRole: MenuItemConstructorOptions = {
   },
 };
 
-// Menu prepended to menu if application is running on a Darwin-based OS.
+/**
+ * Menu prepended to menu if application is running on a Darwin-based OS.
+ */
 const darwinMenu: MenuItemConstructorOptions = {
   label: 'NGCP Ground Control System',
   submenu: [
@@ -137,7 +170,9 @@ function loadConfig(): void {
   }
 }
 
-// Menu displayed on main window.
+/**
+ * Reference to the menu displayed on main window.
+ */
 const menu: MenuItemConstructorOptions[] = [
   {
     label: 'File',
@@ -219,11 +254,14 @@ function setLocationMenu(): void {
   const location = menu.find(m => m.label === 'Locations');
   if (!location) return;
 
-  const locationMenu = location.submenu;
-  if (!locationMenu) return;
+  const { submenu } = location;
+  if (!submenu) return;
+
+  // Cast the submenu variable to locationMenu as a MenuItemContsturctorOptions array.
+  const locationMenu: MenuItemConstructorOptions[] = submenu as MenuItemConstructorOptions[];
 
   if (!locations || Object.keys(locations).length === 0) {
-    (locationMenu as MenuItemConstructorOptions[]).push({
+    locationMenu.push({
       label: 'No locations defined',
       enabled: false,
     });
@@ -231,7 +269,7 @@ function setLocationMenu(): void {
   }
 
   Object.keys(locations).forEach((label) => {
-    (locationMenu as MenuItemConstructorOptions[]).push({
+    locationMenu.push({
       label,
       click(menuItem) {
         if (mainWindow) {
@@ -242,6 +280,9 @@ function setLocationMenu(): void {
   });
 }
 
+/**
+ * Hides the mission window.
+ */
 function hideMissionWindow(): void {
   if (mainWindow) {
     mainWindow.webContents.send('setSelectedMission', -1);
@@ -332,7 +373,10 @@ function createMissionWindow(): void {
   });
 }
 
-function showWindow(): void {
+/**
+ * Shows the main window.
+ */
+function showMainWindow(): void {
   if (!mainWindow) {
     createMainWindow();
   } else {
@@ -340,6 +384,9 @@ function showWindow(): void {
   }
 }
 
+/**
+ * Shows the mission window.
+ */
 function showMissionWindow(): void {
   if (!missionWindow) {
     createMissionWindow();
@@ -354,12 +401,15 @@ function showMissionWindow(): void {
 const trayMenu: MenuItemConstructorOptions[] = [
   {
     label: 'NGCP Ground Control Station',
-    click() { showWindow(); },
+    click() { showMainWindow(); },
   },
   { type: 'separator' },
   quitRole,
 ];
 
+/**
+ * Creates the menu object by adding locations and other platform specific menu to it.
+ */
 function createMenu(): void {
   setLocationMenu();
 
@@ -372,15 +422,18 @@ function createMenu(): void {
   Menu.setApplicationMenu(Menu.buildFromTemplate(menu));
 }
 
+/**
+ * Creates the tray object.
+ */
 function createTray(): void {
   tray = new Tray(icon);
 
   tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
 
-  tray.on('click', () => { showWindow(); });
+  tray.on('click', () => { showMainWindow(); });
 }
 
-app.on('activate', showWindow);
+app.on('activate', showMainWindow);
 
 app.on('ready', () => {
   createMainWindow();

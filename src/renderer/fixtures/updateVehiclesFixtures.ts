@@ -28,6 +28,9 @@ let fixtures: Vehicle[] = [
 
 const status = Object.keys(vehicleStatuses);
 
+/**
+ * Sends an updateVehicle notification with random vehicle fixtures.
+ */
 export default function updateVehicles(): void {
   const newFixtures = fixtures.map(fixture => ({
     ...fixture,
