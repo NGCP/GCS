@@ -191,6 +191,31 @@ export interface Mission {
 }
 
 /**
+ * Structure of a typical job.
+ */
+export interface Job {
+  /**
+   * Name of the job.
+   */
+  name: string;
+
+  /**
+   * Description of the job.
+   */
+  description: string;
+
+  /**
+   * Whether or not the job can be skipped.
+   */
+  optional?: boolean;
+
+  /**
+   * Whether or not the user can pause the job.
+   */
+  pausable?: boolean;
+}
+
+/**
  * Data contents for information that is loaded from a configuration file.
  */
 export interface FileLoadOptions {
