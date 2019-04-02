@@ -1,6 +1,6 @@
 import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import moment, { Moment } from 'moment';
-import React, { ChangeEvent, Component, ReactNode } from 'react';
+import React, { Component, FormEvent, ReactNode } from 'react';
 import {
   AutoSizer,
   CellMeasurerCache,
@@ -10,7 +10,7 @@ import {
 } from 'react-virtualized';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { MessageType, ThemeProps } from '../../../util/types'; // eslint-disable-line import/named
+import { isMessageType, MessageType, ThemeProps } from '../../../util/types'; // eslint-disable-line import/named
 
 import './log.css';
 
@@ -134,11 +134,14 @@ export default class LogContainer extends Component<ThemeProps, State> {
   /**
    * Changes the filter applied to the log.
    */
-  private updateFilter(event: ChangeEvent): void {
+  private updateFilter(event: FormEvent<HTMLSelectElement>): void {
     const { messages } = this.state;
 
     this.heightCache.clearAll();
-    const newFilter = event.target.nodeValue;
+    const newFilter = event.currentTarget.value;
+
+    // Ensures our new value has a type of MessageType.
+    if ((!newFilter && newFilter !== '') || !isMessageType(newFilter)) return;
 
     this.setState({
       filter: newFilter as MessageType,
