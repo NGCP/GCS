@@ -13,12 +13,9 @@ node_js:
 # Cache node_modules after testing
 cache: npm
 
-# Run analysis with fossa-cli
+# Test application and run analysis with fossa-cli afterwards
 script:
+  - npm test
   - fossa init
   - fossa analyze
-
-# Test application if analysis was a success
-after_success:
   - fossa test
-  - npm test

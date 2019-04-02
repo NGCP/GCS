@@ -13,7 +13,7 @@ This is based on [Node.js], [React], [Webpack], and [Electron].
 **:pencil2: Setting Things Up**
 
 Install [Node.js]. The program will not be able to run without it.
-Â
+
 Open up your command line application and clone this repository:
 
 ```sh
