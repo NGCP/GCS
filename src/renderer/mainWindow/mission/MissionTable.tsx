@@ -14,7 +14,7 @@ import {
 import { Mission, ThemeProps } from '../../../util/types';
 
 interface WidthSignature {
-  [key: string]: number;
+  [column: string]: number;
 }
 
 const width: WidthSignature = {
@@ -27,7 +27,7 @@ const width: WidthSignature = {
  */
 export interface MissionTableProps extends ThemeProps {
   /**
-   * Array of mission to display.
+   * Array of missions that needs to be displayed.
    */
   missions: Mission[];
 }

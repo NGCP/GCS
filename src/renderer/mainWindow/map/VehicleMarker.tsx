@@ -8,7 +8,10 @@ import { images } from '../../../config/index';
 import { VehicleUI } from '../../../util/types'; // eslint-disable-line import/named
 
 interface VehicleSignature {
-  [key: string]: string;
+  /**
+   * Get the vehicle by its vehicle type and status.
+   */
+  [typeStatus: string]: string;
 }
 
 const { vehicles }: { vehicles: VehicleSignature } = images.markers;

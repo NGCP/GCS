@@ -15,7 +15,13 @@ import {
 } from '../../../config/index';
 
 import {
-  FileLoadOptions, FileSaveOptions, LatLngZoom, LocationSignature, ThemeProps, Vehicle, VehicleUI,
+  FileLoadOptions,
+  FileSaveOptions,
+  LatLngZoom,
+  LocationSignature,
+  ThemeProps,
+  Vehicle,
+  VehicleUI,
 } from '../../../util/types';
 import { updateVehicles } from '../../../util/util';
 

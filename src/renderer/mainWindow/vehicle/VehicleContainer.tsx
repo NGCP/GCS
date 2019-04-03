@@ -15,9 +15,12 @@ interface State {
   /**
    * Object of vehicles.
    */
-  vehicles: { [key: string]: VehicleUI };
+  vehicles: { [sid: string]: VehicleUI };
 }
 
+/**
+ * Container that shows statuses of all vehicles that are connected to the GCS.
+ */
 export default class VehicleContainer extends Component<ThemeProps, State> {
   public constructor(props: ThemeProps) {
     super(props);

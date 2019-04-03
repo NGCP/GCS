@@ -436,6 +436,14 @@ function createTray(): void {
 app.on('activate', showMainWindow);
 
 app.on('ready', () => {
+  /*
+   * Prevents the app from starting if MapBox token is not set up.
+   * This is necessary to run the map container.
+   */
+  if (!process.env.MAPBOX_TOKEN) {
+    throw new Error('Set the MapBox token in .env before launching the application.');
+  }
+
   createMainWindow();
   createMenu();
 

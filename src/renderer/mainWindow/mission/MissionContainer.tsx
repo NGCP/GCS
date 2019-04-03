@@ -1,12 +1,3 @@
-/*
- * The mission container will be in charge of managing which missions are not started, started,
- * and completed.
- * Any other code that wants to interact with missions must go through the mission container.
- * For example, if the mission window wants to know which missions are not done or not done,
- * the mission
- * container can provide this information.
- */
-
 import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 import React, { Component, ReactNode } from 'react';
 
@@ -55,6 +46,14 @@ interface State {
   missions: Mission[];
 }
 
+/**
+ * Container that is in charge of managing which missions are not started, started,
+ * and completed. Any other code that wants to interact with missions must
+ * go through the mission container.
+ *
+ * For example, if the mission window wants to know which missions are not done or not done,
+ * the mission container can provide this information.
+ */
 export default class MissionContainer extends Component<ThemeProps, State> {
   public constructor(props: ThemeProps) {
     super(props);
@@ -125,7 +124,7 @@ export default class MissionContainer extends Component<ThemeProps, State> {
    * In other words, function will command the mission window to change which mission to display,
    * as well as update the mission container to show which mission is currently opened.
    *
-   * @param {index} number index that points to mission to open, -1 means mission window was closed.
+   * @param index Index that points to mission to open, -1 means mission window was closed.
    */
   private setSelectedMission(index: number): void {
     const { missions, openedMissionIndex } = this.state;
@@ -186,7 +185,7 @@ export default class MissionContainer extends Component<ThemeProps, State> {
    * Updates mission description in mission container whenever a start/stop/pause/resume
    * mission notification is sent.
    *
-   * @param {string} type Consists of notStarted/started/paused. See the componentDidMount
+   * @param statusName Consists of notStarted/started/paused. See the componentDidMount
    * function to see which name corresponds with which notification.
    */
   private updateMission(statusName: 'notStarted' |'started' | 'paused' | 'completed'): void {

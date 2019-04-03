@@ -14,7 +14,7 @@ export interface ControlProps {
   /**
    * Callback function to whenever the control is clicked.
    */
-  onClick: () => void;
+  onClick(): void;
 
   /**
    * Position in the map the control is in.

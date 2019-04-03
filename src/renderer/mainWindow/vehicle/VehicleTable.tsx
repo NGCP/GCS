@@ -12,7 +12,7 @@ import {
 import { ThemeProps, VehicleUI } from '../../../util/types';
 
 interface WidthSignature {
-  [key: string]: number;
+  [column: string]: number;
 }
 
 /**
@@ -31,7 +31,7 @@ export interface VehicleTableProps extends ThemeProps {
   /**
    * Object of vehicles.
    */
-  vehicles: { [key: string]: VehicleUI };
+  vehicles: { [sid: string]: VehicleUI };
 }
 
 /**

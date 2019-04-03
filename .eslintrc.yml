@@ -26,8 +26,11 @@ settings:
 rules:
   linebreak-style: off
 
+  # Add strictness to type declarations in TypeScript
   "@typescript-eslint/explicit-function-return-type": error
   "@typescript-eslint/no-explicit-any": error
+
+  # Enforce commenting styles
   multiline-comment-style: error
 
   # Modifying react/jsx-filename-extension to support TypeScript React files
