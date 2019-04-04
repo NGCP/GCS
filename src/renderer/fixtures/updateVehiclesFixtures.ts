@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
 
-import { vehicleStatuses } from '../../config/index';
+import { vehicleStatuses } from '../../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
 import { Vehicle, VehicleStatus } from '../../util/types'; // eslint-disable-line import/named

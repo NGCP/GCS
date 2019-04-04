@@ -12,7 +12,7 @@ import { Map, TileLayer, Viewport } from 'react-leaflet';
 
 import {
   locations as locationsConfig, startLocation,
-} from '../../../config/index';
+} from '../../../static/index';
 
 import {
   FileLoadOptions,

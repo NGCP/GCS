@@ -12,7 +12,7 @@ import 'react-virtualized/styles.css';
 
 import './index.css';
 
-import { fixtures, geolocation } from '../config/index';
+import { fixtures, geolocation } from '../static/index';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 

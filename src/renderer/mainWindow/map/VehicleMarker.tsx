@@ -2,7 +2,7 @@ import L from 'leaflet';
 import React, { PureComponent, ReactNode } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 
-import { images } from '../../../config/index';
+import { images } from '../../../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
 import { VehicleUI } from '../../../util/types'; // eslint-disable-line import/named

@@ -3,7 +3,7 @@ import { Component } from 'react';
 
 import {
   vehicleInfos as vehicleInfosConfig, vehicleStatuses as vehicleStatusesConfig,
-} from '../config/index';
+} from '../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
 import {

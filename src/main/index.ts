@@ -13,7 +13,7 @@ import { // eslint-disable-line import/no-extraneous-dependencies
 import fs from 'fs';
 import moment from 'moment';
 
-import { images, locations as locationsConfig } from '../config/index';
+import { images, locations as locationsConfig } from '../static/index';
 
 import { LocationSignature } from '../util/types';
 

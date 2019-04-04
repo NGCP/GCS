@@ -10,11 +10,11 @@
 }
 
 .geolocation-control {
-  background-image: url('../../../config/images/other/geolocation.png');
+  background-image: url('../../../static/images/other/geolocation.png');
 }
 
 .geolocation-control:hover {
-  background-image: url('../../../config/images/other/geolocation_hover.png');
+  background-image: url('../../../static/images/other/geolocation_hover.png');
 }
 
 /* Light theme */
@@ -22,11 +22,11 @@
 .theme-control {
   cursor: pointer;
   background-size: 75%;
-  background-image: url('../../../config/images/other/moon.png');
+  background-image: url('../../../static/images/other/moon.png');
 }
 
 .theme-control:hover {
-  background-image: url('../../../config/images/other/moon_hover.png');
+  background-image: url('../../../static/images/other/moon_hover.png');
 }
 
 /* Dark theme */
@@ -34,9 +34,9 @@
 .theme-control_dark {
   cursor: pointer;
   background-size: 75%;
-  background-image: url('../../../config/images/other/fullmoon.png');
+  background-image: url('../../../static/images/other/fullmoon.png');
 }
 
 .theme-control_dark:hover {
-  background-image: url('../../../config/images/other/fullmoon_hover.png');
+  background-image: url('../../../static/images/other/fullmoon_hover.png');
 }
