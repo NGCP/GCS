@@ -7,10 +7,10 @@
   "repository": "https://github.com/NGCP/GCS",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
-    "test": "npm run test:lint && npm run test:types",
-    "test:lint": "eslint --ext .js,.jsx,.ts,.tsx \".\" && stylelint \"**/*.css\"",
+    "test": "npm run test:lint & npm run test:types",
+    "test:lint": "eslint --ext .js,.jsx,.ts,.tsx \".\" & stylelint \"**/*.css\"",
     "test:types": "tsc --project . --outDir dist --pretty",
-    "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx \".\" && stylelint \"**/*.css\" --fix",
+    "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx \".\" & stylelint \"**/*.css\" --fix",
     "start": "electron-webpack dev",
     "build": "electron-webpack && electron-builder"
   },

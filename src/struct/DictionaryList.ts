@@ -6,13 +6,13 @@ type Predicate<T> = (value: T, index: number, obj: T[]) => boolean;
 /**
  * Modified array class with a modified shift function.
  *
- *Note: shift is JavaScript's convention of naming the Queue dequeue function.
+ * Note: shift is JavaScript's convention of naming the Queue's dequeue function.
  */
 export class List<T> extends Array<T> {
   /**
    * Modified version of Array's shift function. Removes all elements from oldest to the element
-   * where predicate is true. If no element makes predicate true, then no elements are removed and
-   * undefined is returned.
+   * (inclusive) where predicate is true. If no element makes predicate true, then
+   * no elements are removed and undefined is returned.
    *
    * @param predicate Calls predicate once for each element of the array, in ascending
    * order, until it finds one where predicate returns true. If such an element is found,
@@ -20,7 +20,6 @@ export class List<T> extends Array<T> {
    * remove any elements and returns undefined.
    */
   public shiftToElement(predicate: Predicate<T>): T[] | undefined {
-    // If array length is zero or length was modified to a negative number.
     if (this.length <= 0) {
       return undefined;
     }
