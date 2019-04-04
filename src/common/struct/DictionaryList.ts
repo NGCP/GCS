@@ -1,4 +1,4 @@
-type Callback<T> = (value: T, index: number, array: T[]) => boolean;
+export type Callback<T> = (value: T, index: number, array: T[]) => boolean;
 
 /**
  * Structure that can store lists in a dictionary. Lists can be obtained with a key string,
@@ -160,9 +160,19 @@ export default class DictionaryList<T> {
   }
 
   /**
-   * Gets the total number of items in the lists in the dictionary.
+   * Gets the total number of items in the lists in the dictionary, or a certain list if
+   * a key is provided.
+   *
+   * @param key The key to access the list in the dictionary.
    */
-  public size(): number {
+  public size(key?: string): number {
+    if (key) {
+      const list = this.dictionary[key];
+      if (!list) return 0;
+
+      return list.length;
+    }
+
     return this.numItems;
   }
 }

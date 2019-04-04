@@ -1,52 +1,60 @@
-import DictionaryList from './DictionaryList';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-type Handler<T> = (value: T, allEvents?: { [key: string]: T }) => boolean;
+type Handler<T> = (value: T, events?: { [key: string]: any }) => boolean;
 
 /**
- * Interface to handle expiry for an event when it has a timeout.
+ * Options for the timeout for a listener.
  */
-interface EventTimeout {
+interface ListenerTimeoutOptions {
   /**
-   * Callback that is executed when timeout occurs.
+   * Function that will execute once the function times out.
    */
   callback(): void;
 
   /**
-   * Time is in milliseconds
+   * Amount of time (in milliseconds) for the function to time out.
    */
   time: number;
 }
 
-interface Event<T> {
+interface Listener<T> {
   /**
-   * Handler function for the event.
+   * Function that checks whether or not a given event value passes this listener's standards.
    */
   handler: Handler<T>;
 
   /**
-   * Expiry for a timeout, allows us to call clearTimeout on it.
+   * Reference to the setTimeout that is created. This allows us to call clearTimeout when
+   * deleting the handler while the timeout has not executed.
    */
   expiry?: NodeJS.Timeout;
 }
 
-
-export default class UpdateHandler<T> {
-  private eventDictionary = new DictionaryList<Event<T>>();
+/**
+ * Handler that can create listeners for certain events which will perform callbacks
+ * when the listener receives such event. Basically it is something that can handle processing
+ * different types of events with different values.
+ *
+ * For example, a handler can have a listener for an event which will close once it receives
+ * an event with a certain response (in our case it can be an event with a "complete" message).
+ */
+export default class UpdateHandler {
+  private eventDictionary: { [key: string]: Listener<any>[] | undefined } = {};
 
   /**
-   * Adds a new event to the handlers.
+   * Adds a new listener to the handlers.
    *
-   * @param identifier The name of the event handler string.
+   * @param name The name of the event.
    * @param handler The function to handle the event.
    * @param timeout The timeout function and time for the event to expire.
    */
-  public addHandler(
-    identifier: string,
+  public addHandler<T>(
+    name: string,
     handler: Handler<T>,
-    timeout?: EventTimeout,
-  ): Event<T> {
+    timeout?: ListenerTimeoutOptions,
+  ): Listener<T> {
     // Create an event with the handler function.
-    const event: Event<T> = { handler };
+    const listener: Listener<T> = { handler };
 
     /*
      * If a timeout is provided, the event will remove itself and run its callback function
@@ -54,67 +62,75 @@ export default class UpdateHandler<T> {
      * we will need to call the clearTimeout function on the event's expiry.
      */
     if (timeout) {
-      event.expiry = setTimeout((): void => {
-        this.eventDictionary.remove(identifier, (value): boolean => value !== event);
+      listener.expiry = setTimeout((): void => {
+        // Deletes the listener.
+        if (this.eventDictionary[name]) {
+          this.eventDictionary[name] = (this.eventDictionary[name] as Listener<T>[])
+            .filter((lis): boolean => lis !== listener);
+        }
+
         timeout.callback();
       }, timeout.time);
     }
 
     // Adds the event to the list with the proper event identifier.
-    this.eventDictionary.push(identifier, event);
+    if (!this.eventDictionary[name]) {
+      this.eventDictionary[name] = [];
+    }
+    (this.eventDictionary[name] as Listener<T>[]).push(listener);
 
-    return event;
+    return listener;
   }
 
   /**
    * Processes the event based on the handlers stored.
    *
-   * @param identifier The name of the event handler string.
-   * @param value The value being updated.
-   * @param allEvents Key/Value pair of all events.
+   * @param name The name of the event that occured.
+   * @param value The value being passed to the listeners of that event.
+   * @param events All other events that happened at that time.
    */
-  public event(identifier: string, value: T, allEvents?: { [key: string]: T }): void {
-    const newEvents = this.eventDictionary.filter(identifier, (v): boolean => {
-      const handled = v.handler(value, allEvents);
-      if (handled) {
-        // Remove handler.
-        if (v.expiry) {
-          clearTimeout(v.expiry);
+  public event<T>(name: string, value: T, events?: { [key: string]: any }): void {
+    if (!this.eventDictionary[name]) return;
+
+    this.eventDictionary[name] = (this.eventDictionary[name] as Listener<T>[])
+      .filter((lis): boolean => {
+        const handled = lis.handler(value, events);
+        /*
+         * Removes listener if it has not been triggered yet. Will also clearTimeout
+         * the expiry if the listener has one so that the timeout will not trigger afterwards.
+         */
+        if (handled) {
+          if (lis.expiry) clearTimeout(lis.expiry);
         }
-
-        return false;
-      }
-
-      // Keep handler.
-      return true;
-    });
-
-    if (newEvents) {
-      this.eventDictionary.set(identifier, newEvents);
-    }
+        return !handled;
+      });
   }
 
   /**
-   * Process all the given events. The value must be a key/value pair. All items
-   * will attempt to be processed.
-   */
-  public events(allEvents: { [key: string]: T }): void {
-    Object.keys(allEvents).forEach((key): void => {
-      this.event(key, allEvents[key], allEvents);
-    });
-  }
-
-  /**
-   * Remove the given handler, the name of the event must be the same as the one used when
-   * creating the handler, and the object must be the same as the one returned by addHandler
+   * Process all the given events.
    *
-   * @param identifier The name of the event handler string.
-   * @param event The event itself.
+   * @param events Key/value pair of the events that happened and their corresponding values.
    */
-  public removeHandler(identifier: string, event: Event<T>): void {
-    const ev = this.eventDictionary.remove(identifier, (value): boolean => value === event);
-    if (ev && ev.expiry) {
-      clearTimeout(ev.expiry);
-    }
+  public events(events: { [key: string]: any }): void {
+    Object.keys(events).forEach((key): void => {
+      this.event(key, events[key], events);
+    });
+  }
+
+  /**
+   * Remove the listener from the handler. The provided name and listener must be the same
+   * as the ones used when creating the handler.
+   *
+   * @param name The name of the event handler string.
+   * @param listener The listener itself.
+   */
+  public removeHandler<T>(name: string, listener: Listener<T>): void {
+    // Will clearTimeout the listener if it has an expiry.
+    if (listener.expiry) clearTimeout(listener.expiry);
+
+    // Removes the listener from the handler.
+    if (!this.eventDictionary[name]) return;
+    this.eventDictionary[name] = (this.eventDictionary[name] as Listener<T>[])
+      .filter((lis): boolean => lis !== listener);
   }
 }

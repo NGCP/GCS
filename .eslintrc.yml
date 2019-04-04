@@ -8,6 +8,7 @@ extends:
 
 plugins:
   - import
+  - chai-friendly
 
 env:
   browser: true
@@ -24,7 +25,12 @@ settings:
 
 # Additional rules
 rules:
+  # Turn off linting about having wrong line ending, handled in .gitattributes
   linebreak-style: off
+
+  # Have chai friendly no-unused-expressions rules, otherwise code can look nasty
+  no-unused-expressions: off
+  chai-friendly/no-unused-expressions: error
 
   # Add strictness to type declarations in TypeScript
   "@typescript-eslint/explicit-function-return-type": error
