@@ -2,6 +2,14 @@
 
 /* eslint-disable @typescript-eslint/camelcase */
 
+import { fixtures, geolocation } from './config.json';
+import { startLocation, locations as locationsObject } from './locations.json';
+import {
+  vehicleIds as vehicleIdsObject,
+  vehicleInfos as vehicleInfosObject,
+  vehicleStatuses as vehicleStatusesObject,
+} from './vehicle.json';
+
 import arrow from './images/arrow.png';
 import icon from './images/icon.png';
 import pin from './images/pin.png';
@@ -25,26 +33,37 @@ import geolocation_img from './images/other/geolocation.png';
 import moon_hover from './images/other/moon_hover.png';
 import moon from './images/other/moon.png';
 
-import { fixtures, geolocation } from './config.json';
-import { startLocation, locations } from './locations.json';
-import { vehicleIds, vehicleInfos, vehicleStatuses } from './vehicle.json';
+// Export json objects with signature to allow us to access it with TypeScript.
+export const locations: {
+  [name: string]: { lat: number; lng: number; zoom?: number };
+} = locationsObject;
 
-/*
- * TODO: add typings to all variables before exporting (and remove the corresponding typings)
- * in types.ts.
- */
+export const vehicleIds: {
+  [name: string]: number;
+} = vehicleIdsObject;
+
+export const vehicleInfos: {
+  [id: string]: { macAddress: string; name: string; 'type': string };
+} = vehicleInfosObject;
+
+export const vehicleStatuses: {
+  [status: string]: { 'type': string; message: string };
+} = vehicleStatusesObject;
 
 export {
   fixtures,
   geolocation,
   startLocation,
-  locations,
-  vehicleIds,
-  vehicleInfos,
-  vehicleStatuses,
 };
 
-export const images = {
+/**
+ * A given key for an image will give either a string or an object with similar structure.
+ */
+export interface RecursiveImageSignature {
+  [key: string]: string | RecursiveImageSignature;
+}
+
+export const images: RecursiveImageSignature = {
   arrow,
   icon,
   pin,
@@ -72,10 +91,10 @@ export const images = {
 
 export default {
   fixtures,
-  images,
   geolocation,
-  startLocation,
+  images,
   locations,
+  startLocation,
   vehicleIds,
   vehicleInfos,
   vehicleStatuses,

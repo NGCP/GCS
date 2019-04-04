@@ -2,21 +2,14 @@ import L from 'leaflet';
 import React, { PureComponent, ReactNode } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 
-import { images } from '../../../static/index';
+import { images, RecursiveImageSignature } from '../../../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
 import { VehicleUI } from '../../../util/types'; // eslint-disable-line import/named
 
-interface VehicleSignature {
-  /**
-   * Get the vehicle by its vehicle type and status.
-   */
-  [typeStatus: string]: string;
-}
-
-const { vehicles }: { vehicles: VehicleSignature } = images.markers;
-
 type VehicleMarkerProps = VehicleUI;
+
+const vehicles = (images.markers as RecursiveImageSignature).vehicles as RecursiveImageSignature;
 
 /**
  * Marker that will represent a vehicle. Used by the map container.
@@ -24,14 +17,19 @@ type VehicleMarkerProps = VehicleUI;
 export default class VehicleMarker extends PureComponent<VehicleMarkerProps> {
   public render(): ReactNode {
     const {
-      sid, name, lat, lng, type, status,
+      sid,
+      name,
+      lat,
+      lng,
+      type,
+      status,
     } = this.props;
 
     return (
       <Marker
         position={[lat, lng]}
         icon={L.icon({
-          iconUrl: vehicles[`${type}${status.type === 'failure' ? '_red' : ''}`] || images.pin,
+          iconUrl: (vehicles[`${type}${status.type === 'failure' ? '_red' : ''}`] || images.pin) as string,
           iconSize: [50, 50],
           iconAnchor: [25, 25],
           popupAnchor: [0, -25],

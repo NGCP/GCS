@@ -239,31 +239,3 @@ export interface FileSaveOptions {
    */
   data: FileLoadOptions;
 }
-
-/**
- * Signature to the locations variable in locations.json.
- */
-export interface LocationSignature {
-  [key: string]: LatLngZoom;
-}
-
-/**
- * Signature to the vehicleInfos variable in vehicle.json.
- */
-export interface VehicleInfoSignature {
-  [key: string]: {
-    macAddress: string;
-    name: string;
-    type: string;
-  };
-}
-
-/**
- * Signature to the vehicleStatuses variable in vehicle.json.
- */
-export interface VehicleStatusSignature {
-  [key: string]: {
-    type: string;
-    message: string;
-  };
-}

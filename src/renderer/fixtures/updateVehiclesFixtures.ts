@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 
 import { vehicleStatuses } from '../../static/index';
 

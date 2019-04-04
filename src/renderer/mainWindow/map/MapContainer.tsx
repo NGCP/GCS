@@ -1,4 +1,4 @@
-import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { Event, ipcRenderer } from 'electron';
 import fs from 'fs';
 import { LocationEvent } from 'leaflet';
 import React, {
@@ -10,15 +10,12 @@ import React, {
 } from 'react';
 import { Map, TileLayer, Viewport } from 'react-leaflet';
 
-import {
-  locations as locationsConfig, startLocation,
-} from '../../../static/index';
+import { locations, startLocation } from '../../../static/index';
 
 import {
   FileLoadOptions,
   FileSaveOptions,
   LatLngZoom,
-  LocationSignature,
   ThemeProps,
   Vehicle,
   VehicleUI,
@@ -32,8 +29,6 @@ import ThemeControl from './control/ThemeControl';
 import VehicleMarker from './VehicleMarker';
 
 import './map.css';
-
-const locations: LocationSignature = locationsConfig;
 
 const mapOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',

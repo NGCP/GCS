@@ -1,4 +1,4 @@
-import { // eslint-disable-line import/no-extraneous-dependencies
+import {
   app,
   BrowserWindow,
   dialog,
@@ -13,15 +13,7 @@ import { // eslint-disable-line import/no-extraneous-dependencies
 import fs from 'fs';
 import moment from 'moment';
 
-import { images, locations as locationsConfig } from '../static/index';
-
-import { LocationSignature } from '../util/types';
-
-/**
- * List of locations that are in the locations configuration file.
- * Will be loaded under the locations column in the menu.
- */
-const locations: LocationSignature = locationsConfig;
+import { images, locations } from '../static/index';
 
 /**
  * This key is required to enable geolocation in the application.
@@ -52,7 +44,7 @@ const HEIGHT = 576;
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // TODO: Put icon tray back to macOS but resize it so that its not huge on macOS's menu.
-const icon = nativeImage.createFromDataURL(images.icon);
+const icon = nativeImage.createFromDataURL(images.icon as string);
 
 /**
  *Variable to keep track when the app will quit, which is different from hiding the app.

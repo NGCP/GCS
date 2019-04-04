@@ -1,4 +1,4 @@
-import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { Event, ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
 import VehicleTable from './VehicleTable';
@@ -39,14 +39,16 @@ export default class VehicleContainer extends Component<ThemeProps, State> {
     const { vehicles } = this.state;
 
     /*
-     * TODO: Map vehicles to an array by sid to increase performance by preventing VehicleTable
-     * from remapping the table N times.
-     * Will improve the time complexity from O(N^2logN) to O(NlogN)
+     * Put the sids of the vehicles in order (least to greatest) and maps those sids to their
+     * respective values in the vehicles object. Time complexity is O(nlogn).
      */
+    const vehicleArray = Object.keys(vehicles)
+      .sort((a, b): number => parseInt(a, 10) - parseInt(b, 10))
+      .map((sid): VehicleUI => vehicles[sid]);
 
     return (
       <div className={`vehicleContainer container${theme === 'dark' ? '_dark' : ''}`}>
-        <VehicleTable theme={theme} vehicles={vehicles} />
+        <VehicleTable theme={theme} vehicles={vehicleArray} />
       </div>
     );
   }

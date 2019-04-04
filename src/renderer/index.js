@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 

@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 

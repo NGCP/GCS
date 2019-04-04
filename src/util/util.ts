@@ -1,21 +1,10 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 import { Component } from 'react';
 
-import {
-  vehicleInfos as vehicleInfosConfig, vehicleStatuses as vehicleStatusesConfig,
-} from '../static/index';
+import { vehicleInfos, vehicleStatuses } from '../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import {
-  MessageType, // eslint-disable-line import/named
-  Vehicle,
-  VehicleInfoSignature,
-  VehicleStatusSignature,
-  VehicleUI,
-} from './types';
-
-const vehicleInfos: VehicleInfoSignature = vehicleInfosConfig;
-const vehicleStatuses: VehicleStatusSignature = vehicleStatusesConfig;
+import { MessageType, Vehicle, VehicleUI } from './types'; // eslint-disable-line import/named
 
 /**
  * Updates vehicles being shown.

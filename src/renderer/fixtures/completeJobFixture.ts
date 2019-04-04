@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 
 /**
  * Sends a completeJob notification 5 seconds after the startJob notification is received.

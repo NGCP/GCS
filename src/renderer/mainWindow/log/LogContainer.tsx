@@ -1,4 +1,4 @@
-import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { Event, ipcRenderer } from 'electron';
 import moment, { Moment } from 'moment';
 import React, { Component, FormEvent, ReactNode } from 'react';
 import {

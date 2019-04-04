@@ -1,4 +1,4 @@
-import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { Event, ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
 import MissionTable from './MissionTable';

@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 import {
   AutoSizer,
@@ -31,7 +31,7 @@ export interface VehicleTableProps extends ThemeProps {
   /**
    * Object of vehicles.
    */
-  vehicles: { [sid: string]: VehicleUI };
+  vehicles: VehicleUI[];
 }
 
 /**
@@ -60,10 +60,8 @@ export default class VehicleTable extends Component<VehicleTableProps> {
    * Callback when a row is clicked in the table.
    */
   private onRowClick(info: RowMouseEventHandlerParams): void {
-    const { rowData } = info;
     const { vehicles } = this.props;
-
-    ipcRenderer.send('post', 'centerMapToVehicle', vehicles[rowData.sid]);
+    ipcRenderer.send('post', 'centerMapToVehicle', vehicles[info.index]);
   }
 
   /**
@@ -76,9 +74,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
    */
   private rowGetter({ index }: Index): VehicleUI {
     const { vehicles } = this.props;
-
-    const v = Object.keys(vehicles).sort((a, b): number => parseInt(a, 10) - parseInt(b, 10));
-    return vehicles[v[index]];
+    return vehicles[index];
   }
 
   /**
