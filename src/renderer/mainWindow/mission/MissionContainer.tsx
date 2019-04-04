@@ -106,14 +106,14 @@ export default class MissionContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('setSelectedMission', (_: Event, index: number) => this.setSelectedMission(index));
+    ipcRenderer.on('setSelectedMission', (_: Event, index: number): void => this.setSelectedMission(index));
 
-    ipcRenderer.on('startMission', () => this.updateMission('started'));
-    ipcRenderer.on('stopMission', () => this.updateMission('notStarted'));
-    ipcRenderer.on('completeMission', () => this.updateMission('completed'));
+    ipcRenderer.on('startMission', (): void => this.updateMission('started'));
+    ipcRenderer.on('stopMission', (): void => this.updateMission('notStarted'));
+    ipcRenderer.on('completeMission', (): void => this.updateMission('completed'));
 
-    ipcRenderer.on('pauseJob', () => this.updateMission('paused'));
-    ipcRenderer.on('resumeJob', () => this.updateMission('started'));
+    ipcRenderer.on('pauseJob', (): void => this.updateMission('paused'));
+    ipcRenderer.on('resumeJob', (): void => this.updateMission('started'));
   }
 
   /**

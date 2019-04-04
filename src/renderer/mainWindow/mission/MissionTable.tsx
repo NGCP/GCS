@@ -43,7 +43,7 @@ export default class MissionTable extends Component<MissionTableProps> {
     const { dataKey, rowData } = props;
     const { type, message } = rowData.status;
 
-    return <span key={dataKey} className={type}>{message}</span>;
+    return <span key={dataKey} className={`statusColumn ${type}`}>{message}</span>;
   }
 
   /**
@@ -132,7 +132,7 @@ export default class MissionTable extends Component<MissionTableProps> {
 
     return (
       <AutoSizer>
-        {({ height, width: tableWidth }) => (
+        {({ height, width: tableWidth }): ReactNode => (
           <Table
             width={tableWidth}
             height={height}

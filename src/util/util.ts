@@ -26,7 +26,7 @@ export function updateVehicles(
   const { vehicles: thisVehicles } = component.state;
   const currentVehicles = thisVehicles;
 
-  vehicles.forEach((vehicle) => {
+  vehicles.forEach((vehicle): void => {
     currentVehicles[vehicle.sid] = {
       ...vehicle,
       ...vehicleInfos[vehicle.sid],
@@ -96,11 +96,11 @@ export const job = {
  * Converts a float number to a hex string.
  */
 function toHexString(float: number): string {
-  const getHex = (i: number): string => `00${i.toString(16)}`.slice(-2);
+  const getHex = (index: number): string => `00${index.toString(16)}`.slice(-2);
 
   const view = new DataView(new ArrayBuffer(4));
   view.setFloat32(0, float);
-  return [0, 0, 0, 0].map((_, i) => getHex(view.getUint8(i))).join('');
+  return [0, 0, 0, 0].map((_, index): string => getHex(view.getUint8(index))).join('');
 }
 
 /**

@@ -180,7 +180,7 @@ const menu: MenuItemConstructorOptions[] = [
       {
         label: 'Open File...',
         accelerator: 'CommandOrControl+O',
-        click() { loadConfig(); },
+        click(): void { loadConfig(); },
       },
       { type: 'separator' },
       { role: 'close' },
@@ -188,7 +188,7 @@ const menu: MenuItemConstructorOptions[] = [
       {
         label: 'Save As...',
         accelerator: 'CommandOrControl+S',
-        click() { saveConfig(); },
+        click(): void { saveConfig(); },
       },
     ],
   },
@@ -220,7 +220,7 @@ const menu: MenuItemConstructorOptions[] = [
     submenu: [
       {
         label: 'My Location',
-        click() {
+        click(): void {
           if (mainWindow) {
             mainWindow.webContents.send('setMapToUserLocation');
           }
@@ -240,7 +240,7 @@ const menu: MenuItemConstructorOptions[] = [
     submenu: [
       {
         label: 'Help',
-        click() { shell.openExternal('https://github.com/NGCP/missioncontrol'); },
+        click(): void { shell.openExternal('https://github.com/NGCP/missioncontrol'); },
       },
     ],
   },
@@ -251,7 +251,7 @@ const menu: MenuItemConstructorOptions[] = [
  * The list of locations comes from ../../resources/locations.json.
  */
 function setLocationMenu(): void {
-  const location = menu.find(m => m.label === 'Locations');
+  const location = menu.find((m): boolean => m.label === 'Locations');
   if (!location) return;
 
   const { submenu } = location;
@@ -268,10 +268,10 @@ function setLocationMenu(): void {
     return;
   }
 
-  Object.keys(locations).forEach((label) => {
+  Object.keys(locations).forEach((label): void => {
     locationMenu.push({
       label,
-      click(menuItem) {
+      click(menuItem): void {
         if (mainWindow) {
           mainWindow.webContents.send('updateMapLocation', locations[menuItem.label]);
         }
@@ -312,11 +312,11 @@ function createMainWindow(): void {
     mainWindow.loadURL(`file:///${__dirname}/index.html#main`);
   }
 
-  mainWindow.on('ready-to-show', () => {
+  mainWindow.on('ready-to-show', (): void => {
     if (mainWindow) mainWindow.show();
   });
 
-  mainWindow.on('close', (event) => {
+  mainWindow.on('close', (event): void => {
     if (!quitting) {
       event.preventDefault();
       if (mainWindow) {
@@ -362,7 +362,7 @@ function createMissionWindow(): void {
   }
 
 
-  missionWindow.on('close', (event) => {
+  missionWindow.on('close', (event): void => {
     if (!quitting) {
       event.preventDefault();
       // This allows the mission container to update to closed mission window.
@@ -401,7 +401,7 @@ function showMissionWindow(): void {
 const trayMenu: MenuItemConstructorOptions[] = [
   {
     label: 'NGCP Ground Control Station',
-    click() { showMainWindow(); },
+    click(): void { showMainWindow(); },
   },
   { type: 'separator' },
   quitRole,
@@ -430,12 +430,12 @@ function createTray(): void {
 
   tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
 
-  tray.on('click', () => { showMainWindow(); });
+  tray.on('click', (): void => { showMainWindow(); });
 }
 
 app.on('activate', showMainWindow);
 
-app.on('ready', () => {
+app.on('ready', (): void => {
   /*
    * Prevents the app from starting if MapBox token is not set up.
    * This is necessary to run the map container.
@@ -451,11 +451,11 @@ app.on('ready', () => {
   createTray();
 });
 
-app.on('before-quit', () => {
+app.on('before-quit', (): void => {
   quitting = true;
 });
 
-ipcMain.on('post', (_: Event, notification: string, data: object) => {
+ipcMain.on('post', (_: Event, notification: string, data: object): void => {
   if (notification === 'showMissionWindow') {
     showMissionWindow();
   } else if (notification === 'hideMissionWindow') {

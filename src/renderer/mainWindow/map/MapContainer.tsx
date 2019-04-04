@@ -95,13 +95,13 @@ export default class MapContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('loadConfig', (_: Event, data: FileLoadOptions) => this.loadConfig(data));
-    ipcRenderer.on('saveConfig', (_: Event, data: FileSaveOptions) => this.saveConfig(data));
+    ipcRenderer.on('loadConfig', (_: Event, data: FileLoadOptions): void => this.loadConfig(data));
+    ipcRenderer.on('saveConfig', (_: Event, data: FileSaveOptions): void => this.saveConfig(data));
 
-    ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleUI) => this.centerMapToVehicle(vehicle));
+    ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleUI): void => this.centerMapToVehicle(vehicle));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
-    ipcRenderer.on('updateMapLocation', (_: Event, location: LatLngZoom) => this.updateMapLocation(location));
-    ipcRenderer.on('updateVehicles', (_: Event, vehicles: Vehicle[]) => updateVehicles(this, vehicles));
+    ipcRenderer.on('updateMapLocation', (_: Event, location: LatLngZoom): void => this.updateMapLocation(location));
+    ipcRenderer.on('updateVehicles', (_: Event, vehicles: Vehicle[]): void => updateVehicles(this, vehicles));
   }
 
   /**
@@ -185,7 +185,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
     const { theme } = this.props;
     const { viewport, vehicles } = this.state;
 
-    const markers = Object.keys(vehicles).map(sid => (
+    const markers = Object.keys(vehicles).map((sid): ReactNode => (
       <VehicleMarker
         {...vehicles[sid]}
         key={sid}
