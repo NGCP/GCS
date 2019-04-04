@@ -39,6 +39,25 @@ export default class DictionaryList<T> {
   }
 
   /**
+   * Gets the list stored at the dictionary with the given key.
+   *
+   * @param key The key to access the list in the dictionary.
+   */
+  public get(key: string): T[] | undefined {
+    return this.dictionary[key];
+  }
+
+  /**
+   * Sets the list stored at the dictionary with the given key to the provided list.
+   *
+   * @param key The key to access the list in the dictionary.
+   * @param list The list to change the dictionary's list to.
+   */
+  public set(key: string, list: T[]): void {
+    this.dictionary[key] = list;
+  }
+
+  /**
    * Gets the oldest element from dictionary's list with the given key
    * where the callback is true.
    *
@@ -46,7 +65,7 @@ export default class DictionaryList<T> {
    * @param callback Test each element, from oldest to newest. First element to pass
    * will be returned.
    */
-  public get(key: string, callback: Callback<T>): T | undefined {
+  public find(key: string, callback: Callback<T>): T | undefined {
     const list = this.dictionary[key];
     if (!list) return undefined;
 
@@ -89,7 +108,35 @@ export default class DictionaryList<T> {
   }
 
   /**
+   * Removes all elements of an array that meets the condition specified in a callback function.
+   *
+   * @param key The key to access the list in the dictionary.
+   * @param callback Test each element, from oldest to newest. All elements to pass
+   * will be removed and returned in an array.
+   */
+  public removeAll(key: string, callback: Callback<T>): T[] | undefined {
+    const list = this.dictionary[key];
+    if (!list) return undefined;
+
+    const removed: T[] = [];
+    const kept: T[] = [];
+    for (let i = 0; i < list.length; i += 1) {
+      if (callback(list[i], i, list)) {
+        removed.push(list[i]);
+      } else {
+        kept.push(list[i]);
+      }
+    }
+
+    this.numItems -= removed.length;
+    this.dictionary[key] = kept;
+    return removed;
+  }
+
+  /**
    * Returns the elements of an array that meet the condition specified in a callback function.
+   *
+   * @param key The key to access the list in the dictionary.
    * @param callback Test each element, from oldest to newest. All elements to pass
    * will be returned in an array.
    */
