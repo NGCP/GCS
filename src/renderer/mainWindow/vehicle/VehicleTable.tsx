@@ -77,7 +77,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
   private rowGetter({ index }: Index): VehicleUI {
     const { vehicles } = this.props;
 
-    const v = Object.keys(vehicles).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+    const v = Object.keys(vehicles).sort((a, b): number => parseInt(a, 10) - parseInt(b, 10));
     return vehicles[v[index]];
   }
 
@@ -100,7 +100,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
 
     return (
       <AutoSizer>
-        {({ height, width: tableWidth }) => (
+        {({ height, width: tableWidth }): ReactNode => (
           <Table
             width={tableWidth}
             height={height}

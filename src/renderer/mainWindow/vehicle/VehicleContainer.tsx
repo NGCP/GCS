@@ -31,7 +31,7 @@ export default class VehicleContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateVehicles', (_: Event, data: Vehicle[]) => updateVehicles(this, data));
+    ipcRenderer.on('updateVehicles', (_: Event, data: Vehicle[]): void => updateVehicles(this, data));
   }
 
   public render(): ReactNode {

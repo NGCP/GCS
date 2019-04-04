@@ -12,7 +12,7 @@ import updateVehicles from './updateVehiclesFixtures';
 
 completeJob();
 
-setInterval(() => {
+setInterval((): void => {
   updateMessages();
   updateVehicles();
 }, 1000);
