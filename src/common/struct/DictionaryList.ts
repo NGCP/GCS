@@ -1,50 +1,18 @@
-/**
- * "Predicate" name and description is taken from official TypeScript definitions.
- */
-type Predicate<T> = (value: T, index: number, obj: T[]) => boolean;
-
-/**
- * Modified array class with a modified shift function.
- *
- * Note: shift is JavaScript's convention of naming the Queue's dequeue function.
- */
-export class List<T> extends Array<T> {
-  /**
-   * Modified version of Array's shift function. Removes all elements from oldest to the element
-   * (inclusive) where predicate is true. If no element makes predicate true, then
-   * no elements are removed and undefined is returned.
-   *
-   * @param predicate Calls predicate once for each element of the array, in ascending
-   * order, until it finds one where predicate returns true. If such an element is found,
-   * array will remove all elements from oldest up to that element. Otherwise, will not
-   * remove any elements and returns undefined.
-   */
-  public shiftToElement(predicate: Predicate<T>): T[] | undefined {
-    if (this.length <= 0) {
-      return undefined;
-    }
-
-    const elementIndex = this.findIndex(predicate);
-    return elementIndex !== -1 ? this.splice(elementIndex) : undefined;
-  }
-}
-
-/**
- * Options for the DictionaryList class.
- */
-export interface DictionaryListOptions<T> {
-  predicate: Predicate<T>;
-}
+type Callback<T> = (value: T, index: number, array: T[]) => boolean;
 
 /**
  * Structure that can store lists in a dictionary. Lists can be obtained with a key string,
  * and can be modified with custom functions.
+ *
+ * The functions in this structure can be called from the list with a few lines of code. However
+ * it is possible that the value of a certain key can be undefined, which this class will do
+ * checks for.
  */
 export default class DictionaryList<T> {
   /**
    * Object of string keys to generic type arrays for the class to use.
    */
-  private dictionary: { [key: string]: List<T> | undefined } = {};
+  private dictionary: { [key: string]: T[] | undefined } = {};
 
   /**
    * Total number of items between all lists in the dictionary.
@@ -52,34 +20,96 @@ export default class DictionaryList<T> {
   private numItems = 0;
 
   /**
+   * Appends new elements to an array, and returns the new size of the dictionary.
+   *
+   * @param key The key to access the list in the dictionary.
+   */
+  public push(key: string, ...values: T[]): number {
+    if (!this.dictionary[key]) {
+      this.dictionary[key] = [];
+    }
+
+    // Cast to T[] since this value cannot be undefined.
+    const list = this.dictionary[key] as T[];
+
+    this.numItems += values.length;
+    list.push(...values);
+
+    return this.numItems;
+  }
+
+  /**
+   * Gets the oldest element from dictionary's list with the given key
+   * where the callback is true.
+   *
+   * @param key The key to access the list in the dictionary.
+   * @param callback Test each element, from oldest to newest. First element to pass
+   * will be returned.
+   */
+  public get(key: string, callback: Callback<T>): T | undefined {
+    const list = this.dictionary[key];
+    if (!list) return undefined;
+
+    return list.find(callback);
+  }
+
+  /**
    * Removes the oldest element from dictionary's list with the given key
    * and returns it. Will return undefined if there is no list at the given key
    * or if the list at that key is empty.
    *
-   * @param key The list in the dictionary's key.
+   * @param key The key to access the list in the dictionary.
    */
   public shift(key: string): T | undefined {
     const list = this.dictionary[key];
-    if (!list) return undefined;
+    if (!list || list.length === 0) return undefined;
 
+    this.numItems -= 1;
     return list.shift();
   }
 
   /**
-   * Removes all elements from oldest to the element (inclusive) where predicate is true.
-   * If no element makes predicate true, then no elements are removed and undefined is returned.
+   * Removes the oldest element from dictionary's list with the given key
+   * where the callback is true.
    *
-   * @param key The list in the dictionary's key.
-   * @param predicate Calls predicate once for each element of the array, in ascending
-   * order, until it finds one where predicate returns true. If such an element is found,
-   * array will remove all elements from oldest up to that element. Otherwise, will not
-   * remove any elements and returns undefined.
+   * @param key The key to access the list in the dictionary.
+   * @param callback Test each element, from oldest to newest. First element to pass
+   * will be removed and returned.
    */
-  public shiftToElement(key: string, predicate: Predicate<T>): T[] | undefined {
+  public remove(key: string, callback: Callback<T>): T | undefined {
     const list = this.dictionary[key];
     if (!list) return undefined;
 
-    return list.shiftToElement(predicate);
+    const index = list.findIndex(callback);
+    if (index === -1) return undefined;
+
+    // Removes the element at that index and returns it.
+    this.numItems -= 1;
+    return list.splice(index, 1)[0];
+  }
+
+  /**
+   * Returns the elements of an array that meet the condition specified in a callback function.
+   * @param callback Test each element, from oldest to newest. All elements to pass
+   * will be returned in an array.
+   */
+  public filter(key: string, callback: Callback<T>): T[] | undefined {
+    const list = this.dictionary[key];
+    if (!list) return undefined;
+
+    return list.filter(callback);
+  }
+
+  /**
+   * Gets all keys of the object whose list value has an element or more.
+   */
+  public keys(): string[] {
+    return Object.keys(this.dictionary).filter((key): boolean => {
+      const list = this.dictionary[key];
+      if (!list) return false;
+
+      return list.length > 0;
+    });
   }
 
   /**
