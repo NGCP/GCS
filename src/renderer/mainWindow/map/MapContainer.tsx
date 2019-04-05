@@ -10,14 +10,14 @@ import React, {
 } from 'react';
 import { Map, TileLayer, Viewport } from 'react-leaflet';
 
-import { locations, startLocation } from '../../../static/index';
+import { startLocation } from '../../../static/index';
 
 import {
   FileLoadOptions,
   FileSaveOptions,
   LatLngZoom,
   ThemeProps,
-  Vehicle,
+  VehicleUpdate,
   VehicleUI,
 } from '../../../util/types';
 import { updateVehicles } from '../../../util/util';
@@ -36,15 +36,6 @@ const mapOptions = {
   id: 'mapbox.satellite',
   accessToken: process.env.MAPBOX_TOKEN,
 };
-
-/*
- * Logic to set up the start location for the map.
- * Default location is (0, 0) unless there is a locations file defined already.
- */
-let start: LatLngZoom = { lat: 0, lng: 0, zoom: 18 };
-if (startLocation && locations[startLocation]) {
-  start = { ...start, ...locations[startLocation] };
-}
 
 /**
  * State of the map container.
@@ -71,10 +62,10 @@ export default class MapContainer extends Component<ThemeProps, State> {
 
     this.state = {
       vehicles: {},
-      ...start,
+      ...startLocation,
       viewport: {
-        center: [start.lat, start.lng],
-        zoom: start.zoom,
+        center: [startLocation.lat, startLocation.lng],
+        zoom: startLocation.zoom,
       },
     };
 
@@ -96,7 +87,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleUI): void => this.centerMapToVehicle(vehicle));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (_: Event, location: LatLngZoom): void => this.updateMapLocation(location));
-    ipcRenderer.on('updateVehicles', (_: Event, vehicles: Vehicle[]): void => updateVehicles(this, vehicles));
+    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleUpdate[]): void => updateVehicles(this, ...vehicles));
   }
 
   /**

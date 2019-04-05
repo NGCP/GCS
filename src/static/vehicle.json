@@ -1,4 +1,5 @@
 {
+  "vehicleDisconnectionTime": 20,
   "vehicleIds": {
     "UAV": 100,
     "UGV": 200,

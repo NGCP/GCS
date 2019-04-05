@@ -4,7 +4,7 @@ import React, { Component, ReactNode } from 'react';
 import VehicleTable from './VehicleTable';
 
 import { updateVehicles } from '../../../util/util';
-import { ThemeProps, Vehicle, VehicleUI } from '../../../util/types';
+import { ThemeProps, VehicleUpdate, VehicleUI } from '../../../util/types';
 
 import './vehicle.css';
 
@@ -31,7 +31,7 @@ export default class VehicleContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateVehicles', (_: Event, data: Vehicle[]): void => updateVehicles(this, data));
+    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleUpdate[]): void => updateVehicles(this, ...vehicles));
   }
 
   public render(): ReactNode {

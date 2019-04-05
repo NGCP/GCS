@@ -447,7 +447,7 @@ app.on('before-quit', (): void => {
   quitting = true;
 });
 
-ipcMain.on('post', (_: Event, notification: string, data: object): void => {
+ipcMain.on('post', (_: Event, notification: string, ...data: any[]): void => { // eslint-disable-line @typescript-eslint/no-explicit-any
   if (notification === 'showMissionWindow') {
     showMissionWindow();
   } else if (notification === 'hideMissionWindow') {
@@ -460,9 +460,9 @@ ipcMain.on('post', (_: Event, notification: string, data: object): void => {
    * notifications go for which window, but its simpler to have it forwarded to both.
    */
   if (mainWindow) {
-    mainWindow.webContents.send(notification, data);
+    mainWindow.webContents.send(notification, ...data);
   }
   if (missionWindow) {
-    missionWindow.webContents.send(notification, data);
+    missionWindow.webContents.send(notification, ...data);
   }
 });

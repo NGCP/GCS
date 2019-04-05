@@ -84,7 +84,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateMessages', (_: Event, messages: Message[]): void => this.updateMessages(messages));
+    ipcRenderer.on('updateMessages', (_: Event, ...messages: Message[]): void => this.updateMessages(...messages));
   }
 
   /**
@@ -152,7 +152,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
   /**
    * Updates the messages in the log. Will update filtered messages accordingly.
    */
-  private updateMessages(messages: Message[]): void {
+  private updateMessages(...messages: Message[]): void {
     const { filteredMessages, messages: thisMessages, filter } = this.state;
     const currentMessages = thisMessages;
     const currentFilteredMessages = filteredMessages;

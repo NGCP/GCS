@@ -4,23 +4,38 @@ import { Component } from 'react';
 import { vehicleInfos, vehicleStatuses } from '../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { MessageType, Vehicle, VehicleUI } from './types'; // eslint-disable-line import/named
+import { MessageType, VehicleUpdate, VehicleUI } from './types'; // eslint-disable-line import/named
 
 /**
  * Updates vehicles being shown.
  */
 export function updateVehicles(
-  component: Component<{}, { vehicles: { [key: string]: VehicleUI } }>, vehicles: Vehicle[],
+  component: Component<{}, { vehicles: { [key: string]: VehicleUI } }>,
+  ...vehicles: VehicleUpdate[]
 ): void {
   const { vehicles: thisVehicles } = component.state;
   const currentVehicles = thisVehicles;
 
   vehicles.forEach((vehicle): void => {
-    currentVehicles[vehicle.sid] = {
-      ...vehicle,
-      ...vehicleInfos[vehicle.sid],
-      status: vehicleStatuses[vehicle.status] as { type: MessageType; message: string },
-    };
+    /*
+     * Checks if we have the corresponding information on that vehicle on vehicleInfos.
+     * If not we will delete the vehicle from currentVehicles (will not throw an error if that
+     * vehicle was not in the object of vehicles in the first place) and will log to the log
+     * container.
+     */
+    if (vehicleInfos[vehicle.sid]) {
+      currentVehicles[vehicle.sid] = {
+        ...vehicle,
+        ...vehicleInfos[vehicle.sid] as { name: string; type: string },
+        status: vehicleStatuses[vehicle.status] as { type: MessageType; message: string },
+      };
+    } else {
+      delete currentVehicles[vehicle.sid];
+      ipcRenderer.send('post', 'updateMessage', {
+        type: 'failure',
+        message: `Received vehicle ID (${vehicle.sid}) in which no vehicle corresponds to`,
+      });
+    }
   });
 
   component.setState({ vehicles: currentVehicles });

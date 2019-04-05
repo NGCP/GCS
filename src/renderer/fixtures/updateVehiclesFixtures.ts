@@ -3,9 +3,11 @@ import { ipcRenderer } from 'electron';
 import { vehicleStatuses } from '../../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { Vehicle, VehicleStatus } from '../../util/types'; // eslint-disable-line import/named
+import { VehicleUpdate, VehicleStatus } from '../../util/types'; // eslint-disable-line import/named
 
-let fixtures: Vehicle[] = [
+// TODO: Use Vehicle class to create these.
+
+let fixtures: VehicleUpdate[] = [
   {
     sid: 100,
     lat: 34.056482,
@@ -32,7 +34,7 @@ const status = Object.keys(vehicleStatuses);
  * Sends an updateVehicle notification with random vehicle fixtures.
  */
 export default function updateVehicles(): void {
-  const newFixtures = fixtures.map((fixture): Vehicle => ({
+  const newFixtures = fixtures.map((fixture): VehicleUpdate => ({
     ...fixture,
     lat: fixture.lat + (Math.random() / 5000) - 0.0001,
     lng: fixture.lng + (Math.random() / 5000) - 0.0001,
@@ -40,5 +42,5 @@ export default function updateVehicles(): void {
   }));
 
   fixtures = newFixtures;
-  ipcRenderer.send('post', 'updateVehicles', fixtures);
+  ipcRenderer.send('post', 'updateVehicles', ...fixtures);
 }

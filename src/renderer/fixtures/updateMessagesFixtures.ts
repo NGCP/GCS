@@ -26,5 +26,5 @@ const fixtures: { type?: MessageType; message: string }[] = [
  */
 export default function updateMessages(): void {
   const fixture = fixtures[Math.floor(Math.random() * fixtures.length)];
-  ipcRenderer.send('post', 'updateMessages', [fixture]);
+  ipcRenderer.send('post', 'updateMessages', fixture);
 }
