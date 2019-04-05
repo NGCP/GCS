@@ -133,3 +133,10 @@ function toFloat(hexString: string): number {
 export const floatHex = { toHexString, toFloat };
 
 /* eslint-enable no-bitwise */
+
+export default {
+  floatHex,
+  job,
+  mission,
+  updateVehicles,
+};

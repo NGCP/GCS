@@ -72,7 +72,7 @@ let tray: Tray;
 const quitRole: MenuItemConstructorOptions = {
   label: 'Quit',
   accelerator: 'CommandOrControl+Q',
-  click(): void {
+  click: (): void => {
     quitting = true;
     app.quit();
   },
@@ -172,7 +172,7 @@ const menu: MenuItemConstructorOptions[] = [
       {
         label: 'Open File...',
         accelerator: 'CommandOrControl+O',
-        click(): void { loadConfig(); },
+        click: (): void => { loadConfig(); },
       },
       { type: 'separator' },
       { role: 'close' },
@@ -180,7 +180,7 @@ const menu: MenuItemConstructorOptions[] = [
       {
         label: 'Save As...',
         accelerator: 'CommandOrControl+S',
-        click(): void { saveConfig(); },
+        click: (): void => { saveConfig(); },
       },
     ],
   },
@@ -212,7 +212,7 @@ const menu: MenuItemConstructorOptions[] = [
     submenu: [
       {
         label: 'My Location',
-        click(): void {
+        click: (): void => {
           if (mainWindow) {
             mainWindow.webContents.send('setMapToUserLocation');
           }
@@ -232,7 +232,7 @@ const menu: MenuItemConstructorOptions[] = [
     submenu: [
       {
         label: 'Help',
-        click(): void { shell.openExternal('https://github.com/NGCP/missioncontrol'); },
+        click: (): void => { shell.openExternal('https://github.com/NGCP/missioncontrol'); },
       },
     ],
   },
@@ -263,7 +263,7 @@ function setLocationMenu(): void {
   Object.keys(locations).forEach((label): void => {
     locationMenu.push({
       label,
-      click(menuItem): void {
+      click: (menuItem): void => {
         if (mainWindow) {
           mainWindow.webContents.send('updateMapLocation', locations[menuItem.label]);
         }
@@ -393,7 +393,7 @@ function showMissionWindow(): void {
 const trayMenu: MenuItemConstructorOptions[] = [
   {
     label: 'NGCP Ground Control Station',
-    click(): void { showMainWindow(); },
+    click: (): void => { showMainWindow(); },
   },
   { type: 'separator' },
   quitRole,

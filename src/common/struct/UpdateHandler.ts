@@ -9,7 +9,7 @@ interface HandlerTimeoutOptions {
   /**
    * Function that will execute once the function times out.
    */
-  callback(): void;
+  callback: () => void;
 
   /**
    * Amount of time (in milliseconds) for the function to time out.
