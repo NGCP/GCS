@@ -47,7 +47,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const icon = nativeImage.createFromDataURL(images.icon as string);
 
 /**
- *Variable to keep track when the app will quit, which is different from hiding the app.
+ * Variable to keep track when the app will quit, which is different from hiding the app.
  */
 let quitting = false;
 
@@ -73,7 +73,6 @@ const quitRole: MenuItemConstructorOptions = {
   label: 'Quit',
   accelerator: 'CommandOrControl+Q',
   click: (): void => {
-    quitting = true;
     app.quit();
   },
 };

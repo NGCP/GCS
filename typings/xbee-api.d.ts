@@ -1,12 +1,8 @@
 /* eslint-disable import/prefer-default-export, @typescript-eslint/class-name-casing, max-len, camelcase, @typescript-eslint/camelcase, @typescript-eslint/no-explicit-any */
 
 /* eslint-enable max-len */
-/*
- * Allows us to use xbee-api as the original api has no typings.
- */
+
 declare module 'xbee-api' {
-  import BufferReader from 'buffer-reader';
-  import { Buffer } from 'safe-buffer';
   import { Transform } from 'stream';
 
   type START_BYTE = number;
@@ -22,7 +18,7 @@ declare module 'xbee-api' {
     command?: string;
     commandParameter?: any;
     commandStatus?: string;
-    data?: any;
+    data?: Buffer;
     deliveryStatus?: number;
     destination16?: string;
     destination64?: string;
@@ -62,6 +58,7 @@ declare module 'xbee-api' {
     sourceEndpoint?: string;
     sourceEvent?: number;
     transmitRetryCount?: number;
+    type?: number;
   }
 
   export interface XbeeAPIOptions {
@@ -74,7 +71,7 @@ declare module 'xbee-api' {
     builder_buffer_size?: number;
   }
 
-  export class XbeeAPI {
+  export class XBeeAPI {
     private options: XbeeAPIOptions;
 
     private parseState: {
@@ -143,7 +140,7 @@ declare module 'xbee-api' {
     public parseRaw(buffer: Buffer, enc?: any, cb?: () => void): void;
   }
 
-  export interface constants {
+  interface Constants {
     START_BYTE: START_BYTE;
     ESCAPE: ESCAPE;
     XOFF: XOFF;
@@ -518,9 +515,7 @@ declare module 'xbee-api' {
     };
 
     PIN_MODE: {
-      // pin
       P2: {
-        // key
         UNMONITORED_INPUT: number;
         DIGITAL_INPUT: number;
         DIGITAL_OUTPUT_LOW: number;
@@ -723,4 +718,6 @@ declare module 'xbee-api' {
         number, number, number, number, number, number, number, number];
     };
   }
+
+  export const constants: Constants;
 }

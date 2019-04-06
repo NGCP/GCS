@@ -46,11 +46,15 @@ rules:
   multiline-comment-style: error
 
   # Modifying react/jsx-filename-extension to support TypeScript React files
-  'react/jsx-filename-extension':
+  "react/jsx-filename-extension":
     - error
     - extensions:
       - .jsx
       - .tsx
+
+  # Move no-useless-constructor to @typescript-eslint/no-useless-constructor
+  no-useless-constructor: off
+  "@typescript-eslint/no-useless-constructor": error
 
   # @typescript-eslint/no-use-before-define is already defined
   no-use-before-define: off

@@ -1,6 +1,5 @@
 /*
- * Types for all variables used in GCS.
- *
+ * Types for variables used in various parts in GCS.
  */
 
 /**
