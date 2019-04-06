@@ -3,8 +3,10 @@ import React, { Component, ReactNode } from 'react';
 
 import VehicleTable from './VehicleTable';
 
+import { VehicleObject } from '../../../common/struct/Vehicle';
+
+import { ThemeProps } from '../../../util/types';
 import { updateVehicles } from '../../../util/util';
-import { ThemeProps, VehicleUpdate, VehicleUI } from '../../../util/types';
 
 import './vehicle.css';
 
@@ -15,7 +17,7 @@ interface State {
   /**
    * Object of vehicles.
    */
-  vehicles: { [sid: string]: VehicleUI };
+  vehicles: { [vehicleId: string]: VehicleObject };
 }
 
 /**
@@ -31,7 +33,7 @@ export default class VehicleContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleUpdate[]): void => updateVehicles(this, ...vehicles));
+    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
   }
 
   public render(): ReactNode {
@@ -39,12 +41,12 @@ export default class VehicleContainer extends Component<ThemeProps, State> {
     const { vehicles } = this.state;
 
     /*
-     * Put the sids of the vehicles in order (least to greatest) and maps those sids to their
+     * Put the ids of the vehicles in order (least to greatest) and maps those ids to their
      * respective values in the vehicles object. Time complexity is O(nlogn).
      */
     const vehicleArray = Object.keys(vehicles)
       .sort((a, b): number => parseInt(a, 10) - parseInt(b, 10))
-      .map((sid): VehicleUI => vehicles[sid]);
+      .map((vehicleId): VehicleObject => vehicles[vehicleId]);
 
     return (
       <div className={`vehicleContainer container${theme === 'dark' ? '_dark' : ''}`}>

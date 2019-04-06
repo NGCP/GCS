@@ -43,12 +43,29 @@ export const vehicleIds: {
   [name: string]: number | undefined;
 } = vehicleIdsObject;
 
+/**
+ * Object contained in vehicleInfos in vehicle.json.
+ */
+export interface VehicleInfo {
+  macAddress: string;
+  name: string;
+  'type': string;
+}
+
 export const vehicleInfos: {
-  [id: string]: { macAddress: string; name: string; 'type': string } | undefined;
+  [id: string]: VehicleInfo | undefined;
 } = vehicleInfosObject;
 
+/**
+ * Object contained in vehicleStatuses in vehicle.json.
+ */
+export interface VehicleStatus {
+  'type': string;
+  message: string;
+}
+
 export const vehicleStatuses: {
-  [status: string]: { 'type': string; message: string } | undefined;
+  [status: string]: VehicleStatus | undefined;
 } = vehicleStatusesObject;
 
 // Add logic to set startLocation.

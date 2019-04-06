@@ -1,41 +1,20 @@
 import { ipcRenderer } from 'electron';
 import { Component } from 'react';
 
-import { vehicleInfos, vehicleStatuses } from '../static/index';
-
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { MessageType, VehicleUpdate, VehicleUI } from './types'; // eslint-disable-line import/named
+import { VehicleObject } from '../common/struct/Vehicle';
 
 /**
- * Updates vehicles being shown.
+ * Updates vehicles being shown. This is run on map and vehicle containers.
  */
 export function updateVehicles(
-  component: Component<{}, { vehicles: { [key: string]: VehicleUI } }>,
-  ...vehicles: VehicleUpdate[]
+  component: Component<{}, { vehicles: { [key: string]: VehicleObject } }>,
+  ...vehicles: VehicleObject[]
 ): void {
   const { vehicles: thisVehicles } = component.state;
   const currentVehicles = thisVehicles;
 
   vehicles.forEach((vehicle): void => {
-    /*
-     * Checks if we have the corresponding information on that vehicle on vehicleInfos.
-     * If not we will delete the vehicle from currentVehicles (will not throw an error if that
-     * vehicle was not in the object of vehicles in the first place) and will log to the log
-     * container.
-     */
-    if (vehicleInfos[vehicle.sid]) {
-      currentVehicles[vehicle.sid] = {
-        ...vehicle,
-        ...vehicleInfos[vehicle.sid] as { name: string; type: string },
-        status: vehicleStatuses[vehicle.status] as { type: MessageType; message: string },
-      };
-    } else {
-      delete currentVehicles[vehicle.sid];
-      ipcRenderer.send('post', 'updateMessage', {
-        type: 'failure',
-        message: `Received vehicle ID (${vehicle.sid}) in which no vehicle corresponds to`,
-      });
-    }
+    currentVehicles[vehicle.vehicleId] = vehicle;
   });
 
   component.setState({ vehicles: currentVehicles });

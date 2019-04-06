@@ -9,7 +9,16 @@ import {
   TableCellProps,
 } from 'react-virtualized';
 
-import { ThemeProps, VehicleUI } from '../../../util/types';
+import { VehicleObject } from '../../../common/struct/Vehicle';
+
+import {
+  VehicleInfo,
+  vehicleInfos,
+  VehicleStatus,
+  vehicleStatuses,
+} from '../../../static/index';
+
+import { ThemeProps } from '../../../util/types';
 
 interface WidthSignature {
   [column: string]: number;
@@ -19,7 +28,7 @@ interface WidthSignature {
  * Width for columns in table.
  */
 const width: WidthSignature = {
-  id: 0.2,
+  vehicleId: 0.2,
   name: 0.4,
   status: 0.4,
 };
@@ -31,7 +40,7 @@ export interface VehicleTableProps extends ThemeProps {
   /**
    * Object of vehicles.
    */
-  vehicles: VehicleUI[];
+  vehicles: VehicleObject[];
 }
 
 /**
@@ -41,9 +50,19 @@ export default class VehicleTable extends Component<VehicleTableProps> {
   /**
    * Renderer for the status column.
    */
+  private static nameRenderer(props: TableCellProps): string {
+    const { rowData: vehicle }: { rowData: VehicleObject } = props;
+    const { name } = vehicleInfos[vehicle.vehicleId] as VehicleInfo;
+    return name;
+  }
+
+  /**
+   * Renderer for the status column.
+   */
   private static statusRenderer(props: TableCellProps): ReactNode {
-    const { rowData } = props;
-    return <span className={rowData.status.type}>{rowData.status.message}</span>;
+    const { rowData }: { rowData: VehicleObject } = props;
+    const vehicleStatus = vehicleStatuses[rowData.status] as VehicleStatus;
+    return <span className={vehicleStatus.type}>{vehicleStatus.message}</span>;
   }
 
   public constructor(props: VehicleTableProps) {
@@ -72,7 +91,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
   /**
    * Callback to obtain data for a certain row in the table.
    */
-  private rowGetter({ index }: Index): VehicleUI {
+  private rowGetter({ index }: Index): VehicleObject {
     const { vehicles } = this.props;
     return vehicles[index];
   }
@@ -110,13 +129,14 @@ export default class VehicleTable extends Component<VehicleTableProps> {
           >
             <Column
               label="ID"
-              dataKey="sid"
-              width={tableWidth * this.width.id}
+              dataKey="vehicleId"
+              width={tableWidth * this.width.vehicleId}
             />
             <Column
               label="Name"
               dataKey="name"
               width={tableWidth * this.width.name}
+              cellRenderer={VehicleTable.nameRenderer}
             />
             <Column
               label="Status"

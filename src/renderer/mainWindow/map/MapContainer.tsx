@@ -10,6 +10,8 @@ import React, {
 } from 'react';
 import { Map, TileLayer, Viewport } from 'react-leaflet';
 
+import { VehicleObject } from '../../../common/struct/Vehicle';
+
 import { startLocation } from '../../../static/index';
 
 import {
@@ -17,8 +19,6 @@ import {
   FileSaveOptions,
   LatLngZoom,
   ThemeProps,
-  VehicleUpdate,
-  VehicleUI,
 } from '../../../util/types';
 import { updateVehicles } from '../../../util/util';
 
@@ -44,7 +44,7 @@ interface State extends LatLngZoom {
   /**
    * Object of vehicles displayed in the user interface.
    */
-  vehicles: { [sid: string]: VehicleUI };
+  vehicles: { [vehicleId: string]: VehicleObject };
 
   /**
    * Viewport storing locations on location of map. This is more precise than
@@ -84,10 +84,10 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('loadConfig', (_: Event, data: FileLoadOptions): void => this.loadConfig(data));
     ipcRenderer.on('saveConfig', (_: Event, data: FileSaveOptions): void => this.saveConfig(data));
 
-    ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleUI): void => this.centerMapToVehicle(vehicle));
+    ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleObject): void => this.centerMapToVehicle(vehicle));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (_: Event, location: LatLngZoom): void => this.updateMapLocation(location));
-    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleUpdate[]): void => updateVehicles(this, ...vehicles));
+    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
   }
 
   /**
@@ -143,7 +143,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
   /**
    * Centers map around a certain vehicle.
    */
-  private centerMapToVehicle(vehicle: VehicleUI): void {
+  private centerMapToVehicle(vehicle: VehicleObject): void {
     this.updateMapLocation(vehicle);
   }
 
@@ -171,12 +171,14 @@ export default class MapContainer extends Component<ThemeProps, State> {
     const { theme } = this.props;
     const { viewport, vehicles } = this.state;
 
-    const markers = Object.keys(vehicles).map((sid): ReactNode => (
-      <VehicleMarker
-        {...vehicles[sid]}
-        key={sid}
-      />
-    ));
+    const markers = Object
+      .keys(vehicles)
+      .map((vehicleId): ReactNode => (
+        <VehicleMarker
+          key={vehicleId}
+          vehicle={vehicles[vehicleId]}
+        />
+      ));
 
     return (
       <Map
