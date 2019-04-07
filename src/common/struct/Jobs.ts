@@ -1,24 +1,22 @@
 /*
- * https://github.com/NGCP/GCS/wiki/List-of-Job-Types
- *
- * These definitions will not have the time, sid, tid, and id fields.
+ * Defines all the available jobs for vehicles, as well as the jobs' corresponding tasks.
+ * Also has a function to check whether or not a task is valid for a certain job.
  */
 
-export interface JobBase {
+interface TaskBase {
   /**
-   * Name of the job.
-   */
-  jobType: string;
-
-  /**
-   * Information related to complete the job.
+   * Information related to complete the task.
    */
   missionInfo: object;
 }
 
-export interface Takeoff extends JobBase {
-  jobType: 'takeoff';
+/**
+ * Takeoff task.
+ */
+export interface Takeoff extends TaskBase {
   missionInfo: {
+    taskType: 'takeoff';
+
     lat: number;
     lng: number;
     alt: number;
@@ -32,9 +30,13 @@ export interface Takeoff extends JobBase {
   };
 }
 
-export interface Loiter extends JobBase {
-  jobType: 'loiter';
+/**
+ * Update loiter task.
+ */
+export interface Loiter extends TaskBase {
   missionInfo: {
+    taskType: 'loiter';
+
     lat: number;
     lng: number;
     alt: number;
@@ -43,10 +45,14 @@ export interface Loiter extends JobBase {
   };
 }
 
+/**
+ * ISR search task.
+ */
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
-export interface ISRSearch extends JobBase {
-  jobType: 'isrSearch';
+export interface ISRSearch extends TaskBase {
   missionInfo: {
+    taskType: 'isrSearch';
+
     alt: number;
     waypoints: [
       {
@@ -65,9 +71,13 @@ export interface ISRSearch extends JobBase {
   };
 }
 
-export interface PayloadDrop extends JobBase {
-  jobType: 'payloadDrop';
+/**
+ * Payload drop task.
+ */
+export interface PayloadDrop extends TaskBase {
   missionInfo: {
+    taskType: 'payloadDrop';
+
     waypoints: [
       {
         lat: number;
@@ -83,9 +93,13 @@ export interface PayloadDrop extends JobBase {
   };
 }
 
-export interface Land extends JobBase {
-  jobType: 'land';
+/**
+ * Land task.
+ */
+export interface Land extends TaskBase {
   missionInfo: {
+    taskType: 'land';
+
     waypoints: [
       {
         lat: number;
@@ -101,44 +115,154 @@ export interface Land extends JobBase {
   };
 }
 
-export interface RetrieveTargetUGV extends JobBase {
-  jobType: 'retrieveTarget';
+/**
+ * Retrieve target task for UGV.
+ */
+export interface UGVRetrieveTarget extends TaskBase {
   missionInfo: {
+    taskType: 'retrieveTarget';
+
     lat: number;
     lng: number;
   };
 }
 
-export interface DeliverTarget extends JobBase {
-  jobType: 'deliverTarget';
+/**
+ * Deliver target task.
+ */
+export interface DeliverTarget extends TaskBase {
   missionInfo: {
+    taskType: 'deliverTarget';
+
     lat: number;
     lng: number;
   };
 }
 
-export interface RetrieveTargetUUV extends JobBase {
-  jobType: 'retrieveTarget';
-  missionINfo: {};
-}
-
-export interface QuickScan extends JobBase {
-  jobType: 'quickScan';
+/**
+ * Retrieve target task for UUV.
+ */
+export interface UUVRetrieveTarget extends TaskBase {
   missionInfo: {
-    lat: number;
-    lng: number;
-    innerRadius: number;
-    outerRadius: number;
+    taskType: 'retrieveTarget';
   };
 }
 
-export interface DetailedSearch extends JobBase {
-  jobType: 'detailedSearch';
+/**
+ * Quick scan task.
+ */
+export interface QuickScan extends TaskBase {
   missionInfo: {
+    taskType: 'quickScan';
+
+    searchArea: {
+      center: [number, number];
+      rad1: number;
+      rad2: number;
+    };
+  };
+}
+
+/**
+ * Detailed search task.
+ */
+export interface DetailedSearch extends TaskBase {
+  missionInfo: {
+    taskType: 'detailedSearch';
+
     lat: number;
     lng: number;
   };
 }
 
-export type Job = Takeoff | Loiter | ISRSearch | PayloadDrop | Land | RetrieveTargetUGV
-| DeliverTarget | RetrieveTargetUUV | QuickScan | DetailedSearch;
+/**
+ * An operation that the vehicle can perform given its job.
+ */
+export type Task = Takeoff | Loiter | ISRSearch | PayloadDrop | Land | UGVRetrieveTarget
+| DeliverTarget | UUVRetrieveTarget | QuickScan | DetailedSearch;
+
+/**
+ * All vehicle jobs with their corresponding tasks.
+ */
+export interface Jobs {
+  /**
+   * Vehicle is capable of performing ISR search.
+   */
+  isrSearch: {
+    takeoff: Takeoff;
+    loiter: Loiter;
+    isrSearch: ISRSearch;
+    land: Land;
+  };
+
+  /**
+   * Vehicle is capable of performing payload drop.
+   */
+  payloadDrop: {
+    takeoff: Takeoff;
+    loiter: Loiter;
+    payloadDrop: PayloadDrop;
+    land: Land;
+  };
+
+  /**
+   * Vehicle is capable of performing retrieving target on land.
+   */
+  ugvRetrieve: {
+    retrieveTarget: UGVRetrieveTarget;
+    deliverTarget: DeliverTarget;
+  };
+
+  /**
+   * Vehicle is capable of performing retrieving target underwater.
+   */
+  uuvRetrieve: {
+    retrieveTarget: UUVRetrieveTarget;
+  };
+
+  /**
+   * Vehicle is capable of performing quick scan.
+   */
+  quickScan: {
+    quickScan: QuickScan;
+  };
+
+  /**
+   * Vehicle is capable of performing detailed search.
+   */
+  detailedSearch: {
+    detailedSearch: DetailedSearch;
+  };
+}
+
+function contains(array: string[], value: string): boolean {
+  return array.indexOf(value) >= 0;
+}
+
+/**
+ * Type guard to see if a task is valid for a certain job.
+ */
+export function isValidTaskForJob(task: Task, jobType: string): boolean {
+  const { taskType } = task.missionInfo;
+
+  switch (jobType) {
+    case 'ISRSearch':
+      return contains(['takeoff', 'loiter', 'isrSearch', 'land'], taskType);
+    case 'PayloadDrop':
+      return contains(['takeoff', 'loiter', 'payloadDrop', 'land'], taskType);
+    case 'UGVRetrieve':
+      return contains(['retrieveTarget', 'deliverTarget'], taskType);
+    case 'UUVRetrieve':
+      return taskType === 'retrieveTarget';
+    case 'QuickScan':
+      return taskType === 'quickScan';
+    case 'DetailedSearch':
+      return taskType === 'detailedSearch';
+    default:
+      return false;
+  }
+}
+
+export default {
+  isValidTaskForJob,
+};

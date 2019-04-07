@@ -34,13 +34,7 @@ const xbeeAPI = new XBeeAPI();
  */
 export function sendMessage(id: number, vehicleId: number, message: Message): void {
   // Cannot send messages if port is not open.
-  if (!serialport.isOpen) {
-    ipcRenderer.send('post', 'updateMessages', {
-      type: 'failure',
-      message: 'Tried to send a message while connection is closed',
-    });
-    return;
-  }
+  if (!serialport.isOpen) return;
 
   // Check to ensure the vehicle we are sending this to is valid.
   const vehicleInfoObject = vehicleInfos[vehicleId];

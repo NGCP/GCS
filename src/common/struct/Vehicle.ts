@@ -5,7 +5,7 @@ import { vehicleInfos } from '../../static/index';
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
 import { VehicleStatus } from '../../util/types'; // eslint-disable-line import/named
 
-import { Job } from './Jobs'; // eslint-disable-line import/named
+import { isValidTaskForJob, Task } from './Jobs'; // eslint-disable-line import/named
 import { Message, StartMessage, UpdateMessage } from './Messages'; // eslint-disable-line import/named
 import UpdateHandler from './UpdateHandler';
 
@@ -36,7 +36,7 @@ export interface VehicleObject {
   status: VehicleStatus;
 
   /**
-   * Jobs that the vehicle can perform.
+   * Jobs of the vehicle.
    */
   jobs: string[];
 
@@ -67,25 +67,34 @@ export interface VehicleObject {
 }
 
 /**
- * Contains data held by a vehicle as well as functions used by the vehicle.
+ * Contains data about a specific physical vehicle that the GCS will need to keep track
+ * of it (missions, information, etc).
+ *
+ * Also has functions that allows the GCS to command the physical vehicle by sending it
+ * tasks.
  */
 export default class Vehicle {
+  /**
+   * Forwards message to MessageHandler to send through Xbee.
+   */
+  private static sendMessage(message: Message): void {
+    ipcRenderer.send('post', 'sendMessage', message);
+  }
+
   /**
    * ID of the vehicle.
    */
   private vehicleId: number;
 
   /**
-   * Currently assigned job.
+   * Current assigned job.
    */
   private assignedJob: string = '';
 
   /**
-   * Whether or not the vehicle is currently in the state of being assigned a job.
-   * When the vehicle is assigned a job, it will be waiting for job info until it gets that.
-   * During that time, this variable will be true. False otherwise.
+   * Whether or not the vehicle is ready to be assigned a mission.
    */
-  private waitingForJobInfo: boolean = false;
+  private readyForMission: boolean = true;
 
   /**
    * Current status of the vehicle.
@@ -93,7 +102,7 @@ export default class Vehicle {
   private status: VehicleStatus = 'disconnected';
 
   /**
-   * Jobs that the vehicle can perform.
+   * Jobs the vehicle has. These define the tasks the vehicle is capable of performing.
    */
   private jobs: string[];
 
@@ -171,12 +180,12 @@ export default class Vehicle {
     });
 
     this.updateEventHandler.addHandler<number>('battery', (battery, message): boolean => {
-      if (battery > 1) {
+      if (battery > 1 || battery < 0) {
         const vehicleInfo = message && message.sid && vehicleInfos[message.sid];
 
         ipcRenderer.send('post', 'updateMessages', {
           type: 'failure',
-          message: `Received a battery status of more than 100% (${battery * 100}%) from ${(vehicleInfo && vehicleInfo.name) || 'an unknown vehicle'}`,
+          message: `Received an invalid battery status (${battery * 100}%) from ${(vehicleInfo && vehicleInfo.name) || 'an unknown vehicle'}`,
         });
       } else {
         this.battery = battery;
@@ -246,89 +255,94 @@ export default class Vehicle {
   }
 
   /**
-   * Assigns a job to the vehicle.
+   * Notifies the vehicle that it will be performing a certain mission. We let the vehicle know of
+   * the job type too, so that it knows which tasks to expect from us and discard any other
+   * tasks that do not support their job.
+   *
+   * Will return true if the mission was assigned successfully.
+   *
+   * @param jobType The job that will be used to accomplish the mission.
+   * @param options Optional information vehicle will need before performing any tasks.
+   * @param completionCallback Optional callback when vehicle finishes/terminates the mission.
+   * @param disconnectionCallback Optional callback when vehicle disconnects.
+   * @param errorCallback Optional callback when vehicle goes in an error state.
    */
-  public assignJob(
-    job: string,
+  public assignMission(
+    jobType: string,
     options?: object,
     completionCallback?: () => void,
     disconnectionCallback?: () => void,
     errorCallback?: ErrorCallback,
-  ): void {
-    if (this.waitingForJobInfo) {
-      throw new Error('Vehicle has already been assigned a job and is waiting for info.');
+  ): boolean {
+    // Returns false if a vehicle has already been assigned a mission.
+    if (!this.readyForMission) {
+      return false;
     }
 
-    this.assignedJob = job;
-    this.waitingForJobInfo = true;
+    this.assignedJob = jobType;
+    this.readyForMission = false;
     if (errorCallback) this.errorCallback = errorCallback;
 
     const startMessage: StartMessage = {
       type: 'start',
-      jobType: this.assignedJob,
+      jobType,
     };
 
     if (options) startMessage.options = options;
 
     // Sends the start message to the vehicle with corresponding job name.
-    this.sendMessage({
-      type: 'start',
-      jobType: this.assignedJob,
-    });
+    Vehicle.sendMessage(startMessage);
 
     /*
-     * Create handler that will call completion callback and when vehicle goes back to
-     * "ready" status.
-     *
-     * Vehicle goes back to "ready" status once it either finishes a job or gets its job done and
-     * is ready for another job to be assigned.
-     *
-     * There will be a callback that can be provided in the case when the vehicle is in a state
-     * other than "ready" and it gets disconnected. We do not need to worry about a disconnection
-     * callback when the vehicle is "ready" since it is in a stable state.
+     * Create handler that will sets the readyForMission back to true once the vehicle
+     * goes back to a ready status. Vehicle goes back to "ready" status once it either
+     * finishes a mission or goes back to a neutral position after its mission is stopped.
      */
     this.updateEventHandler.addHandler<VehicleStatus>('status', (value): boolean => {
       if (value === 'ready') {
         if (completionCallback) completionCallback();
-        this.waitingForJobInfo = false;
+        this.readyForMission = true;
       } else if (value === 'disconnected') {
         if (disconnectionCallback) disconnectionCallback();
       }
       return value === 'ready';
     });
+
+    return true;
   }
 
   /**
-   * Starts the vehicle's job by giving the vehicle information. This will be called by the
-   * Orchestrator when the user interface provides it with information for the job.
+   * Gives the vehicle a task to perform (the task must be able to be done by the vehicle's job).
+   * Will return true if the task was assigned successfully. The only way the task would not
+   * be assigned successfully is if the task is not supported by the vehicle's job.
+   *
+   * @param task The task for the vehicle to perform. Must support the vehicle's job.
    */
-  public startJob(job: Job): void {
-    if (!this.waitingForJobInfo) {
-      throw new Error('Vehicle has not been assigned a job yet. Assign the job before telling the vehicle to start.');
+  public addMission(task: Task): boolean {
+    /*
+     * Returns false if the vehicle has not been assigned a mission or if the provided task
+     * is not compatible with its job.
+     */
+    if (!this.readyForMission || !isValidTaskForJob(task, this.assignedJob)) {
+      return false;
     }
 
-    this.sendMessage({
+    Vehicle.sendMessage({
       type: 'addMission',
-      missionInfo: job.missionInfo,
+      missionInfo: task,
     });
+
+    return true;
   }
 
   /**
    * Sends stop message to vehicle.
    */
   public stop(): void {
-    this.sendMessage({
+    Vehicle.sendMessage({
       type: 'stop',
     });
 
     this.assignedJob = '';
-  }
-
-  // TODO: Make this function and get it to send message using Xbee.
-  private sendMessage(message: Message): void { // eslint-disable-line
-    /*
-     * Xbee.send(this.vehicleId, message); or use MAC address, probably better to get this from
-     * Xbee class though
-     */
   }
 }

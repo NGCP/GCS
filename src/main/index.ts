@@ -432,7 +432,7 @@ app.on('ready', (): void => {
    * This is necessary to run the map container.
    */
   if (!process.env.MAPBOX_TOKEN) {
-    throw new Error('Set the MapBox token in .env before launching the application.');
+    throw new Error('Set the MapBox token in .env before launching the application');
   }
 
   createMainWindow();
