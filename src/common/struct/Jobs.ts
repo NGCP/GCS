@@ -246,17 +246,17 @@ export function isValidTaskForJob(task: Task, jobType: string): boolean {
   const { taskType } = task.missionInfo;
 
   switch (jobType) {
-    case 'ISRSearch':
+    case 'isrSearch':
       return contains(['takeoff', 'loiter', 'isrSearch', 'land'], taskType);
-    case 'PayloadDrop':
+    case 'payloadDrop':
       return contains(['takeoff', 'loiter', 'payloadDrop', 'land'], taskType);
-    case 'UGVRetrieve':
+    case 'ugvRetrieve':
       return contains(['retrieveTarget', 'deliverTarget'], taskType);
-    case 'UUVRetrieve':
+    case 'uuvRetrieve':
       return taskType === 'retrieveTarget';
-    case 'QuickScan':
+    case 'quickScan':
       return taskType === 'quickScan';
-    case 'DetailedSearch':
+    case 'detailedSearch':
       return taskType === 'detailedSearch';
     default:
       return false;
