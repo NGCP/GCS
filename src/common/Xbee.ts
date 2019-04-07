@@ -1,11 +1,28 @@
+// Do not interact with this file outside the MissionHandler class.
+
 import { ipcRenderer } from 'electron';
 import SerialPort from 'serialport';
 import { constants as C, Frame, XBeeAPI } from 'xbee-api';
 
-import { VehicleInfo, vehicleInfos } from '../static/index';
+import { VehicleInfo, vehicleConfig } from '../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { Message } from './struct/Messages'; // eslint-disable-line import/named
+import { Message } from '../types/messages'; // eslint-disable-line import/named
+
+/**
+ * Requirements for all messages that are sent/received.
+ */
+interface MessageRequirements {
+  id: number;
+  sid: 0;
+  tid: number;
+  time: number;
+}
+
+/**
+ * Message with id, sid, tid, and time.
+ */
+export type JSONMessage = Message & MessageRequirements;
 
 /*
  * TODO: Add a feature with Vehicle container to change this dynamically and reconnect.
@@ -28,20 +45,22 @@ const xbeeAPI = new XBeeAPI();
  * Sends a message through the Xbee to a given vehicle. Will not execute if Xbee port
  * is not open.
  *
- * @param id The unique message id.
  * @param vehicleId The vehicle id to send this message to.
  * @param message The message to send to the vehicle.
  */
-export function sendMessage(id: number, vehicleId: number, message: Message): void {
+function sendMessage(message: JSONMessage): void {
   // Cannot send messages if port is not open.
   if (!serialport.isOpen) return;
 
-  // Check to ensure the vehicle we are sending this to is valid.
-  const vehicleInfoObject = vehicleInfos[vehicleId];
+  /*
+   * Check to ensure the vehicle we are sending this to is valid. This is just in case
+   * MessageHandler somehow provides an invalid tid (id of the target vehicle).
+   */
+  const vehicleInfoObject = vehicleConfig.vehicleInfos[message.tid];
   if (!vehicleInfoObject) {
     ipcRenderer.send('post', 'updateMessages', {
       type: 'failure',
-      message: `Failed to send message to vehicle with id ${vehicleId}`,
+      message: `Failed to send message to vehicle with id ${message.tid}`,
     });
     return;
   }
@@ -51,23 +70,17 @@ export function sendMessage(id: number, vehicleId: number, message: Message): vo
   xbeeAPI.builder.write({
     type: C.FRAME_TYPE.ZIGBEE_TRANSMIT_STATUS,
     destination64: macAddress,
-    data: {
-      id,
-      sid: 0,
-      tid: vehicleId,
-      time: Date.now(),
-      ...message,
-    },
+    data: message,
   });
 }
 
-export function openConnection(): boolean {
+function openConnection(): boolean {
   if (serialport.isOpen) return false;
   serialport.open();
   return true;
 }
 
-export function closeConnection(): boolean {
+function closeConnection(): boolean {
   if (!serialport.isOpen) return false;
   serialport.close();
   return true;
@@ -101,7 +114,7 @@ xbeeAPI.parser.on('data', (frame: Frame): void => {
   if (frame.type !== C.FRAME_TYPE.ZIGBEE_RECEIVE_PACKET || !frame.data) return;
 
   // Sends notification to process the message (either a valid JSON string or not).
-  ipcRenderer.send('post', 'processMessage', frame.data.toString());
+  ipcRenderer.send('post', 'receiveMessage', frame.data.toString());
 });
 
 export default {

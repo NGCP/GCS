@@ -11,7 +11,7 @@ import {
   TableCellProps,
 } from 'react-virtualized';
 
-import { Mission, ThemeProps } from '../../../util/types';
+import { Mission, ThemeProps } from '../../../types/types';
 
 interface WidthSignature {
   [column: string]: number;

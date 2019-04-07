@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
-import { ThemeProps } from '../../../../util/types';
+import { ThemeProps } from '../../../../types/types';
 
 import Control from './Control';
 

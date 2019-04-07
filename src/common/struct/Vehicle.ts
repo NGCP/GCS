@@ -1,12 +1,17 @@
 import { ipcRenderer } from 'electron';
 
-import { vehicleInfos } from '../../static/index';
+import { vehicleConfig } from '../../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { VehicleStatus } from '../../util/types'; // eslint-disable-line import/named
+import { VehicleObject, VehicleStatus } from '../../types/types'; // eslint-disable-line import/named
 
-import { isValidTaskForJob, Task } from './Jobs'; // eslint-disable-line import/named
-import { Message, StartMessage, UpdateMessage } from './Messages'; // eslint-disable-line import/named
+import {
+  Message, // eslint-disable-line import/named
+  StartMessage,
+  Task, // eslint-disable-line import/named
+  UpdateMessage,
+} from '../../types/messages';
+
 import UpdateHandler from './UpdateHandler';
 
 type ErrorCallback = (message?: string) => void;
@@ -21,52 +26,6 @@ export interface VehicleOptions {
 }
 
 /**
- * Publicly accessible object that contains information about the vehicle. Modifying
- * information of this object will not modify the actual vehicle class.
- */
-export interface VehicleObject {
-  /**
-   * ID of the vehicle.
-   */
-  vehicleId: number;
-
-  /**
-   * Current status of the vehicle.
-   */
-  status: VehicleStatus;
-
-  /**
-   * Jobs of the vehicle.
-   */
-  jobs: string[];
-
-  /**
-   * Current latitude of the vehicle. Starts at 0.
-   */
-  lat: number;
-
-  /**
-   * Current longitude of the vehicle. Starts at 0.
-   */
-  lng: number;
-
-  /**
-   * Current altitude of the vehicle.
-   */
-  alt?: number;
-  /**
-   *
-   * Current battery of the vehicle, expressed as a decimal. Will vary from 0 to 1.
-   */
-  battery?: number;
-
-  /**
-   * Current vehicle heading. Value is in degrees.
-   */
-  heading?: number;
-}
-
-/**
  * Contains data about a specific physical vehicle that the GCS will need to keep track
  * of it (missions, information, etc).
  *
@@ -74,13 +33,6 @@ export interface VehicleObject {
  * tasks.
  */
 export default class Vehicle {
-  /**
-   * Forwards message to MessageHandler to send through Xbee.
-   */
-  private static sendMessage(message: Message): void {
-    ipcRenderer.send('post', 'sendMessage', message);
-  }
-
   /**
    * ID of the vehicle.
    */
@@ -181,7 +133,7 @@ export default class Vehicle {
 
     this.updateEventHandler.addHandler<number>('battery', (battery, message): boolean => {
       if (battery > 1 || battery < 0) {
-        const vehicleInfo = message && message.sid && vehicleInfos[message.sid];
+        const vehicleInfo = message && message.sid && vehicleConfig.vehicleInfos[message.sid];
 
         ipcRenderer.send('post', 'updateMessages', {
           type: 'failure',
@@ -255,6 +207,15 @@ export default class Vehicle {
   }
 
   /**
+   * Forwards message to MessageHandler to send through Xbee.
+   *
+   * @param message Message to send.
+   */
+  private sendMessage(message: Message): void {
+    ipcRenderer.send('post', 'sendMessage', this.vehicleId, message);
+  }
+
+  /**
    * Notifies the vehicle that it will be performing a certain mission. We let the vehicle know of
    * the job type too, so that it knows which tasks to expect from us and discard any other
    * tasks that do not support their job.
@@ -291,7 +252,7 @@ export default class Vehicle {
     if (options) startMessage.options = options;
 
     // Sends the start message to the vehicle with corresponding job name.
-    Vehicle.sendMessage(startMessage);
+    this.sendMessage(startMessage);
 
     /*
      * Create handler that will sets the readyForMission back to true once the vehicle
@@ -323,11 +284,11 @@ export default class Vehicle {
      * Returns false if the vehicle has not been assigned a mission or if the provided task
      * is not compatible with its job.
      */
-    if (!this.readyForMission || !isValidTaskForJob(task, this.assignedJob)) {
+    if (!this.readyForMission || !vehicleConfig.isTaskTypeForJob(task.taskType, this.assignedJob)) {
       return false;
     }
 
-    Vehicle.sendMessage({
+    this.sendMessage({
       type: 'addMission',
       missionInfo: task,
     });
@@ -339,7 +300,7 @@ export default class Vehicle {
    * Sends stop message to vehicle.
    */
   public stop(): void {
-    Vehicle.sendMessage({
+    this.sendMessage({
       type: 'stop',
     });
 

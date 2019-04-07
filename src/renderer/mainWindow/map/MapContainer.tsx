@@ -10,16 +10,15 @@ import React, {
 } from 'react';
 import { Map, TileLayer, Viewport } from 'react-leaflet';
 
-import { VehicleObject } from '../../../common/struct/Vehicle';
-
-import { startLocation } from '../../../static/index';
+import { locationConfig } from '../../../static/index';
 
 import {
   FileLoadOptions,
   FileSaveOptions,
   LatLngZoom,
   ThemeProps,
-} from '../../../util/types';
+  VehicleObject,
+} from '../../../types/types';
 import { updateVehicles } from '../../../util/util';
 
 import GeolocationControl from './control/GeolocationControl';
@@ -59,6 +58,8 @@ interface State extends LatLngZoom {
 export default class MapContainer extends Component<ThemeProps, State> {
   public constructor(props: ThemeProps) {
     super(props);
+
+    const { startLocation } = locationConfig;
 
     this.state = {
       vehicles: {},

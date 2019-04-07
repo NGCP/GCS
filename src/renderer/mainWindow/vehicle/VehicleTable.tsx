@@ -9,16 +9,13 @@ import {
   TableCellProps,
 } from 'react-virtualized';
 
-import { VehicleObject } from '../../../common/struct/Vehicle';
-
 import {
+  vehicleConfig,
   VehicleInfo,
-  vehicleInfos,
   VehicleStatus,
-  vehicleStatuses,
 } from '../../../static/index';
 
-import { ThemeProps } from '../../../util/types';
+import { ThemeProps, VehicleObject } from '../../../types/types';
 
 interface WidthSignature {
   [column: string]: number;
@@ -52,7 +49,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
    */
   private static nameRenderer(props: TableCellProps): string {
     const { rowData: vehicle }: { rowData: VehicleObject } = props;
-    const { name } = vehicleInfos[vehicle.vehicleId] as VehicleInfo;
+    const { name } = vehicleConfig.vehicleInfos[vehicle.vehicleId] as VehicleInfo;
     return name;
   }
 
@@ -61,7 +58,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
    */
   private static statusRenderer(props: TableCellProps): ReactNode {
     const { rowData }: { rowData: VehicleObject } = props;
-    const vehicleStatus = vehicleStatuses[rowData.status] as VehicleStatus;
+    const vehicleStatus = vehicleConfig.vehicleStatuses[rowData.status] as VehicleStatus;
     return <span className={vehicleStatus.type}>{vehicleStatus.message}</span>;
   }
 

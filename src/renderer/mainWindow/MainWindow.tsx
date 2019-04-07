@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-import { ThemeProps } from '../../util/types';
+import { ThemeProps } from '../../types/types';
 
 import LogContainer from './log/LogContainer';
 import MapContainer from './map/MapContainer';

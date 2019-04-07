@@ -4,7 +4,7 @@ import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-import { fixtures, geolocation } from '../static/index';
+import { config } from '../static/index';
 
 import MainWindow from './mainWindow/MainWindow';
 import MissionWindow from './missionWindow/MissionWindow';
@@ -35,12 +35,12 @@ function runOnce() {
   require('../common/Orchestrator');
 
   // Set up geolocation if geolocation is enabled in config.
-  if (geolocation) {
+  if (config.geolocation) {
     ipcRenderer.send('post', 'setMapToUserLocation');
   }
 
   // Sets up fixtures if in development and fixtures are enabled in config.
-  if (isDevelopment && fixtures) {
+  if (isDevelopment && config.fixtures) {
     require('./fixtures/index');
   }
 

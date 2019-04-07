@@ -1,5 +1,4 @@
 {
-  "vehicleDisconnectionTime": 20,
   "vehicleIds": {
     "UAV": 100,
     "UGV": 200,
@@ -45,6 +44,14 @@
       "name": "Blimp",
       "type": "plane"
     }
+  },
+  "vehicleJobs": {
+    "isrSearch": ["takeoff", "loiter", "isrSearch", "land"],
+    "payloadDrop": ["takeoff", "loiter", "payloadDrop", "land"],
+    "ugvRetrieve": ["retrieveTarget", "deliverTarget"],
+    "uuvRetrieve": ["retrieveTarget"],
+    "quickScan": ["quickScan"],
+    "detailedSearch": ["detailedSearch"]
   },
   "vehicleStatuses": {
     "ready": {

@@ -3,7 +3,7 @@ import React, { Component, ReactNode } from 'react';
 
 import MissionTable from './MissionTable';
 
-import { Mission, MissionStatus, ThemeProps } from '../../../util/types';
+import { Mission, MissionStatus, ThemeProps } from '../../../types/types';
 
 import './mission.css';
 

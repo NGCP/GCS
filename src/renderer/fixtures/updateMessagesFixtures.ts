@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { MessageType } from '../../util/types'; // eslint-disable-line import/named
+import { MessageType } from '../../types/types'; // eslint-disable-line import/named
 
 const fixtures: { type?: MessageType; message: string }[] = [
   {

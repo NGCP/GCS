@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { LatLngZoom } from '../util/types';
+import { LatLngZoom } from '../types/types';
 
 import ngcp_calpoly from './images/logo/ngcp_calpoly.png';
 import ngcp_pomona from './images/logo/ngcp_pomona.png';
@@ -25,17 +25,17 @@ import arrow from './images/arrow.png';
 import icon from './images/icon.png';
 import pin from './images/pin.png';
 
-import { fixtures, geolocation } from './config.json';
+import config from './config.json';
 import { startLocation as startLocationString, locations as locationsObject } from './locations.json';
 import {
-  vehicleDisconnectionTime,
   vehicleIds as vehicleIdsObject,
   vehicleInfos as vehicleInfosObject,
+  vehicleJobs as vehicleJobsObject,
   vehicleStatuses as vehicleStatusesObject,
 } from './vehicle.json';
 
-// Export json objects with signature to allow us to access it with TypeScript.
-export const locations: {
+// Add signature to json objects to allow us to access it with TypeScript.
+const locations: {
   [name: string]: { lat: number; lng: number; zoom?: number } | undefined;
 } = locationsObject;
 
@@ -52,9 +52,13 @@ export interface VehicleInfo {
   'type': string;
 }
 
-export const vehicleInfos: {
+const vehicleInfos: {
   [id: string]: VehicleInfo | undefined;
 } = vehicleInfosObject;
+
+const vehicleJobs: {
+  [jobType: string]: string[] | undefined;
+} = vehicleJobsObject;
 
 /**
  * Object contained in vehicleStatuses in vehicle.json.
@@ -64,19 +68,47 @@ export interface VehicleStatus {
   message: string;
 }
 
-export const vehicleStatuses: {
+const vehicleStatuses: {
   [status: string]: VehicleStatus | undefined;
 } = vehicleStatusesObject;
 
 // Add logic to set startLocation.
-export const startLocation: LatLngZoom = startLocationString && locations[startLocationString]
+const startLocation: LatLngZoom = startLocationString && locations[startLocationString]
   ? locations[startLocationString] as LatLngZoom : {
     lat: 0,
     lng: 0,
     zoom: 18,
   };
 
-export { fixtures, geolocation, vehicleDisconnectionTime };
+/**
+ * Checks if a string is a valid job type.
+ */
+function isJobType(jobType: string): boolean {
+  return vehicleJobs[jobType] !== undefined;
+}
+
+/**
+ * Checks if a task is a valid task type for that job.
+ */
+function isTaskTypeForJob(taskType: string, jobType: string): boolean {
+  return isJobType(jobType) && (vehicleJobs[jobType] as string[]).indexOf(taskType) >= 0;
+}
+
+export const locationConfig = {
+  locations,
+  startLocation,
+};
+
+export const vehicleConfig = {
+  vehicleIds,
+  vehicleInfos,
+  vehicleStatuses,
+  vehicleJobs,
+  isTaskTypeForJob,
+  isJobType,
+};
+
+export { default as config } from './config.json';
 
 /**
  * A given key for an image will give either a string or an object with similar structure.
@@ -85,7 +117,7 @@ export interface RecursiveImageSignature {
   [key: string]: string | RecursiveImageSignature;
 }
 
-export const images: RecursiveImageSignature = {
+export const imageConfig: RecursiveImageSignature = {
   arrow,
   icon,
   pin,
@@ -112,13 +144,8 @@ export const images: RecursiveImageSignature = {
 };
 
 export default {
-  fixtures,
-  geolocation,
-  images,
-  locations,
-  startLocation,
-  vehicleDisconnectionTime,
-  vehicleIds,
-  vehicleInfos,
-  vehicleStatuses,
+  config,
+  imageConfig,
+  locationConfig,
+  vehicleConfig,
 };

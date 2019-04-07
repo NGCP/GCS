@@ -1,7 +1,6 @@
-import { ipcRenderer } from 'electron';
 import { Component } from 'react';
 
-import { VehicleObject } from '../common/struct/Vehicle';
+import { VehicleObject } from '../types/types';
 
 /**
  * Updates vehicles being shown. This is run on map and vehicle containers.
@@ -20,58 +19,19 @@ export function updateVehicles(
   component.setState({ vehicles: currentVehicles });
 }
 
-/*
- * These functions will allow us to maintain mission states (starting missions, job, etc.)
- * I'll add explanation here soon. All explanations are in Slack right now.
- * The way we should name functions that interact with ipcRenderer are the following:
- * Assuming we have the notification "startMission", the function startMission() is the
- * callback to when the notification is received. The function sendStartMission() is the
- * function that sends out this notification.
+/**
+ * Checks if the string is a JSON. Should be called before isMessage().
  */
+export function isJSON(message: string): boolean {
+  if (!message) return false;
 
-function sendStartMission(): void {
-  ipcRenderer.send('post', 'startMission');
+  try {
+    JSON.parse(message);
+  } catch (e) {
+    return false;
+  }
+  return true;
 }
-
-function sendStopMission(): void {
-  ipcRenderer.send('post', 'stopMission');
-}
-
-function sendCompleteMission(index: number): void {
-  ipcRenderer.send('post', 'completeMission', index);
-}
-
-export const mission = {
-  sendStartMission,
-  sendStopMission,
-  sendCompleteMission,
-};
-
-function sendStartJob(data: {
-  jobType: string;
-  missionInfo: {};
-}): void {
-  ipcRenderer.send('post', 'startJob', data);
-}
-
-function sendPauseJob(): void {
-  ipcRenderer.send('post', 'pauseJob');
-}
-
-function sendResumeJob(): void {
-  ipcRenderer.send('post', 'resumeJob');
-}
-
-function sendCompleteJob(): void {
-  ipcRenderer.send('post', 'completeJob');
-}
-
-export const job = {
-  sendStartJob,
-  sendPauseJob,
-  sendResumeJob,
-  sendCompleteJob,
-};
 
 /* eslint-disable no-bitwise */
 
@@ -109,13 +69,11 @@ function toFloat(hexString: string): number {
   return 0;
 }
 
-export const floatHex = { toHexString, toFloat };
-
 /* eslint-enable no-bitwise */
 
 export default {
-  floatHex,
-  job,
-  mission,
+  isJSON,
+  toFloat,
+  toHexString,
   updateVehicles,
 };

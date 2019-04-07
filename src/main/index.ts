@@ -13,7 +13,7 @@ import {
 import fs from 'fs';
 import moment from 'moment';
 
-import { images, locations } from '../static/index';
+import { imageConfig, locationConfig } from '../static/index';
 
 /**
  * This key is required to enable geolocation in the application.
@@ -44,7 +44,7 @@ const HEIGHT = 576;
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // TODO: Put icon tray back to macOS but resize it so that its not huge on macOS's menu.
-const icon = nativeImage.createFromDataURL(images.icon as string);
+const icon = nativeImage.createFromDataURL(imageConfig.icon as string);
 
 /**
  * Variable to keep track when the app will quit, which is different from hiding the app.
@@ -251,7 +251,7 @@ function setLocationMenu(): void {
   // Cast the submenu variable to locationMenu as a MenuItemContsturctorOptions array.
   const locationMenu: MenuItemConstructorOptions[] = submenu as MenuItemConstructorOptions[];
 
-  if (!locations || Object.keys(locations).length === 0) {
+  if (!locationConfig.locations || Object.keys(locationConfig.locations).length === 0) {
     locationMenu.push({
       label: 'No locations defined',
       enabled: false,
@@ -259,12 +259,12 @@ function setLocationMenu(): void {
     return;
   }
 
-  Object.keys(locations).forEach((label): void => {
+  Object.keys(locationConfig.locations).forEach((label): void => {
     locationMenu.push({
       label,
       click: (menuItem): void => {
         if (mainWindow) {
-          mainWindow.webContents.send('updateMapLocation', locations[menuItem.label]);
+          mainWindow.webContents.send('updateMapLocation', locationConfig.locations[menuItem.label]);
         }
       },
     });

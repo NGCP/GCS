@@ -1,11 +1,11 @@
 import { ipcRenderer } from 'electron';
 
-import Vehicle, { VehicleObject, VehicleOptions } from '../../common/struct/Vehicle';
+import Vehicle, { VehicleOptions } from '../../common/struct/Vehicle';
 
-import { startLocation, vehicleStatuses } from '../../static/index';
+import { locationConfig, vehicleConfig } from '../../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { VehicleStatus } from '../../util/types'; // eslint-disable-line import/named
+import { VehicleObject, VehicleStatus } from '../../types/types'; // eslint-disable-line import/named
 
 const fixtureOptions: VehicleOptions[] = [
   {
@@ -38,13 +38,13 @@ const fixtureOptions: VehicleOptions[] = [
   },
 ];
 
-const status = Object.keys(vehicleStatuses);
+const status = Object.keys(vehicleConfig.vehicleStatuses);
 
 const vehicles = fixtureOptions.map((options): Vehicle => new Vehicle(options));
 vehicles.forEach((vehicle): void => {
   vehicle.getUpdateEventHandler().events({
-    lat: startLocation.lat + (Math.random() / 1000) - 0.0005,
-    lng: startLocation.lng + (Math.random() / 1000) - 0.0005,
+    lat: locationConfig.startLocation.lat + (Math.random() / 1000) - 0.0005,
+    lng: locationConfig.startLocation.lng + (Math.random() / 1000) - 0.0005,
   });
 });
 

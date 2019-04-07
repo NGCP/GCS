@@ -2,8 +2,6 @@ import { ipcRenderer } from 'electron';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { mission as missionUtil } from '../../../util/util';
-
 // TODO: Make this component more pretty.
 const Default = ({ job }) => (
   <div className="job">
@@ -11,7 +9,7 @@ const Default = ({ job }) => (
       <h2>{job.description}</h2>
     </div>
     <div className="buttonContainer">
-      <button type="button" onClick={missionUtil.sendStartMission}>Start Mission</button>
+      <button type="button">Start Mission</button>
     </div>
   </div>
 );

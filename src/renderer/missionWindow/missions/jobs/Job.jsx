@@ -2,8 +2,6 @@ import { ipcRenderer } from 'electron';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { job as jobUtil, mission } from '../../../../util/util';
-
 const propTypes = {
   job: PropTypes.shape({
     name: PropTypes.string.isRequired,
@@ -60,24 +58,26 @@ export default class Job extends Component {
   }
 
   sendStartJob() {
-    const { job } = this.props;
+    // const { job } = this.props;
 
     this.setState({
       startJobButton: false,
       pauseJobButton: true,
     });
 
-    jobUtil.sendStartJob({
-      jobType: job.name,
-      // TODO: Add missionInfo.
-    });
+    /*
+     * jobUtil.sendStartJob({
+     *   jobType: job.name,
+     *   // TODO: Add missionInfo.
+     * });
+     */
   }
 
   sendStopMission() {
     // Reset state for future use of this job.
     this.setState({ ...defaultState });
 
-    mission.sendStopMission();
+    // mission.sendStopMission();
   }
 
   sendPauseJob() {
@@ -86,7 +86,7 @@ export default class Job extends Component {
       resumeJobButton: true,
     });
 
-    jobUtil.sendPauseJob();
+    // jobUtil.sendPauseJob();
   }
 
   sendResumeJob() {
@@ -95,7 +95,7 @@ export default class Job extends Component {
       pauseJobButton: true,
     });
 
-    jobUtil.sendResumeJob();
+    // jobUtil.sendResumeJob();
   }
 
   sendNextJob() {
@@ -109,7 +109,7 @@ export default class Job extends Component {
     // Reset state for future use of this job.
     this.setState({ ...defaultState });
 
-    mission.sendCompleteMission();
+    // mission.sendCompleteMission();
   }
 
   render() {
