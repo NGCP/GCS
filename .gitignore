@@ -2,7 +2,10 @@
 .DS_Store
 .env
 package-lock.json
+docs/make.bat
+docs/Makefile
 
 # folders
 dist
 node_modules
+docs/_build
