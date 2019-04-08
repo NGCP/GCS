@@ -1,21 +1,12 @@
-.. Ground Control Station documentation master file, created by
-   sphinx-quickstart on Sun Apr  7 13:36:14 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to Ground Control Station's documentation!
-==================================================
-Welcome to the GCS Wiki! All topics related to GCS development as well as communication are found in the sidebar.
+===========================
+NGCP Ground Control Station
+===========================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+  :maxdepth: 2
+  :hidden:
 
+  contributing
+  communications/index
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+Welcome to the NGCP Ground Control Station wiki! You can find all topics related to the project on the sidebar.

@@ -20,7 +20,7 @@
 # -- Project information -----------------------------------------------------
 
 project = u'Ground Control Station'
-copyright = u'2019, Northrop Grumman Collaboration Project'
+copyright = u'2018-2019, Northrop Grumman Collaboration Project'
 author = u'Northrop Grumman Collaboration Project'
 
 # The short X.Y version
