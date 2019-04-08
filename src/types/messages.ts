@@ -260,20 +260,26 @@ export interface UpdateMessage extends MessageBase {
   /**
    * Message generated if vehicle is in an error state.
    *
-   * This field is REQUIRED if the vehicle is in an error state.
+   * It is best practice to provide this value to be able to see why the the vehicle's
+   * status is error.
    */
   errorMessage?: string;
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-// TODO: Create type guards for messages received.
 export function isUpdateMessage(message: Message): boolean {
+  // Check if message type is "update".
   return message.type === 'update'
+
+    // Check if lat is a number.
     && !Number.isNaN(message.lat)
+
+    // Check if lng is a number.
     && !Number.isNaN(message.lng)
-    && isVehicleStatus(message.status)
-    && message.status === 'error' ? message.errorMessage !== undefined : true;
+
+    // Check if status is a valid vehicle status.
+    && isVehicleStatus(message.status);
 }
 
 export interface POIMessage extends MessageBase {
@@ -291,8 +297,13 @@ export interface POIMessage extends MessageBase {
 }
 
 export function isPOIMessage(message: Message): boolean {
+  // Check if message type is "poi".
   return message.type === 'poi'
+
+    // Check if lat is a number.
     && !Number.isNaN(message.lat)
+
+    // Check if lng is a number.
     && !Number.isNaN(message.lng);
 }
 
@@ -301,6 +312,7 @@ export interface CompleteMessage extends MessageBase {
 }
 
 export function isCompleteMessage(message: Message): boolean {
+  // Check if message type is "complete".
   return message.type === 'complete';
 }
 
@@ -314,7 +326,11 @@ export interface ConnectMessage extends MessageBase {
 }
 
 export function isConnectMessage(message: Message): boolean {
-  return message.type === 'connect';
+  // Check if message type is "connect".
+  return message.type === 'connect'
+
+    // Check if jobsAvailable is a string array of valid job types.
+    && message.jobsAvailable.every(vehicleConfig.isJobType);
 }
 
 // 4. Definitions for all other message types.
@@ -329,7 +345,10 @@ export interface AcknowledgementMessage extends MessageBase {
 }
 
 export function isAcknowledgementMessage(message: Message): boolean {
+  // Check if message type is "ack".
   return message.type === 'ack'
+
+    // Check if ackid is a number.
     && !Number.isNaN(message.ackid);
 }
 
@@ -339,13 +358,14 @@ export interface BadMessageMessage extends MessageBase {
   /**
    * Description of why message was bad.
    *
-   * It is required but the message should still be processed as a bad message
-   * if no string was provided by the vehicle.
+   * It is best practice to provide this value to be able to see why the message received
+   * is bad.
    */
   error?: string;
 }
 
 export function isBadMessageMessage(message: Message): boolean {
+  // Check if message type is "badMessage".
   return message.type === 'badMessage';
 }
 
