@@ -8,7 +8,7 @@
 import { vehicleConfig } from '../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { VehicleStatus } from './types'; // eslint-disable-line import/named
+import { isVehicleStatus, VehicleStatus } from './types'; // eslint-disable-line import/named
 
 // Definitions for all tasks.
 
@@ -259,6 +259,8 @@ export interface UpdateMessage extends MessageBase {
 
   /**
    * Message generated if vehicle is in an error state.
+   *
+   * This field is REQUIRED if the vehicle is in an error state.
    */
   errorMessage?: string;
 }
@@ -267,7 +269,11 @@ export interface UpdateMessage extends MessageBase {
 
 // TODO: Create type guards for messages received.
 export function isUpdateMessage(message: Message): boolean {
-  return false;
+  return message.type === 'update'
+    && !Number.isNaN(message.lat)
+    && !Number.isNaN(message.lng)
+    && isVehicleStatus(message.status)
+    && message.status === 'error' ? message.errorMessage !== undefined : true;
 }
 
 export interface POIMessage extends MessageBase {
@@ -285,7 +291,9 @@ export interface POIMessage extends MessageBase {
 }
 
 export function isPOIMessage(message: Message): boolean {
-  return false;
+  return message.type === 'poi'
+    && !Number.isNaN(message.lat)
+    && !Number.isNaN(message.lng);
 }
 
 export interface CompleteMessage extends MessageBase {
@@ -293,7 +301,7 @@ export interface CompleteMessage extends MessageBase {
 }
 
 export function isCompleteMessage(message: Message): boolean {
-  return false;
+  return message.type === 'complete';
 }
 
 export interface ConnectMessage extends MessageBase {
@@ -306,7 +314,7 @@ export interface ConnectMessage extends MessageBase {
 }
 
 export function isConnectMessage(message: Message): boolean {
-  return false;
+  return message.type === 'connect';
 }
 
 // 4. Definitions for all other message types.
@@ -321,7 +329,8 @@ export interface AcknowledgementMessage extends MessageBase {
 }
 
 export function isAcknowledgementMessage(message: Message): boolean {
-  return false;
+  return message.type === 'ack'
+    && !Number.isNaN(message.ackid);
 }
 
 export interface BadMessageMessage extends MessageBase {
@@ -329,12 +338,15 @@ export interface BadMessageMessage extends MessageBase {
 
   /**
    * Description of why message was bad.
+   *
+   * It is required but the message should still be processed as a bad message
+   * if no string was provided by the vehicle.
    */
-  error: string;
+  error?: string;
 }
 
 export function isBadMessageMessage(message: Message): boolean {
-  return false;
+  return message.type === 'badMessage';
 }
 
 export type Message = StartMessage | AddMissionMessage | PauseMessage | ResumeMessage | StopMessage
