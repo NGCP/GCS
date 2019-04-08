@@ -147,7 +147,7 @@ function loadConfig(): void {
   });
 
   // Returns if the user chooses to close the window instead of choosing a file path.
-  if (filePaths.length === 0) return;
+  if (!filePaths || filePaths.length === 0) return;
 
   // TODO: Add type for data.
   const data = JSON.parse(fs.readFileSync(filePaths[0]).toString());
