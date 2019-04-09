@@ -10,6 +10,9 @@ NGCP Ground Control Station
   :target: https://david-dm.org/NGCP/GCS?type=dev
 .. image:: https://app.fossa.com/api/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS.svg?type=shield
   :target: https://app.fossa.com/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS?ref=badge_shield
+.. image:: https://readthedocs.org/projects/ground-control-station/badge/?version=latest
+  :target: https://ground-control-station.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
 
 The `Northrop Grumman Collaboration Project`_ presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the project.
 
