@@ -1,12 +1,17 @@
-===========================
-NGCP Ground Control Station
-===========================
+.. include:: ../README.rst
 
 .. toctree::
+  :caption: Contributing
   :maxdepth: 2
-  :hidden:
 
-  contributing
-  communications/index
+  contributing/getting-started
 
-Welcome to the NGCP Ground Control Station wiki! You can find all topics related to the project on the sidebar.
+.. toctree::
+  :caption: Communications
+  :maxdepth: 2
+
+  communications/introduction
+  communications/float-hex
+  communications/vehicles-gcs-messages
+  communications/gcs-vehicles-messages
+  communications/other-messages
