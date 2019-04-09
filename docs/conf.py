@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 import json
 
 from sphinx.locale import _
@@ -8,7 +9,7 @@ with open('../package.json') as json_file:
     data = json.load(json_file)
 
 project = u'Ground Control Station'
-slug = 'ngcp-gcs'
+slug = re.sub(r'\W+', '-', project.lower())
 author = data['author']
 copyright = data['author']
 version = data['version']

@@ -27,7 +27,7 @@ The `Northrop Grumman Collaboration Project`_ presents the Ground Control Statio
 
 This is based on `Node.js`_, `React`_, `Webpack`_, and `Electron`_.
 
-Our documentation can be found `here <https://ngcp-gcs.readthedocs.io/>`_.
+Our documentation can be found `here <https://ground-control-station.readthedocs.io/>`_.
 
 Getting Started
 ===============
