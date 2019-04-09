@@ -62,6 +62,7 @@ License
 
 .. image:: https://app.fossa.com/api/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS.svg?type=large
   :target: https://app.fossa.com/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS?ref=badge_large
+  :alt: FOSSA Status
 
 .. _Northrop Grumman Collaboration Project: http://www.ngcpcalpoly.com/about.html
 .. _Node.js: https://github.com/nodejs/node
