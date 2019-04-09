@@ -9,6 +9,11 @@
     "Blimp": 600
   },
   "vehicleInfos": {
+    "0": {
+      "macAddress": "",
+      "name": "GCS",
+      "type": "station"
+    },
     "100": {
       "macAddress": "",
       "name": "UAV",

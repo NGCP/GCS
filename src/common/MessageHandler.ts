@@ -4,10 +4,10 @@ import { config } from '../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
 import DictionaryList from './struct/DictionaryList';
-import { Message } from '../types/messages'; // eslint-disable-line import/named
+import { JSONMessage, Message } from '../types/messages'; // eslint-disable-line import/named
 import UpdateHandler from './struct/UpdateHandler';
 
-import xbee, { JSONMessage } from './Xbee'; // eslint-disable-line import/named
+import xbee from './Xbee'; // eslint-disable-line import/named
 
 export default class MessageHandler {
   /**

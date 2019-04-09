@@ -7,22 +7,7 @@ import { constants as C, Frame, XBeeAPI } from 'xbee-api';
 import { VehicleInfo, vehicleConfig } from '../static/index';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { Message } from '../types/messages'; // eslint-disable-line import/named
-
-/**
- * Requirements for all messages that are sent/received.
- */
-interface MessageRequirements {
-  id: number;
-  sid: 0;
-  tid: number;
-  time: number;
-}
-
-/**
- * Message with id, sid, tid, and time.
- */
-export type JSONMessage = Message & MessageRequirements;
+import { JSONMessage } from '../types/messages'; // eslint-disable-line import/named
 
 /*
  * TODO: Add a feature with Vehicle container to change this dynamically and reconnect.

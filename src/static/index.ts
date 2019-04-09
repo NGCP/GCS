@@ -100,12 +100,12 @@ export const locationConfig = {
 };
 
 export const vehicleConfig = {
+  isJobType,
+  isTaskTypeForJob,
   vehicleIds,
   vehicleInfos,
   vehicleStatuses,
   vehicleJobs,
-  isTaskTypeForJob,
-  isJobType,
 };
 
 export { default as config } from './config.json';
