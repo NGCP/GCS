@@ -80,7 +80,7 @@ export interface TakeoffTask extends TaskBase {
   };
 }
 
-export function isTakeoffTask(task: Task): boolean {
+function isTakeoffTask(task: Task): boolean {
   return task.taskType === 'takeoff'
     && isHexFloat(task.lat)
     && isHexFloat(task.lng)
@@ -104,7 +104,7 @@ export interface LoiterTask extends TaskBase {
   direction: HexFloat;
 }
 
-export function isLoiterTask(task: Task): boolean {
+function isLoiterTask(task: Task): boolean {
   return task.taskType === 'loiter'
     && isHexFloat(task.lat)
     && isHexFloat(task.lng)
@@ -134,7 +134,7 @@ export interface ISRSearchTask extends TaskBase {
   ];
 }
 
-export function isISRSearchTask(task: Task): boolean {
+function isISRSearchTask(task: Task): boolean {
   return task.taskType === 'isrSearch'
     && isHexFloat(task.alt)
 
@@ -161,7 +161,7 @@ export interface PayloadDropTask extends TaskBase {
   ];
 }
 
-export function isPayloadDropTask(task: Task): boolean {
+function isPayloadDropTask(task: Task): boolean {
   return task.taskType === 'payloadDrop'
     && task.waypoints && task.waypoints.length === 2
     && task.waypoints.every(
@@ -188,7 +188,7 @@ export interface LandTask extends TaskBase {
   ];
 }
 
-export function isLandTask(task: Task): boolean {
+function isLandTask(task: Task): boolean {
   return task.taskType === 'land'
     && task.waypoints && task.waypoints.length === 2
     && task.waypoints.every(
@@ -205,7 +205,7 @@ export interface UGVRetrieveTargetTask extends TaskBase {
   lng: HexFloat;
 }
 
-export function isUGVRetrieveTargetTask(task: Task): boolean {
+function isUGVRetrieveTargetTask(task: Task): boolean {
   if (task.taskType !== 'retrieveTarget') return false;
 
   const retrieveTargetTask = task as UGVRetrieveTargetTask;
@@ -220,7 +220,7 @@ export interface DeliverTargetTask extends TaskBase {
   lng: HexFloat;
 }
 
-export function isDeliverTargetTask(task: Task): boolean {
+function isDeliverTargetTask(task: Task): boolean {
   return task.taskType === 'deliverTarget'
     && isHexFloat(task.lat)
     && isHexFloat(task.lng);
@@ -230,7 +230,7 @@ export interface UUVRetrieveTargetTask extends TaskBase {
   taskType: 'retrieveTarget';
 }
 
-export function isUUVRetrieveTargetTask(task: Task): boolean {
+function isUUVRetrieveTargetTask(task: Task): boolean {
   if (task.taskType !== 'retrieveTarget') return false;
 
   // Cast task to UGV retrieve to ensure that this task is not UGV task, and is UUV.
@@ -250,7 +250,7 @@ export interface QuickScanTask extends TaskBase {
   };
 }
 
-export function isQuickScanTask(task: Task): boolean {
+function isQuickScanTask(task: Task): boolean {
   return task.taskType === 'quickScan'
     && task.searchArea
     && task.searchArea.center && task.searchArea.center.length === 2
@@ -265,7 +265,7 @@ export interface DetailedSearchTask extends TaskBase {
   lng: HexFloat;
 }
 
-export function isDetailedSearchTask(task: Task): boolean {
+function isDetailedSearchTask(task: Task): boolean {
   return task.taskType === 'detailedSearch'
     && isHexFloat(task.lat)
     && isHexFloat(task.lng);
@@ -279,7 +279,7 @@ export type Task = TakeoffTask | LoiterTask | ISRSearchTask | PayloadDropTask | 
  * Checks if an object is a task. To be a task, the object must match one of the tasks above.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTask(task: { [key: string]: any }): boolean {
+function isTask(task: { [key: string]: any }): boolean {
   if (!task.taskType) return false;
 
   const specificTask = task as Task;
@@ -295,6 +295,20 @@ export function isTask(task: { [key: string]: any }): boolean {
    || isQuickScanTask(specificTask)
    || isDetailedSearchTask(specificTask);
 }
+
+export const taskTypeGuard = {
+  isTakeoffTask,
+  isLoiterTask,
+  isISRSearchTask,
+  isPayloadDropTask,
+  isLandTask,
+  isUGVRetrieveTargetTask,
+  isDeliverTargetTask,
+  isUUVRetrieveTargetTask,
+  isQuickScanTask,
+  isDetailedSearchTask,
+  isTask,
+};
 
 interface MessageBase {
   /**
@@ -324,7 +338,7 @@ export interface StartMessage extends MessageBase {
   options?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-export function isStartMessage(message: Message): boolean {
+function isStartMessage(message: Message): boolean {
   return message.type === 'start'
     && vehicleConfig.isJobType(message.jobType);
 }
@@ -338,7 +352,7 @@ export interface AddMissionMessage extends MessageBase {
   missionInfo: Task;
 }
 
-export function isAddMissionMessage(message: Message): boolean {
+function isAddMissionMessage(message: Message): boolean {
   return message.type === 'addMission'
     && message.missionInfo && isTask(message.missionInfo);
 }
@@ -347,7 +361,7 @@ export interface PauseMessage extends MessageBase {
   type: 'pause';
 }
 
-export function isPauseMessage(message: Message): boolean {
+function isPauseMessage(message: Message): boolean {
   return message.type === 'pause';
 }
 
@@ -355,7 +369,7 @@ export interface ResumeMessage extends MessageBase {
   type: 'resume';
 }
 
-export function isResumeMessage(message: Message): boolean {
+function isResumeMessage(message: Message): boolean {
   return message.type === 'resume';
 }
 
@@ -363,7 +377,7 @@ export interface StopMessage extends MessageBase {
   type: 'stop';
 }
 
-export function isStopMessage(message: Message): boolean {
+function isStopMessage(message: Message): boolean {
   return message.type === 'stop';
 }
 
@@ -371,7 +385,7 @@ export interface ConnectionAckMessage extends MessageBase {
   type: 'connectionAck';
 }
 
-export function isConnectionAckMessage(message: Message): boolean {
+function isConnectionAckMessage(message: Message): boolean {
   return message.type === 'connectionAck';
 }
 
@@ -419,30 +433,18 @@ export interface UpdateMessage extends MessageBase {
   errorMessage?: string;
 }
 
-export function isUpdateMessage(message: Message): boolean {
-  // Check if message type is "update".
+function isUpdateMessage(message: Message): boolean {
   const mandatoryCheck = message.type === 'update'
-
-    // Check if lat is a hex float.
     && isHexFloat(message.lat)
-
-    // Check if lng is a hex float.
     && isHexFloat(message.lng)
-
-    // Check if status is a valid vehicle status.
     && isVehicleStatus(message.status);
 
   if (!mandatoryCheck) return false;
 
   const updateMessage = message as UpdateMessage;
 
-  // Check if alt is a hex float.
   if (updateMessage.alt && !isHexFloat(updateMessage.alt)) return false;
-
-  // Check if heading is a hex float.
   if (updateMessage.heading && !isHexFloat(updateMessage.heading)) return false;
-
-  // Check if battery is a hex float.
   if (updateMessage.battery && !isHexFloat(updateMessage.battery)) return false;
 
   return true;
@@ -462,14 +464,9 @@ export interface POIMessage extends MessageBase {
   lng: HexFloat;
 }
 
-export function isPOIMessage(message: Message): boolean {
-  // Check if message type is "poi".
+function isPOIMessage(message: Message): boolean {
   return message.type === 'poi'
-
-    // Check if lat is a hex float.
     && isHexFloat(message.lat)
-
-    // Check if lng is a hex float.
     && isHexFloat(message.lng);
 }
 
@@ -477,8 +474,7 @@ export interface CompleteMessage extends MessageBase {
   type: 'complete';
 }
 
-export function isCompleteMessage(message: Message): boolean {
-  // Check if message type is "complete".
+function isCompleteMessage(message: Message): boolean {
   return message.type === 'complete';
 }
 
@@ -492,7 +488,6 @@ export interface ConnectMessage extends MessageBase {
 }
 
 export function isConnectMessage(message: Message): boolean {
-  // Check if message type is "connect".
   return message.type === 'connect'
 
     // Check if jobsAvailable is a string array of valid job types.
@@ -511,10 +506,7 @@ export interface AcknowledgementMessage extends MessageBase {
 }
 
 export function isAcknowledgementMessage(message: Message): boolean {
-  // Check if message type is "ack".
   return message.type === 'ack'
-
-    // Check if ackid is a number.
     && !Number.isNaN(message.ackid);
 }
 
@@ -531,7 +523,6 @@ export interface BadMessageMessage extends MessageBase {
 }
 
 export function isBadMessageMessage(message: Message): boolean {
-  // Check if message type is "badMessage".
   return message.type === 'badMessage';
 }
 
@@ -596,12 +587,21 @@ export function isJSONMessage(message: { [key: string]: any }): boolean {
   return idCheck && tidCheck && sidCheck;
 }
 
-export default {
+export const messageTypeGuard = {
+  isStartMessage,
+  isAddMissionMessage,
+  isPauseMessage,
+  isResumeMessage,
+  isStopMessage,
+  isConnectionAckMessage,
   isUpdateMessage,
   isPOIMessage,
   isCompleteMessage,
   isConnectMessage,
   isAcknowledgementMessage,
   isBadMessageMessage,
+  isMessage,
   isJSONMessage,
 };
+
+export default { taskTypeGuard, messageTypeGuard };
