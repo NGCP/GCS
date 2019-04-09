@@ -11,7 +11,7 @@
   :maxdepth: 2
 
   communications/introduction
-  communications/float-hex
+  communications/implementation
   communications/vehicles-gcs-messages
   communications/gcs-vehicles-messages
   communications/other-messages

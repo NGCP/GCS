@@ -8,6 +8,8 @@
     "postinstall": "electron-builder install-app-deps",
     "lint": "eslint --fix --ext .js,.jsx \".\" && stylelint \"**/*.css\" --fix",
     "start": "electron-webpack dev",
+    "start:windocs": "explorer http://localhost:8000/ & sphinx-autobuild docs docs/_build/html",
+    "start:macdocs": "explorer http://localhost:8000/ & sphinx-autobuild docs docs/_build/html",
     "build": "electron-webpack && electron-builder"
   },
   "dependencies": {

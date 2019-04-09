@@ -94,6 +94,8 @@ Implementing these fields
 
 .. TODO: Add link to acknowledging messages
 
+.. TODO: Add link to page to implement id
+
 .. confval:: id
 
   :type: unsigned 32-bit integer
@@ -101,6 +103,8 @@ Implementing these fields
   This should be changed every time a different message is sent. A way to implement this is to start sending messages with ``id`` equal to 0, and incrementing it by 1 for every different message sent.
 
   Here's the catch: the same message (with the same ``id`` and fields) should be sent until it is acknowledged. This message's ``id`` field should not be changing every time it is sent.
+
+  See this page for more information on how to implement this field.
 
 .. TODO: Add link to list
 
