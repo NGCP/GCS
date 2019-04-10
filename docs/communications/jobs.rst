@@ -33,7 +33,7 @@ ISR Search
 
 .. confval:: Details
 
-  :jobType: ``isrSearch``
+  :job type: ``isrSearch``
   :tasks: Takeoff, Loiter, ISR Search, Land
   :start message:
     .. code-block:: json
@@ -373,12 +373,25 @@ Quick Scan
     {
       "taskType": "quickScan",
 
-      "searchArea":
-      {
-        "center": [<float hex>, <float hex>]  // [Latitude, Longitude] of area to search
-        "rad1": <float hex>,
-        "rad2": <float hex>
-      }
+      "waypoints":              // Array of four waypoints to determine search area
+      [
+        {
+          "lat": <float hex>,   // Top left corner of search area
+          "lng": <float hex>
+        },
+        {
+          "lat": <float hex>,   // Top right corner of search area
+          "lng": <float hex>
+        },
+        {
+          "lat": <float hex>,   // Bottom left corner of search area
+          "lng": <float hex>
+        },
+        {
+          "lat": <float hex>,   // Bottom right corner of search area
+          "lng": <float hex>
+        }
+      ]
     }
   }
 
