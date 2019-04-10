@@ -4,6 +4,8 @@ Implementation
 
 This page is to show how many things in this protocol can be implemented.
 
+---------
+
 Float hex
 =========
 
@@ -16,6 +18,8 @@ To resolve this issue, we decided to send all floats as hexadecimal strings. For
 We will be using the IEEE 754 standard. Use `this website <https://gregstoll.com/~gregstoll/floattohex/>`_ to see float to hex conversions.
 
 Your vehicle should be able to convert a float to a hex, and vice versa.
+
+------------------
 
 Message management
 ==================

@@ -4,6 +4,8 @@ Introduction
 
 GCS is able to communicate with other vehicles using a `JSON <https://www.json.org/>`_ messaging protocol. All messages that comes to GCS and vehicles, as well from vehicles to other vehicles, are all in JSON format.
 
+-------------
+
 What is JSON?
 =============
 
@@ -37,6 +39,8 @@ Many languages have libraries that support conversion of JSON to a class/structu
 
 With that, the JSON messaging protocol defines many different types of messages that can be sent and received. Each message will have required **fields**, which is a **key/pair value** in the JSON. The guide will go more in depth of what fields are required for which messages below.
 
+--------
+
 Features
 ========
 
@@ -64,6 +68,8 @@ Maintaining Connection
 ----------------------
 
 Vehicles must maintain their communication with the GCS (as well as other vehicles) by sending update messages and letting them know of their status.
+
+------------
 
 Requirements
 ============

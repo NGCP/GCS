@@ -4,6 +4,8 @@ Messages from GCS to Vehicles
 
 These are the specific messages that are sent from GCS to vehicles. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields).
 
+----------------------------------
+
 Connection acknowledgement message
 ==================================
 
@@ -21,7 +23,9 @@ Sent back to the vehicle that GCS has accepted its request to connect. GCS forwa
 
 .. note:: Requires an acknowledgement message from the vehicle.
 
-Start Message
+-------------
+
+Start message
 =============
 
 Sent to the vehicle to assign a job to complete a mission.
@@ -51,9 +55,11 @@ Sent to the vehicle to assign a job to complete a mission.
 
 .. confval:: options : Optional
 
-  :type: { key: value }
+  :type: object
 
   Object of key/value pairs that the vehicle's job needs. Currently none of our platforms need this.
+
+-------------------
 
 Add mission message
 ===================
@@ -85,6 +91,8 @@ Sent to the vehicle to assign a task to perform. The task should be something un
 
   The task being assigned to the vehicle. This includes the task type as well as information related to that task. See the list of jobs and tasks to see the list of valid tasks and their provided information.
 
+-------------
+
 Pause message
 =============
 
@@ -102,6 +110,8 @@ Sent to the vehicle to pause it from its current task.
 
 .. note:: Requires an acknowledgement message from the vehicle.
 
+--------------
+
 Resume message
 ==============
 
@@ -118,6 +128,8 @@ Sent to the vehicle to resume it back to its current task.
   }
 
 .. note:: Requires an acknowledgement message from the vehicle.
+
+------------
 
 Stop message
 ============

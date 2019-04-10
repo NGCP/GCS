@@ -12,6 +12,5 @@
 
   communications/introduction
   communications/implementation
-  communications/vehicles-gcs-messages
-  communications/gcs-vehicles-messages
-  communications/other-messages
+  communications/messages
+  communications/jobs

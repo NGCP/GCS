@@ -4,6 +4,8 @@ Other messages
 
 These types can be sent by any vehicle as well as the GCS.
 
+-----------------------
+
 Acknowledgement message
 =======================
 
@@ -34,6 +36,8 @@ A way to think about this is to remember that it is recommended to increment the
   :type: unsigned 32-bit integer
 
   The ID of the message the vehicle is acknowledging. When the other vehicle receives the acknowledgement, it knows which message to stop sending to this vehicle.
+
+-----------
 
 Bad message
 ===========

@@ -16,8 +16,10 @@ Install Python_. This is mandatory to build documentation such as this.
 
 Install `Atom`_. Edit files using this text editor.
 
-Requirements for writing code
 -----------------------------
+
+Requirements for writing code
+=============================
 
 We use a few Node.js modules that need to be installed in your system. `npm-check-updates`_ lets us keep our project dependencies up to date.
 
@@ -51,8 +53,10 @@ You can install the following packages too. These packages are completely option
 - minimap
 - teletype
 
-Requirements for building docs
 ------------------------------
+
+Requirements for building docs
+==============================
 
 We use a few Python packages to build our documentation. Sphinx_ allows us to create our documentation, and `Sphinx Autobuild`_ allows us to see our documentation as we build it.
 

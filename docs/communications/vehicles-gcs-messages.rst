@@ -4,6 +4,8 @@ Messages from Vehicles to GCS
 
 These are the specific messages that are sent from vehicles to GCS. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields).
 
+---------------
+
 Connect message
 ===============
 
@@ -30,6 +32,8 @@ Sent to the GCS to request connection to it. The vehicle will not have informati
   :type: string[]
 
   List of jobs that the vehicle is. These jobs describe the tasks the vehicle is capable of performing. See the list of jobs and tasks to see which jobs are valid.
+
+--------------
 
 Update message
 ==============
@@ -108,7 +112,9 @@ Sent to the GCS to let it know of the vehicle's status. This should always be se
 
   Description of why the vehicle is in error state. Should only be sent when the vehicle is in error state.
 
-Point of Interest (POI) message
+-------------------------------
+
+Point of Interest message
 ===============================
 
 Sent to the GCS to let it know of a point of interest found in a mission. Not all vehicles will need to use this.
@@ -139,6 +145,8 @@ Sent to the GCS to let it know of a point of interest found in a mission. Not al
   :type: float hex
 
   Longitude of point of interest.
+
+----------------
 
 Complete message
 ================
