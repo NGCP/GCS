@@ -153,7 +153,7 @@ Takeoff
       "lat": <float hex>,           // Takeoff waypoint latitude
       "lng": <float hex>,           // takeoff waypoint longitude
       "alt": <float hex>,           // Takeoff waypoint altitude
-      "loiter":                 // Loiter waypoint information, used for UAV's idle state
+      "loiter":                     // Loiter waypoint information, used for UAV's idle state
       {
         "lat": <float hex>,
         "lng": <float hex>,
@@ -161,6 +161,33 @@ Takeoff
         "radius": <float hex>,      // Radius around loiter waypoint to fly around
         "direction": <float hex>    // Direction to loiter
       }
+    }
+  }
+
+------
+
+Loiter
+------
+
+Used to update the loiter position of an airborne vehicle.
+
+**Task type:** ``loiter``
+
+**Add mission message:**
+
+.. code-block:: js
+
+  {
+    "type": "addMission",
+    "missionInfo":
+    {
+      "taskType": "loiter",
+
+      "lat": <float hex>,
+      "lng": <float hex>,
+      "alt": <float hex>,
+      "radius": <float hex>,      // Radius around loiter waypoint to fly around
+      "direction": <float hex>    // Direction to loiter
     }
   }
 

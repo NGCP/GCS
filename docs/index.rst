@@ -14,3 +14,4 @@
   communications/implementation
   communications/messages
   communications/jobs
+  communications/vehicles
