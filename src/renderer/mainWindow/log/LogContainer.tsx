@@ -9,8 +9,7 @@ import {
   ListRowProps,
 } from 'react-virtualized';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { isMessageType, MessageType, ThemeProps } from '../../../types/types'; // eslint-disable-line import/named
+import { isMessageType, MessageType, ThemeProps } from '../../../types/types';
 
 import './log.css';
 

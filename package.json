@@ -34,7 +34,7 @@
     "@babel/preset-react": "^7.0.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^11.13.1",
+    "@types/node": "^11.13.2",
     "@types/pouchdb": "^6.3.3",
     "@types/react": "^16.8.13",
     "@types/react-dom": "^16.8.3",
@@ -61,10 +61,10 @@
     "mocha": "^6.1.2",
     "stylelint": "^9.10.1",
     "stylelint-config-standard": "^18.2.0",
-    "stylelint-order": "^2.2.0",
+    "stylelint-order": "^2.2.1",
     "ts-mocha": "^6.0.0",
     "ts-node": "^8.0.3",
-    "typescript": "^3.4.2",
+    "typescript": "^3.4.3",
     "webpack": "^4.29.6"
   },
   "electronWebpack": {

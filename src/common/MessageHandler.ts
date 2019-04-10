@@ -1,3 +1,5 @@
+// Do not interact with this file outside the Orchestrator class.
+
 import { Event, ipcRenderer } from 'electron';
 
 import {
@@ -9,12 +11,11 @@ import {
   AcknowledgementMessage,
   BadMessageMessage,
   messageTypeGuard,
-  JSONMessage, // eslint-disable-line import/named
-  Message, // eslint-disable-line import/named
+  JSONMessage,
+  Message,
 } from '../types/messages';
 import { isJSON } from '../util/util';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
 import DictionaryList from './struct/DictionaryList';
 import UpdateHandler from './struct/UpdateHandler';
 
@@ -193,6 +194,13 @@ export default class MessageHandler {
       || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id
     ) {
       this.receivedMessageId[jsonMessage.sid] = jsonMessage.id;
+
+      /*
+       * When this loop passes, it means that GCS is recieving a completely new message
+       * from the vehicle. We do not want to add messages that have been sent to us
+       * many times to be put multiple times into the dictionary.
+       */
+      this.messageDictionary.push('received', jsonMessage);
     }
 
     /*

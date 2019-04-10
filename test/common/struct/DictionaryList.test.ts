@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import { beforeEach, describe, it } from 'mocha';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import DictionaryList, { Callback } from '../../../src/common/struct/DictionaryList'; // eslint-disable-line import/named
+import DictionaryList, { Callback } from '../../../src/common/struct/DictionaryList';
 
 let dict: DictionaryList<number>;
 

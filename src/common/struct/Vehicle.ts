@@ -2,13 +2,12 @@ import { ipcRenderer } from 'electron';
 
 import { vehicleConfig } from '../../static/index';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { VehicleObject, VehicleStatus } from '../../types/types'; // eslint-disable-line import/named
+import { VehicleObject, VehicleStatus } from '../../types/types';
 
 import {
-  Message, // eslint-disable-line import/named
+  Message,
   StartMessage,
-  Task, // eslint-disable-line import/named
+  Task,
   UpdateMessage,
 } from '../../types/messages';
 
@@ -228,7 +227,7 @@ export default class Vehicle {
    * @param disconnectionCallback Optional callback when vehicle disconnects.
    * @param errorCallback Optional callback when vehicle goes in an error state.
    */
-  public assignMission(
+  public assignJob(
     jobType: string,
     options?: object,
     completionCallback?: () => void,
@@ -279,7 +278,7 @@ export default class Vehicle {
    *
    * @param task The task for the vehicle to perform. Must support the vehicle's job.
    */
-  public addMission(task: Task): boolean {
+  public assignTask(task: Task): boolean {
     /*
      * Returns false if the vehicle has not been assigned a mission or if the provided task
      * is not compatible with its job.

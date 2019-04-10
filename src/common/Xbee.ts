@@ -6,8 +6,7 @@ import { constants as C, Frame, XBeeAPI } from 'xbee-api';
 
 import { VehicleInfo, vehicleConfig } from '../static/index';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { JSONMessage } from '../types/messages'; // eslint-disable-line import/named
+import { JSONMessage } from '../types/messages';
 
 /*
  * TODO: Add a feature with Vehicle container to change this dynamically and reconnect.

@@ -8,8 +8,7 @@
 
 import { vehicleConfig } from '../static/index';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { isVehicleStatus, VehicleStatus } from './types'; // eslint-disable-line import/named
+import { isVehicleStatus, VehicleStatus } from './types';
 
 /**
  * A float represented as a hexadecimal string.

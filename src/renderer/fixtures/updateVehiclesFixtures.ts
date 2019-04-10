@@ -4,8 +4,7 @@ import Vehicle, { VehicleOptions } from '../../common/struct/Vehicle';
 
 import { locationConfig, vehicleConfig } from '../../static/index';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { VehicleObject, VehicleStatus } from '../../types/types'; // eslint-disable-line import/named
+import { VehicleObject, VehicleStatus } from '../../types/types';
 
 const fixtureOptions: VehicleOptions[] = [
   {

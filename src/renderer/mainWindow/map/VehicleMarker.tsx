@@ -10,8 +10,7 @@ import {
   VehicleStatus,
 } from '../../../static/index';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { MessageType, VehicleObject } from '../../../types/types'; // eslint-disable-line import/named
+import { MessageType, VehicleObject } from '../../../types/types';
 
 const vehicleIcons = (imageConfig.markers as RecursiveImageSignature)
   .vehicles as RecursiveImageSignature;
