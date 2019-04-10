@@ -294,13 +294,13 @@ describe('UpdateHandler', (): void => {
       expect(statusCounter).to.equal(1);
       expect(locationCounter).to.equal(1);
 
-      handler.removeHandler<number>('status', statusHandler);
+      statusHandler.removeHandler();
       handler.events({ status: 1, location: 1 });
 
       expect(statusCounter).to.equal(1);
       expect(locationCounter).to.equal(2);
 
-      handler.removeHandler<number>('location', locationHandler);
+      locationHandler.removeHandler();
       handler.events({ status: 1, location: 1 });
 
       expect(statusCounter).to.equal(1);
