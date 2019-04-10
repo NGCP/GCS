@@ -18,7 +18,7 @@ import { isJSON } from '../util/util';
 import DictionaryList from './struct/DictionaryList';
 import UpdateHandler from './struct/UpdateHandler';
 
-import xbee from './Xbee'; // eslint-disable-line import/named
+import xbee from './Xbee';
 
 export default class MessageHandler {
   /**

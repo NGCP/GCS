@@ -28,6 +28,11 @@ interface Handler<T> {
    * deleting the handler while the timeout has not executed.
    */
   expiry?: NodeJS.Timeout;
+
+  /**
+   * Function that will remove the handler.
+   */
+  removeHandler: () => void;
 }
 
 /**
@@ -53,7 +58,10 @@ export default class UpdateHandler {
     handlerCheck: HandlerCheck<T>,
     timeout?: HandlerTimeoutOptions,
   ): Handler<T> {
-    const handler: Handler<T> = { handlerCheck };
+    const handler: Handler<T> = {
+      handlerCheck,
+      removeHandler: (): void => this.removeHandler(name, handler),
+    };
 
     /*
      * If a timeout is provided, the handler will remove itself and run its callback function
@@ -124,7 +132,7 @@ export default class UpdateHandler {
    * @param name The name of the event the handler is in.
    * @param handler The handler itself.
    */
-  public removeHandler<T>(name: string, handler: Handler<T>): void {
+  private removeHandler<T>(name: string, handler: Handler<T>): void {
     // Will clearTimeout the handler if it has an expiry.
     if (handler.expiry) clearTimeout(handler.expiry);
 
