@@ -20,7 +20,7 @@ export function updateVehicles(
 }
 
 /**
- * Checks if the string is a JSON. Should be called before isMessage().
+ * Checks if the string is a JSON.
  */
 export function isJSON(message: string): boolean {
   if (!message) return false;

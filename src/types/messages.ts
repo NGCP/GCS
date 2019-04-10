@@ -1,8 +1,9 @@
 /*
  * Definitions and typeguards for all messages that are sent between GCS and vehicles.
- * See the wiki for more information: https://github.com/NGCP/GCS/wiki/GCS-JSON-Messages
+ * https://ground-control-station.readthedocs.io/en/latest/communications/messages.html
  *
  * Includes definitions for tasks too, as those are part of a message.
+ * https://ground-control-station.readthedocs.io/en/latest/communications/jobs.html
  */
 
 import { vehicleConfig } from '../static/index';
@@ -243,19 +244,32 @@ function isUUVRetrieveTargetTask(task: Task): boolean {
 export interface QuickScanTask extends TaskBase {
   taskType: 'quickScan';
 
-  searchArea: {
-    center: [HexFloat, HexFloat];
-    rad1: HexFloat;
-    rad2: HexFloat;
-  };
+  waypoints: [
+    {
+      lat: HexFloat;
+      lng: HexFloat;
+    },
+    {
+      lat: HexFloat;
+      lng: HexFloat;
+    },
+    {
+      lat: HexFloat;
+      lng: HexFloat;
+    },
+    {
+      lat: HexFloat;
+      lng: HexFloat;
+    }
+  ];
 }
 
 function isQuickScanTask(task: Task): boolean {
   return task.taskType === 'quickScan'
-    && task.searchArea
-    && task.searchArea.center && task.searchArea.center.length === 2
-    && isHexFloat(task.searchArea.rad1)
-    && isHexFloat(task.searchArea.rad2);
+    && task.waypoints && task.waypoints.length === 4
+    && task.waypoints.every(
+      (waypoint): boolean => isHexFloat(waypoint.lat) && isHexFloat(waypoint.lng),
+    );
 }
 
 export interface DetailedSearchTask extends TaskBase {

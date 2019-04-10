@@ -1,10 +1,21 @@
 import { Event, ipcRenderer } from 'electron';
 
-import { config } from '../static/index';
+import {
+  config,
+  vehicleConfig,
+  VehicleInfo,
+} from '../static/index';
+import {
+  AcknowledgementMessage,
+  BadMessageMessage,
+  messageTypeGuard,
+  JSONMessage, // eslint-disable-line import/named
+  Message, // eslint-disable-line import/named
+} from '../types/messages';
+import { isJSON } from '../util/util';
 
 // TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
 import DictionaryList from './struct/DictionaryList';
-import { JSONMessage, Message } from '../types/messages'; // eslint-disable-line import/named
 import UpdateHandler from './struct/UpdateHandler';
 
 import xbee from './Xbee'; // eslint-disable-line import/named
@@ -27,14 +38,19 @@ export default class MessageHandler {
   private updateHandler = new UpdateHandler();
 
   /**
-   * Message id being sent so far.
+   * ID of message being sent.
    */
   private id = 0;
+
+  /**
+   * Map of last message ID received from specific vehicle.
+   */
+  private receivedMessageId: { [key: string]: number | undefined } = {};
 
   public constructor() {
     ipcRenderer.on('sendMessage', (_: Event, vehicleId: number, message: Message): void => this.sendMessage(vehicleId, message));
 
-    ipcRenderer.on('receiveMessage', (_: Event, string: string): void => this.receiveMessage(string));
+    ipcRenderer.on('receiveMessage', (_: Event, text: string): void => this.receiveMessage(text));
   }
 
   /**
@@ -86,19 +102,24 @@ export default class MessageHandler {
      * This will end when the message is acknowledged (the updateHandler will clear
      * the interval).
      */
-    const expiry = setInterval((): void => {
-      xbee.sendMessage(jsonMessage);
-    }, config.messageSendRate * 1000);
+    const expiry = setInterval(
+      (): void => xbee.sendMessage(jsonMessage), config.messageSendRate * 1000,
+    );
 
     /*
-     * Removes json message from "outbox" when an ack message is received from the vehicle.
+     * Removes respective message from "outbox" when an ack message is received
+     * and value passed is true.
+     *
      * If no ack message is received within a certain amount of time (vehicleDisconnectionTime),
      * then the GCS will disconnect itself from the vehicle.
      */
-    this.updateHandler.addHandler<void>(`${jsonMessage.tid}#${jsonMessage.id}`, (): boolean => {
+
+    const hash = `${jsonMessage.tid}#${jsonMessage.id}`;
+
+    this.updateHandler.addHandler<boolean>(hash, (value: boolean): boolean => {
       clearInterval(expiry);
       this.removeMessage('outbox', jsonMessage.id);
-      return true;
+      return value;
     }, {
       time: config.vehicleDisconnectionTime * 1000,
       callback: (): void => {
@@ -111,14 +132,25 @@ export default class MessageHandler {
   /**
    * Acknowledge a message received.
    *
-   * @param message The message to acknowledge.
-   * TODO: remove ? from message
+   * @param jsonMessage The message to acknowledge.
    */
-  private acknowledge(message?: JSONMessage): void { // eslint-disable-line
-    if (!message) return; // TODO: remove this line
-    this.sendMessage(message.sid, {
+  private sendAcknowledgement(jsonMessage: JSONMessage): void {
+    this.sendMessage(jsonMessage.sid, {
       type: 'ack',
-      ackid: message.id,
+      ackid: jsonMessage.id,
+    });
+  }
+
+  /**
+   * Send a bad message.
+   *
+   * @param jsonMessage The bad message (needs to have at least an sid field).
+   * @param error Error message.
+   */
+  private sendBadMessage(jsonMessage: JSONMessage, error?: string): void {
+    this.sendMessage(jsonMessage.sid, {
+      type: 'badMessage',
+      error,
     });
   }
 
@@ -128,7 +160,117 @@ export default class MessageHandler {
    * @param string The raw string. Either can contain the message (a valid JSON) or some
    * random stuff.
    */
-  private receiveMessage(string: string): void {
-    if (string === 'asdffdasfdas') this.acknowledge(); // TODO: remove this line
+  private receiveMessage(text: string): void {
+    // Filter out text that are not valid json.
+    if (!isJSON(text)) {
+      ipcRenderer.send('post', 'updateMessages', {
+        message: `Received text from Xbee that is not a JSON, could not send bad message to sender ${text}`,
+      });
+      return;
+    }
+
+    // Filter out json that are not valid messages.
+    const json = JSON.parse(text);
+    if (!messageTypeGuard.isJSONMessage(json)) {
+      if (json.sid) {
+        this.sendBadMessage(json, 'Invalid message, does not meet requirements for a message');
+      } else {
+        ipcRenderer.send('post', 'updateMessages', {
+          message: `Received JSON from Xbee that is not a valid message, could not send bad message to sender: ${text}`,
+        });
+      }
+    }
+
+    const jsonMessage = json as JSONMessage;
+
+    /*
+     * Update the last message id received from the vehicle.
+     * This is to be able to properly acknowledge a message. See the note on the following:
+     *
+     * https://ground-control-station.readthedocs.io/en/latest/communications/other-messages.html#acknowledgement-message
+     */
+    if (!this.receivedMessageId[jsonMessage.sid]
+      || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id
+    ) {
+      this.receivedMessageId[jsonMessage.sid] = jsonMessage.id;
+    }
+
+    /*
+     * Handles acknowledgement messages.
+     * DO NOT ACKNOWLEDGE.
+     * Stops sending the message that the ack message has ascknowledged.
+     */
+    if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
+      const { ackid } = jsonMessage as AcknowledgementMessage;
+
+      const hash = `${jsonMessage.sid}#${ackid}`;
+      this.updateHandler.event(hash, true);
+      return;
+    }
+
+
+    /**
+     * Handles bad messages.
+     * DO NOT ACKNOWLEDGE.
+     * Logs error to log container.
+     */
+    if (messageTypeGuard.isBadMessageMessage(jsonMessage)) {
+      const { error } = jsonMessage as BadMessageMessage;
+      const { name } = vehicleConfig.vehicleInfos[jsonMessage.sid] as VehicleInfo;
+
+      ipcRenderer.send('post', 'updateMessages', {
+        type: 'failure',
+        message: `Received bad message from ${name}: ${error || 'No error message was specified'}`,
+      });
+      return;
+    }
+
+    /*
+     * Handles connect messages.
+     * DO NOT ACKNOWLEDGE. ORCHESTRATOR WILL BUILD CONNECTIONACK MESSAGE.
+     *
+     * Forward message to Orchestrator.
+     */
+    if (messageTypeGuard.isConnectMessage(jsonMessage)) {
+      return;
+    }
+
+    /*
+     * Acknowledge the message.
+     */
+    if (this.receivedMessageId[jsonMessage.sid] as number <= jsonMessage.id) {
+      this.sendAcknowledgement(jsonMessage);
+    }
+
+    /*
+     * Handles complete messages.
+     * Forward message to Orchestrator.
+     */
+    if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
+      return;
+    }
+
+    /*
+     * Handles point of interest messages.
+     * Forward message to Orchestrator.
+     */
+    if (messageTypeGuard.isPOIMessage(jsonMessage)) {
+      return;
+    }
+
+    /*
+     * Handles update messages.
+     * Forward message to Orchestrator.
+     */
+    if (messageTypeGuard.isUpdateMessage(jsonMessage)) {
+      return;
+    }
+
+    /*
+     * Any message that reaches here is a message (has a valid type, id, sid, tid, and time)
+     * but does not have valid properties, or is a message GCS should not receive from vehicles
+     * (e.g. GCS should not receive a "start" message from a vehicle).
+     */
+    this.sendBadMessage(jsonMessage, `Message of type ${jsonMessage.type} is invalid`);
   }
 }
