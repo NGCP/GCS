@@ -134,7 +134,7 @@ Sent to the vehicle to resume it back to its current task.
 Stop message
 ============
 
-Sent to the vehicle to stop its current job. Vehicle will have to perform all tasks all over again after this.
+Sent to the vehicle to stop its mission. This is either sent when the vehicle is in the middle of the mission or when the vehicle has performed all tasks for the mission.
 
 .. TODO: add link to update messages
 
