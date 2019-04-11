@@ -52,6 +52,12 @@ export interface VehicleInfo {
   'type': string;
 }
 
+/**
+ * All valid job types. This should always match up to the job types in vehicle.json.
+ */
+export type JobType = 'isrSearch' | 'payloadDrop' | 'ugvRetrieve' | 'uuvRetrieve'
+| 'quickScan' | 'detailedSearch';
+
 const vehicleInfos: {
   [id: string]: VehicleInfo | undefined;
 } = vehicleInfosObject;
@@ -84,13 +90,18 @@ const startLocation: LatLngZoom = startLocationString && locations[startLocation
  * Checks if a string is a valid job type.
  */
 function isJobType(jobType: string): boolean {
-  return vehicleJobs[jobType] !== undefined;
+  return jobType === 'isrSearch'
+    || jobType === 'payloadDrop'
+    || jobType === 'ugvRetrieve'
+    || jobType === 'uuvRetrieve'
+    || jobType === 'quickScan'
+    || jobType === 'detailedSearch';
 }
 
 /**
  * Checks if a task is a valid task type for that job.
  */
-function isTaskTypeForJob(taskType: string, jobType: string): boolean {
+function isTaskTypeForJob(taskType: string, jobType: JobType): boolean {
   return isJobType(jobType) && (vehicleJobs[jobType] as string[]).indexOf(taskType) >= 0;
 }
 

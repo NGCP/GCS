@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 
-import { vehicleConfig } from '../../static/index';
+import { JobType, vehicleConfig } from '../../static/index';
 
 import { VehicleObject, VehicleStatus } from '../../types/types';
 
@@ -20,7 +20,7 @@ type ErrorCallback = (message?: string) => void;
  */
 export interface VehicleOptions {
   sid: number;
-  jobs: string[];
+  jobs: JobType[];
   status?: VehicleStatus;
 }
 
@@ -40,12 +40,7 @@ export default class Vehicle {
   /**
    * Current assigned job.
    */
-  private assignedJob: string = '';
-
-  /**
-   * Whether or not the vehicle is ready to be assigned a mission.
-   */
-  private readyForMission: boolean = true;
+  private assignedJob: JobType | undefined;
 
   /**
    * Current status of the vehicle.
@@ -228,19 +223,21 @@ export default class Vehicle {
    * @param errorCallback Optional callback when vehicle goes in an error state.
    */
   public assignJob(
-    jobType: string,
+    jobType: JobType,
     options?: object,
     completionCallback?: () => void,
     disconnectionCallback?: () => void,
     errorCallback?: ErrorCallback,
   ): boolean {
-    // Returns false if a vehicle has already been assigned a mission.
-    if (!this.readyForMission) {
+    /*
+     * Returns false if a vehicle has already been assigned a mission.
+     * Vehicle's status is ready if it has not been assigned a mission.
+     */
+    if (this.status !== 'ready') {
       return false;
     }
 
     this.assignedJob = jobType;
-    this.readyForMission = false;
     if (errorCallback) this.errorCallback = errorCallback;
 
     const startMessage: StartMessage = {
@@ -261,7 +258,6 @@ export default class Vehicle {
     this.updateEventHandler.addHandler<VehicleStatus>('status', (value): boolean => {
       if (value === 'ready') {
         if (completionCallback) completionCallback();
-        this.readyForMission = true;
       } else if (value === 'disconnected') {
         if (disconnectionCallback) disconnectionCallback();
       }
@@ -282,8 +278,9 @@ export default class Vehicle {
     /*
      * Returns false if the vehicle has not been assigned a mission or if the provided task
      * is not compatible with its job.
+     * Vehicle's status is "waiting" if it has been assigned a mission but is awaiting a task.
      */
-    if (!this.readyForMission || !vehicleConfig.isTaskTypeForJob(task.taskType, this.assignedJob)) {
+    if (this.status !== 'waiting' || !this.assignedJob || !vehicleConfig.isTaskTypeForJob(task.taskType, this.assignedJob)) {
       return false;
     }
 
@@ -303,6 +300,6 @@ export default class Vehicle {
       type: 'stop',
     });
 
-    this.assignedJob = '';
+    this.assignedJob = undefined;
   }
 }

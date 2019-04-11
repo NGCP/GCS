@@ -6,7 +6,7 @@
  * https://ground-control-station.readthedocs.io/en/latest/communications/jobs.html
  */
 
-import { vehicleConfig } from '../static/index';
+import { JobType, vehicleConfig } from '../static/index';
 
 import { isVehicleStatus, VehicleStatus } from './types';
 
@@ -343,7 +343,7 @@ export interface StartMessage extends MessageBase {
   /**
    * Name of job to perform.
    */
-  jobType: string;
+  jobType: JobType;
 
   /**
    * Any other information the vehicle should have before performing the job.
@@ -497,7 +497,7 @@ export interface ConnectMessage extends MessageBase {
   /**
    * List of all the different jobs the vehicle is capable of doing.
    */
-  jobsAvailable: string[];
+  jobsAvailable: JobType[];
 }
 
 export function isConnectMessage(message: Message): boolean {
