@@ -2,33 +2,43 @@ import L from 'leaflet';
 import React, { PureComponent, ReactNode } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 
-import { images } from '../../../config/index';
+import {
+  imageConfig,
+  RecursiveImageSignature,
+  vehicleConfig,
+  VehicleInfo,
+  VehicleStatus,
+} from '../../../static/index';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { VehicleUI } from '../../../util/types'; // eslint-disable-line import/named
+import { MessageType, VehicleObject } from '../../../types/types';
 
-interface VehicleSignature {
-  [key: string]: string;
+const vehicleIcons = (imageConfig.markers as RecursiveImageSignature)
+  .vehicles as RecursiveImageSignature;
+
+export interface VehicleMarkerProps {
+  vehicle: VehicleObject;
 }
-
-const { vehicles }: { vehicles: VehicleSignature } = images.markers;
-
-type VehicleMarkerProps = VehicleUI;
 
 /**
  * Marker that will represent a vehicle. Used by the map container.
  */
 export default class VehicleMarker extends PureComponent<VehicleMarkerProps> {
   public render(): ReactNode {
+    const { vehicle } = this.props;
+    const { name, type } = vehicleConfig.vehicleInfos[vehicle.vehicleId] as VehicleInfo;
+
     const {
-      sid, name, lat, lng, type, status,
-    } = this.props;
+      type: vehicleStatusTypeString,
+      message,
+    } = vehicleConfig.vehicleStatuses[vehicle.status] as VehicleStatus;
+    const vehicleStatusType = vehicleStatusTypeString as MessageType;
+    const vehicleType = `${type}${vehicleStatusType === 'failure' ? '_red' : ''}`;
 
     return (
       <Marker
-        position={[lat, lng]}
+        position={[vehicle.lat, vehicle.lng]}
         icon={L.icon({
-          iconUrl: vehicles[`${type}${status.type === 'failure' ? '_red' : ''}`] || images.pin,
+          iconUrl: vehicleIcons[(vehicleType || imageConfig.pin as string)] as string,
           iconSize: [50, 50],
           iconAnchor: [25, 25],
           popupAnchor: [0, -25],
@@ -38,10 +48,10 @@ export default class VehicleMarker extends PureComponent<VehicleMarkerProps> {
           direction="top"
           offset={[0, -20]}
         >
-          <p><b>{`#${sid}: ${name}`}</b></p>
+          <p><b>{`#${vehicle.vehicleId}: ${name}`}</b></p>
           <p>
             {'Status: '}
-            <span className={status.type}>{status.message}</span>
+            <span className={vehicleStatusType}>{message}</span>
           </p>
         </Tooltip>
       </Marker>

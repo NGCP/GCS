@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 import {
   AutoSizer,
@@ -9,17 +9,23 @@ import {
   TableCellProps,
 } from 'react-virtualized';
 
-import { ThemeProps, VehicleUI } from '../../../util/types';
+import {
+  vehicleConfig,
+  VehicleInfo,
+  VehicleStatus,
+} from '../../../static/index';
+
+import { ThemeProps, VehicleObject } from '../../../types/types';
 
 interface WidthSignature {
-  [key: string]: number;
+  [column: string]: number;
 }
 
 /**
  * Width for columns in table.
  */
 const width: WidthSignature = {
-  id: 0.2,
+  vehicleId: 0.2,
   name: 0.4,
   status: 0.4,
 };
@@ -31,7 +37,7 @@ export interface VehicleTableProps extends ThemeProps {
   /**
    * Object of vehicles.
    */
-  vehicles: { [key: string]: VehicleUI };
+  vehicles: VehicleObject[];
 }
 
 /**
@@ -41,9 +47,19 @@ export default class VehicleTable extends Component<VehicleTableProps> {
   /**
    * Renderer for the status column.
    */
+  private static nameRenderer(props: TableCellProps): string {
+    const { rowData: vehicle }: { rowData: VehicleObject } = props;
+    const { name } = vehicleConfig.vehicleInfos[vehicle.vehicleId] as VehicleInfo;
+    return name;
+  }
+
+  /**
+   * Renderer for the status column.
+   */
   private static statusRenderer(props: TableCellProps): ReactNode {
-    const { rowData } = props;
-    return <span className={rowData.status.type}>{rowData.status.message}</span>;
+    const { rowData }: { rowData: VehicleObject } = props;
+    const vehicleStatus = vehicleConfig.vehicleStatuses[rowData.status] as VehicleStatus;
+    return <span className={vehicleStatus.type}>{vehicleStatus.message}</span>;
   }
 
   public constructor(props: VehicleTableProps) {
@@ -60,10 +76,8 @@ export default class VehicleTable extends Component<VehicleTableProps> {
    * Callback when a row is clicked in the table.
    */
   private onRowClick(info: RowMouseEventHandlerParams): void {
-    const { rowData } = info;
     const { vehicles } = this.props;
-
-    ipcRenderer.send('post', 'centerMapToVehicle', vehicles[rowData.sid]);
+    ipcRenderer.send('post', 'centerMapToVehicle', vehicles[info.index]);
   }
 
   /**
@@ -74,11 +88,9 @@ export default class VehicleTable extends Component<VehicleTableProps> {
   /**
    * Callback to obtain data for a certain row in the table.
    */
-  private rowGetter({ index }: Index): VehicleUI {
+  private rowGetter({ index }: Index): VehicleObject {
     const { vehicles } = this.props;
-
-    const v = Object.keys(vehicles).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
-    return vehicles[v[index]];
+    return vehicles[index];
   }
 
   /**
@@ -100,7 +112,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
 
     return (
       <AutoSizer>
-        {({ height, width: tableWidth }) => (
+        {({ height, width: tableWidth }): ReactNode => (
           <Table
             width={tableWidth}
             height={height}
@@ -114,13 +126,14 @@ export default class VehicleTable extends Component<VehicleTableProps> {
           >
             <Column
               label="ID"
-              dataKey="sid"
-              width={tableWidth * this.width.id}
+              dataKey="vehicleId"
+              width={tableWidth * this.width.vehicleId}
             />
             <Column
               label="Name"
               dataKey="name"
               width={tableWidth * this.width.name}
+              cellRenderer={VehicleTable.nameRenderer}
             />
             <Column
               label="Status"

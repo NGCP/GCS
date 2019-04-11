@@ -1,8 +1,10 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+
+import statics from '../static/index';
 
 import MainWindow from './mainWindow/MainWindow';
 import MissionWindow from './missionWindow/MissionWindow';
@@ -12,8 +14,6 @@ import 'react-virtualized/styles.css';
 
 import './index.css';
 
-import { fixtures, geolocation } from '../config/index';
-
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const windows = {
@@ -21,22 +21,30 @@ const windows = {
   '#mission': MissionWindow,
 };
 
-function runGeolocationAndFixtures() {
-  /*
-   * Forces this function to only run once, when it is loaded through the main window.
-   * Running this function more than once (through both main and mission windows) causes
-   * fixtures to be sent twice a second, as well as the setMapToUserLocation command,
-   * and we want to prevent this.
-   */
+/**
+ * Function runs only once, when it is loaded through the main window.
+ * Running this function more than once (through both main and mission windows) causes
+ * the information below to be run twice, and we do not want that to happen.
+ */
+function runOnce() {
+  /* eslint-disable global-require */
+
   if (window.location.hash !== '#main') return;
 
-  if (geolocation) {
+  // Set up Orchestrator.
+  require('../common/Orchestrator');
+
+  // Set up geolocation if geolocation is enabled in config.
+  if (statics.config.geolocation) {
     ipcRenderer.send('post', 'setMapToUserLocation');
   }
 
-  if (isDevelopment && fixtures) {
-    require('./fixtures/index'); // eslint-disable-line global-require
+  // Sets up fixtures if in development and fixtures are enabled in config.
+  if (isDevelopment && statics.config.fixtures) {
+    require('./fixtures/index');
   }
+
+  /* eslint-enable global-require */
 }
 
 class Index extends Component {
@@ -69,4 +77,4 @@ class Index extends Component {
   }
 }
 
-ReactDOM.render(<Index />, document.getElementById('app'), runGeolocationAndFixtures);
+ReactDOM.render(<Index />, document.getElementById('app'), runOnce);

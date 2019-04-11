@@ -1,11 +1,11 @@
 import React, { ReactNode } from 'react';
 
+import { ThemeProps } from '../../types/types';
+
 import LogContainer from './log/LogContainer';
 import MapContainer from './map/MapContainer';
 import MissionContainer from './mission/MissionContainer';
 import VehicleContainer from './vehicle/VehicleContainer';
-
-import { ThemeProps } from '../../util/types';
 
 import './main.css';
 

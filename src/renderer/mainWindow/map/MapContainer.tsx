@@ -1,4 +1,4 @@
-import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { Event, ipcRenderer } from 'electron';
 import fs from 'fs';
 import { LocationEvent } from 'leaflet';
 import React, {
@@ -10,13 +10,15 @@ import React, {
 } from 'react';
 import { Map, TileLayer, Viewport } from 'react-leaflet';
 
-import {
-  locations as locationsConfig, startLocation,
-} from '../../../config/index';
+import { locationConfig } from '../../../static/index';
 
 import {
-  FileLoadOptions, FileSaveOptions, LatLngZoom, LocationSignature, ThemeProps, Vehicle, VehicleUI,
-} from '../../../util/types';
+  FileLoadOptions,
+  FileSaveOptions,
+  LatLngZoom,
+  ThemeProps,
+  VehicleObject,
+} from '../../../types/types';
 import { updateVehicles } from '../../../util/util';
 
 import GeolocationControl from './control/GeolocationControl';
@@ -27,23 +29,12 @@ import VehicleMarker from './VehicleMarker';
 
 import './map.css';
 
-const locations: LocationSignature = locationsConfig;
-
 const mapOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
   url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
   accessToken: process.env.MAPBOX_TOKEN,
 };
-
-/*
- * Logic to set up the start location for the map.
- * Default location is (0, 0) unless there is a locations file defined already.
- */
-let start: LatLngZoom = { lat: 0, lng: 0, zoom: 18 };
-if (startLocation && locations[startLocation]) {
-  start = { ...start, ...locations[startLocation] };
-}
 
 /**
  * State of the map container.
@@ -52,7 +43,7 @@ interface State extends LatLngZoom {
   /**
    * Object of vehicles displayed in the user interface.
    */
-  vehicles: { [sid: string]: VehicleUI };
+  vehicles: { [vehicleId: string]: VehicleObject };
 
   /**
    * Viewport storing locations on location of map. This is more precise than
@@ -68,12 +59,14 @@ export default class MapContainer extends Component<ThemeProps, State> {
   public constructor(props: ThemeProps) {
     super(props);
 
+    const { startLocation } = locationConfig;
+
     this.state = {
       vehicles: {},
-      ...start,
+      ...startLocation,
       viewport: {
-        center: [start.lat, start.lng],
-        zoom: start.zoom,
+        center: [startLocation.lat, startLocation.lng],
+        zoom: startLocation.zoom,
       },
     };
 
@@ -89,13 +82,13 @@ export default class MapContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('loadConfig', (_: Event, data: FileLoadOptions) => this.loadConfig(data));
-    ipcRenderer.on('saveConfig', (_: Event, data: FileSaveOptions) => this.saveConfig(data));
+    ipcRenderer.on('loadConfig', (_: Event, data: FileLoadOptions): void => this.loadConfig(data));
+    ipcRenderer.on('saveConfig', (_: Event, data: FileSaveOptions): void => this.saveConfig(data));
 
-    ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleUI) => this.centerMapToVehicle(vehicle));
+    ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleObject): void => this.centerMapToVehicle(vehicle));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
-    ipcRenderer.on('updateMapLocation', (_: Event, location: LatLngZoom) => this.updateMapLocation(location));
-    ipcRenderer.on('updateVehicles', (_: Event, vehicles: Vehicle[]) => updateVehicles(this, vehicles));
+    ipcRenderer.on('updateMapLocation', (_: Event, location: LatLngZoom): void => this.updateMapLocation(location));
+    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
   }
 
   /**
@@ -151,7 +144,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
   /**
    * Centers map around a certain vehicle.
    */
-  private centerMapToVehicle(vehicle: VehicleUI): void {
+  private centerMapToVehicle(vehicle: VehicleObject): void {
     this.updateMapLocation(vehicle);
   }
 
@@ -179,12 +172,14 @@ export default class MapContainer extends Component<ThemeProps, State> {
     const { theme } = this.props;
     const { viewport, vehicles } = this.state;
 
-    const markers = Object.keys(vehicles).map(sid => (
-      <VehicleMarker
-        {...vehicles[sid]}
-        key={sid}
-      />
-    ));
+    const markers = Object
+      .keys(vehicles)
+      .map((vehicleId): ReactNode => (
+        <VehicleMarker
+          key={vehicleId}
+          vehicle={vehicles[vehicleId]}
+        />
+      ));
 
     return (
       <Map

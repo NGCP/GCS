@@ -1,4 +1,4 @@
-/* Defined styles for Log.tsx */
+/* Styles for log container */
 
 .logContainer .row {
   display: flex;
@@ -32,7 +32,7 @@
 
 .logContainer .messages_dark {
   background-color: #141414;
-  color: #fff;
+  color: #bdbdbd;
   font-family:
     Consolas,
     Menlo,

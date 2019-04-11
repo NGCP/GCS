@@ -1,4 +1,4 @@
-import { // eslint-disable-line import/no-extraneous-dependencies
+import {
   app,
   BrowserWindow,
   dialog,
@@ -13,15 +13,7 @@ import { // eslint-disable-line import/no-extraneous-dependencies
 import fs from 'fs';
 import moment from 'moment';
 
-import { images, locations as locationsConfig } from '../config/index';
-
-import { LocationSignature } from '../util/types';
-
-/**
- * List of locations that are in the locations configuration file.
- * Will be loaded under the locations column in the menu.
- */
-const locations: LocationSignature = locationsConfig;
+import { imageConfig, locationConfig } from '../static/index';
 
 /**
  * This key is required to enable geolocation in the application.
@@ -52,10 +44,10 @@ const HEIGHT = 576;
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // TODO: Put icon tray back to macOS but resize it so that its not huge on macOS's menu.
-const icon = nativeImage.createFromDataURL(images.icon);
+const icon = nativeImage.createFromDataURL(imageConfig.icon as string);
 
 /**
- *Variable to keep track when the app will quit, which is different from hiding the app.
+ * Variable to keep track when the app will quit, which is different from hiding the app.
  */
 let quitting = false;
 
@@ -80,8 +72,7 @@ let tray: Tray;
 const quitRole: MenuItemConstructorOptions = {
   label: 'Quit',
   accelerator: 'CommandOrControl+Q',
-  click(): void {
-    quitting = true;
+  click: (): void => {
     app.quit();
   },
 };
@@ -156,7 +147,7 @@ function loadConfig(): void {
   });
 
   // Returns if the user chooses to close the window instead of choosing a file path.
-  if (filePaths.length === 0) return;
+  if (!filePaths || filePaths.length === 0) return;
 
   // TODO: Add type for data.
   const data = JSON.parse(fs.readFileSync(filePaths[0]).toString());
@@ -180,7 +171,7 @@ const menu: MenuItemConstructorOptions[] = [
       {
         label: 'Open File...',
         accelerator: 'CommandOrControl+O',
-        click() { loadConfig(); },
+        click: (): void => { loadConfig(); },
       },
       { type: 'separator' },
       { role: 'close' },
@@ -188,7 +179,7 @@ const menu: MenuItemConstructorOptions[] = [
       {
         label: 'Save As...',
         accelerator: 'CommandOrControl+S',
-        click() { saveConfig(); },
+        click: (): void => { saveConfig(); },
       },
     ],
   },
@@ -220,7 +211,7 @@ const menu: MenuItemConstructorOptions[] = [
     submenu: [
       {
         label: 'My Location',
-        click() {
+        click: (): void => {
           if (mainWindow) {
             mainWindow.webContents.send('setMapToUserLocation');
           }
@@ -240,7 +231,7 @@ const menu: MenuItemConstructorOptions[] = [
     submenu: [
       {
         label: 'Help',
-        click() { shell.openExternal('https://github.com/NGCP/missioncontrol'); },
+        click: (): void => { shell.openExternal('https://github.com/NGCP/missioncontrol'); },
       },
     ],
   },
@@ -251,7 +242,7 @@ const menu: MenuItemConstructorOptions[] = [
  * The list of locations comes from ../../resources/locations.json.
  */
 function setLocationMenu(): void {
-  const location = menu.find(m => m.label === 'Locations');
+  const location = menu.find((m): boolean => m.label === 'Locations');
   if (!location) return;
 
   const { submenu } = location;
@@ -260,7 +251,7 @@ function setLocationMenu(): void {
   // Cast the submenu variable to locationMenu as a MenuItemContsturctorOptions array.
   const locationMenu: MenuItemConstructorOptions[] = submenu as MenuItemConstructorOptions[];
 
-  if (!locations || Object.keys(locations).length === 0) {
+  if (!locationConfig.locations || Object.keys(locationConfig.locations).length === 0) {
     locationMenu.push({
       label: 'No locations defined',
       enabled: false,
@@ -268,12 +259,12 @@ function setLocationMenu(): void {
     return;
   }
 
-  Object.keys(locations).forEach((label) => {
+  Object.keys(locationConfig.locations).forEach((label): void => {
     locationMenu.push({
       label,
-      click(menuItem) {
+      click: (menuItem): void => {
         if (mainWindow) {
-          mainWindow.webContents.send('updateMapLocation', locations[menuItem.label]);
+          mainWindow.webContents.send('updateMapLocation', locationConfig.locations[menuItem.label]);
         }
       },
     });
@@ -312,11 +303,11 @@ function createMainWindow(): void {
     mainWindow.loadURL(`file:///${__dirname}/index.html#main`);
   }
 
-  mainWindow.on('ready-to-show', () => {
+  mainWindow.on('ready-to-show', (): void => {
     if (mainWindow) mainWindow.show();
   });
 
-  mainWindow.on('close', (event) => {
+  mainWindow.on('close', (event): void => {
     if (!quitting) {
       event.preventDefault();
       if (mainWindow) {
@@ -362,7 +353,7 @@ function createMissionWindow(): void {
   }
 
 
-  missionWindow.on('close', (event) => {
+  missionWindow.on('close', (event): void => {
     if (!quitting) {
       event.preventDefault();
       // This allows the mission container to update to closed mission window.
@@ -401,7 +392,7 @@ function showMissionWindow(): void {
 const trayMenu: MenuItemConstructorOptions[] = [
   {
     label: 'NGCP Ground Control Station',
-    click() { showMainWindow(); },
+    click: (): void => { showMainWindow(); },
   },
   { type: 'separator' },
   quitRole,
@@ -430,12 +421,20 @@ function createTray(): void {
 
   tray.setContextMenu(Menu.buildFromTemplate(trayMenu));
 
-  tray.on('click', () => { showMainWindow(); });
+  tray.on('click', (): void => { showMainWindow(); });
 }
 
 app.on('activate', showMainWindow);
 
-app.on('ready', () => {
+app.on('ready', (): void => {
+  /*
+   * Prevents the app from starting if MapBox token is not set up.
+   * This is necessary to run the map container.
+   */
+  if (!process.env.MAPBOX_TOKEN) {
+    throw new Error('Set the MapBox token in .env before launching the application');
+  }
+
   createMainWindow();
   createMenu();
 
@@ -443,11 +442,11 @@ app.on('ready', () => {
   createTray();
 });
 
-app.on('before-quit', () => {
+app.on('before-quit', (): void => {
   quitting = true;
 });
 
-ipcMain.on('post', (_: Event, notification: string, data: object) => {
+ipcMain.on('post', (_: Event, notification: string, ...data: any[]): void => { // eslint-disable-line @typescript-eslint/no-explicit-any
   if (notification === 'showMissionWindow') {
     showMissionWindow();
   } else if (notification === 'hideMissionWindow') {
@@ -460,9 +459,9 @@ ipcMain.on('post', (_: Event, notification: string, data: object) => {
    * notifications go for which window, but its simpler to have it forwarded to both.
    */
   if (mainWindow) {
-    mainWindow.webContents.send(notification, data);
+    mainWindow.webContents.send(notification, ...data);
   }
   if (missionWindow) {
-    missionWindow.webContents.send(notification, data);
+    missionWindow.webContents.send(notification, ...data);
   }
 });

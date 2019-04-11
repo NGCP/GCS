@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 import {
   AutoSizer,
@@ -11,10 +11,10 @@ import {
   TableCellProps,
 } from 'react-virtualized';
 
-import { Mission, ThemeProps } from '../../../util/types';
+import { Mission, ThemeProps } from '../../../types/types';
 
 interface WidthSignature {
-  [key: string]: number;
+  [column: string]: number;
 }
 
 const width: WidthSignature = {
@@ -27,7 +27,7 @@ const width: WidthSignature = {
  */
 export interface MissionTableProps extends ThemeProps {
   /**
-   * Array of mission to display.
+   * Array of missions that needs to be displayed.
    */
   missions: Mission[];
 }
@@ -43,7 +43,7 @@ export default class MissionTable extends Component<MissionTableProps> {
     const { dataKey, rowData } = props;
     const { type, message } = rowData.status;
 
-    return <span key={dataKey} className={type}>{message}</span>;
+    return <span key={dataKey} className={`statusColumn ${type}`}>{message}</span>;
   }
 
   /**
@@ -132,7 +132,7 @@ export default class MissionTable extends Component<MissionTableProps> {
 
     return (
       <AutoSizer>
-        {({ height, width: tableWidth }) => (
+        {({ height, width: tableWidth }): ReactNode => (
           <Table
             width={tableWidth}
             height={height}

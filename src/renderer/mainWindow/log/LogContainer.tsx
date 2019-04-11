@@ -1,4 +1,4 @@
-import { Event, ipcRenderer } from 'electron'; // eslint-disable-line import/no-extraneous-dependencies
+import { Event, ipcRenderer } from 'electron';
 import moment, { Moment } from 'moment';
 import React, { Component, FormEvent, ReactNode } from 'react';
 import {
@@ -9,8 +9,7 @@ import {
   ListRowProps,
 } from 'react-virtualized';
 
-// TODO: Remove disable line comment when issue gets fixed (https://github.com/benmosher/eslint-plugin-import/pull/1304)
-import { isMessageType, MessageType, ThemeProps } from '../../../util/types'; // eslint-disable-line import/named
+import { isMessageType, MessageType, ThemeProps } from '../../../types/types';
 
 import './log.css';
 
@@ -84,7 +83,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateMessages', (_: Event, messages: Message[]) => this.updateMessages(messages));
+    ipcRenderer.on('updateMessages', (_: Event, ...messages: Message[]): void => this.updateMessages(...messages));
   }
 
   /**
@@ -145,19 +144,19 @@ export default class LogContainer extends Component<ThemeProps, State> {
 
     this.setState({
       filter: newFilter as MessageType,
-      filteredMessages: newFilter === '' ? messages.slice(0) : messages.filter(message => message.type === newFilter),
+      filteredMessages: newFilter === '' ? messages.slice(0) : messages.filter((message): boolean => message.type === newFilter),
     });
   }
 
   /**
    * Updates the messages in the log. Will update filtered messages accordingly.
    */
-  private updateMessages(messages: Message[]): void {
+  private updateMessages(...messages: Message[]): void {
     const { filteredMessages, messages: thisMessages, filter } = this.state;
     const currentMessages = thisMessages;
     const currentFilteredMessages = filteredMessages;
 
-    messages.forEach((message) => {
+    messages.forEach((message): void => {
       const msg: Message = {
         type: message.type || '',
         ...message,
@@ -184,7 +183,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
       <div className={`logContainer container${theme === 'dark' ? '_dark' : ''}`}>
         <div className={`messages${theme === 'dark' ? '_dark' : ''}`}>
           <AutoSizer>
-            {({ height, width }) => (
+            {({ height, width }): ReactNode => (
               <List
                 deferredMeasurementCache={this.heightCache}
                 height={height}
