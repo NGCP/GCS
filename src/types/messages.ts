@@ -572,7 +572,7 @@ export function isMessage(message: { [key: string]: any }): boolean {
     'connect',
     'ack',
     'badMessage',
-  ].indexOf(message.type) >= 0;
+  ].includes(message.type);
 }
 
 export type JSONMessage = Message & {

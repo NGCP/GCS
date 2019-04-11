@@ -9,15 +9,15 @@ import { VehicleObject, VehicleStatus } from '../../types/types';
 const fixtureOptions: VehicleOptions[] = [
   {
     sid: 100,
-    jobs: ['takeoff', 'loiter', 'isrSearch', 'payloadDrop', 'land'],
+    jobs: ['isrSearch', 'payloadDrop'],
   },
   {
     sid: 200,
-    jobs: ['retrieveTarget', 'deliverTarget'],
+    jobs: ['ugvRetrieve'],
   },
   {
     sid: 300,
-    jobs: ['retrieveTarget'],
+    jobs: ['uuvRetrieve'],
   },
   {
     sid: 400,

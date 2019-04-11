@@ -102,7 +102,7 @@ function isJobType(jobType: string): boolean {
  * Checks if a task is a valid task type for that job.
  */
 function isTaskTypeForJob(taskType: string, jobType: JobType): boolean {
-  return isJobType(jobType) && (vehicleJobs[jobType] as string[]).indexOf(taskType) >= 0;
+  return (vehicleJobs[jobType] as string[]).includes(taskType);
 }
 
 export const locationConfig = {
