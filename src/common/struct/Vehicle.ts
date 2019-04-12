@@ -251,17 +251,16 @@ export default class Vehicle {
     this.sendMessage(startMessage);
 
     /*
-     * Create handler that will sets the readyForMission back to true once the vehicle
-     * goes back to a ready status. Vehicle goes back to "ready" status once it either
-     * finishes a mission or goes back to a neutral position after its mission is stopped.
+     * Create handler that will end when vehicle successfully receives the job and goes to a
+     * waiting state.
      */
     this.updateEventHandler.addHandler<VehicleStatus>('status', (value): boolean => {
-      if (value === 'ready') {
+      if (value === 'waiting') {
         if (completionCallback) completionCallback();
       } else if (value === 'disconnected') {
         if (disconnectionCallback) disconnectionCallback();
       }
-      return value === 'ready';
+      return value === 'waiting';
     });
 
     return true;
