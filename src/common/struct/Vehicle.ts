@@ -217,17 +217,17 @@ export default class Vehicle {
    * Will return true if the mission was assigned successfully.
    *
    * @param jobType The job that will be used to accomplish the mission.
-   * @param options Optional information vehicle will need before performing any tasks.
    * @param completionCallback Optional callback when vehicle finishes/terminates the mission.
    * @param disconnectionCallback Optional callback when vehicle disconnects.
    * @param errorCallback Optional callback when vehicle goes in an error state.
+   * @param options Optional information vehicle will need before performing any tasks.
    */
   public assignJob(
     jobType: JobType,
-    options?: object,
     completionCallback?: () => void,
     disconnectionCallback?: () => void,
     errorCallback?: ErrorCallback,
+    options?: object,
   ): boolean {
     /*
      * Returns false if a vehicle has already been assigned a mission.

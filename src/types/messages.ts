@@ -407,7 +407,12 @@ export interface MissionOptions {
  * Type of information that should be passed from mission window to the Orchestrator.
  */
 export interface MissionParameters {
-  info: ISRSearchMissionParameters;
+  info: ISRSearchMissionParameters
+  | VTOLSearchMissionParameters
+  | PayloadDropTaskParameters
+  | UGVRetreiveMissionParameters
+  | {}; // The {} stands for UUVRetrieveMissionParameters, an empty object.
+
   options: MissionOptions;
 }
 
