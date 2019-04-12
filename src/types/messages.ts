@@ -65,9 +65,7 @@ interface TaskBase {
   taskType: string;
 }
 
-export interface TakeoffTask extends TaskBase {
-  taskType: 'takeoff';
-
+interface TakeoffTaskParameters {
   lat: HexFloat;
   lng: HexFloat;
   alt: HexFloat;
@@ -78,6 +76,10 @@ export interface TakeoffTask extends TaskBase {
     radius: HexFloat;
     direction: HexFloat;
   };
+}
+
+export interface TakeoffTask extends TaskBase, TakeoffTaskParameters {
+  taskType: 'takeoff';
 }
 
 function isTakeoffTask(task: Task): boolean {
@@ -94,14 +96,16 @@ function isTakeoffTask(task: Task): boolean {
     && isHexFloat(task.loiter.direction);
 }
 
-export interface LoiterTask extends TaskBase {
-  taskType: 'loiter';
-
+interface LoiterTaskParameters {
   lat: HexFloat;
   lng: HexFloat;
   alt: HexFloat;
   radius: HexFloat;
   direction: HexFloat;
+}
+
+export interface LoiterTask extends TaskBase, LoiterTaskParameters {
+  taskType: 'loiter';
 }
 
 function isLoiterTask(task: Task): boolean {
@@ -114,9 +118,7 @@ function isLoiterTask(task: Task): boolean {
 }
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
-export interface ISRSearchTask extends TaskBase {
-  taskType: 'isrSearch';
-
+interface ISRSearchTaskParameters {
   alt: HexFloat;
   waypoints: [
     {
@@ -134,6 +136,11 @@ export interface ISRSearchTask extends TaskBase {
   ];
 }
 
+// eslint-disable-next-line @typescript-eslint/interface-name-prefix
+export interface ISRSearchTask extends TaskBase, ISRSearchTaskParameters {
+  taskType: 'isrSearch';
+}
+
 function isISRSearchTask(task: Task): boolean {
   return task.taskType === 'isrSearch'
     && isHexFloat(task.alt)
@@ -144,9 +151,7 @@ function isISRSearchTask(task: Task): boolean {
     );
 }
 
-export interface PayloadDropTask extends TaskBase {
-  taskType: 'payloadDrop';
-
+interface PayloadDropTaskParameters {
   waypoints: [
     {
       lat: HexFloat;
@@ -159,6 +164,10 @@ export interface PayloadDropTask extends TaskBase {
       alt: HexFloat;
     }
   ];
+}
+
+export interface PayloadDropTask extends TaskBase, PayloadDropTaskParameters {
+  taskType: 'payloadDrop';
 }
 
 function isPayloadDropTask(task: Task): boolean {
@@ -171,9 +180,7 @@ function isPayloadDropTask(task: Task): boolean {
     );
 }
 
-export interface LandTask extends TaskBase {
-  taskType: 'land';
-
+interface LandTaskParameters {
   waypoints: [
     {
       lat: HexFloat;
@@ -188,6 +195,10 @@ export interface LandTask extends TaskBase {
   ];
 }
 
+export interface LandTask extends TaskBase, LandTaskParameters {
+  taskType: 'land';
+}
+
 function isLandTask(task: Task): boolean {
   return task.taskType === 'land'
     && task.waypoints && task.waypoints.length === 2
@@ -198,11 +209,13 @@ function isLandTask(task: Task): boolean {
     );
 }
 
-export interface UGVRetrieveTargetTask extends TaskBase {
-  taskType: 'retrieveTarget';
-
+interface UGVRetrieveTargetTaskParameters extends TaskBase {
   lat: HexFloat;
   lng: HexFloat;
+}
+
+export interface UGVRetrieveTargetTask extends TaskBase, UGVRetrieveTargetTaskParameters {
+  taskType: 'retrieveTarget';
 }
 
 function isUGVRetrieveTargetTask(task: Task): boolean {
@@ -213,11 +226,15 @@ function isUGVRetrieveTargetTask(task: Task): boolean {
   return isHexFloat(retrieveTargetTask.lat) && isHexFloat(retrieveTargetTask.lng);
 }
 
-export interface DeliverTargetTask extends TaskBase {
+interface DeliverTargetTaskParameters {
   taskType: 'deliverTarget';
 
   lat: HexFloat;
   lng: HexFloat;
+}
+
+export interface DeliverTargetTask extends TaskBase, DeliverTargetTaskParameters {
+  taskType: 'deliverTarget';
 }
 
 function isDeliverTargetTask(task: Task): boolean {
@@ -225,6 +242,8 @@ function isDeliverTargetTask(task: Task): boolean {
     && isHexFloat(task.lat)
     && isHexFloat(task.lng);
 }
+
+// UUVRetrieveTargetTask does not have any parameters.
 
 export interface UUVRetrieveTargetTask extends TaskBase {
   taskType: 'retrieveTarget';
@@ -240,9 +259,7 @@ function isUUVRetrieveTargetTask(task: Task): boolean {
   return !retrieveTargetTask.lat && !retrieveTargetTask.lng;
 }
 
-export interface QuickScanTask extends TaskBase {
-  taskType: 'quickScan';
-
+export interface QuickScanTaskParameters {
   waypoints: [
     {
       lat: HexFloat;
@@ -263,6 +280,10 @@ export interface QuickScanTask extends TaskBase {
   ];
 }
 
+export interface QuickScanTask extends TaskBase, QuickScanTaskParameters {
+  taskType: 'quickScan';
+}
+
 function isQuickScanTask(task: Task): boolean {
   return task.taskType === 'quickScan'
     && task.waypoints && task.waypoints.length === 4
@@ -270,6 +291,11 @@ function isQuickScanTask(task: Task): boolean {
       (waypoint): boolean => isHexFloat(waypoint.lat) && isHexFloat(waypoint.lng),
     );
 }
+
+/*
+ * DetailedSearchTask parameters are provided by QuickScan and are generated
+ * autonomously, no need for user interaction.
+ */
 
 export interface DetailedSearchTask extends TaskBase {
   taskType: 'detailedSearch';
@@ -322,6 +348,50 @@ export const taskTypeGuard = {
   isDetailedSearchTask,
   isTask,
 };
+
+// eslint-disable-next-line @typescript-eslint/interface-name-prefix
+export interface ISRSearchMissionParameters {
+  takeoff?: TakeoffTaskParameters;
+  isrSearch: ISRSearchTaskParameters;
+  land?: LandTaskParameters;
+}
+
+export interface VTOLSearchMissionParameters {
+  quickScan: QuickScanTaskParameters;
+}
+
+export interface UGVRetreiveMissionParameters {
+  retrieveTarget: UGVRetreiveMissionParameters;
+  deliverTarget: DeliverTargetTaskParameters;
+}
+
+// UUVRetrieveMission does not need parameters, as its one task does not need any.
+
+/**
+ * Options for the mission. All variables are optional so the UI should
+ * be able to detech which of the variables are required or not.
+ */
+export interface MissionOptions {
+  isrSearch?: {
+    /**
+     * Will not require takeoff parameters if this is true.
+     */
+    noTakeoff: boolean;
+
+    /**
+     * Will not require land parameters if this is true.
+     */
+    noLand: boolean;
+  };
+}
+
+/**
+ * Type of information that should be passed from mission window to the Orchestrator.
+ */
+export interface MissionParameters {
+  info: ISRSearchMissionParameters;
+  options: MissionOptions;
+}
 
 interface MessageBase {
   /**
