@@ -351,13 +351,19 @@ export const taskTypeGuard = {
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export interface ISRSearchMissionParameters {
-  takeoff?: TakeoffTaskParameters;
+  takeoff: TakeoffTaskParameters;
   isrSearch: ISRSearchTaskParameters;
-  land?: LandTaskParameters;
+  land: LandTaskParameters;
 }
 
 export interface VTOLSearchMissionParameters {
   quickScan: QuickScanTaskParameters;
+}
+
+export interface PayloadDropMissionParameters {
+  takeoff: TakeoffTaskParameters;
+  payloadDrop: PayloadDropTaskParameters;
+  land: LandTaskParameters;
 }
 
 export interface UGVRetreiveMissionParameters {
@@ -373,6 +379,18 @@ export interface UGVRetreiveMissionParameters {
  */
 export interface MissionOptions {
   isrSearch?: {
+    /**
+     * Will not require takeoff parameters if this is true.
+     */
+    noTakeoff: boolean;
+
+    /**
+     * Will not require land parameters if this is true.
+     */
+    noLand: boolean;
+  };
+
+  payloadDrop?: {
     /**
      * Will not require takeoff parameters if this is true.
      */
