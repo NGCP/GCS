@@ -6,7 +6,7 @@ import { VehicleObject } from '../types/types';
  * Updates vehicles being shown. This is run on map and vehicle containers.
  */
 export function updateVehicles(
-  component: Component<{}, { vehicles: { [key: string]: VehicleObject } }>,
+  component: Component<{}, { vehicles: { [vehicleId: string]: VehicleObject } }>,
   ...vehicles: VehicleObject[]
 ): void {
   const { vehicles: thisVehicles } = component.state;

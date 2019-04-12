@@ -2,14 +2,9 @@
 
 import { Event, ipcRenderer } from 'electron';
 
-import {
-  config,
-  vehicleConfig,
-  VehicleInfo,
-} from '../static/index';
+import { config } from '../static/index';
 import {
   AcknowledgementMessage,
-  BadMessageMessage,
   messageTypeGuard,
   JSONMessage,
   Message,
@@ -131,18 +126,6 @@ export default class MessageHandler {
   }
 
   /**
-   * Acknowledge a message received.
-   *
-   * @param jsonMessage The message to acknowledge.
-   */
-  private sendAcknowledgement(jsonMessage: JSONMessage): void {
-    this.sendMessage(jsonMessage.sid, {
-      type: 'ack',
-      ackid: jsonMessage.id,
-    });
-  }
-
-  /**
    * Send a bad message.
    *
    * @param jsonMessage The bad message (needs to have at least an sid field).
@@ -185,7 +168,7 @@ export default class MessageHandler {
     const jsonMessage = json as JSONMessage;
 
     /*
-     * Update the last message id received from the vehicle.
+     * Update the last message id received from the vehicle or discard message completely.
      * This is to be able to properly acknowledge a message. See the note on the following:
      *
      * https://ground-control-station.readthedocs.io/en/latest/communications/other-messages.html#acknowledgement-message
@@ -193,18 +176,19 @@ export default class MessageHandler {
     if (!this.receivedMessageId[jsonMessage.sid]
       || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id
     ) {
-      this.receivedMessageId[jsonMessage.sid] = jsonMessage.id;
-
       /*
-       * When this loop passes, it means that GCS is recieving a completely new message
-       * from the vehicle. We do not want to add messages that have been sent to us
-       * many times to be put multiple times into the dictionary.
+       * If this statement passes, it means that GCS is recieving a completely new message
+       * from the vehicle.
        */
+      this.receivedMessageId[jsonMessage.sid] = jsonMessage.id;
       this.messageDictionary.push('received', jsonMessage);
+    } else {
+      // If the statement fails, it means that the GCS is receiving an old message. Discard it.
+      return;
     }
 
     /*
-     * Handles acknowledgement messages.
+     * Handles acknowledgement messages from any source (even vehicles not connected).
      * DO NOT ACKNOWLEDGE.
      * Stops sending the message that the ack message has ascknowledged.
      */
@@ -216,64 +200,45 @@ export default class MessageHandler {
       return;
     }
 
-
-    /**
-     * Handles bad messages.
-     * DO NOT ACKNOWLEDGE.
-     * Logs error to log container.
-     */
-    if (messageTypeGuard.isBadMessageMessage(jsonMessage)) {
-      const { error } = jsonMessage as BadMessageMessage;
-      const { name } = vehicleConfig.vehicleInfos[jsonMessage.sid] as VehicleInfo;
-
-      ipcRenderer.send('post', 'updateMessages', {
-        type: 'failure',
-        message: `Received bad message from ${name}: ${error || 'No error message was specified'}`,
-      });
-      return;
-    }
-
     /*
-     * Handles connect messages.
-     * DO NOT ACKNOWLEDGE. ORCHESTRATOR WILL BUILD CONNECTIONACK MESSAGE.
-     *
-     * Forward message to Orchestrator.
+     * All messages that get here will be forwarded to the Orchestrator and will
+     * be acknowledged there, because the MessageHandler does not know if the message
+     * comes from a connected vehicle or not. If the vehicle is not connected, the
+     * Orchestrator will simply ignore the message.
      */
     if (messageTypeGuard.isConnectMessage(jsonMessage)) {
+      ipcRenderer.send('post', 'handleConnectMessage', jsonMessage);
       return;
     }
 
-    /*
-     * Acknowledge the message.
-     */
-    if (this.receivedMessageId[jsonMessage.sid] as number <= jsonMessage.id) {
-      this.sendAcknowledgement(jsonMessage);
-    }
-
-    /*
-     * Handles complete messages.
-     * Forward message to Orchestrator.
-     */
     if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
+      ipcRenderer.send('post', 'handleCompleteMessage', jsonMessage);
       return;
     }
 
-    /*
-     * Handles point of interest messages.
-     * Forward message to Orchestrator.
-     */
     if (messageTypeGuard.isPOIMessage(jsonMessage)) {
+      ipcRenderer.send('post', 'handlePOIMessage', jsonMessage);
       return;
     }
 
-    /*
-     * Handles update messages.
-     * Forward message to Orchestrator.
-     */
     if (messageTypeGuard.isUpdateMessage(jsonMessage)) {
+      ipcRenderer.send('post', 'handleUpdateMessage', jsonMessage);
       return;
     }
 
+    // Exception is this message. DO NOT ACKNOWLEDGE.
+    if (messageTypeGuard.isBadMessageMessage(jsonMessage)) {
+      ipcRenderer.send('post', 'handleBadMessage', jsonMessage);
+
+      /*
+       * ipcRenderer.send('post', 'updateMessages', {
+       *   type: 'failure',
+       *   message: `Received bad message from ${name}: ${error || 'No error message
+       * was specified'}`,
+       * });
+       */
+      return;
+    }
     /*
      * Any message that reaches here is a message (has a valid type, id, sid, tid, and time)
      * but does not have valid properties, or is a message GCS should not receive from vehicles
