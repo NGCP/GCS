@@ -159,7 +159,121 @@ function loadConfig(): void {
   if (missionWindow) {
     missionWindow.webContents.send('loadConfig', data);
   }
+}/**
+ * Hides the mission window.
+ */
+function hideMissionWindow(): void {
+  if (mainWindow) {
+    mainWindow.webContents.send('setSelectedMission', -1);
+  }
+  if (missionWindow) {
+    missionWindow.hide();
+  }
 }
+
+/**
+ * Creates the main window. This window's hash is #main.
+ */
+function createMainWindow(): void {
+  mainWindow = new BrowserWindow({
+    title: 'NGCP Ground Control Station',
+    icon,
+    show: false,
+    width: WIDTH,
+    minWidth: WIDTH,
+    height: HEIGHT,
+    minHeight: HEIGHT,
+  });
+
+  if (isDevelopment) {
+    mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#main`);
+  } else {
+    mainWindow.loadURL(`file:///${__dirname}/index.html#main`);
+  }
+
+  mainWindow.on('ready-to-show', (): void => {
+    if (mainWindow) mainWindow.show();
+  });
+
+  mainWindow.on('close', (event): void => {
+    if (!quitting) {
+      event.preventDefault();
+      if (mainWindow) {
+        mainWindow.hide();
+      }
+      if (missionWindow) {
+        hideMissionWindow();
+      }
+    } else {
+      mainWindow = null;
+    }
+  });
+}
+
+/**
+ * Creates the mission window. This window's hash is #mission.
+ * Does not show up once app is loaded (will be hidden) and is shown only when it is opened from
+ * the main window.
+ */
+function createMissionWindow(): void {
+  missionWindow = new BrowserWindow({
+    title: 'NGCP Mission User Interface',
+    icon,
+    show: false,
+    width: Math.floor(WIDTH * 2 / 3),
+    minWidth: Math.floor(WIDTH * 2 / 3),
+    height: HEIGHT,
+    autoHideMenuBar: true,
+    minHeight: HEIGHT,
+  });
+
+  if (isDevelopment) {
+    missionWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#mission`);
+  } else {
+    missionWindow.loadURL(`file:///${__dirname}/index.html#mission`);
+
+    /*
+     * Generally we should not have a menu on the mission window, but the menu helps us when
+     * developing the mission window (mainly gives us access to developer console, which then
+     * allows us to see which elements are loaded, as well as the browser's console log).
+     */
+    missionWindow.setMenu(null);
+  }
+
+
+  missionWindow.on('close', (event): void => {
+    if (!quitting) {
+      event.preventDefault();
+      // This allows the mission container to update to closed mission window.
+      hideMissionWindow();
+    } else {
+      missionWindow = null;
+    }
+  });
+}
+
+/**
+ * Shows the main window.
+ */
+function showMainWindow(): void {
+  if (!mainWindow) {
+    createMainWindow();
+  } else {
+    mainWindow.show();
+  }
+}
+
+/**
+ * Shows the mission window.
+ */
+function showMissionWindow(): void {
+  if (!missionWindow) {
+    createMissionWindow();
+  } else {
+    missionWindow.show();
+  }
+}
+
 
 /**
  * Reference to the menu displayed on main window.
@@ -224,6 +338,14 @@ const menu: MenuItemConstructorOptions[] = [
     role: 'window',
     submenu: [
       { role: 'minimize' },
+      {
+        label: 'Mission',
+        click: (): void => {
+          if (mainWindow) {
+            showMissionWindow();
+          }
+        },
+      },
     ],
   },
   {
@@ -269,121 +391,6 @@ function setLocationMenu(): void {
       },
     });
   });
-}
-
-/**
- * Hides the mission window.
- */
-function hideMissionWindow(): void {
-  if (mainWindow) {
-    mainWindow.webContents.send('setSelectedMission', -1);
-  }
-  if (missionWindow) {
-    missionWindow.hide();
-  }
-}
-
-/**
- * Creates the main window. This window's hash is #main.
- */
-function createMainWindow(): void {
-  mainWindow = new BrowserWindow({
-    title: 'NGCP Ground Control Station',
-    icon,
-    show: false,
-    width: WIDTH,
-    minWidth: WIDTH,
-    height: HEIGHT,
-    minHeight: HEIGHT,
-  });
-
-  if (isDevelopment) {
-    mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#main`);
-  } else {
-    mainWindow.loadURL(`file:///${__dirname}/index.html#main`);
-  }
-
-  mainWindow.on('ready-to-show', (): void => {
-    if (mainWindow) mainWindow.show();
-  });
-
-  mainWindow.on('close', (event): void => {
-    if (!quitting) {
-      event.preventDefault();
-      if (mainWindow) {
-        mainWindow.hide();
-      }
-      if (missionWindow) {
-        hideMissionWindow();
-      }
-    } else {
-      mainWindow = null;
-    }
-  });
-}
-
-/**
- * Creates the mission window. This window's hash is #mission.
- * Does not show up once app is loaded (will be hidden) and is shown only when it is opened from
- * the main window.
- */
-function createMissionWindow(): void {
-  missionWindow = new BrowserWindow({
-    title: 'NGCP Mission User Interface',
-    icon,
-    show: false,
-    width: Math.floor(WIDTH / 3),
-    minWidth: Math.floor(WIDTH / 3),
-    height: HEIGHT,
-    autoHideMenuBar: true,
-    minHeight: HEIGHT,
-  });
-
-  if (isDevelopment) {
-    missionWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#mission`);
-  } else {
-    missionWindow.loadURL(`file:///${__dirname}/index.html#mission`);
-
-    /*
-     * Generally we should not have a menu on the mission window, but the menu helps us when
-     * developing the mission window (mainly gives us access to developer console, which then
-     * allows us to see which elements are loaded, as well as the browser's console log).
-     */
-    missionWindow.setMenu(null);
-  }
-
-
-  missionWindow.on('close', (event): void => {
-    if (!quitting) {
-      event.preventDefault();
-      // This allows the mission container to update to closed mission window.
-      hideMissionWindow();
-    } else {
-      missionWindow = null;
-    }
-  });
-}
-
-/**
- * Shows the main window.
- */
-function showMainWindow(): void {
-  if (!mainWindow) {
-    createMainWindow();
-  } else {
-    mainWindow.show();
-  }
-}
-
-/**
- * Shows the mission window.
- */
-function showMissionWindow(): void {
-  if (!missionWindow) {
-    createMissionWindow();
-  } else {
-    missionWindow.show();
-  }
 }
 
 /**

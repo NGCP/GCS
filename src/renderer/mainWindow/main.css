@@ -8,10 +8,6 @@
   grid-area: map;
 }
 
-.missionContainer {
-  grid-area: mission;
-}
-
 .vehicleContainer {
   grid-area: vehicle;
 }
@@ -23,8 +19,8 @@
   grid-template-areas:
     'map map map vehicle'
     'map map map vehicle'
-    'map map map mission'
-    'log log log mission';
+    'map map map vehicle'
+    'log log log vehicle';
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: repeat(4, 1fr);
   height: 100%;

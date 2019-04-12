@@ -97,59 +97,6 @@ export interface VehicleObject {
 }
 
 /**
- * Status of a mission.
- */
-export interface MissionStatus {
-  name: 'notStarted' |'started' | 'paused' | 'completed';
-  message: string;
-  type: MessageType;
-}
-
-/**
- * Structure of a typical mission.
- */
-export interface Mission {
-  /**
-   * Name of the mission.
-   */
-  name?: string;
-  /**
-   * Description of the mission.
-   */
-  description: string;
-
-  /**
-   * Status of the misison.
-   */
-  status: MissionStatus;
-}
-
-/**
- * Structure of a typical job.
- */
-export interface Job {
-  /**
-   * Name of the job.
-   */
-  name: string;
-
-  /**
-   * Description of the job.
-   */
-  description: string;
-
-  /**
-   * Whether or not the job can be skipped.
-   */
-  optional?: boolean;
-
-  /**
-   * Whether or not the user can pause the job.
-   */
-  pausable?: boolean;
-}
-
-/**
  * Data contents for information that is loaded from a configuration file.
  */
 export interface FileLoadOptions {

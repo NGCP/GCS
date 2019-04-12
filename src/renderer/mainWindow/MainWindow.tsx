@@ -4,7 +4,6 @@ import { ThemeProps } from '../../types/types';
 
 import LogContainer from './log/LogContainer';
 import MapContainer from './map/MapContainer';
-import MissionContainer from './mission/MissionContainer';
 import VehicleContainer from './vehicle/VehicleContainer';
 
 import './main.css';
@@ -19,7 +18,6 @@ export default function MainWindow(props: ThemeProps): ReactNode {
     <div className={`mainWrapper${theme === 'dark' ? '_dark' : ''}`}>
       <MapContainer theme={theme} />
       <LogContainer theme={theme} />
-      <MissionContainer theme={theme} />
       <VehicleContainer theme={theme} />
     </div>
   );
