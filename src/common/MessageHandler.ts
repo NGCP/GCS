@@ -47,6 +47,8 @@ export default class MessageHandler {
     ipcRenderer.on('sendMessage', (_: Event, vehicleId: number, message: Message): void => this.sendMessage(vehicleId, message));
 
     ipcRenderer.on('receiveMessage', (_: Event, text: string): void => this.receiveMessage(text));
+
+    ipcRenderer.on('stopSendingMessages', this.stopSendingMessages);
   }
 
   /**
@@ -245,5 +247,13 @@ export default class MessageHandler {
      * (e.g. GCS should not receive a "start" message from a vehicle).
      */
     this.sendBadMessage(jsonMessage, `Message of type ${jsonMessage.type} is invalid`);
+  }
+
+  /**
+   * Stops sending all messages (literally discards all messages that are being sent, but they
+   * will still be in the "sent" dictionary).
+   */
+  private stopSendingMessages(): void {
+    this.updateHandler.clearHandlers();
   }
 }

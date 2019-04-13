@@ -3,5 +3,6 @@
   "geolocation": true,
 
   "vehicleDisconnectionTime": 20,
-  "messageSendRate": 1
+  "messageSendRate": 10,
+  "vehicleAllowedErrorTime": 5
 }

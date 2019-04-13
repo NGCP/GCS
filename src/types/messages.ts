@@ -373,9 +373,12 @@ export interface UGVRetreiveMissionParameters {
 
 // UUVRetrieveMission does not need parameters, as its one task does not need any.
 
+export type MissionParameters = ISRSearchMissionParameters | VTOLSearchMissionParameters | PayloadDropTaskParameters
+| UGVRetreiveMissionParameters | {};
+
 /**
  * Options for the mission. All variables are optional so the UI should
- * be able to detech which of the variables are required or not.
+ * be able to detect which of the variables are required or not.
  */
 export interface MissionOptions {
   isrSearch?: {
@@ -406,13 +409,15 @@ export interface MissionOptions {
 /**
  * Type of information that should be passed from mission window to the Orchestrator.
  */
-export interface MissionParameters {
-  info: ISRSearchMissionParameters
-  | VTOLSearchMissionParameters
-  | PayloadDropTaskParameters
-  | UGVRetreiveMissionParameters
-  | {}; // The {} stands for UUVRetrieveMissionParameters, an empty object.
+export interface MissionInformation {
+  /**
+   * Parameters for the mission.
+   */
+  parameters: MissionParameters;
 
+  /**
+   * Options for the mission.
+   */
   options: MissionOptions;
 }
 

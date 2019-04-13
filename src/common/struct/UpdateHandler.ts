@@ -100,15 +100,15 @@ export default class UpdateHandler {
     if (!this.eventDictionary[name]) return;
 
     this.eventDictionary[name] = (this.eventDictionary[name] as Handler<T>[])
-      .filter((lis): boolean => {
-        const handled = lis.handlerCheck(value, events);
+      .filter((h): boolean => {
+        const handled = h.handlerCheck(value, events);
 
         /*
          * Removes handler if it has not been triggered yet. Will also clearTimeout
          * the expiry if the handler has one so that the timeout will not trigger afterwards.
          */
         if (handled) {
-          if (lis.expiry) clearTimeout(lis.expiry);
+          if (h.expiry) clearTimeout(h.expiry);
         }
         return !handled;
       });
@@ -139,6 +139,17 @@ export default class UpdateHandler {
     // Removes the handler from the event's list of handlers.
     if (!this.eventDictionary[name]) return;
     this.eventDictionary[name] = (this.eventDictionary[name] as Handler<T>[])
-      .filter((lis): boolean => lis !== handler);
+      .filter((h): boolean => h !== handler);
+  }
+
+  /**
+   * Removes all handlers in the update handler.
+   */
+  public clearHandlers(): void {
+    Object.keys(this.eventDictionary).forEach((event): void => {
+      (this.eventDictionary[event] as Handler<any>[]).forEach((handler): void => {
+        handler.removeHandler();
+      });
+    });
   }
 }
