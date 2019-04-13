@@ -11,7 +11,7 @@ Connection acknowledgement message
 
 Sent back to the vehicle that GCS has accepted its request to connect. GCS forwards its time in the ``time`` field for the vehicle to create an offset to and send all future messages to in GCS's time.
 
-See the connect message that initiates this acknowledgement request `here <messages/vehicles-gcs-messages.html#connect-message>`_. Also see the implementation for the ``time`` field for messages, which directly relates to this message `here <implementation.html#setting-time>`_.
+See the connect message that initiates this acknowledgement request `here <vehicles-gcs-messages.html#connect-message>`_. Also see the implementation for the ``time`` field for messages, which directly relates to this message `here <implementation.html#setting-time>`_.
 
 .. code-block:: js
 
@@ -143,7 +143,7 @@ Stop message
 
 Sent to the vehicle to stop its mission. This is either sent when the vehicle is in the middle of the mission or when the vehicle has performed all tasks for the mission.
 
-Vehicle should have a procedure to get to a stable state when this message is sent (e.g. a flying plane should either loiter or land to the ground). Vehicles should continue to send `update messages <messages/vehicles-gcs-messages.html#update-message>`_ to the GCS.
+Vehicle should have a procedure to get to a stable state when this message is sent (e.g. a flying plane should either loiter or land to the ground). Vehicles should continue to send `update messages <vehicles-gcs-messages.html#update-message>`_ to the GCS.
 
 .. code-block:: js
 
@@ -158,4 +158,4 @@ Vehicle should have a procedure to get to a stable state when this message is se
 .. note::
   Requires an `acknowledgement message`_ from the vehicle.
 
-.. _acknowledgement message: messages/other-messages.html#acknowledgement-message
+.. _acknowledgement message: other-messages.html#acknowledgement-message

@@ -31,7 +31,7 @@ See the implementation for the ``time`` field for messages, which directly relat
   }
 
 .. note::
-  Requires a `connection acknowledgement message <messages/gcs-vehicles-messages.html#connection-acknowledgement-message>`_ from the GCS.
+  Requires a `connection acknowledgement message <gcs-vehicles-messages.html#connection-acknowledgement-message>`_ from the GCS.
 
 .. confval:: jobsAvailable
 
@@ -176,4 +176,4 @@ Sent to the GCS to let it know that it has completed the assigned task.
 .. note::
   Requires an `acknowledgement message`_ from the GCS.
 
-.. _`acknowledgement message`: messages/other-messages.html#acknowledgement-message
+.. _`acknowledgement message`: other-messages.html#acknowledgement-message
