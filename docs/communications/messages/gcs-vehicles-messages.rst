@@ -2,7 +2,7 @@
 Messages from GCS to Vehicles
 =============================
 
-These are the specific messages that are sent from GCS to vehicles. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields).
+These are the specific messages that are sent from GCS to vehicles. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields). See `here <introduction.html#requirements>`_ for more information of the general message requirements.
 
 ----------------------------------
 
@@ -10,6 +10,8 @@ Connection acknowledgement message
 ==================================
 
 Sent back to the vehicle that GCS has accepted its request to connect. GCS forwards its time in the ``time`` field for the vehicle to create an offset to and send all future messages to in GCS's time.
+
+See the connect message that initiates this acknowledgement request `here <messages/vehicles-gcs-messages.html#connect-message>`_. Also see the implementation for the ``time`` field for messages, which directly relates to this message `here <implementation.html#setting-time>`_.
 
 .. code-block:: js
 
@@ -21,7 +23,8 @@ Sent back to the vehicle that GCS has accepted its request to connect. GCS forwa
     "time": <unsigned 64-bit integer>
   }
 
-.. note:: Requires an acknowledgement message from the vehicle.
+.. note::
+  Requires an `acknowledgement message`_ from the vehicle.
 
 -------------
 
@@ -40,12 +43,14 @@ Sent to the vehicle to assign a job to complete a mission.
     "time": <unsigned 64-bit integer>,
 
     "jobType": <string>,                  // Job to perform
-    "options": {                          // Additional information vehicle needs
+    "options":                            // Optional, additional information vehicle needs
+    {
       ...
     }
   }
 
-.. note:: Requires an acknowledgement message from the vehicle.
+.. note::
+  Requires an `acknowledgement message`_ from the vehicle.
 
 .. confval:: jobType
 
@@ -75,21 +80,21 @@ Sent to the vehicle to assign a task to perform. The task should be something un
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
 
-    "missionInfo": {                          // Information related to specific job
+    "missionInfo":                     // Information related to specific job
+    {
       "taskType": <string>,
       ...
     }
   }
 
-.. note:: Requires an acknowledgement message from the vehicle.
-
-.. TODO: add link to job and task types
+.. note::
+  Requires an `acknowledgement message`_ from the vehicle.
 
 .. confval:: missionInfo
 
   :type: object
 
-  The task being assigned to the vehicle. This includes the task type as well as information related to that task. See the list of jobs and tasks to see the list of valid tasks and their provided information.
+  The task being assigned to the vehicle. This includes the task type as well as information related to that task. See the `list of jobs and tasks <jobs.html>`_ to see the list of valid tasks and their provided information.
 
 -------------
 
@@ -108,7 +113,8 @@ Sent to the vehicle to pause it from its current task.
     "time": <unsigned 64-bit integer>,
   }
 
-.. note:: Requires an acknowledgement message from the vehicle.
+.. note::
+  Requires an `acknowledgement message`_ from the vehicle.
 
 --------------
 
@@ -127,7 +133,8 @@ Sent to the vehicle to resume it back to its current task.
     "time": <unsigned 64-bit integer>,
   }
 
-.. note:: Requires an acknowledgement message from the vehicle.
+.. note::
+  Requires an `acknowledgement message`_ from the vehicle.
 
 ------------
 
@@ -136,9 +143,7 @@ Stop message
 
 Sent to the vehicle to stop its mission. This is either sent when the vehicle is in the middle of the mission or when the vehicle has performed all tasks for the mission.
 
-.. TODO: add link to update messages
-
-Vehicle should have a procedure to get to a stable state when this message is sent (e.g. a flying plane should either loiter or land to the ground). Vehicles should continue to send update messages to the GCS.
+Vehicle should have a procedure to get to a stable state when this message is sent (e.g. a flying plane should either loiter or land to the ground). Vehicles should continue to send `update messages <messages/vehicles-gcs-messages.html#update-message>`_ to the GCS.
 
 .. code-block:: js
 
@@ -150,4 +155,7 @@ Vehicle should have a procedure to get to a stable state when this message is se
     "time": <unsigned 64-bit integer>,
   }
 
-.. note:: Requires an acknowledgement message from the vehicle.
+.. note::
+  Requires an `acknowledgement message`_ from the vehicle.
+
+.. _acknowledgement message: messages/other-messages.html#acknowledgement-message

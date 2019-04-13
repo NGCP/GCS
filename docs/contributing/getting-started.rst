@@ -7,12 +7,14 @@ Getting Started
 
 For all forms of contribution, please read the information below.
 
-.. contents:: Contents
-  :local:
+--------------------------
 
-Install Node.js_. This is mandatory to compile and run the code you are writing.
+Required framework/plugins
+==========================
 
-Install Python_. This is mandatory to build documentation such as this.
+Install Node.js_. This is required to compile and run the code you are writing.
+
+Install Python_. This is required to build documentation such as this.
 
 Install `Atom`_. Edit files using this text editor.
 

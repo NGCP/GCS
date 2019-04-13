@@ -6,18 +6,31 @@ This page is to show how many things in this protocol can be implemented.
 
 ---------
 
-Float hex
+Hex string
 =========
 
 Many fields in the messages sent through the JSON protocol require floats. However, the problem with floats is that they can take a maximum of 32 characters when sent through a JSON.
 
 Messages are sent through an Xbee radio. These radios are only capable of sending messages of up to 256 characters long. To send longer messages, we will have to manually split the message up before sending, and put it back together, which is complicated.
 
-To resolve this issue, we decided to send all floats as hexadecimal strings. For this documentation, we will refer these hexadecimal string representation of a float as a **float hex**.
+To resolve this issue, we decided to send all floats as hexadecimal strings. For this documentation, we will refer these hexadecimal string representation of a float as a **hex string**.
 
 We will be using the IEEE 754 standard. Use `this website <https://gregstoll.com/~gregstoll/floattohex/>`_ to see float to hex conversions.
 
 Your vehicle should be able to convert a float to a hex, and vice versa.
+
+------------
+
+Setting time
+============
+
+All vehicles are required to include a ``time`` field on every message that they send. This time field should be configured to use GCS's time.
+
+To set this up, the vehicle must connect to the GCS. The time field in the `connect message <messages/vehicles-gcs-messages.html#connect-message>`_ that the vehicle sends the GCS will not matter, but it is still required to be included. The GCS will send back a `connection acknowledgment message <messages/gcs-vehicles-messages.html#connection-acknowledgement-message>`_, which includes the proper GCS time. The vehicle should calculate the offset between its own local time and GCS's time (through a simple subtraction of ``offset = gcsTime - myTime``).
+
+When sending messages after this, the vehicle should use the offset as well as its own local time to fill the ``time`` field in every message to GCS's time (``gcsTime = myTime + offset``).
+
+Use the `current millis <https://currentmillis.com/>`_ website to find the function in your vehicle program's language to get vehicle's local time.
 
 ------------------
 

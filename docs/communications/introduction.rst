@@ -49,11 +49,11 @@ The strength of this protocol is its design and simplicity.
 Acknowledging
 -------------
 
-The protocol ensures that all messages are acknowledged (except acknowledgement messages). To let this happen, the vehicle must acknowledge each message that it receives by sending an acknowledgement message back. With this, both vehicles receive a message and know that the other is connected.
+The protocol ensures that all messages are acknowledged (except `acknowledgement messages <messages/other-messages.html#acknowledgement-message>`_ and `bad messages <messages/other-messages.html#bad-message>`_). To let this happen, the vehicle must acknowledge each message that it receives by sending an acknowledgement message back. With this, both vehicles receive a message and know that the other is connected.
 
-If the vehicle does not acknowledge, or the other vehicle doesn't receive the acknowledgement message, the other vehicle that sent the message will not know whether or not the vehicle received the message. In this case, the other vehicle should continue to send the message to the vehicle and await the acknowledgement message.
+If the vehicle does not acknowledge, or the other vehicle doesn't receive the acknowledgement message, the other vehicle that sent the message will not know whether or not the vehicle received the message. In this case, the other vehicle should continue to send the message to the vehicle and await the acknowledgement message. The protocol defines that the vehicle should only send messages once every **10 seconds** to not clog up the other vehicle's system. If connection continues to fail for **20 seconds**, then the vehicles will disconnect from each other.
 
-If connection continues to fail for **twenty seconds**, then the vehicles will disconnect from each other.
+For the vehicle that is receiving, it should acknowledge every message (except the messages listed above). There can be a possiblity that the other vehicle did not receive the acknowledgement (hence it will continue to send messages), so the vehicle should always acknowledge incoming messages, even if they are repeated messages.
 
 Understand that this does not only apply for vehicles to vehicles, but also vehicles to GCS.
 
@@ -67,7 +67,7 @@ If a vehicle disconnects from the GCS, the vehicle must try to connect to the GC
 Maintaining Connection
 ----------------------
 
-Vehicles must maintain their communication with the GCS (as well as other vehicles) by sending update messages and letting them know of their status.
+Vehicles must maintain their communication with the GCS (as well as other vehicles) by sending `update messages <messages/vehicles-gcs-messages.html#update-message>`_ and letting them know of their status.
 
 ------------
 
@@ -98,10 +98,6 @@ Implementing these fields
 
   This is predefined for every message that is defined in the JSON protocol. This field defines what kind of message is being sent or received. For example, a start message's ``type`` field would be "start".
 
-.. TODO: Add link to acknowledging messages
-
-.. TODO: Add link to page to implement id
-
 .. confval:: id
 
   :type: unsigned 32-bit integer
@@ -110,15 +106,13 @@ Implementing these fields
 
   Here's the catch: the same message (with the same ``id`` and fields) should be sent until it is acknowledged. This message's ``id`` field should not be changing every time it is sent.
 
-  See this page for more information on how to implement this field.
-
-.. TODO: Add link to list
+  See `this <implementation.html#creating-messages-with-proper-id-field>`_ for more information on how to implement this field.
 
 .. confval:: sid/tid
 
   :type: unsigned 32-bit integer
 
-  These fields are predefined for every platform. See the list of vehicle IDs for the values used for these fields.
+  These fields are predefined for every platform. See the `list of vehicle IDs <vehicles.html>`_ for the values used for these fields.
 
 .. confval:: time
 
@@ -126,8 +120,6 @@ Implementing these fields
 
   Used for security. This field allows vehicles to discard old messages. For this to work, all vehicles must run on the same time, in the case of this protocol, in GCS's time.
 
-  For all vehicles to properly set the ``time`` field to GCS's time, they must first connect to GCS. GCS will give the vehicle its local time, and the vehicle will create an offset between its own time and GCS's time. The ``time`` field will be the vehicle's time plus the offset, which is the same as GCS's time.
+  For all vehicles to properly set the ``time`` field to GCS's time, they must first connect to GCS. GCS will give the vehicle its local time, and the vehicle will create an offset between its own time and GCS's time. The ``time`` field will be the vehicle's time plus the offset, which is the same as GCS's time. In reality, the offset should be very small, if GCS and the vehicle get their time from the same source.
 
-  In reality, the offset should be very small, if GCS and the vehicle run on the same time.
-
-  Use the `current millis <https://currentmillis.com/>`_ website to find the function in your language to get vehicle's local time.
+  See `this <implementation.html#setting-time>`_ for more information on implementing this field.

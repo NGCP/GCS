@@ -13,20 +13,17 @@ For example, an important part of the project is the ISR Search mission. To perf
 
 .. note:: More information of which tasks are related to which job are explained further below.
 
-.. TODO: add link to message
+The GCS will assign the vehicles the ``isrSearch`` job by sending them a `start message <messages/gcs-vehicles-messages.html#start-message>`_. By doing this, the vehicles know that they will be performing tasks very soon. The start message has a ``jobType`` field, which will be set to ``isrSearch``, so that the vehicles know which tasks to expect next from the GCS.
 
-The GCS will assign the vehicles the ``isrSearch`` job by sending them a start message. By doing this, the vehicles know that they will be performing tasks very soon. The start message has a ``jobType`` field, which will be set to ``isrSearch``, so that the vehicles know which tasks to expect next from the GCS.
-
-To accomplish the ISR Search mission, GCS will assign a task for the vehicle to perform (usually ``takeoff`` task), and assigns the next after the vehicle completes the first. This goes on until the ISR Search mission is completed.
+To accomplish the ISR Search mission, GCS will assign a task for the vehicle to perform (for example, ``takeoff`` task), and assigns the next after the vehicle completes the first. This goes on until the ISR Search mission is completed.
 
 ------------
 
 List of jobs
 ============
 
-.. TODO: add link to message
-
-.. note:: The vehicle must specify its jobs on the connect message, and the GCS must specify the job it is assigning to the vehicle on the start message.
+.. note::
+  The vehicle must specify its jobs on the `connect message <messages/vehicles-gcs-messages.html#connect-message>`_, and the GCS must specify the job it is assigning to the vehicle on the `start message <messages/gcs-vehicles-messages.html#start-message>`_.
 
 ISR Search
 ----------
@@ -150,19 +147,22 @@ Takeoff
     {
       "taskType": "takeoff",
 
-      "lat": <float hex>,           // Takeoff waypoint latitude
-      "lng": <float hex>,           // takeoff waypoint longitude
-      "alt": <float hex>,           // Takeoff waypoint altitude
-      "loiter":                     // Loiter waypoint information, used for UAV's idle state
+      "lat": <hex string>,           // Takeoff waypoint latitude
+      "lng": <hex string>,           // takeoff waypoint longitude
+      "alt": <hex string>,           // Takeoff waypoint altitude
+      "loiter":                      // Loiter waypoint information, used for UAV's idle state
       {
-        "lat": <float hex>,
-        "lng": <float hex>,
-        "alt": <float hex>,
-        "radius": <float hex>,      // Radius around loiter waypoint to fly around
-        "direction": <float hex>    // Direction to loiter
+        "lat": <hex string>,
+        "lng": <hex string>,
+        "alt": <hex string>,
+        "radius": <hex string>,      // Radius around loiter waypoint to fly around
+        "direction": <hex string>    // Direction to loiter
       }
     }
   }
+
+.. note::
+  Please click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
 
 ------
 
@@ -183,13 +183,16 @@ Used to update the loiter position of an airborne vehicle.
     {
       "taskType": "loiter",
 
-      "lat": <float hex>,
-      "lng": <float hex>,
-      "alt": <float hex>,
-      "radius": <float hex>,      // Radius around loiter waypoint to fly around
-      "direction": <float hex>    // Direction to loiter
+      "lat": <hex string>,
+      "lng": <hex string>,
+      "alt": <hex string>,
+      "radius": <hex string>,      // Radius around loiter waypoint to fly around
+      "direction": <hex string>    // Direction to loiter
     }
   }
+
+.. note::
+  Please click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
 
 ----------
 
@@ -208,24 +211,27 @@ ISR Search
     {
       "taskType": "isrSearch",
 
-      "alt": <float hex>,       // Altitude
-      "waypoints":              // Array of three waypoints
+      "alt": <hex string>,       // Altitude
+      "waypoints":               // Array of three waypoints
       [
         {
-          "lat": <float hex>,
-          "lng": <float hex>
+          "lat": <hex string>,
+          "lng": <hex string>
         },
         {
-          "lat": <float hex>,
-          "lng": <float hex>
+          "lat": <hex string>,
+          "lng": <hex string>
         },
         {
-          "lat": <float hex>,
-          "lng": <float hex>
+          "lat": <hex string>,
+          "lng": <hex string>
         }
       ]
     }
   }
+
+.. note::
+  Please click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
 
 ------------
 
@@ -244,21 +250,24 @@ Payload Drop
     {
       "taskType": "payloadDrop",
 
-      "waypoints":              // Array of two waypoints
+      "waypoints":               // Array of two waypoints
       [
         {
-          "lat": <float hex>,
-          "lng": <float hex>,
-          "alt": <float hex>
+          "lat": <hex string>,
+          "lng": <hex string>,
+          "alt": <hex string>
         },
         {
-          "lat": <float hex>,
-          "lng": <float hex>,
-          "alt": <float hex>
+          "lat": <hex string>,
+          "lng": <hex string>,
+          "alt": <hex string>
         }
       ]
     }
   }
+
+.. note::
+  Please click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
 
 ----
 
@@ -280,18 +289,21 @@ Land
       "waypoints":              // Array of two waypoints
       [
         {
-          "lat": <float hex>,
-          "lng": <float hex>,
-          "alt": <float hex>
+          "lat": <hex string>,
+          "lng": <hex string>,
+          "alt": <hex string>
         },
         {
-          "lat": <float hex>,
-          "lng": <float hex>,
-          "alt": <float hex>
+          "lat": <hex string>,
+          "lng": <hex string>,
+          "alt": <hex string>
         }
       ]
     }
   }
+
+.. note::
+  Please click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
 
 -------------------
 
@@ -310,10 +322,13 @@ UGV Retrieve Target
     {
       "taskType": "retrieveTarget",
 
-      "lat": <float hex>,
-      "lng": <float hex>
+      "lat": <hex string>,
+      "lng": <hex string>
     }
   }
+
+.. note::
+  lease click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
 
 --------------
 
@@ -332,10 +347,13 @@ Deliver Target
     {
       "taskType": "deliverTarget",
 
-      "lat": <float hex>,
-      "lng": <float hex>
+      "lat": <hex string>,
+      "lng": <hex string>
     }
   }
+
+.. note::
+  Please click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
 
 -------------------
 
@@ -376,24 +394,27 @@ Quick Scan
       "waypoints":              // Array of four waypoints to determine search area
       [
         {
-          "lat": <float hex>,   // Top left corner of search area
-          "lng": <float hex>
+          "lat": <hex string>,   // Top left corner of search area
+          "lng": <hex string>
         },
         {
-          "lat": <float hex>,   // Top right corner of search area
-          "lng": <float hex>
+          "lat": <hex string>,   // Top right corner of search area
+          "lng": <hex string>
         },
         {
-          "lat": <float hex>,   // Bottom left corner of search area
-          "lng": <float hex>
+          "lat": <hex string>,   // Bottom left corner of search area
+          "lng": <hex string>
         },
         {
-          "lat": <float hex>,   // Bottom right corner of search area
-          "lng": <float hex>
+          "lat": <hex string>,   // Bottom right corner of search area
+          "lng": <hex string>
         }
       ]
     }
   }
+
+.. note::
+  Please click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
 
 ---------------
 
@@ -412,7 +433,10 @@ Detailed Search
     {
       "taskType": "detailedSearch",
 
-      "lat": <float hex>,
-      "lng": <float hex>
+      "lat": <hex string>,
+      "lng": <hex string>
     }
   }
+
+.. note::
+  Please click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.

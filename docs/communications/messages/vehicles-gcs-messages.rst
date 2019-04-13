@@ -2,7 +2,7 @@
 Messages from Vehicles to GCS
 =============================
 
-These are the specific messages that are sent from vehicles to GCS. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields).
+These are the specific messages that are sent from vehicles to GCS. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields). See `here <introduction.html#requirements>`_ for more information of the general message requirements.
 
 ---------------
 
@@ -10,6 +10,8 @@ Connect message
 ===============
 
 Sent to the GCS to request connection to it. The vehicle will not have information of what GCS's time is yet, so any number is sufficient. The GCS will disregard this time.
+
+See the implementation for the ``time`` field for messages, which directly relates to this message `here <implementation.html#setting-time>`_.
 
 .. code-block:: js
 
@@ -20,18 +22,22 @@ Sent to the GCS to request connection to it. The vehicle will not have informati
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
 
-    "jobsAvailable": <string>[]
+    "jobsAvailable":                    // String array of jobs.
+    [
+      <string>,
+      <string>,
+      ...
+    ]
   }
 
-.. note:: Requires a **connection** acknowledgement message from the GCS.
-
-.. TODO: Link to list of jobs
+.. note::
+  Requires a `connection acknowledgement message <messages/gcs-vehicles-messages.html#connection-acknowledgement-message>`_ from the GCS.
 
 .. confval:: jobsAvailable
 
   :type: string[]
 
-  List of jobs that the vehicle is. These jobs describe the tasks the vehicle is capable of performing. See the list of jobs and tasks to see which jobs are valid.
+  List of jobs that the vehicle is. These jobs describe the tasks the vehicle is capable of performing. See the `list of jobs and tasks <jobs.html>`_ to see which jobs are valid.
 
 --------------
 
@@ -49,46 +55,49 @@ Sent to the GCS to let it know of the vehicle's status. This should always be se
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
 
-    "lat": <float hex>,
-    "lng": <float hex>,
-    "alt": <float hex>,                     // Optional
-    "heading": <float hex>,                 // Optional
-    "battery": <float hex>,                 // Optional, must be a value from 0 < x <= 1
+    "lat": <hex string>,
+    "lng": <hex string>,
+    "alt": <hex string>,                     // Optional
+    "heading": <hex string>,                 // Optional
+    "battery": <hex string>,                 // Optional, must be a value from 0 < x <= 1
 
-    "status": <string>,                     // Vehicle status
-    "errorMessage": <string>                // Optional, see notes below for more info
+    "status": <string>,                      // Vehicle status
+    "errorMessage": <string>                 // Optional, see notes below for more info
   }
 
-.. note:: Requires an acknowledgement message from the GCS.
+.. note::
+  | Requires an `acknowledgement message`_ from the GCS.
+  | Also, click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
+
 
 .. confval:: lat
 
-  :type: float hex
+  :type: hex string
 
   Latitude of vehicle.
 
 .. confval:: lng
 
-  :type: float hex
+  :type: hex string
 
   Longitude of vehicle.
 
 .. confval:: alt
 
-  :type: float hex
+  :type: hex string
   :optional: true
 
   Altitude of vehicle.
 
 .. confval:: heading : Optional
 
-  :type: float hex
+  :type: hex string
 
   Heading of vehicle.
 
 .. confval:: battery : Optional
 
-  :type: float hex
+  :type: hex string
 
   Battery percentage of vehicle, expressed as a decimal. Range is 0 < x <= 1.
 
@@ -101,10 +110,10 @@ Sent to the GCS to let it know of the vehicle's status. This should always be se
   The following are the valid values, the GCS:
 
   - **ready**: No job or mission was assigned to the vehicle.
-  - **error**: Vehicle is in an error state.
   - **waiting**: Job was assigned, but vehicle is waiting to be assigned a task.
   - **running**: Job was assigned, and vehicle is currently performing a task.
   - **paused**: Job was assigned, and vehicle is paused from performing the task, waiting to resume task.
+  - **error**: Vehicle is in an error state.
 
 .. confval:: errorMessage : Optional
 
@@ -128,21 +137,22 @@ Sent to the GCS to let it know of a point of interest found in a mission. Not al
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
 
-    "lat": <float hex>,                   // Latitude of point of interest
-    "lng": <float hex>,                   // Longitude of point of interest
+    "lat": <hex string>,                   // Latitude of point of interest
+    "lng": <hex string>,                   // Longitude of point of interest
   }
 
-.. note:: Requires an acknowledgement message from the GCS.
+.. note::
+  Requires an `acknowledgement message`_ from the GCS.
 
 .. confval:: lat
 
-  :type: float hex
+  :type: hex string
 
   Latitude of point of interest.
 
 .. confval:: lng
 
-  :type: float hex
+  :type: hex string
 
   Longitude of point of interest.
 
@@ -163,4 +173,7 @@ Sent to the GCS to let it know that it has completed the assigned task.
     "time": <unsigned 64-bit integer>,
   }
 
-.. note:: Requires an acknowledgement message from the GCS.
+.. note::
+  Requires an `acknowledgement message`_ from the GCS.
+
+.. _`acknowledgement message`: messages/other-messages.html#acknowledgement-message
