@@ -15,3 +15,4 @@
   communications/messages
   communications/jobs
   communications/vehicles
+  communications/examples
