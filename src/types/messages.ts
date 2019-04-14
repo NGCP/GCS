@@ -373,8 +373,8 @@ export interface UGVRetreiveMissionParameters {
 
 // UUVRetrieveMission does not need parameters, as its one task does not need any.
 
-export type MissionParameters = ISRSearchMissionParameters | VTOLSearchMissionParameters | PayloadDropTaskParameters
-| UGVRetreiveMissionParameters | {};
+export type MissionParameters = ISRSearchMissionParameters | VTOLSearchMissionParameters
+| PayloadDropTaskParameters | UGVRetreiveMissionParameters | {};
 
 /**
  * Options for the mission. All variables are optional so the UI should

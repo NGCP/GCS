@@ -122,7 +122,8 @@ export default abstract class Mission {
 
     /*
      * TODO: Allow the user to select more than one vehicle for a job. The vehicles can be used
-     * as backup in the case that the first vehicle goes on an error state.
+     * as backup in the case that the first vehicle goes on an error state. However this data
+     * should not be activeVehicleMapping. activeVehicleMapping will always be vehicleId => jobType
      */
 
     /*
@@ -327,7 +328,7 @@ export default abstract class Mission {
      * The mission is done when there are no more tasks inside activeTasks, as well as no more
      * tasks in waitingTasks.
      */
-    this.waitingVehicles.keys().forEach((jobType): void => {
+    Object.values(this.activeVehicleMapping).forEach((jobType): void => {
       while (
         (this.waitingTasks.get(jobType) as Task[]).length > 0
         && (this.waitingVehicles.get(jobType) as Vehicle[]).length > 0
@@ -420,14 +421,12 @@ export default abstract class Mission {
       return;
     }
 
-    if (this.waitingVehicles.get(jobType)
-      && (this.waitingVehicles.get(jobType) as Vehicle[]).length > 0
-    ) {
+    const vehicle = this.waitingVehicles.shift(jobType);
+    if (vehicle) {
       /*
        * Assign the task right away if there is a vehicle waiting for a task for that
        * specific jobType.
        */
-      const vehicle = this.waitingVehicles.shift(jobType) as Vehicle;
       vehicle.assignTask(task);
       this.activeTasks.set(`${vehicle.getVehicleId()}`, task);
     } else if (addToFront) {
@@ -471,10 +470,6 @@ export default abstract class Mission {
         message: `Terminated data: ${JSON.stringify(this.parameters)}`,
       });
     }
-    /*
-     * TODO: Print out the output data for this mission, so that we do not have to start over from
-     * step 1.
-     */
   }
 
   /**
