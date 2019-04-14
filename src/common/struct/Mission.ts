@@ -1,7 +1,6 @@
 import { ipcRenderer } from 'electron';
 
 import {
-  config,
   JobType,
   vehicleConfig,
   VehicleInfo,
@@ -16,17 +15,14 @@ import {
   Task,
   UpdateMessage,
 } from '../../types/messages';
-import { VehicleStatus } from '../../types/types';
+
+import { searchIndex } from '../../util/util';
 
 import DictionaryList from './DictionaryList';
 import Vehicle from './Vehicle';
 import UpdateHandler from './UpdateHandler';
 
-interface VehicleSignature { [vehicleId: string]: Vehicle }
-
-interface VehicleMappingSignature { [vehicleId: string]: JobType }
-
-type MissionStatus = 'ready' | 'initializing' | 'waiting' | 'running' | 'error';
+type MissionStatus = 'ready' | 'initializing' | 'waiting' | 'running';
 
 /**
  * Mission backend for the GCS. Automatically creates and assigns tasks. No provided value should
@@ -46,7 +42,7 @@ export default abstract class Mission {
   /**
    * All connected vehicles (at least when this class was created).
    */
-  private vehicles: VehicleSignature;
+  private vehicles: { [vehicleId: string]: Vehicle };
 
   /**
    * Current status of mission.
@@ -72,14 +68,22 @@ export default abstract class Mission {
    * assigning jobs to vehicles. When mission starts, this gets reassigned to
    * waitingVehicles
    *
-   * The values put together as an array must include all of the mission's job types.
+   * The values put together as an array must equal all of the mission's job types.
+   * There will be no job types in this mapping that are irrelevant to the mission.
    */
-  private vehicleMapping: VehicleMappingSignature;
+  private activeVehicleMapping: { [vehicleId: string]: JobType } = {};
+
+  /**
+   * Comparison to how tasks are added to the waiting task list. If there is no
+   * comparison function specified for the jobType, then jobs will be added and taken
+   * on a FILO order (queue).
+   */
+  protected abstract addTaskCompare: { [jobType: string]: (a: Task, b: Task) => number };
 
   /**
    * Map of the id of the vehicle to the task it is performing.
    */
-  private activeTasks = new Map<number, Task>();
+  private activeTasks = new Map<string, Task>();
 
   /**
    * All tasks waiting to be executed, mapped by their job type.
@@ -107,15 +111,30 @@ export default abstract class Mission {
 
   public constructor(
     completionCallback: (information: MissionInformation) => void,
-    vehicles: VehicleSignature,
+    vehicles: { [vehicleId: string]: Vehicle },
     information: MissionInformation,
-    vehicleMapping: VehicleMappingSignature,
+    activeVehicleMapping: { [vehicleId: string]: JobType },
   ) {
     this.completionCallback = completionCallback;
     this.vehicles = vehicles;
     this.parameters = information.parameters;
     this.options = information.options;
-    this.vehicleMapping = vehicleMapping;
+
+    /*
+     * TODO: Allow the user to select more than one vehicle for a job. The vehicles can be used
+     * as backup in the case that the first vehicle goes on an error state.
+     */
+
+    /*
+     * Filters out any irrelevant jobs when adding to activeVehicleMapping in the case that
+     * extra jobs were included in the mapping.
+     */
+    Object.keys(activeVehicleMapping).forEach((vehicleId): void => {
+      const jobType = activeVehicleMapping[vehicleId];
+      if (this.jobTypes.has(jobType)) {
+        this.activeVehicleMapping[vehicleId] = jobType;
+      }
+    });
 
     /*
      * Create event handler that will handle all changes of status:
@@ -151,16 +170,15 @@ export default abstract class Mission {
         type: 'failure',
         message: `Something wrong happened in ${this.missionName}`,
       });
-      this.stop();
-      this.statusEventHandler.event<MissionStatus>('status', 'ready');
+      this.stop(false);
       return;
     }
 
-    // Fails to initialize if provided job types do not match up to this mission's job types
+    // Fails to initialize if provided job types do not match up to this mission's job types.
     if (!this.checkJobTypesAndActiveVehicles()) {
       ipcRenderer.send('post', 'updateMessages', {
         type: 'failure',
-        message: `Provided jobs and/or assigned vehicles for ${this.missionName} is incorrect. Stopping mission`,
+        message: `Provided vehicles for ${this.missionName} is incomplete. Stopping mission`,
       });
       this.statusEventHandler.event<MissionStatus>('status', 'ready');
       return;
@@ -183,16 +201,15 @@ export default abstract class Mission {
         type: 'failure',
         message: `Something wrong happened in ${this.missionName}`,
       });
-      this.stop();
-      this.statusEventHandler.event<MissionStatus>('status', 'ready');
+      this.stop(false);
       return;
     }
 
-    let pendingVehicleIds = Object.keys(this.vehicleMapping);
+    let pendingVehicleIds = Object.keys(this.activeVehicleMapping);
     const assignedVehicleIds: string[] = [];
 
     /*
-     * The three functions below are callbacks to when the vehicles connect.
+     * The three functions below are callbacks to when we assign the vehicle its job.
      * I put them here for readability.
      */
 
@@ -220,7 +237,7 @@ export default abstract class Mission {
     };
 
     /**
-     * Triggers when vehicle has disconnected.
+     * Triggers when vehicle fails to accept the job assignment.
      */
     const onDisconnect = (): void => {
       /*
@@ -228,11 +245,11 @@ export default abstract class Mission {
        * to any other vehicle if there is somehow a "start" message on queue.
        */
       ipcRenderer.send('post', 'stopSendingMessages');
-      this.stop();
+      this.stop(false);
     };
 
     /**
-     * Triggers when vehicle enters an error state.
+     * Triggers when vehicle performing job enters an error state.
      */
     const onError = (vehicleId: string, message?: string): void => {
       ipcRenderer.send('post', 'updateMessages', {
@@ -243,16 +260,14 @@ export default abstract class Mission {
       this.handleUnresponsiveVehicle(vehicleId);
     };
 
-
-    // Assign jobs to vehicles (only if that vehicle's job is relatable to this mission).
+    // Assign jobs to vehicles.
     pendingVehicleIds.forEach((vehicleId): void => {
-      const jobType = this.vehicleMapping[vehicleId];
-      if (this.jobTypes.has(jobType)) {
-        this.vehicles[vehicleId].assignJob(jobType,
-          (): void => onSuccess(vehicleId),
-          (): void => onDisconnect(),
-          (message): void => onError(vehicleId, message));
-      }
+      const jobType = this.activeVehicleMapping[vehicleId];
+
+      this.vehicles[vehicleId].assignJob(jobType,
+        (): void => onSuccess(vehicleId),
+        (): void => onDisconnect(),
+        (message): void => onError(vehicleId, message));
     });
   }
 
@@ -266,22 +281,39 @@ export default abstract class Mission {
         type: 'failure',
         message: `Something wrong happened in ${this.missionName}`,
       });
-      this.stop();
-      this.statusEventHandler.event<MissionStatus>('status', 'ready');
+      this.stop(false);
       return;
     }
 
-    // Adds all the tasks to the waitingTasks, if the jobType relates to this mission.
+    // Adds all the tasks to the waitingTasks, if the task's jobType relates to this mission.
     const jobTasks = this.generateTasks();
     Object.keys(jobTasks).forEach((jobType): void => {
       if (vehicleConfig.isJobType(jobType) && this.jobTypes.has(jobType as JobType)) {
-        this.waitingTasks.push(jobType, ...jobTasks.get(jobType) as Task[]);
+        if (this.addTaskCompare[jobType]) {
+          // Will happen if there is a compare for this job type.
+          (jobTasks.get(jobType) as Task[]).forEach((task): void => {
+            const index = searchIndex(
+              this.waitingTasks.get(jobType) || [],
+              task,
+              this.addTaskCompare[jobType],
+            );
+            this.waitingTasks.insert(jobType, index, task);
+          });
+        } else {
+          this.waitingTasks.push(jobType, ...jobTasks.get(jobType) as Task[]);
+        }
       }
     });
 
-    // Remaps the vehicleMapping to waitingVehicles (vehicleId => jobType to jobType => Vehicle[]).
-    Object.keys(this.vehicleMapping).forEach((vehicleId): void => {
-      const jobType = this.vehicleMapping[vehicleId];
+    /*
+     * Remaps the activeVehicleMapping to waitingVehicles
+     * (vehicleId => jobType to jobType => Vehicle[]).
+     *
+     * Using waitingVehicles to assign vehicles tasks is faster than using activeVehicleMapping,
+     * hence we need waitingVehicles. It is also more easy to understand.
+     */
+    Object.keys(this.activeVehicleMapping).forEach((vehicleId): void => {
+      const jobType = this.activeVehicleMapping[vehicleId];
       const vehicle = this.vehicles[vehicleId];
 
       this.waitingVehicles.push(jobType, vehicle);
@@ -289,7 +321,11 @@ export default abstract class Mission {
 
     /*
      * Assign tasks to vehicles. Will keep assigning tasks to vehicles until there is either
-     * waiting vehicles or waiting tasks.
+     * no more available waiting vehicles or no more available waiting tasks.
+     *
+     * We add these tasks to activeTasks, where we keep track of all tasks that are being executed.
+     * The mission is done when there are no more tasks inside activeTasks, as well as no more
+     * tasks in waitingTasks.
      */
     this.waitingVehicles.keys().forEach((jobType): void => {
       while (
@@ -300,7 +336,7 @@ export default abstract class Mission {
         const vehicle = this.waitingVehicles.shift(jobType) as Vehicle;
 
         vehicle.assignTask(task);
-        this.activeTasks.set(vehicle.getVehicleId(), task);
+        this.activeTasks.set(`${vehicle.getVehicleId()}`, task);
       }
     });
 
@@ -313,35 +349,33 @@ export default abstract class Mission {
    * vehicleId being provided is a valid vehicleId of a vehicle that was connected when the
    * mission was initialized.
    *
-   * This is the event when a complete message has been sent from a vehicle. The mission
-   * will either give that vehicle the next task or complete the mission.
-   *
    * Subclasses can override this to check for even more types of messages.
    */
   public update(message: JSONMessage): void {
     /*
-     * We run this statement in the case a vehicle goes to error, we keep track of its update
-     * messages and see if it goes back to "running". Otherwise we will have to stop the
-     * mission. See the handler that is created in the handleUnresponsiveVehicle() function.
+     * The base mission class only checks for update and completion messages. The base class will
+     * either reassign the vehicle the task, put the vehicle to wait for further tasks,
+     * or complete the mission when it receives a completion message. The update message
+     * is to simply keep its track of vehicles up to date.
      */
-    if (this.status === 'error' && messageTypeGuard.isUpdateMessage(message)) {
-      this.statusEventHandler.event('vehicleStatus', (message as UpdateMessage).status);
+
+    if (messageTypeGuard.isUpdateMessage(message)) {
+      this.vehicles[message.sid].update(message as UpdateMessage);
     }
 
-    // The base mission class only checks for completion messages.
     if (messageTypeGuard.isCompleteMessage(message)) {
-      const jobType = this.vehicleMapping[message.sid];
+      const jobType = this.activeVehicleMapping[message.sid];
 
       if ((this.waitingTasks.get(jobType) as Task[]).length > 0) {
         // Assigns the next task in that job to the vehicle.
         const newTask = this.waitingTasks.shift(jobType) as Task;
 
         this.vehicles[message.sid].assignTask(newTask);
-        this.activeTasks.set(message.sid, newTask);
+        this.activeTasks.set(`${message.sid}`, newTask);
       } else {
         // All tasks in that jobType are complete, so this vehicle will go back to waiting vehicles.
         this.waitingVehicles.push(jobType, this.vehicles[message.sid]);
-        this.activeTasks.delete(message.sid);
+        this.activeTasks.delete(`${message.sid}`);
       }
 
       /*
@@ -353,59 +387,90 @@ export default abstract class Mission {
       if (this.activeTasks.size === 0 && this.waitingTasks.size() === 0) {
         ipcRenderer.send('post', 'completeMission', this.missionName);
         this.completionCallback(this.generateTerminatedData());
-        this.stop();
-        this.statusEventHandler.event('status', 'ready');
+        this.stop(true);
       } else {
         // This should never happen. There is a big issue in the system if this somehow happens.
         ipcRenderer.send('post', 'updateMessages', {
           type: 'failure',
           message: `Mission completion failed in ${this.missionName}. Stopping mission`,
         });
-        this.stop();
-        this.statusEventHandler.event<MissionStatus>('status', 'ready');
+        this.stop(false);
       }
     }
   }
 
   /**
-   * Adds a new task to the mission. Should only be called on its subclasses (probably through
-   * an overriden update() function).
+   * Adds a new task to the mission. Should only be called on its subclasses to add a task.
+   * For example, add tasks as certain information is found while the mission happens, or
+   * when user needs a vehicle to manually perform a task before another.
+   *
+   * @param jobType The job to add the task to.
+   * @param task The task object itself.
+   * @param addToFront True if the task should be added to the front of the queue
+   * instead of the back.
    */
-  protected addTask(jobType: string, task: Task): void {
+  protected addTask(jobType: string, task: Task, addToFront?: boolean): void {
     // Fails to initialize if mission is not in the "ready" state.
     if (this.status !== 'running') {
       ipcRenderer.send('post', 'updateMessages', {
         type: 'failure',
         message: `Tried to add ${task.taskType} task while ${this.missionName} is not running`,
       });
-      this.stop();
-      this.statusEventHandler.event<MissionStatus>('status', 'ready');
+      this.stop(false);
       return;
     }
 
-    /*
-     * Assign the task right away if there is a vehicle waiting for a task for that
-     * specific jobType. Otherwise just store it in waiting tasks so that when a vehicle
-     * is available, it can perform that task.
-     */
     if (this.waitingVehicles.get(jobType)
       && (this.waitingVehicles.get(jobType) as Vehicle[]).length > 0
     ) {
+      /*
+       * Assign the task right away if there is a vehicle waiting for a task for that
+       * specific jobType.
+       */
       const vehicle = this.waitingVehicles.shift(jobType) as Vehicle;
       vehicle.assignTask(task);
-      this.activeTasks.set(vehicle.getVehicleId(), task);
+      this.activeTasks.set(`${vehicle.getVehicleId()}`, task);
+    } else if (addToFront) {
+      // Add to front of waitingTasks if requested.
+      this.waitingTasks.unshift(jobType, task);
+    } else if (this.addTaskCompare[jobType] && this.waitingTasks.get(jobType)) {
+      /*
+       * Add to proper spot in task (these tasks in this job are ordered) if there
+       * is a compare function.
+       */
+      const index = searchIndex(
+        this.waitingTasks.get(jobType) as Task[],
+        task,
+        this.addTaskCompare[jobType],
+      );
+      this.waitingTasks.insert(jobType, index, task);
     } else {
+      // Simply add the task to the back of the list.
       this.waitingTasks.push(jobType, task);
     }
   }
 
   /**
    * Stops the mission (either means mission was stopped manually or mission was completed).
+   * Will print out terminated data (this mission's parameters) if the mission was
+   * stopped through an error (or manually stopped).
+   *
+   * @param success True if the mission was completed, false if the mission was stopped
+   * manually/through error.
    */
-  private stop(): void {
-    Object.keys(this.vehicleMapping).forEach((vehicleId): void => {
+  private stop(success: boolean): void {
+    Object.keys(this.activeVehicleMapping).forEach((vehicleId): void => {
       this.vehicles[vehicleId].stop();
     });
+
+    this.statusEventHandler.event('status', 'ready');
+
+    if (!success) {
+      ipcRenderer.send('post', 'updateMessage', {
+        type: 'success',
+        message: `Terminated data: ${JSON.stringify(this.parameters)}`,
+      });
+    }
     /*
      * TODO: Print out the output data for this mission, so that we do not have to start over from
      * step 1.
@@ -417,27 +482,26 @@ export default abstract class Mission {
    * 1. All job types provided cover the required job types for this mission.
    * 2. There is a vehicle assigned to each job type.
    *
-   * @param vehicleMapping User provided map of vehicle to their job type, function will check
+   * @param activeVehicleMapping User provided map of vehicle to their job type, function will check
    * if this mapping is valid.
    */
   private checkJobTypesAndActiveVehicles(): boolean {
-    const vehicleIds = Object.keys(this.vehicleMapping);
+    const vehicleIds = Object.keys(this.activeVehicleMapping);
 
-    // Create a set of the job types provided by vehicleMapping
-    const activeJobTypes = new Set<JobType>();
-    vehicleIds.forEach((vehicleId): void => {
-      activeJobTypes.add(this.vehicleMapping[vehicleId]);
-    });
-
-    // Check #1: ensure the jobs in the vehicleMapping cover the required jobs for this mission.
-    if (!Array.from(this.jobTypes).every((jobType): boolean => activeJobTypes.has(jobType))) {
+    /*
+     * Check #1: ensure the jobs in the activeVehicleMapping cover the required jobs for this
+     * mission.
+     */
+    if (!Array.from(Object.keys(this.activeVehicleMapping)).every(
+      (vehicleId): boolean => this.jobTypes.has(this.activeVehicleMapping[vehicleId]),
+    )) {
       return false;
     }
 
     /*
-     * Check #2: if all jobs in the vehicleMapping cover the required jobs for the mission, then
-     * there is a vehicle mapped for every job already. We need to check that all these vehicles
-     * are in the "ready" state too.
+     * Check #2: if all jobs in the activeVehicleMapping cover the required jobs for the mission,
+     * then there is a vehicle mapped for every job already. We need to check that all these
+     * vehicles are in the "ready" state too.
      */
     if (!vehicleIds.every((vehicleId): boolean => this.vehicles[vehicleId].getStatus() === 'ready')) {
       return false;
@@ -447,29 +511,83 @@ export default abstract class Mission {
   }
 
   /**
-   * Handles a vehicle in an error state. We will give the vehicle a few seconds to get
-   * out of error state before ending the mission and log that user should take manual
-   * control of the vehicle as soon as possible.
+   * Handles a vehicle that is assigned a job when it goes to an error state. Tries to assign
+   * another vehicle that can perform the same task and remove that vehicle. If not possible,
+   * simply stops the mission.
+   *
+   * If no tasks is being executed, stop the mission.
+   *
+   * This never gets executed while mission's status is "ready", since no vehicles are assigned
+   * then.
    */
   private handleUnresponsiveVehicle(vehicleId: string): void {
-    ipcRenderer.send('post', 'updateMessages', {
-      type: 'progress',
-      message: `Will see if the vehicle will exit the error state within ${config.vehicleAllowedErrorTime} seconds`,
-    });
+    /*
+     * In the case that a vehicle that is not performing a job is in an error state
+     * and somehow this function gets called (which it shouldn't), let the vehicle
+     * be.
+     *
+     * Again, this should never be called for a vehicle that is not performing a job.
+     * All vehicles in the "ready" state are assumed to be stable (whether they're airborne,
+     * underwater, or on land).
+     */
+    if (!this.activeVehicleMapping[vehicleId]) return;
 
-    this.status = 'error';
-
-    this.statusEventHandler.addHandler('vehicleStatus',
-      (status: VehicleStatus): boolean => status !== 'error',
-      {
-        callback: (): void => {
-          ipcRenderer.send('post', 'updateMessages', {
-            type: 'progress',
-            message: `${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name} failed to exit the error state on time. Stopping mission. User, take manual control of vehicle as soon as possible`,
-          });
-        },
-        time: config.vehicleDisconnectionTime * 1000,
+    if (this.status === 'waiting') {
+      // Simply exit the mission if we are in the "waiting" stage.
+      ipcRenderer.send('post', 'updateMessages', {
+        type: 'failure',
+        message: 'Exiting mission due to vehicle in error state, take manual control over vehicle',
       });
+      this.stop(false);
+    } else if (this.status === 'initializing') {
+      /*
+       * Stop sending all extra start messages and exit the mission.
+       * See assignJobs for similar logic.
+       */
+      ipcRenderer.send('post', 'updateMessages', {
+        type: 'failure',
+        message: 'Exiting mission due to vehicle in error state, take manual control over vehicle',
+      });
+      ipcRenderer.send('post', 'stopSendingMessages');
+      this.stop(false);
+    } else {
+      const jobType = this.activeVehicleMapping[vehicleId];
+
+      // Delete the error vehicle from vehicle mapping.
+      delete this.activeVehicleMapping[vehicleId];
+
+      /*
+       * Delete the task related to error vehicle and insert it to front of waitingTasks.
+       * It is possible that there is no tasks related to the vehicle and that the
+       * vehicle has errored out while waiting to be assigned a task (vehicle status was
+       * "waiting").
+       */
+      if (this.activeTasks.has(vehicleId)) {
+        const task = this.activeTasks.get(vehicleId) as Task;
+        this.activeTasks.delete(vehicleId);
+
+        this.addTask(jobType, task, true);
+      }
+
+      /*
+       * Try to reassign that task (if there was one) to a waiting vehicle that can
+       * perform that job.
+       */
+      const newVehicle = this.waitingVehicles.shift(jobType);
+      const task = this.waitingTasks.shift(jobType);
+      if (newVehicle && task) {
+        this.activeVehicleMapping[`${newVehicle.getVehicleId()}`] = jobType;
+
+        newVehicle.assignTask(task);
+        this.activeTasks.set(`${newVehicle.getVehicleId()}`, task);
+      } else {
+        ipcRenderer.send('post', 'updateMessages', {
+          type: 'failure',
+          message: 'Exiting mission due to vehicle in error state, take manual control over vehicle',
+        });
+        this.stop(false);
+      }
+    }
   }
 
   /**

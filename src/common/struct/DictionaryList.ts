@@ -1,4 +1,5 @@
 export type Callback<T> = (value: T, index: number, array: T[]) => boolean;
+export type CompareFunction<T> = (a: T, b: T) => number;
 
 /**
  * Structure that can store lists in a dictionary. Lists can be obtained with a key string,
@@ -39,6 +40,25 @@ export default class DictionaryList<T> {
   }
 
   /**
+   * Appends new elements to the front of the array, and returns the new size of
+   * the dictioanry.
+   *
+   * @param key The key to access the list in the dictionary.
+   */
+  public unshift(key: string, ...values: T[]): number {
+    if (!this.dictionary[key]) {
+      this.dictionary[key] = [];
+    }
+
+    const list = this.dictionary[key] as T[];
+
+    this.numItems += values.length;
+    list.unshift(...values);
+
+    return this.numItems;
+  }
+
+  /**
    * Gets the list stored at the dictionary with the given key.
    *
    * @param key The key to access the list in the dictionary.
@@ -54,7 +74,10 @@ export default class DictionaryList<T> {
    * @param list The list to change the dictionary's list to.
    */
   public set(key: string, list: T[]): void {
+    const currentLength = this.dictionary[key] ? (this.dictionary[key] as T[]).length : 0;
     this.dictionary[key] = list;
+
+    this.numItems += list.length - currentLength;
   }
 
   /**
@@ -108,6 +131,24 @@ export default class DictionaryList<T> {
   }
 
   /**
+   * Inserts elements to dictionary's list with the given key at an index. If the index
+   * is larger than the list's size, the element will be added to the back of the list.
+   *
+   * @param key The key to access the list in the dictionary
+   * @param index The index to insert the element at.
+   * @param values The value to add to the list.
+   */
+  public insert(key: string, index: number, ...values: T[]): number {
+    const list = this.dictionary[key];
+    if (!list || index > list.length) return this.push(key, ...values);
+
+    this.numItems += values.length;
+    list.splice(index, 0, ...values);
+
+    return this.numItems;
+  }
+
+  /**
    * Removes all elements of an array that meets the condition specified in a callback function.
    *
    * @param key The key to access the list in the dictionary.
@@ -145,6 +186,19 @@ export default class DictionaryList<T> {
     if (!list) return undefined;
 
     return list.filter(callback);
+  }
+
+  /**
+   * Sorts a list for a given key.
+   *
+   * @param key The key to access the list in the dictionary.
+   * @param compareFunction The function to compare the elements in the array.
+   */
+  public sort(key: string, compareFunction: CompareFunction<T>): T[] {
+    const list = this.dictionary[key];
+    if (!list) return [];
+
+    return list.sort(compareFunction);
   }
 
   /**
