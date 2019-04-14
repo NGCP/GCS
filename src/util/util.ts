@@ -39,28 +39,33 @@ export default {
 };
 
 /**
- * Performs binary search for an element. Will return the index in the array
- * the compareFunction goes through (can be the index of the value).
+ * Performs binary search for an element. The index that will be returned will either be:
+ *  - index of value provided.
+ *  - index where the value would fit in the array, if it were spliced in.
+ *      ex: searchIndex([1, 2, 4, 5], 3, (a, b) => a - b) will return index = 2.
  */
 export function searchIndex<T>(
   array: T[],
   value: T,
   compareFunction: (a: T, b: T) => number,
 ): number {
-  let first = 0;
-  let last = array.length - 1;
+  let left = 0;
+  let right = array.length - 1;
 
-  while (first <= last) {
-    const middle = Math.floor((first + last) / 2);
+  while (left <= right) {
+    const middle = Math.floor((left + right) / 2);
     const comparison = compareFunction(value, array[middle]);
 
-    if (comparison > 0) {
-      first = middle + 1;
-    } else if (comparison < 0) {
-      last = middle - 1;
-    } else {
+    if (comparison === 0) {
       return middle;
     }
+
+    if (comparison < 0) {
+      left = middle + 1;
+    } else {
+      right = middle - 1;
+    }
   }
-  return -(first + 1);
+
+  return left;
 }

@@ -1,7 +1,8 @@
-import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
 import { ThemeProps } from '../../../../types/types';
+
+import ipc from '../../../../util/ipc';
 
 import Control from './Control';
 
@@ -10,7 +11,7 @@ import Control from './Control';
  */
 export default class ThemeControl extends Component<ThemeProps> {
   private static onClick(): void {
-    ipcRenderer.send('post', 'toggleTheme');
+    ipc.postToggleTheme();
   }
 
   public render(): ReactNode {

@@ -1,4 +1,3 @@
-// import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
 import {
@@ -8,14 +7,18 @@ import {
 } from '../../types/messages';
 import { ThemeProps } from '../../types/types';
 
-import ISRSearch from './missionParameterLayouts/ISRSearch';
-import PayLoadDrop from './missionParameterLayouts/PayloadDrop';
-import UGVRetrieveTarget from './missionParameterLayouts/UGVRetrieveTarget';
+import ISRSearch from './parameters/ISRSearch';
+import PayLoadDrop from './parameters/PayloadDrop';
+import UGVRetrieveTarget from './parameters/UGVRetrieveTarget';
+import UUVRetreiveTarget from './parameters/UUVRetrieveTarget';
+import VTOLSearch from './parameters/VTOLSearch';
 
-const layouts: { [missionName: string]: () => JSX.Element } = {
+const layouts: { [missionName: string]: () => ReactNode } = {
   payloadDrop: PayLoadDrop,
   isrSearch: ISRSearch,
   ugvRetrieve: UGVRetrieveTarget,
+  uuvRetrieve: UUVRetreiveTarget,
+  vtolSearch: VTOLSearch,
 };
 
 interface Parameters {
@@ -32,7 +35,7 @@ interface State {
 }
 
 /**
- *
+ * Mission window component.
  */
 export default class MissionWindow extends Component<ThemeProps, State> {
   public constructor(props: ThemeProps) {
@@ -47,7 +50,8 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     const { theme } = this.props;
     const { firstMission } = this.state;
 
-    const Layout = layouts[firstMission];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const Layout = layouts[firstMission] as any;
 
     return (
       <div className={`missionWrapper${theme} === 'dark' ? '_dark : ''}`}>

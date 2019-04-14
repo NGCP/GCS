@@ -1,8 +1,7 @@
 {
-  "fixtures": false,
+  "fixtures": true,
   "geolocation": true,
 
   "vehicleDisconnectionTime": 20,
-  "messageSendRate": 10,
-  "vehicleAllowedErrorTime": 5
+  "messageSendRate": 10
 }

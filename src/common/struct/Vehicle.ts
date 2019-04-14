@@ -1,8 +1,4 @@
-import { ipcRenderer } from 'electron';
-
 import { JobType, vehicleConfig } from '../../static/index';
-
-import { VehicleObject, VehicleStatus } from '../../types/types';
 
 import {
   Message,
@@ -10,6 +6,9 @@ import {
   Task,
   UpdateMessage,
 } from '../../types/messages';
+import { VehicleObject, VehicleStatus } from '../../types/types';
+
+import ipc from '../../util/ipc';
 
 import UpdateHandler from './UpdateHandler';
 
@@ -129,7 +128,7 @@ export default class Vehicle {
       if (battery > 1 || battery < 0) {
         const vehicleInfo = message && message.sid && vehicleConfig.vehicleInfos[message.sid];
 
-        ipcRenderer.send('post', 'updateMessages', {
+        ipc.postLogMessages({
           type: 'failure',
           message: `Received an invalid battery status (${battery * 100}%) from ${(vehicleInfo && vehicleInfo.name) || 'an unknown vehicle'}`,
         });
@@ -206,7 +205,7 @@ export default class Vehicle {
    * @param message Message to send.
    */
   private sendMessage(message: Message): void {
-    ipcRenderer.send('post', 'sendMessage', this.vehicleId, message);
+    ipc.postSendMessage(this.vehicleId, message);
   }
 
   /**
@@ -279,7 +278,7 @@ export default class Vehicle {
      * is not compatible with its job.
      * Vehicle's status is "waiting" if it has been assigned a mission but is awaiting a task.
      */
-    if (this.status !== 'waiting' || !this.assignedJob || !vehicleConfig.isTaskTypeForJob(task.taskType, this.assignedJob)) {
+    if (this.status !== 'waiting' || !this.assignedJob || !vehicleConfig.isValidTaskTypeForJob(task.taskType, this.assignedJob)) {
       return false;
     }
 

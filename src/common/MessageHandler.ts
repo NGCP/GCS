@@ -1,14 +1,17 @@
-// Do not interact with this file outside the Orchestrator class.
+// Do not import this file except in the Orchestrator class (common/Orchestrator).
 
 import { Event, ipcRenderer } from 'electron';
 
-import { config } from '../static/index';
+import { config, vehicleConfig } from '../static/index';
+
 import {
   AcknowledgementMessage,
   messageTypeGuard,
   JSONMessage,
   Message,
 } from '../types/messages';
+
+import ipc from '../util/ipc';
 import { isJSON } from '../util/util';
 
 import DictionaryList from './struct/DictionaryList';
@@ -45,9 +48,7 @@ export default class MessageHandler {
 
   public constructor() {
     ipcRenderer.on('sendMessage', (_: Event, vehicleId: number, message: Message): void => this.sendMessage(vehicleId, message));
-
     ipcRenderer.on('receiveMessage', (_: Event, text: string): void => this.receiveMessage(text));
-
     ipcRenderer.on('stopSendingMessages', this.stopSendingMessages);
   }
 
@@ -122,7 +123,7 @@ export default class MessageHandler {
       time: config.vehicleDisconnectionTime * 1000,
       callback: (): void => {
         this.removeMessage('outbox', jsonMessage.id);
-        ipcRenderer.send('post', 'deactivateVehicle', vehicleId);
+        ipc.postDeactivateVehicle(vehicleId);
       },
     });
   }
@@ -149,7 +150,7 @@ export default class MessageHandler {
   private receiveMessage(text: string): void {
     // Filter out text that are not valid json.
     if (!isJSON(text)) {
-      ipcRenderer.send('post', 'updateMessages', {
+      ipc.postLogMessages({
         message: `Received text from Xbee that is not a JSON, could not send bad message to sender ${text}`,
       });
       return;
@@ -158,16 +159,20 @@ export default class MessageHandler {
     // Filter out json that are not valid messages.
     const json = JSON.parse(text);
     if (!messageTypeGuard.isJSONMessage(json)) {
-      if (json.sid) {
-        this.sendBadMessage(json, 'Invalid message, does not meet requirements for a message');
+      if (!Number.isNaN(json.sid) && vehicleConfig.isValidVehicleId(json.sid as number)) {
+        this.sendBadMessage(json as JSONMessage, 'Invalid message, does not meet requirements for a message');
       } else {
-        ipcRenderer.send('post', 'updateMessages', {
+        ipc.postLogMessages({
           message: `Received JSON from Xbee that is not a valid message, could not send bad message to sender: ${text}`,
         });
       }
+      return;
     }
 
     const jsonMessage = json as JSONMessage;
+
+    // Ignore messages from unrecognized vehicles.
+    if (!vehicleConfig.isValidVehicleId(jsonMessage.sid)) return;
 
     /*
      * Update the last message id received from the vehicle or discard message completely.
@@ -190,50 +195,35 @@ export default class MessageHandler {
     }
 
     /*
-     * Handles acknowledgement messages from any source (even vehicles not connected).
-     * DO NOT ACKNOWLEDGE.
-     * Stops sending the message that the ack message has ascknowledged.
-     */
-    if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
-      const { ackid } = jsonMessage as AcknowledgementMessage;
-
-      const hash = `${jsonMessage.sid}#${ackid}`;
-      this.updateHandler.event(hash, true);
-      return;
-    }
-
-    /*
      * All messages that get here will be forwarded to the Orchestrator and will
-     * be acknowledged there, because the MessageHandler does not know if the message
-     * comes from a connected vehicle or not. If the vehicle is not connected, the
-     * Orchestrator will simply ignore the message.
+     * be handled there (eg. acknowledgement, updating vehicle connection).
      */
+
     if (messageTypeGuard.isConnectMessage(jsonMessage)) {
-      ipcRenderer.send('post', 'handleConnectMessage', jsonMessage);
+      ipc.postHandleConnectMessage(jsonMessage);
       return;
     }
 
     if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
-      ipcRenderer.send('post', 'handleCompleteMessage', jsonMessage);
+      ipc.postHandleCompleteMessage(jsonMessage);
       return;
     }
 
     if (messageTypeGuard.isPOIMessage(jsonMessage)) {
-      ipcRenderer.send('post', 'handlePOIMessage', jsonMessage);
+      ipc.postHandlePOIMessage(jsonMessage);
       return;
     }
 
     if (messageTypeGuard.isUpdateMessage(jsonMessage)) {
-      ipcRenderer.send('post', 'handleUpdateMessage', jsonMessage);
+      ipc.postHandleUpdateMessage(jsonMessage);
       return;
     }
 
-    // Exception is this message. DO NOT ACKNOWLEDGE.
-    if (messageTypeGuard.isBadMessageMessage(jsonMessage)) {
-      ipcRenderer.send('post', 'handleBadMessage', jsonMessage);
-
+    // DO NOT ACKNOWLEDGE.
+    if (messageTypeGuard.isBadMessage(jsonMessage)) {
+      ipc.postHandleBadMessage(jsonMessage);
       /*
-       * ipcRenderer.send('post', 'updateMessages', {
+       * ipc.postLogMessages({
        *   type: 'failure',
        *   message: `Received bad message from ${name}: ${error || 'No error message
        * was specified'}`,
@@ -241,6 +231,22 @@ export default class MessageHandler {
        */
       return;
     }
+
+    /*
+     * Stops sending the message that the ack message has acknowledged.
+     *
+     * DO NOT ACKNOWLEDGE.
+     */
+    if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
+      const { ackid } = jsonMessage as AcknowledgementMessage;
+
+      const hash = `${jsonMessage.sid}#${ackid}`;
+      this.updateHandler.event(hash, true);
+
+      ipc.postHandleAcknowledgementMessage(jsonMessage);
+      return;
+    }
+
     /*
      * Any message that reaches here is a message (has a valid type, id, sid, tid, and time)
      * but does not have valid properties, or is a message GCS should not receive from vehicles

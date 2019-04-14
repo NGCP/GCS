@@ -15,6 +15,10 @@ import moment from 'moment';
 
 import { imageConfig, locationConfig } from '../static/index';
 
+import { FileSaveOptions, LatLngZoom } from '../types/types';
+
+import ipc from '../util/ipc';
+
 /**
  * This key is required to enable geolocation in the application.
  * Others cannot use this key outside of geolocation access so no need to hide it.
@@ -102,7 +106,7 @@ const darwinMenu: MenuItemConstructorOptions = {
  * Runs when the user wants to save a configuration of the GCS.
  * The configuration currently includes the map location loaded.
  */
-function saveConfig(): void {
+function postSaveConfig(): void {
   if (!mainWindow) return;
 
   const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
@@ -118,25 +122,25 @@ function saveConfig(): void {
   if (!filePath) return;
 
   // Loads data up with information returned from main and mission windows.
-  const data = {};
-  mainWindow.webContents.send('saveConfig', {
+  const saveOptions: FileSaveOptions = {
     filePath,
-    data,
-  });
+    data: {
+      map: {
+        lat: 0,
+        lng: 0,
+        zoom: 18,
+      },
+    },
+  };
 
-  if (missionWindow) {
-    missionWindow.webContents.send('saveConfig', {
-      filePath,
-      data,
-    });
-  }
+  ipc.postSaveConfig(saveOptions, mainWindow, missionWindow);
 }
 
 /**
  * Runs when the user wants to load a configuration of the GCS.
  * The configuration currently includes the map location loaded.
  */
-function loadConfig(): void {
+function postLoadConfig(): void {
   if (!mainWindow) return;
 
   // Loads a window that allows the user to choose the filePath of the file to be loaded.
@@ -154,18 +158,13 @@ function loadConfig(): void {
 
   if (!data) return;
 
-  // Loads parsed data into main and mission windows.
-  mainWindow.webContents.send('loadConfig', data);
-  if (missionWindow) {
-    missionWindow.webContents.send('loadConfig', data);
-  }
-}/**
+  ipc.postLoadConfig(data, mainWindow, missionWindow);
+}
+
+/**
  * Hides the mission window.
  */
 function hideMissionWindow(): void {
-  if (mainWindow) {
-    mainWindow.webContents.send('setSelectedMission', -1);
-  }
   if (missionWindow) {
     missionWindow.hide();
   }
@@ -285,7 +284,7 @@ const menu: MenuItemConstructorOptions[] = [
       {
         label: 'Open File...',
         accelerator: 'CommandOrControl+O',
-        click: (): void => { loadConfig(); },
+        click: (): void => { postLoadConfig(); },
       },
       { type: 'separator' },
       { role: 'close' },
@@ -293,7 +292,7 @@ const menu: MenuItemConstructorOptions[] = [
       {
         label: 'Save As...',
         accelerator: 'CommandOrControl+S',
-        click: (): void => { saveConfig(); },
+        click: (): void => { postSaveConfig(); },
       },
     ],
   },
@@ -327,7 +326,7 @@ const menu: MenuItemConstructorOptions[] = [
         label: 'My Location',
         click: (): void => {
           if (mainWindow) {
-            mainWindow.webContents.send('setMapToUserLocation');
+            ipc.postSetMapToUserLocation(mainWindow, missionWindow);
           }
         },
       },
@@ -385,9 +384,11 @@ function setLocationMenu(): void {
     locationMenu.push({
       label,
       click: (menuItem): void => {
-        if (mainWindow) {
-          mainWindow.webContents.send('updateMapLocation', locationConfig.locations[menuItem.label]);
-        }
+        ipc.postUpdateMapLocation(
+          locationConfig.locations[menuItem.label] as LatLngZoom,
+          mainWindow,
+          missionWindow,
+        );
       },
     });
   });
@@ -456,14 +457,17 @@ app.on('before-quit', (): void => {
 ipcMain.on('post', (_: Event, notification: string, ...data: any[]): void => { // eslint-disable-line @typescript-eslint/no-explicit-any
   if (notification === 'showMissionWindow') {
     showMissionWindow();
-  } else if (notification === 'hideMissionWindow') {
+    return;
+  }
+
+  if (notification === 'hideMissionWindow') {
     hideMissionWindow();
+    return;
   }
 
   /*
-   * We must forward ipc notifications to both windows or else
-   * some notifications will not be picked up. Of course we can filter out which
-   * notifications go for which window, but its simpler to have it forwarded to both.
+   * We must forward notifications to both windows or else some notifications will not
+   * be picked up.
    */
   if (mainWindow) {
     mainWindow.webContents.send(notification, ...data);

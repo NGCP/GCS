@@ -9,33 +9,15 @@ import {
   ListRowProps,
 } from 'react-virtualized';
 
-import { isMessageType, MessageType, ThemeProps } from '../../../types/types';
+import {
+  isMessageType,
+  LogMessage,
+  MessageType,
+  ThemeProps,
+} from '../../../types/types';
 
 import './log.css';
 
-/**
- * Interface for a message in the log container.
- */
-interface Message {
-  /**
-   * The type of the message. Defines the color the message will be printed in.
-   */
-  type?: MessageType;
-
-  /**
-   * The content of the message.
-   */
-  message: string;
-
-  /**
-   * The time was received and logged.
-   */
-  time: Moment;
-}
-
-/**
- * State of the log container.
- */
 interface State {
   /**
    * The current filter being applied to messages. If the filter is not "", then only messages
@@ -47,7 +29,7 @@ interface State {
    * All messages that have been logged. This includes message that are being hidden
    * if a filter is being applied.
    */
-  messages: Message[];
+  messages: LogMessage[];
 
   /**
    * All messages that are being shown. If there's no filter, then this is the same
@@ -55,7 +37,7 @@ interface State {
    * message every time the component is re-rendered) for a space (a duplicate array
    * of messages).
    */
-  filteredMessages: Message[];
+  filteredMessages: LogMessage[];
 }
 
 /**
@@ -79,11 +61,11 @@ export default class LogContainer extends Component<ThemeProps, State> {
     this.rowRenderer = this.rowRenderer.bind(this);
     this.clearMessages = this.clearMessages.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
-    this.updateMessages = this.updateMessages.bind(this);
+    this.logMessages = this.logMessages.bind(this);
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateMessages', (_: Event, ...messages: Message[]): void => this.updateMessages(...messages));
+    ipcRenderer.on('logMessages', (_: Event, ...messages: LogMessage[]): void => this.logMessages(...messages));
   }
 
   /**
@@ -110,7 +92,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
         parent={parent}
       >
         <div className="row" style={style}>
-          <div className="time">{message.time.format('HH:mm:ss.SSS')}</div>
+          <div className="time">{(message.time as Moment).format('HH:mm:ss.SSS')}</div>
           <div className={`message ${message.type}`}>{message.message}</div>
         </div>
       </CellMeasurer>
@@ -151,16 +133,16 @@ export default class LogContainer extends Component<ThemeProps, State> {
   /**
    * Updates the messages in the log. Will update filtered messages accordingly.
    */
-  private updateMessages(...messages: Message[]): void {
+  private logMessages(...messages: LogMessage[]): void {
     const { filteredMessages, messages: thisMessages, filter } = this.state;
     const currentMessages = thisMessages;
     const currentFilteredMessages = filteredMessages;
 
     messages.forEach((message): void => {
-      const msg: Message = {
+      const msg: LogMessage = {
         type: message.type || '',
-        ...message,
-        time: moment(),
+        message: message.message,
+        time: message.time || moment(),
       };
 
       if (filter === '' || msg.type === filter) {

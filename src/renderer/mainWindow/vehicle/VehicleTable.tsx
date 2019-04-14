@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 import {
   AutoSizer,
@@ -16,6 +15,8 @@ import {
 } from '../../../static/index';
 
 import { ThemeProps, VehicleObject } from '../../../types/types';
+
+import ipc from '../../../util/ipc';
 
 interface WidthSignature {
   [column: string]: number;
@@ -77,7 +78,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
    */
   private onRowClick(info: RowMouseEventHandlerParams): void {
     const { vehicles } = this.props;
-    ipcRenderer.send('post', 'centerMapToVehicle', vehicles[info.index]);
+    ipc.postCenterMapToVehicle(vehicles[info.index]);
   }
 
   /**

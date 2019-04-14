@@ -1,5 +1,6 @@
-import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
+
+import ipc from '../../../../util/ipc';
 
 import Control from './Control';
 
@@ -8,7 +9,7 @@ import Control from './Control';
  */
 export default class GeolocationControl extends Component {
   private static onClick(): void{
-    ipcRenderer.send('post', 'setMapToUserLocation');
+    ipc.postSetMapToUserLocation();
   }
 
   public render(): ReactNode {

@@ -1,12 +1,13 @@
 // Do not interact with this file outside the MissionHandler class.
 
-import { ipcRenderer } from 'electron';
 import SerialPort from 'serialport';
 import { constants as C, Frame, XBeeAPI } from 'xbee-api';
 
 import { VehicleInfo, vehicleConfig } from '../static/index';
 
 import { JSONMessage } from '../types/messages';
+
+import ipc from '../util/ipc';
 
 /*
  * TODO: Add a feature with Vehicle container to change this dynamically and reconnect.
@@ -16,7 +17,7 @@ const port: string | undefined = 'COM5';
 
 const serialport = new SerialPort(port, { baudRate: 57600 }, (err): void => {
   if (err) {
-    ipcRenderer.send('post', 'updateMessages', {
+    ipc.postLogMessages({
       type: 'failure',
       message: `Failed to initialize Xbee: ${err.message}`,
     });
@@ -42,7 +43,7 @@ function sendMessage(message: JSONMessage): void {
    */
   const vehicleInfoObject = vehicleConfig.vehicleInfos[message.tid];
   if (!vehicleInfoObject) {
-    ipcRenderer.send('post', 'updateMessages', {
+    ipc.postLogMessages({
       type: 'failure',
       message: `Failed to send message to vehicle with id ${message.tid}`,
     });
@@ -74,21 +75,21 @@ serialport.pipe(xbeeAPI.parser);
 xbeeAPI.builder.pipe(serialport as NodeJS.WritableStream);
 
 serialport.on('open', (): void => {
-  ipcRenderer.send('post', 'updateMessages', {
+  ipc.postLogMessages({
     type: 'success',
     message: 'Xbee connection has opened',
   });
 });
 
 serialport.on('error', (error: Error): void => {
-  ipcRenderer.send('post', 'updateMessages', {
+  ipc.postLogMessages({
     type: 'failure',
     message: `An error has occured with the Xbee connection: ${error.message}`,
   });
 });
 
 serialport.on('close', (): void => {
-  ipcRenderer.send('post', 'updateMessages', {
+  ipc.postLogMessages({
     type: 'failure',
     message: 'Xbee connection has closed',
   });
@@ -98,7 +99,7 @@ xbeeAPI.parser.on('data', (frame: Frame): void => {
   if (frame.type !== C.FRAME_TYPE.ZIGBEE_RECEIVE_PACKET || !frame.data) return;
 
   // Sends notification to process the message (either a valid JSON string or not).
-  ipcRenderer.send('post', 'receiveMessage', frame.data.toString());
+  ipc.postReceiveMessage(frame.data.toString());
 });
 
 export default {

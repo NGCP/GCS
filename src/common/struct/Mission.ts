@@ -1,5 +1,3 @@
-import { ipcRenderer } from 'electron';
-
 import {
   JobType,
   vehicleConfig,
@@ -16,6 +14,7 @@ import {
   UpdateMessage,
 } from '../../types/messages';
 
+import ipc from '../../util/ipc';
 import { searchIndex } from '../../util/util';
 
 import DictionaryList from './DictionaryList';
@@ -42,7 +41,7 @@ export default abstract class Mission {
   /**
    * All connected vehicles (at least when this class was created).
    */
-  private vehicles: { [vehicleId: string]: Vehicle };
+  private vehicles: { [vehicleId: number]: Vehicle };
 
   /**
    * Current status of mission.
@@ -71,7 +70,7 @@ export default abstract class Mission {
    * The values put together as an array must equal all of the mission's job types.
    * There will be no job types in this mapping that are irrelevant to the mission.
    */
-  private activeVehicleMapping: { [vehicleId: string]: JobType } = {};
+  private activeVehicleMapping: { [vehicleId: number]: JobType } = {};
 
   /**
    * Comparison to how tasks are added to the waiting task list. If there is no
@@ -83,7 +82,7 @@ export default abstract class Mission {
   /**
    * Map of the id of the vehicle to the task it is performing.
    */
-  private activeTasks = new Map<string, Task>();
+  private activeTasks = new Map<number, Task>();
 
   /**
    * All tasks waiting to be executed, mapped by their job type.
@@ -111,9 +110,9 @@ export default abstract class Mission {
 
   public constructor(
     completionCallback: (information: MissionInformation) => void,
-    vehicles: { [vehicleId: string]: Vehicle },
+    vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation,
-    activeVehicleMapping: { [vehicleId: string]: JobType },
+    activeVehicleMapping: { [vehicleId: number]: JobType },
   ) {
     this.completionCallback = completionCallback;
     this.vehicles = vehicles;
@@ -130,7 +129,8 @@ export default abstract class Mission {
      * Filters out any irrelevant jobs when adding to activeVehicleMapping in the case that
      * extra jobs were included in the mapping.
      */
-    Object.keys(activeVehicleMapping).forEach((vehicleId): void => {
+    Object.keys(activeVehicleMapping).forEach((vehicleIdString): void => {
+      const vehicleId = parseInt(vehicleIdString, 10);
       const jobType = activeVehicleMapping[vehicleId];
       if (this.jobTypes.has(jobType)) {
         this.activeVehicleMapping[vehicleId] = jobType;
@@ -167,7 +167,7 @@ export default abstract class Mission {
   private initialize(): void {
     // Stops mission if mission is not in the "ready" state.
     if (this.status !== 'ready') {
-      ipcRenderer.send('post', 'updateMessages', {
+      ipc.postLogMessages({
         type: 'failure',
         message: `Something wrong happened in ${this.missionName}`,
       });
@@ -177,7 +177,7 @@ export default abstract class Mission {
 
     // Fails to initialize if provided job types do not match up to this mission's job types.
     if (!this.checkJobTypesAndActiveVehicles()) {
-      ipcRenderer.send('post', 'updateMessages', {
+      ipc.postLogMessages({
         type: 'failure',
         message: `Provided vehicles for ${this.missionName} is incomplete. Stopping mission`,
       });
@@ -198,7 +198,7 @@ export default abstract class Mission {
   private assignJobs(): void {
     // Fails to assign jobs if mission is not in the "initializing" state.
     if (this.status !== 'initializing') {
-      ipcRenderer.send('post', 'updateMessages', {
+      ipc.postLogMessages({
         type: 'failure',
         message: `Something wrong happened in ${this.missionName}`,
       });
@@ -206,8 +206,12 @@ export default abstract class Mission {
       return;
     }
 
-    let pendingVehicleIds = Object.keys(this.activeVehicleMapping);
-    const assignedVehicleIds: string[] = [];
+    let pendingVehicleIds: number[] = [];
+    const assignedVehicleIds: number[] = [];
+    Object.keys(this.activeVehicleMapping).forEach((vehicleIdString): void => {
+      const vehicleId = parseInt(vehicleIdString, 10);
+      pendingVehicleIds.push(vehicleId);
+    });
 
     /*
      * The three functions below are callbacks to when we assign the vehicle its job.
@@ -217,7 +221,7 @@ export default abstract class Mission {
     /**
      * Triggers when vehicle successfully receives the job assignment.
      */
-    const onSuccess = (vehicleId: string): void => {
+    const onSuccess = (vehicleId: number): void => {
       // Remove pendingId when vehicle is assigned the job successfully.
       pendingVehicleIds = pendingVehicleIds.filter((v): boolean => v !== vehicleId);
       assignedVehicleIds.push(vehicleId);
@@ -228,7 +232,7 @@ export default abstract class Mission {
        * This will trigger this.start().
        */
       if (pendingVehicleIds.length === 0) {
-        ipcRenderer.send('post', 'updateMessages', {
+        ipc.postLogMessages({
           type: 'success',
           message: `Assigned jobs to all vehicles for ${this.missionName}`,
         });
@@ -245,15 +249,15 @@ export default abstract class Mission {
        * Stop mission if any vehicle failed to get the job. Also stops sending messages
        * to any other vehicle if there is somehow a "start" message on queue.
        */
-      ipcRenderer.send('post', 'stopSendingMessages');
+      ipc.postStopSendingMessages();
       this.stop(false);
     };
 
     /**
      * Triggers when vehicle performing job enters an error state.
      */
-    const onError = (vehicleId: string, message?: string): void => {
-      ipcRenderer.send('post', 'updateMessages', {
+    const onError = (vehicleId: number, message?: string): void => {
+      ipc.postLogMessages({
         type: 'success',
         message: `${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name} has entered an error state in ${this.missionName}: ${message || 'No error message specified'}`,
       });
@@ -278,7 +282,7 @@ export default abstract class Mission {
   private start(): void {
     // Fails to initialize if mission is not in the "ready" state.
     if (this.status !== 'waiting') {
-      ipcRenderer.send('post', 'updateMessages', {
+      ipc.postLogMessages({
         type: 'failure',
         message: `Something wrong happened in ${this.missionName}`,
       });
@@ -289,7 +293,7 @@ export default abstract class Mission {
     // Adds all the tasks to the waitingTasks, if the task's jobType relates to this mission.
     const jobTasks = this.generateTasks();
     Object.keys(jobTasks).forEach((jobType): void => {
-      if (vehicleConfig.isJobType(jobType) && this.jobTypes.has(jobType as JobType)) {
+      if (vehicleConfig.isValidJobType(jobType) && this.jobTypes.has(jobType as JobType)) {
         if (this.addTaskCompare[jobType]) {
           // Will happen if there is a compare for this job type.
           (jobTasks.get(jobType) as Task[]).forEach((task): void => {
@@ -313,7 +317,8 @@ export default abstract class Mission {
      * Using waitingVehicles to assign vehicles tasks is faster than using activeVehicleMapping,
      * hence we need waitingVehicles. It is also more easy to understand.
      */
-    Object.keys(this.activeVehicleMapping).forEach((vehicleId): void => {
+    Object.keys(this.activeVehicleMapping).forEach((vehicleIdString): void => {
+      const vehicleId = parseInt(vehicleIdString, 10);
       const jobType = this.activeVehicleMapping[vehicleId];
       const vehicle = this.vehicles[vehicleId];
 
@@ -337,7 +342,7 @@ export default abstract class Mission {
         const vehicle = this.waitingVehicles.shift(jobType) as Vehicle;
 
         vehicle.assignTask(task);
-        this.activeTasks.set(`${vehicle.getVehicleId()}`, task);
+        this.activeTasks.set(vehicle.getVehicleId(), task);
       }
     });
 
@@ -372,11 +377,11 @@ export default abstract class Mission {
         const newTask = this.waitingTasks.shift(jobType) as Task;
 
         this.vehicles[message.sid].assignTask(newTask);
-        this.activeTasks.set(`${message.sid}`, newTask);
+        this.activeTasks.set(message.sid, newTask);
       } else {
         // All tasks in that jobType are complete, so this vehicle will go back to waiting vehicles.
         this.waitingVehicles.push(jobType, this.vehicles[message.sid]);
-        this.activeTasks.delete(`${message.sid}`);
+        this.activeTasks.delete(message.sid);
       }
 
       /*
@@ -386,12 +391,12 @@ export default abstract class Mission {
        * throughout the mission.
        */
       if (this.activeTasks.size === 0 && this.waitingTasks.size() === 0) {
-        ipcRenderer.send('post', 'completeMission', this.missionName);
+        ipc.postCompleteMission(this.missionName);
         this.completionCallback(this.generateTerminatedData());
         this.stop(true);
       } else {
         // This should never happen. There is a big issue in the system if this somehow happens.
-        ipcRenderer.send('post', 'updateMessages', {
+        ipc.postLogMessages({
           type: 'failure',
           message: `Mission completion failed in ${this.missionName}. Stopping mission`,
         });
@@ -413,7 +418,7 @@ export default abstract class Mission {
   protected addTask(jobType: string, task: Task, addToFront?: boolean): void {
     // Fails to initialize if mission is not in the "ready" state.
     if (this.status !== 'running') {
-      ipcRenderer.send('post', 'updateMessages', {
+      ipc.postLogMessages({
         type: 'failure',
         message: `Tried to add ${task.taskType} task while ${this.missionName} is not running`,
       });
@@ -428,7 +433,7 @@ export default abstract class Mission {
        * specific jobType.
        */
       vehicle.assignTask(task);
-      this.activeTasks.set(`${vehicle.getVehicleId()}`, task);
+      this.activeTasks.set(vehicle.getVehicleId(), task);
     } else if (addToFront) {
       // Add to front of waitingTasks if requested.
       this.waitingTasks.unshift(jobType, task);
@@ -458,14 +463,15 @@ export default abstract class Mission {
    * manually/through error.
    */
   private stop(success: boolean): void {
-    Object.keys(this.activeVehicleMapping).forEach((vehicleId): void => {
+    Object.keys(this.activeVehicleMapping).forEach((vehicleIdString): void => {
+      const vehicleId = parseInt(vehicleIdString, 10);
       this.vehicles[vehicleId].stop();
     });
 
     this.statusEventHandler.event('status', 'ready');
 
     if (!success) {
-      ipcRenderer.send('post', 'updateMessage', {
+      ipc.postLogMessages({
         type: 'success',
         message: `Terminated data: ${JSON.stringify(this.parameters)}`,
       });
@@ -487,9 +493,10 @@ export default abstract class Mission {
      * Check #1: ensure the jobs in the activeVehicleMapping cover the required jobs for this
      * mission.
      */
-    if (!Array.from(Object.keys(this.activeVehicleMapping)).every(
-      (vehicleId): boolean => this.jobTypes.has(this.activeVehicleMapping[vehicleId]),
-    )) {
+    if (!Array.from(Object.keys(this.activeVehicleMapping)).every((vehicleIdString): boolean => {
+      const vehicleId = parseInt(vehicleIdString, 10);
+      return this.jobTypes.has(this.activeVehicleMapping[vehicleId]);
+    })) {
       return false;
     }
 
@@ -498,7 +505,7 @@ export default abstract class Mission {
      * then there is a vehicle mapped for every job already. We need to check that all these
      * vehicles are in the "ready" state too.
      */
-    if (!vehicleIds.every((vehicleId): boolean => this.vehicles[vehicleId].getStatus() === 'ready')) {
+    if (!vehicleIds.every((vehicleId): boolean => this.vehicles[parseInt(vehicleId, 10)].getStatus() === 'ready')) {
       return false;
     }
 
@@ -515,7 +522,7 @@ export default abstract class Mission {
    * This never gets executed while mission's status is "ready", since no vehicles are assigned
    * then.
    */
-  private handleUnresponsiveVehicle(vehicleId: string): void {
+  private handleUnresponsiveVehicle(vehicleId: number): void {
     /*
      * In the case that a vehicle that is not performing a job is in an error state
      * and somehow this function gets called (which it shouldn't), let the vehicle
@@ -529,7 +536,7 @@ export default abstract class Mission {
 
     if (this.status === 'waiting') {
       // Simply exit the mission if we are in the "waiting" stage.
-      ipcRenderer.send('post', 'updateMessages', {
+      ipc.postLogMessages({
         type: 'failure',
         message: 'Exiting mission due to vehicle in error state, take manual control over vehicle',
       });
@@ -539,11 +546,11 @@ export default abstract class Mission {
        * Stop sending all extra start messages and exit the mission.
        * See assignJobs for similar logic.
        */
-      ipcRenderer.send('post', 'updateMessages', {
+      ipc.postLogMessages({
         type: 'failure',
         message: 'Exiting mission due to vehicle in error state, take manual control over vehicle',
       });
-      ipcRenderer.send('post', 'stopSendingMessages');
+      ipc.postStopSendingMessages();
       this.stop(false);
     } else {
       const jobType = this.activeVehicleMapping[vehicleId];
@@ -571,12 +578,12 @@ export default abstract class Mission {
       const newVehicle = this.waitingVehicles.shift(jobType);
       const task = this.waitingTasks.shift(jobType);
       if (newVehicle && task) {
-        this.activeVehicleMapping[`${newVehicle.getVehicleId()}`] = jobType;
+        this.activeVehicleMapping[newVehicle.getVehicleId()] = jobType;
 
         newVehicle.assignTask(task);
-        this.activeTasks.set(`${newVehicle.getVehicleId()}`, task);
+        this.activeTasks.set(newVehicle.getVehicleId(), task);
       } else {
-        ipcRenderer.send('post', 'updateMessages', {
+        ipc.postLogMessages({
           type: 'failure',
           message: 'Exiting mission due to vehicle in error state, take manual control over vehicle',
         });

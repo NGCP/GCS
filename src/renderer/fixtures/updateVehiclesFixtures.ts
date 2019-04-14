@@ -1,10 +1,10 @@
-import { ipcRenderer } from 'electron';
-
 import Vehicle, { VehicleOptions } from '../../common/struct/Vehicle';
 
 import { locationConfig, vehicleConfig } from '../../static/index';
 
 import { VehicleObject, VehicleStatus } from '../../types/types';
+
+import ipc from '../../util/ipc';
 
 const fixtureOptions: VehicleOptions[] = [
   {
@@ -63,5 +63,5 @@ export default function updateVehicles(): void {
     fixtures[i] = vehicles[i].toPlainObject();
   }
 
-  ipcRenderer.send('post', 'updateVehicles', ...fixtures);
+  ipc.postUpdateVehicles(...fixtures);
 }

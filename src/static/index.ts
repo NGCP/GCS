@@ -59,7 +59,7 @@ export type JobType = 'isrSearch' | 'payloadDrop' | 'ugvRetrieve' | 'uuvRetrieve
 | 'quickScan' | 'detailedSearch';
 
 const vehicleInfos: {
-  [id: string]: VehicleInfo | undefined;
+  [vehicleId: number]: VehicleInfo | undefined;
 } = vehicleInfosObject;
 
 const vehicleJobs: {
@@ -87,9 +87,16 @@ const startLocation: LatLngZoom = startLocationString && locations[startLocation
   };
 
 /**
+ * Checks if a number is a valid vehicle id.
+ */
+function isValidVehicleId(vehicleId: number): boolean {
+  return vehicleInfos[vehicleId] !== undefined;
+}
+
+/**
  * Checks if a string is a valid job type.
  */
-function isJobType(jobType: string): boolean {
+function isValidJobType(jobType: string): boolean {
   return jobType === 'isrSearch'
     || jobType === 'payloadDrop'
     || jobType === 'ugvRetrieve'
@@ -101,7 +108,7 @@ function isJobType(jobType: string): boolean {
 /**
  * Checks if a task is a valid task type for that job.
  */
-function isTaskTypeForJob(taskType: string, jobType: JobType): boolean {
+function isValidTaskTypeForJob(taskType: string, jobType: JobType): boolean {
   return (vehicleJobs[jobType] as string[]).includes(taskType);
 }
 
@@ -111,8 +118,9 @@ export const locationConfig = {
 };
 
 export const vehicleConfig = {
-  isJobType,
-  isTaskTypeForJob,
+  isValidJobType,
+  isValidTaskTypeForJob,
+  isValidVehicleId,
   vehicleIds,
   vehicleInfos,
   vehicleStatuses,

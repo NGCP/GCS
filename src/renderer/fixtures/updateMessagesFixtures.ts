@@ -1,8 +1,8 @@
-import { ipcRenderer } from 'electron';
+import { LogMessage } from '../../types/types';
 
-import { MessageType } from '../../types/types';
+import ipc from '../../util/ipc';
 
-const fixtures: { type?: MessageType; message: string }[] = [
+const fixtures: LogMessage[] = [
   {
     type: 'failure',
     message: 'Test failure message',
@@ -25,5 +25,5 @@ const fixtures: { type?: MessageType; message: string }[] = [
  */
 export default function updateMessages(): void {
   const fixture = fixtures[Math.floor(Math.random() * fixtures.length)];
-  ipcRenderer.send('post', 'updateMessages', fixture);
+  ipc.postLogMessages(fixture);
 }

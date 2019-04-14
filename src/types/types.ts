@@ -1,3 +1,5 @@
+import { Moment } from 'moment';
+
 /**
  * Status of the vehicle, lets us know of where the vehicle is in its mission.
  */
@@ -119,4 +121,24 @@ export interface FileSaveOptions {
    * Data contents. Will be modified by classes through the "loadConfig" notification.
    */
   data: FileLoadOptions;
+}
+
+/**
+ * Structure for a message displayed in log container.
+ */
+export interface LogMessage {
+  /**
+   * The type of the message. Defines the color the message will be printed in.
+   */
+  type?: MessageType;
+
+  /**
+   * The content of the message.
+   */
+  message: string;
+
+  /**
+   * The time was received and logged.
+   */
+  time?: Moment;
 }

@@ -451,7 +451,7 @@ export interface StartMessage extends MessageBase {
 
 function isStartMessage(message: Message): boolean {
   return message.type === 'start'
-    && vehicleConfig.isJobType(message.jobType);
+    && vehicleConfig.isValidJobType(message.jobType);
 }
 
 export interface AddMissionMessage extends MessageBase {
@@ -602,7 +602,7 @@ export function isConnectMessage(message: Message): boolean {
   return message.type === 'connect'
 
     // Check if jobsAvailable is a string array of valid job types.
-    && message.jobsAvailable.every(vehicleConfig.isJobType);
+    && message.jobsAvailable.every(vehicleConfig.isValidJobType);
 }
 
 // Definitions for all other message types.
@@ -621,7 +621,7 @@ export function isAcknowledgementMessage(message: Message): boolean {
     && !Number.isNaN(message.ackid);
 }
 
-export interface BadMessageMessage extends MessageBase {
+export interface BadMessage extends MessageBase {
   type: 'badMessage';
 
   /**
@@ -633,13 +633,13 @@ export interface BadMessageMessage extends MessageBase {
   error?: string;
 }
 
-export function isBadMessageMessage(message: Message): boolean {
+export function isBadMessage(message: Message): boolean {
   return message.type === 'badMessage';
 }
 
 export type Message = StartMessage | AddMissionMessage | PauseMessage | ResumeMessage | StopMessage
 | ConnectionAckMessage | UpdateMessage | POIMessage | CompleteMessage | ConnectMessage
-| AcknowledgementMessage | BadMessageMessage;
+| AcknowledgementMessage | BadMessage;
 
 /**
  * Logic for this function is slightly different from isTask since the GCS does not need to know
@@ -710,7 +710,7 @@ export const messageTypeGuard = {
   isCompleteMessage,
   isConnectMessage,
   isAcknowledgementMessage,
-  isBadMessageMessage,
+  isBadMessage,
   isMessage,
   isJSONMessage,
 };

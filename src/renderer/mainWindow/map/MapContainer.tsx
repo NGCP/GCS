@@ -82,8 +82,8 @@ export default class MapContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('loadConfig', (_: Event, data: FileLoadOptions): void => this.loadConfig(data));
-    ipcRenderer.on('saveConfig', (_: Event, data: FileSaveOptions): void => this.saveConfig(data));
+    ipcRenderer.on('loadConfig', (_: Event, loadOptions: FileLoadOptions): void => this.loadConfig(loadOptions));
+    ipcRenderer.on('saveConfig', (_: Event, saveOptions: FileSaveOptions): void => this.saveConfig(saveOptions));
 
     ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleObject): void => this.centerMapToVehicle(vehicle));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
