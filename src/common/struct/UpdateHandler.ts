@@ -47,6 +47,13 @@ export default class UpdateHandler {
   private eventDictionary: { [key: string]: Handler<any>[] | undefined } = {};
 
   /**
+   * Gets list of events in the update handler.
+   */
+  public getEvents(): string[] {
+    return Object.keys(this.eventDictionary);
+  }
+
+  /**
    * Adds a new handler.
    *
    * @param name The name of the event.

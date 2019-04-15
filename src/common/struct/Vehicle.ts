@@ -1,6 +1,7 @@
 import { JobType, vehicleConfig } from '../../static/index';
 
 import {
+  JSONMessage,
   Message,
   StartMessage,
   Task,
@@ -20,7 +21,6 @@ type ErrorCallback = (message?: string) => void;
 export interface VehicleOptions {
   sid: number;
   jobs: JobType[];
-  status?: VehicleStatus;
 }
 
 /**
@@ -39,7 +39,7 @@ export default class Vehicle {
   /**
    * Current assigned job.
    */
-  private assignedJob: JobType | undefined;
+  private assignedJob: JobType | '' = '';
 
   /**
    * Current status of the vehicle.
@@ -95,8 +95,6 @@ export default class Vehicle {
   public constructor(options: VehicleOptions) {
     this.vehicleId = options.sid;
     this.jobs = options.jobs;
-
-    if (options.status) this.status = options.status;
 
     // We never want these handlers to disappear so always return false on their callback functions.
 
@@ -184,11 +182,15 @@ export default class Vehicle {
   /**
    * Updates all variables in this vehicle to the variables in the message. Called
    * by the Orchestrator when the GCS receives an update message from the vehicle.
+   * Also updates the lastConnectionTime accordingly.
    *
    * @param message The message from the vehicle itself.
    */
-  public update(message: UpdateMessage): void {
-    this.updateEventHandler.events(message);
+  public update(jsonMessage: JSONMessage): void {
+    const updateMessage = jsonMessage as UpdateMessage;
+
+    this.lastConnectionTime = jsonMessage.time;
+    this.updateEventHandler.events(updateMessage);
   }
 
   /**
@@ -204,8 +206,8 @@ export default class Vehicle {
    * Sets lastConnectionTime to current time when function is called. Called
    * by the Orchestrator whenever GCS receives a message from the vehicle.
    */
-  public updateLastConnectionTime(): void {
-    this.lastConnectionTime = Date.now();
+  public updateLastConnectionTime(jsonMessage: JSONMessage): void {
+    this.lastConnectionTime = jsonMessage.time;
   }
 
   /**
@@ -307,6 +309,6 @@ export default class Vehicle {
       type: 'stop',
     });
 
-    this.assignedJob = undefined;
+    this.assignedJob = '';
   }
 }

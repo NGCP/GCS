@@ -1,5 +1,3 @@
-// Do not interact with this file outside the MissionHandler class.
-
 import SerialPort from 'serialport';
 import { constants as C, Frame, XBeeAPI } from 'xbee-api';
 

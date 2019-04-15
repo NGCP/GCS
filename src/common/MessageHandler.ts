@@ -1,5 +1,3 @@
-// Do not import this file except in the Orchestrator class (common/Orchestrator).
-
 import { Event, ipcRenderer } from 'electron';
 
 import { config, vehicleConfig } from '../static/index';
@@ -85,7 +83,8 @@ class MessageHandler {
      */
     this.messageDictionary.push('sent', jsonMessage);
 
-    if (jsonMessage.type === 'ack' || jsonMessage.type === 'badMessage') {
+    if (messageTypeGuard.isAcknowledgementMessage(message)
+      || messageTypeGuard.isBadMessage(message)) {
       /*
        * Will only send these types of messages once, but everything else will be sent
        * continuously until acknowleged.
@@ -102,7 +101,8 @@ class MessageHandler {
      * the interval).
      */
     const expiry = setInterval(
-      (): void => xbee.sendMessage(jsonMessage), config.messageSendRate * 1000,
+      (): void => xbee.sendMessage(jsonMessage),
+      config.messageSendRate * 1000,
     );
 
     /*
@@ -122,8 +122,9 @@ class MessageHandler {
     }, {
       time: config.vehicleDisconnectionTime * 1000,
       callback: (): void => {
+        clearInterval(expiry);
         this.removeMessage('outbox', jsonMessage.id);
-        ipc.postDeactivateVehicle(vehicleId);
+        ipc.postDisconnectFromVehicle(vehicleId);
       },
     });
   }
@@ -182,6 +183,22 @@ class MessageHandler {
     if (!vehicleConfig.isValidVehicleId(jsonMessage.sid)) return;
 
     /*
+     * Stops sending the message that the ack message has acknowledged.
+     * Put this before the if statement below since want to acknowledge
+     * every message of the same ID afterwards, but for all other messages
+     * we only want to handle it once.
+     * DO NOT ACKNOWLEDGE.
+     */
+    if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
+      const { ackid } = jsonMessage as AcknowledgementMessage;
+
+      const hash = `${jsonMessage.sid}#${ackid}`;
+      this.updateHandler.event(hash, true);
+
+      ipc.postHandleAcknowledgementMessage(jsonMessage);
+    }
+
+    /*
      * Update the last message id received from the vehicle or discard message completely.
      * This is to be able to properly acknowledge a message. See the note on the following:
      *
@@ -207,7 +224,7 @@ class MessageHandler {
      */
 
     if (messageTypeGuard.isConnectMessage(jsonMessage)) {
-      ipc.postHandleConnectMessage(jsonMessage);
+      ipc.postConnectToVehicle(jsonMessage);
       return;
     }
 
@@ -229,44 +246,32 @@ class MessageHandler {
     // DO NOT ACKNOWLEDGE.
     if (messageTypeGuard.isBadMessage(jsonMessage)) {
       ipc.postHandleBadMessage(jsonMessage);
-      /*
-       * ipc.postLogMessages({
-       *   type: 'failure',
-       *   message: `Received bad message from ${name}: ${error || 'No error message
-       * was specified'}`,
-       * });
-       */
       return;
     }
 
     /*
-     * Stops sending the message that the ack message has acknowledged.
-     * DO NOT ACKNOWLEDGE.
+     * The first acknowledgement gets passed through all other if statements so
+     * we stop it here
      */
-    if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
-      const { ackid } = jsonMessage as AcknowledgementMessage;
-
-      const hash = `${jsonMessage.sid}#${ackid}`;
-      this.updateHandler.event(hash, true);
-
-      ipc.postHandleAcknowledgementMessage(jsonMessage);
-      return;
-    }
+    if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) return;
 
     /*
      * Any message that reaches here is a message (has a valid type, id, sid, tid, and time)
      * but does not have valid properties, or is a message GCS should not receive from vehicles
      * (e.g. GCS should not receive a "start" message from a vehicle).
      */
-    this.sendBadMessage(jsonMessage, `Message of type ${jsonMessage.type} is invalid`);
+    this.sendBadMessage(jsonMessage, `Message of type ${jsonMessage.type} is invalid or is not acceptable by GCS`);
   }
 
   /**
-   * Stops sending all messages (literally discards all messages that are being sent, but they
-   * will still be in the "sent" dictionary).
+   * Stops sending all messages (literally discards all messages from the "outbox" list, but they
+   * will still be in the "sent" list).
    */
   private stopSendingMessages(): void {
-    this.updateHandler.clearHandlers();
+    // Run the clearInterval() of each handler.
+    this.updateHandler.getEvents().forEach((hash): void => {
+      this.updateHandler.event(hash, true);
+    });
   }
 }
 

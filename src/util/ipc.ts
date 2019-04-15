@@ -16,7 +16,12 @@
 
 import { BrowserWindow, ipcRenderer } from 'electron';
 
-import { JSONMessage, Message, MissionParameters } from '../types/messages';
+import {
+  JSONMessage,
+  Message,
+  MissionDescription,
+  MissionParameters,
+} from '../types/messages';
 import {
   FileLoadOptions,
   FileSaveOptions,
@@ -41,18 +46,47 @@ function postCenterMapToVehicle(vehicle: VehicleObject): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postCompleteMission(missionName: string, data: MissionParameters): void {
-  ipcRenderer.send('post', 'completeMission', missionName, data);
+function postCompleteMission(missionName: string, completionParameters: MissionParameters): void {
+  ipcRenderer.send('post', 'completeMission', missionName, completionParameters);
 }
 
 /**
- * Post "deactivateVehicle" notification.
+ * Post "confirmCompleteMission" notification.
+ *
+ * Files that take this notification:
+ */
+function postConfirmCompleteMission(): void {
+  ipcRenderer.send('post', 'confirmCompleteMission');
+}
+
+/**
+ * Post "connectToVehicle" notification.
  *
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postDeactivateVehicle(vehicleId: number): void {
-  ipcRenderer.send('post', 'deactivateVehicle', vehicleId);
+function postConnectToVehicle(jsonMessage: JSONMessage): void {
+  ipcRenderer.send('post', 'connectToVehicle', jsonMessage);
+}
+
+/**
+ * Post "disconnectFromVehicle" notification.
+ *
+ * Files that take this notification:
+ * - common/Orchestrator
+ */
+function postDisconnectFromVehicle(vehicleId: number): void {
+  ipcRenderer.send('post', 'disconnectFromVehicle', vehicleId);
+}
+
+/**
+ * Post "finishMissions" notification. This is different from the "completeMission"
+ * notification in that this is sent once all missions to run are completed.
+ *
+ * Files that take this notification:
+ */
+function postFinishMissions(completionParameters: MissionParameters): void {
+  ipcRenderer.send('post', 'finishMissions', completionParameters);
 }
 
 /**
@@ -83,16 +117,6 @@ function postHandleBadMessage(jsonMessage: JSONMessage): void {
  */
 function postHandleCompleteMessage(jsonMessage: JSONMessage): void {
   ipcRenderer.send('post', 'handleCompleteMessage', jsonMessage);
-}
-
-/**
- * Post "handleConnectMessage" notification.
- *
- * Files that take this notification:
- * - common/Orchestrator
- */
-function postHandleConnectMessage(jsonMessage: JSONMessage): void {
-  ipcRenderer.send('post', 'handleConnectMessage', jsonMessage);
 }
 
 /**
@@ -222,6 +246,18 @@ function postShowMissionWindow(): void {
 }
 
 /**
+ * Post "startMissions" notification.
+ *
+ * Files that take this notification:
+ * - common/Orchestrator
+ */
+function postStartMissions(
+  missions: MissionDescription[],
+): void {
+  ipcRenderer.send('post', 'startMissions', missions);
+}
+
+/**
  * Post "stopMission" notification.
  *
  * Files that take this notification:
@@ -284,14 +320,16 @@ function postUpdateVehicles(...vehicles: VehicleObject[]): void {
 export default {
   postCenterMapToVehicle,
   postCompleteMission,
+  postConfirmCompleteMission,
+  postConnectToVehicle,
+  postDisconnectFromVehicle,
+  postFinishMissions,
   postHandleAcknowledgementMessage,
   postHandleBadMessage,
   postHandleCompleteMessage,
-  postHandleConnectMessage,
   postHandlePOIMessage,
   postHandleUpdateMessage,
   postHideMissionWindow,
-  postDeactivateVehicle,
   postLoadConfig,
   postLogMessages,
   postReceiveMessage,
@@ -299,6 +337,7 @@ export default {
   postSendMessage,
   postSetMapToUserLocation,
   postShowMissionWindow,
+  postStartMissions,
   postStopMission,
   postStopSendingMessages,
   postToggleTheme,

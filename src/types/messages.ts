@@ -421,6 +421,13 @@ export interface MissionInformation {
   options: MissionOptions;
 }
 
+export type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'ugvRetrieve' | 'uuvRetrieve';
+
+export interface MissionDescription {
+  missionName: MissionName;
+  information: MissionInformation;
+}
+
 interface MessageBase {
   /**
    * Type of message.

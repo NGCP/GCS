@@ -11,7 +11,6 @@ import {
   MissionOptions,
   MissionParameters,
   Task,
-  UpdateMessage,
 } from '../../types/messages';
 
 import ipc from '../../util/ipc';
@@ -101,7 +100,7 @@ export default abstract class Mission {
   /**
    * Callback to occur when mission has completed.
    */
-  private completionCallback: (information: MissionParameters) => void;
+  private completionCallback: (parameters: MissionParameters) => void;
 
   /**
    * Handles different states of the vehicle.
@@ -109,7 +108,7 @@ export default abstract class Mission {
   private statusEventHandler = new UpdateHandler();
 
   public constructor(
-    completionCallback: (information: MissionParameters) => void,
+    completionCallback: (parameters: MissionParameters) => void,
     vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation,
     activeVehicleMapping: { [vehicleId: number]: JobType },
@@ -158,6 +157,14 @@ export default abstract class Mission {
     });
 
     this.initialize();
+  }
+
+  public getStatus(): MissionStatus {
+    return this.status;
+  }
+
+  public getVehicles(): { [vehicleId: number]: Vehicle } {
+    return this.vehicles;
   }
 
   /**
@@ -362,7 +369,7 @@ export default abstract class Mission {
    *
    * Subclasses can override this to check for even more types of messages.
    */
-  public update(message: JSONMessage): void {
+  public update(jsonMessage: JSONMessage): void {
     /*
      * The base mission class only checks for update and completion messages. The base class will
      * either reassign the vehicle the task, put the vehicle to wait for further tasks,
@@ -370,23 +377,23 @@ export default abstract class Mission {
      * is to simply keep its track of vehicles up to date.
      */
 
-    if (messageTypeGuard.isUpdateMessage(message)) {
-      this.vehicles[message.sid].update(message as UpdateMessage);
+    if (messageTypeGuard.isUpdateMessage(jsonMessage)) {
+      this.vehicles[jsonMessage.sid].update(jsonMessage);
     }
 
-    if (messageTypeGuard.isCompleteMessage(message)) {
-      const jobType = this.activeVehicleMapping[message.sid];
+    if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
+      const jobType = this.activeVehicleMapping[jsonMessage.sid];
 
       if ((this.waitingTasks.get(jobType) as Task[]).length > 0) {
         // Assigns the next task in that job to the vehicle.
         const newTask = this.waitingTasks.shift(jobType) as Task;
 
-        if (!this.assignTask(this.vehicles[message.sid], newTask)) return;
-        this.activeTasks.set(message.sid, newTask);
+        if (!this.assignTask(this.vehicles[jsonMessage.sid], newTask)) return;
+        this.activeTasks.set(jsonMessage.sid, newTask);
       } else {
         // All tasks in that jobType are complete, so this vehicle will go back to waiting vehicles.
-        this.waitingVehicles.push(jobType, this.vehicles[message.sid]);
-        this.activeTasks.delete(message.sid);
+        this.waitingVehicles.push(jobType, this.vehicles[jsonMessage.sid]);
+        this.activeTasks.delete(jsonMessage.sid);
       }
 
       /*
@@ -396,7 +403,7 @@ export default abstract class Mission {
        * throughout the mission.
        */
       if (this.activeTasks.size === 0 && this.waitingTasks.size() === 0) {
-        this.completionCallback(this.generateTerminatedData());
+        this.completionCallback(this.generateCompletionParameters());
         this.stop(true);
       } else {
         // This should never happen. There is a big issue in the system if this somehow happens.
@@ -468,7 +475,12 @@ export default abstract class Mission {
     this.statusEventHandler.event('status', 'ready');
 
     if (success) {
-      ipc.postCompleteMission(this.missionName, this.generateTerminatedData());
+      const completionParameters = this.generateCompletionParameters();
+      ipc.postCompleteMission(this.missionName, completionParameters);
+      ipc.postLogMessages({
+        type: 'success',
+        message: `Completion parameters for ${this.missionName}: ${JSON.stringify(completionParameters)}`,
+      });
     } else {
       ipc.postStopMission();
       ipc.postLogMessages({
@@ -476,12 +488,13 @@ export default abstract class Mission {
         message: `Stopped mission: ${error}`,
       }, {
         /*
-         * Put terminated data on mission stop (on fail) so that the user can start the mission
+         * Put terminated parameters on stop (on fail) so that the user can start the mission
          * over again with the terminated data (assume this was no the first mission that ran,
          * the user should not have to start from first mission since he/she did not know the
-         * data for this mission).
+         * parameters for this mission). This can also apply to the first mission, cause the user
+         * might not have written the parameters in paper.
          */
-        message: `Terminated data: ${JSON.stringify(this.parameters)}`,
+        message: `Terminated parameters for ${this.missionName}: ${JSON.stringify(this.parameters)}`,
       });
     }
   }
@@ -591,9 +604,9 @@ export default abstract class Mission {
   protected abstract generateTasks(): DictionaryList<Task>;
 
   /**
-   * Generates data after the mission has completed, either to be given to the user
-   * or to the next mission. For example, data produced here for an ISR Search mission should
+   * Generates new mission parameters after the mission has completed, either to be given to the
+   * user or to the next mission. For example, data produced here for an ISR Search mission should
    * be data for the VTOL Search mission (of type VTOLSearchMissionParameters).
    */
-  protected abstract generateTerminatedData(): MissionParameters;
+  protected abstract generateCompletionParameters(): MissionParameters;
 }
