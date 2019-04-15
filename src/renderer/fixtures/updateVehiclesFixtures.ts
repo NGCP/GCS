@@ -60,7 +60,7 @@ export default function updateVehicles(): void {
       status: status[Math.floor(Math.random() * status.length)] as VehicleStatus,
     });
 
-    fixtures[i] = vehicles[i].toPlainObject();
+    fixtures[i] = vehicles[i].toObject();
   }
 
   ipc.postUpdateVehicles(...fixtures);

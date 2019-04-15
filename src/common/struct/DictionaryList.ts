@@ -4,10 +4,6 @@ export type CompareFunction<T> = (a: T, b: T) => number;
 /**
  * Structure that can store lists in a dictionary. Lists can be obtained with a key string,
  * and can be modified with custom functions.
- *
- * The functions in this structure can be called from the list with a few lines of code. However
- * it is possible that the value of a certain key can be undefined, which this class will do
- * checks for.
  */
 export default class DictionaryList<T> {
   /**
@@ -30,7 +26,6 @@ export default class DictionaryList<T> {
       this.dictionary[key] = [];
     }
 
-    // Cast to T[] since this value cannot be undefined.
     const list = this.dictionary[key] as T[];
 
     this.numItems += values.length;
@@ -41,7 +36,7 @@ export default class DictionaryList<T> {
 
   /**
    * Appends new elements to the front of the array, and returns the new size of
-   * the dictioanry.
+   * the dictionary.
    *
    * @param key The key to access the list in the dictionary.
    */
@@ -74,7 +69,7 @@ export default class DictionaryList<T> {
    * @param list The list to change the dictionary's list to.
    */
   public set(key: string, list: T[]): void {
-    const currentLength = this.dictionary[key] ? (this.dictionary[key] as T[]).length : 0;
+    const currentLength = this.dictionary[key] ? this.size(key) : 0;
     this.dictionary[key] = list;
 
     this.numItems += list.length - currentLength;

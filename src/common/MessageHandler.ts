@@ -30,7 +30,7 @@ class MessageHandler {
   private messageDictionary = new DictionaryList<JSONMessage>();
 
   /**
-   * Handler that listens for different update events for the message handler.
+   * Handler that listens for different update events.
    */
   private updateHandler = new UpdateHandler();
 
@@ -76,49 +76,27 @@ class MessageHandler {
 
     this.id += 1;
 
-    /*
-     * Adds the json message to "sent" and "outbox" on messageDictionary. If it's an ack
-     * or badMessage message, it is only added to "sent", since that message does not need to be
-     * acknowledged.
-     */
     this.messageDictionary.push('sent', jsonMessage);
 
     if (messageTypeGuard.isAcknowledgementMessage(message)
       || messageTypeGuard.isBadMessage(message)) {
-      /*
-       * Will only send these types of messages once, but everything else will be sent
-       * continuously until acknowleged.
-       */
       xbee.sendMessage(jsonMessage);
       return;
     }
 
     this.messageDictionary.push('outbox', jsonMessage);
 
-    /*
-     * Keep sending the message in a certain rate (see messageSendRate).
-     * This will end when the message is acknowledged (the updateHandler will clear
-     * the interval).
-     */
     const expiry = setInterval(
       (): void => xbee.sendMessage(jsonMessage),
       config.messageSendRate * 1000,
     );
 
-    /*
-     * Removes respective message from "outbox" when an ack message is received
-     * and value passed is true.
-     *
-     * If no ack message is received within a certain amount of time (vehicleDisconnectionTime),
-     * then the GCS will disconnect itself from the vehicle.
-     */
-
+    // Keep track of message, to stop sending it once acknowledged.
     const hash = `${jsonMessage.tid}#${jsonMessage.id}`;
-
-    this.updateHandler.addHandler<boolean>(hash, (value: boolean): boolean => {
+    this.updateHandler.addHandler<boolean>(hash, (): boolean => {
       clearInterval(expiry);
       this.removeMessage('outbox', jsonMessage.id);
-      return value;
+      return true;
     }, {
       time: config.vehicleDisconnectionTime * 1000,
       callback: (): void => {
@@ -132,7 +110,7 @@ class MessageHandler {
   /**
    * Send a bad message.
    *
-   * @param jsonMessage The bad message (needs to have at least an sid field).
+   * @param jsonMessage The bad message.
    * @param error Error message.
    */
   private sendBadMessage(jsonMessage: JSONMessage, error?: string): void {
@@ -145,11 +123,10 @@ class MessageHandler {
   /**
    * Processes a message that was received.
    *
-   * @param string The raw string. Either can contain the message (a valid JSON) or some
-   * random stuff.
+   * @param text The raw string in the message.
    */
   private receiveMessage(text: string): void {
-    // Filter out text that are not valid json.
+    // Filter out all invalid messages.
     if (!isJSON(text)) {
       ipc.postLogMessages({
         message: `Received text from Xbee that is not a JSON, could not send bad message to sender ${text}`,
@@ -157,7 +134,6 @@ class MessageHandler {
       return;
     }
 
-    // Filter out json that are not valid messages.
     const json = JSON.parse(text);
     if (!messageTypeGuard.isJSONMessage(json)) {
       if (!Number.isNaN(json.sid) && vehicleConfig.isValidVehicleId(json.sid as number)) {
@@ -170,106 +146,57 @@ class MessageHandler {
       return;
     }
 
-    /*
-     * The message typeguard check will let us know that there is a type field. It does not check if
-     * the type field is lowercased, so we will manually make it lowercased here, as all of our
-     * message type fields are required to be in lowercase.
-     */
     json.type = (json.type as string).toLowerCase();
-
     const jsonMessage = json as JSONMessage;
 
     // Ignore messages from unrecognized vehicles.
     if (!vehicleConfig.isValidVehicleId(jsonMessage.sid)) return;
 
-    /*
-     * Stops sending the message that the ack message has acknowledged.
-     * Put this before the if statement below since want to acknowledge
-     * every message of the same ID afterwards, but for all other messages
-     * we only want to handle it once.
-     * DO NOT ACKNOWLEDGE.
-     */
-    if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
-      const { ackid } = jsonMessage as AcknowledgementMessage;
-
-      const hash = `${jsonMessage.sid}#${ackid}`;
-      this.updateHandler.event(hash, true);
-
-      ipc.postHandleAcknowledgementMessage(jsonMessage);
-    }
-
-    /*
-     * Update the last message id received from the vehicle or discard message completely.
-     * This is to be able to properly acknowledge a message. See the note on the following:
-     *
-     * https://ground-control-station.readthedocs.io/en/latest/communications/other-messages.html#acknowledgement-message
-     */
-    if (!this.receivedMessageId[jsonMessage.sid]
-      || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id
-    ) {
-      /*
-       * If this statement passes, it means that GCS is recieving a completely new message
-       * from the vehicle.
-       */
-      this.receivedMessageId[jsonMessage.sid] = jsonMessage.id;
-      this.messageDictionary.push('received', jsonMessage);
-    } else {
-      // If the statement fails, it means that the GCS is receiving an old message. Discard it.
-      return;
-    }
-
-    /*
-     * All messages that get here will be forwarded to the Orchestrator and will
-     * be handled there (eg. acknowledgement, updating vehicle connection).
-     */
+    const newMessage = !this.receivedMessageId[jsonMessage.sid]
+      || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id;
 
     if (messageTypeGuard.isConnectMessage(jsonMessage)) {
-      ipc.postConnectToVehicle(jsonMessage);
-      return;
-    }
-
-    if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
-      ipc.postHandleCompleteMessage(jsonMessage);
-      return;
-    }
-
-    if (messageTypeGuard.isPOIMessage(jsonMessage)) {
-      ipc.postHandlePOIMessage(jsonMessage);
-      return;
-    }
-
-    if (messageTypeGuard.isUpdateMessage(jsonMessage)) {
-      ipc.postHandleUpdateMessage(jsonMessage);
-      return;
-    }
-
-    // DO NOT ACKNOWLEDGE.
-    if (messageTypeGuard.isBadMessage(jsonMessage)) {
+      ipc.postAcknowledgeMessage(jsonMessage);
+      if (newMessage) ipc.postConnectToVehicle(jsonMessage);
+    } else if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
+      ipc.postAcknowledgeMessage(jsonMessage);
+      if (newMessage) ipc.postHandleCompleteMessage(jsonMessage);
+    } else if (messageTypeGuard.isPOIMessage(jsonMessage)) {
+      ipc.postAcknowledgeMessage(jsonMessage);
+      if (newMessage) ipc.postHandlePOIMessage(jsonMessage);
+    } else if (messageTypeGuard.isUpdateMessage(jsonMessage)) {
+      ipc.postAcknowledgeMessage(jsonMessage);
+      if (newMessage) ipc.postHandleUpdateMessage(jsonMessage);
+    } else if (messageTypeGuard.isBadMessage(jsonMessage)) {
       ipc.postHandleBadMessage(jsonMessage);
-      return;
+    } else if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
+      const { ackid } = jsonMessage as AcknowledgementMessage;
+
+      if (newMessage) {
+        const hash = `${jsonMessage.sid}#${ackid}`;
+        this.updateHandler.event(hash, true); // Stop sending message that this message acknowleges.
+        ipc.postHandleAcknowledgementMessage(jsonMessage);
+      }
+    } else {
+      this.sendBadMessage(jsonMessage, `Message of type ${jsonMessage.type} is invalid or is not acceptable by GCS`);
     }
 
-    /*
-     * The first acknowledgement gets passed through all other if statements so
-     * we stop it here
-     */
-    if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) return;
-
-    /*
-     * Any message that reaches here is a message (has a valid type, id, sid, tid, and time)
-     * but does not have valid properties, or is a message GCS should not receive from vehicles
-     * (e.g. GCS should not receive a "start" message from a vehicle).
-     */
-    this.sendBadMessage(jsonMessage, `Message of type ${jsonMessage.type} is invalid or is not acceptable by GCS`);
+    // Logic: https://ground-control-station.readthedocs.io/en/latest/communications/messages/other-messages.html#acknowledgement-message
+    if (newMessage) {
+      this.receivedMessageId[jsonMessage.sid] = jsonMessage.id;
+      this.messageDictionary.push('received', jsonMessage);
+    }
   }
 
   /**
-   * Stops sending all messages (literally discards all messages from the "outbox" list, but they
-   * will still be in the "sent" list).
+   * Stops sending all messages.
    */
   private stopSendingMessages(): void {
-    // Run the clearInterval() of each handler.
-    this.updateHandler.getEvents().forEach((hash): void => {
+    const outbox = this.messageDictionary.get('outbox');
+    if (!outbox) return;
+
+    outbox.forEach((jsonMessage): void => {
+      const hash = `${jsonMessage.tid}#${jsonMessage.id}`;
       this.updateHandler.event(hash, true);
     });
   }
@@ -277,7 +204,6 @@ class MessageHandler {
 
 /*
  * This allows only one instance of the MessageHandler to be used.
- * The Orchestrator does not need to call any functions of the MessageHandler.
  * All requests are passed through an ipcRenderer notification.
  */
 export default new MessageHandler();

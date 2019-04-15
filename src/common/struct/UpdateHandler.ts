@@ -47,13 +47,6 @@ export default class UpdateHandler {
   private eventDictionary: { [key: string]: Handler<any>[] | undefined } = {};
 
   /**
-   * Gets list of events in the update handler.
-   */
-  public getEvents(): string[] {
-    return Object.keys(this.eventDictionary);
-  }
-
-  /**
    * Adds a new handler.
    *
    * @param name The name of the event.
@@ -147,16 +140,5 @@ export default class UpdateHandler {
     if (!this.eventDictionary[name]) return;
     this.eventDictionary[name] = (this.eventDictionary[name] as Handler<T>[])
       .filter((h): boolean => h !== handler);
-  }
-
-  /**
-   * Removes all handlers in the update handler.
-   */
-  public clearHandlers(): void {
-    Object.keys(this.eventDictionary).forEach((event): void => {
-      (this.eventDictionary[event] as Handler<any>[]).forEach((handler): void => {
-        handler.removeHandler();
-      });
-    });
   }
 }

@@ -31,6 +31,16 @@ import {
 } from '../types/types';
 
 /**
+ * Post "acknowledgeMessage" notification.
+ *
+ * Files that take this notification:
+ * - common/Orchestrator
+ */
+function postAcknowledgeMessage(jsonMessage: JSONMessage): void {
+  ipcRenderer.send('post', 'acknowledgeMessage', jsonMessage);
+}
+
+/**
  * Post "centerMapToVehicle" notification.
  *
  * Files that take this notification:
@@ -329,6 +339,7 @@ function postUpdateVehicles(...vehicles: VehicleObject[]): void {
 }
 
 export default {
+  postAcknowledgeMessage,
   postCenterMapToVehicle,
   postCompleteMission,
   postConfirmCompleteMission,

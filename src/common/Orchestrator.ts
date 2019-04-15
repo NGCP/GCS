@@ -29,7 +29,7 @@ class Orchestrator {
    * Acknowledges a message. All messages are passed here through the MessageHandler.
    * Only messages that are no acknowledged are bad messages and acknowledgements.
    */
-  private static acknowledge(jsonMessage: JSONMessage): void {
+  private static acknowledgeMessage(jsonMessage: JSONMessage): void {
     ipc.postSendMessage(jsonMessage.sid, {
       type: 'ack',
       ackid: jsonMessage.id,
@@ -83,6 +83,8 @@ class Orchestrator {
   public constructor() {
     ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: JSONMessage): void => this.connectToVehicle(jsonMessage));
     ipcRenderer.on('disconnectFromVehicle', (_: Event, vehicleId: number): void => this.disconnectFromVehicle(vehicleId));
+
+    ipcRenderer.on('acknowledgeMessage', (_: Event, jsonMessage: JSONMessage): void => Orchestrator.acknowledgeMessage(jsonMessage));
 
     ipcRenderer.on('handleAcknowledgementMessage', (_: Event, jsonMessage: JSONMessage): void => this.handleAcknowledgementMessage(jsonMessage));
     ipcRenderer.on('handleBadMessage', (_: Event, jsonMessage: JSONMessage): void => this.handleBadMessage(jsonMessage));
@@ -144,7 +146,7 @@ class Orchestrator {
     }
 
     this.vehicles[vehicleId].disconnect();
-    ipc.postUpdateVehicles(this.vehicles[vehicleId].toPlainObject());
+    ipc.postUpdateVehicles(this.vehicles[vehicleId].toObject());
   }
 
   /**
@@ -190,9 +192,8 @@ class Orchestrator {
 
     this.vehicles[jsonMessage.sid].update(jsonMessage);
     if (this.currentMission) this.currentMission.update(jsonMessage);
-    Orchestrator.acknowledge(jsonMessage);
 
-    ipc.postUpdateVehicles(this.vehicles[jsonMessage.sid].toPlainObject());
+    ipc.postUpdateVehicles(this.vehicles[jsonMessage.sid].toObject());
   }
 
   /**
@@ -206,7 +207,6 @@ class Orchestrator {
     }
 
     if (this.currentMission) this.currentMission.update(jsonMessage);
-    Orchestrator.acknowledge(jsonMessage);
   }
 
   /**
@@ -225,7 +225,6 @@ class Orchestrator {
     }
 
     this.currentMission.update(jsonMessage);
-    Orchestrator.acknowledge(jsonMessage);
   }
 
   /**

@@ -19,7 +19,14 @@ type ErrorCallback = (message?: string) => void;
  * Options to initialize a vehicle.
  */
 export interface VehicleOptions {
+  /**
+   * ID of vehicle coming from connect message.
+   */
   sid: number;
+
+  /**
+   * Jobs vehicle can handle.
+   */
   jobs: JobType[];
 }
 
@@ -96,12 +103,9 @@ export default class Vehicle {
     this.vehicleId = options.sid;
     this.jobs = options.jobs;
 
-    // We never want these handlers to disappear so always return false on their callback functions.
-
     this.updateEventHandler.addHandler<VehicleStatus>('status', (status, message): boolean => {
       this.status = status;
       if (status === 'error') {
-        // Calls the errorCallback function and provides errorMessage to it.
         this.errorCallback(message && message.errorMessage);
       }
       return false;
@@ -125,7 +129,6 @@ export default class Vehicle {
     this.updateEventHandler.addHandler<number>('battery', (battery, message): boolean => {
       if (battery > 1 || battery < 0) {
         const vehicleInfo = message && message.sid && vehicleConfig.vehicleInfos[message.sid];
-
         ipc.postLogMessages({
           type: 'failure',
           message: `Received an invalid battery status (${battery * 100}%) from ${(vehicleInfo && vehicleInfo.name) || 'an unknown vehicle'}`,
@@ -166,7 +169,7 @@ export default class Vehicle {
    * Converts vehicle to a plain object so that its private variables can be read
    * when it is sent through ipcRenderer.
    */
-  public toPlainObject(): VehicleObject {
+  public toObject(): VehicleObject {
     return {
       vehicleId: this.vehicleId,
       status: this.status,
@@ -239,10 +242,6 @@ export default class Vehicle {
     errorCallback?: ErrorCallback,
     options?: object,
   ): boolean {
-    /*
-     * Returns false if a vehicle has already been assigned a mission.
-     * Vehicle's status is ready if it has not been assigned a mission.
-     */
     if (this.status !== 'ready') {
       return false;
     }
@@ -257,13 +256,7 @@ export default class Vehicle {
 
     if (options) startMessage.options = options;
 
-    // Sends the start message to the vehicle with corresponding job name.
     this.sendMessage(startMessage);
-
-    /*
-     * Create handler that will end when vehicle successfully receives the job and goes to a
-     * waiting state.
-     */
     this.updateEventHandler.addHandler<VehicleStatus>('status', (value): boolean => {
       if (value === 'waiting') {
         if (completionCallback) completionCallback();
@@ -284,11 +277,6 @@ export default class Vehicle {
    * @param task The task for the vehicle to perform. Must support the vehicle's job.
    */
   public assignTask(task: Task): boolean {
-    /*
-     * Returns false if the vehicle has not been assigned a mission or if the provided task
-     * is not compatible with its job.
-     * Vehicle's status is "waiting" if it has been assigned a mission but is awaiting a task.
-     */
     if (this.status !== 'waiting' || !this.assignedJob || !vehicleConfig.isValidTaskTypeForJob(task.taskType, this.assignedJob)) {
       return false;
     }
@@ -305,10 +293,10 @@ export default class Vehicle {
    * Sends stop message to vehicle.
    */
   public stop(): void {
+    this.assignedJob = '';
+
     this.sendMessage({
       type: 'stop',
     });
-
-    this.assignedJob = '';
   }
 }

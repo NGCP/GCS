@@ -7,17 +7,14 @@ import { JSONMessage } from '../types/messages';
 
 import ipc from '../util/ipc';
 
-/*
- * TODO: Add a feature with Vehicle container to change this dynamically and reconnect.
- * With that feature, no need to have this at all in config.
- */
+// TODO: Add a feature with Vehicle container to change this dynamically and reconnect.
 const port: string | undefined = 'COM5';
 
-const serialport = new SerialPort(port, { baudRate: 57600 }, (err): void => {
-  if (err) {
+const serialport = new SerialPort(port, { baudRate: 57600 }, (error): void => {
+  if (error) {
     ipc.postLogMessages({
       type: 'failure',
-      message: `Failed to initialize Xbee: ${err.message}`,
+      message: `Failed to initialize Xbee: ${error.message}`,
     });
   }
 });
@@ -32,13 +29,8 @@ const xbeeAPI = new XBeeAPI();
  * @param message The message to send to the vehicle.
  */
 function sendMessage(message: JSONMessage): void {
-  // Cannot send messages if port is not open.
   if (!serialport.isOpen) return;
 
-  /*
-   * Check to ensure the vehicle we are sending this to is valid. This is just in case
-   * MessageHandler somehow provides an invalid tid (id of the target vehicle).
-   */
   const vehicleInfoObject = vehicleConfig.vehicleInfos[message.tid];
   if (!vehicleInfoObject) {
     ipc.postLogMessages({
@@ -57,12 +49,14 @@ function sendMessage(message: JSONMessage): void {
   });
 }
 
+// TODO: Open connection from MessageHandler.
 function openConnection(): boolean {
   if (serialport.isOpen) return false;
   serialport.open();
   return true;
 }
 
+// TODO: Close connection from MessageHandler.
 function closeConnection(): boolean {
   if (!serialport.isOpen) return false;
   serialport.close();
@@ -95,8 +89,6 @@ serialport.on('close', (): void => {
 
 xbeeAPI.parser.on('data', (frame: Frame): void => {
   if (frame.type !== C.FRAME_TYPE.ZIGBEE_RECEIVE_PACKET || !frame.data) return;
-
-  // Sends notification to process the message (either a valid JSON string or not).
   ipc.postReceiveMessage(frame.data.toString());
 });
 

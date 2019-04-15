@@ -332,10 +332,7 @@ export default abstract class Mission {
      * tasks in waitingTasks.
      */
     Object.values(this.activeVehicleMapping).forEach((jobType): void => {
-      while (
-        (this.waitingTasks.get(jobType) as Task[]).length > 0
-        && (this.waitingVehicles.get(jobType) as Vehicle[]).length > 0
-      ) {
+      while (this.waitingTasks.size(jobType) > 0 && this.waitingVehicles.size(jobType) > 0) {
         const task = this.waitingTasks.shift(jobType) as Task;
         const vehicle = this.waitingVehicles.shift(jobType) as Vehicle;
 
@@ -381,7 +378,7 @@ export default abstract class Mission {
     if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
       const jobType = this.activeVehicleMapping[jsonMessage.sid];
 
-      if ((this.waitingTasks.get(jobType) as Task[]).length > 0) {
+      if (this.waitingTasks.size(jobType) > 0) {
         // Assigns the next task in that job to the vehicle.
         const newTask = this.waitingTasks.shift(jobType) as Task;
 
