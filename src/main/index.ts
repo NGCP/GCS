@@ -360,7 +360,7 @@ const menu: MenuItemConstructorOptions[] = [
 
 /**
  * Adds a list of locations on the menu to allow user to pan to specific location in the map.
- * The list of locations comes from ../../resources/locations.json.
+ * The list of locations comes from static/location.json.
  */
 function setLocationMenu(): void {
   const location = menu.find((m): boolean => m.label === 'Locations');

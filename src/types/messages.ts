@@ -657,7 +657,7 @@ export type Message = StartMessage | AddMissionMessage | PauseMessage | ResumeMe
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isMessage(message: { [key: string]: any }): boolean {
-  return message.type && [
+  return message.type && typeof message.type === 'string' && [
     'start',
     'addMission',
     'pause',
@@ -670,7 +670,7 @@ export function isMessage(message: { [key: string]: any }): boolean {
     'connect',
     'ack',
     'badMessage',
-  ].includes(message.type);
+  ].includes(message.type.toLowerCase());
 }
 
 export type JSONMessage = Message & {

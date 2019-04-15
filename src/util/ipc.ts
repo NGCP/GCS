@@ -16,7 +16,7 @@
 
 import { BrowserWindow, ipcRenderer } from 'electron';
 
-import { JSONMessage, Message } from '../types/messages';
+import { JSONMessage, Message, MissionParameters } from '../types/messages';
 import {
   FileLoadOptions,
   FileSaveOptions,
@@ -39,9 +39,10 @@ function postCenterMapToVehicle(vehicle: VehicleObject): void {
  * Post "competeMission" notification.
  *
  * Files that take this notification:
+ * - common/Orchestrator
  */
-function postCompleteMission(missionName: string): void {
-  ipcRenderer.send('post', 'completeMission', missionName);
+function postCompleteMission(missionName: string, data: MissionParameters): void {
+  ipcRenderer.send('post', 'completeMission', missionName, data);
 }
 
 /**
@@ -144,7 +145,7 @@ function postLoadConfig(
 }
 
 /**
- * Post "logMessages" notification.
+ * Post "logMessages" notification. Please never end the messages to log with a period.
  *
  * Files that take this notification:
  * - renderer/mainWindow/log/LogContainer
@@ -221,6 +222,16 @@ function postShowMissionWindow(): void {
 }
 
 /**
+ * Post "stopMission" notification.
+ *
+ * Files that take this notification:
+ * - common/Orchestrator
+ */
+function postStopMission(): void {
+  ipcRenderer.send('post', 'stopMission');
+}
+
+/**
  * Post "stopSendingMessages" notification.
  *
  * Files that take this notification:
@@ -288,6 +299,7 @@ export default {
   postSendMessage,
   postSetMapToUserLocation,
   postShowMissionWindow,
+  postStopMission,
   postStopSendingMessages,
   postToggleTheme,
   postUpdateMapLocation,

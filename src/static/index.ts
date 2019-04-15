@@ -26,7 +26,7 @@ import icon from './images/icon.png';
 import pin from './images/pin.png';
 
 import config from './config.json';
-import { startLocation as startLocationString, locations as locationsObject } from './locations.json';
+import { startLocation as startLocationString, locations as locationsObject } from './location.json';
 import {
   vehicleIds as vehicleIdsObject,
   vehicleInfos as vehicleInfosObject,

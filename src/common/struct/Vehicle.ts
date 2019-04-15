@@ -192,6 +192,15 @@ export default class Vehicle {
   }
 
   /**
+   * Sets the vehicle as disconnected by changing it status to "disconnected".
+   * The Orchestrator is in charge of preventing any more updates to the vehicle
+   * if it is disconnected.
+   */
+  public disconnect(): void {
+    this.status = 'disconnected';
+  }
+
+  /**
    * Sets lastConnectionTime to current time when function is called. Called
    * by the Orchestrator whenever GCS receives a message from the vehicle.
    */

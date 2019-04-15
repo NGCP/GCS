@@ -19,7 +19,7 @@ import UpdateHandler from './struct/UpdateHandler';
 
 import xbee from './Xbee';
 
-export default class MessageHandler {
+class MessageHandler {
   /**
    * Dictionary for all messages that are being sent, sent and acknowledged, and received.
    *
@@ -169,6 +169,13 @@ export default class MessageHandler {
       return;
     }
 
+    /*
+     * The message typeguard check will let us know that there is a type field. It does not check if
+     * the type field is lowercased, so we will manually make it lowercased here, as all of our
+     * message type fields are required to be in lowercase.
+     */
+    json.type = (json.type as string).toLowerCase();
+
     const jsonMessage = json as JSONMessage;
 
     // Ignore messages from unrecognized vehicles.
@@ -234,7 +241,6 @@ export default class MessageHandler {
 
     /*
      * Stops sending the message that the ack message has acknowledged.
-     *
      * DO NOT ACKNOWLEDGE.
      */
     if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
@@ -263,3 +269,10 @@ export default class MessageHandler {
     this.updateHandler.clearHandlers();
   }
 }
+
+/*
+ * This allows only one instance of the MessageHandler to be used.
+ * The Orchestrator does not need to call any functions of the MessageHandler.
+ * All requests are passed through an ipcRenderer notification.
+ */
+export default new MessageHandler();
