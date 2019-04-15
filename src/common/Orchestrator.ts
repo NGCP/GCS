@@ -1,6 +1,10 @@
 import { ipcRenderer, Event } from 'electron';
 
-import { config, vehicleConfig, VehicleInfo } from '../static/index';
+import {
+  config,
+  vehicleConfig,
+  VehicleInfo,
+} from '../static/index';
 
 import {
   BadMessage,
@@ -11,6 +15,8 @@ import {
 } from '../types/messages';
 
 import ipc from '../util/ipc';
+
+import missionObject, { MissionObject } from './missions/index';
 
 import Mission from './struct/Mission';
 import UpdateHandler from './struct/UpdateHandler';
@@ -74,7 +80,13 @@ class Orchestrator {
     ipcRenderer.on('handlePOIMessage', (_: Event, jsonMessage: JSONMessage): void => this.handlePOIMessage(jsonMessage));
     ipcRenderer.on('handleCompleteMessage', (_: Event, jsonMessage: JSONMessage): void => this.handleCompleteMessage(jsonMessage));
 
-    ipcRenderer.on('startMissions', (_: Event, missions: MissionDescription[], requireConfirmation: boolean): void => this.startMissions(missions, requireConfirmation));
+    ipcRenderer.on('startMissions', (
+      _: Event,
+      missions: MissionDescription[],
+      requireConfirmation: boolean,
+    ): void => this.startMissions(missions, requireConfirmation));
+
+
     ipcRenderer.on('completeMission', (_: Event, missionName: string, completionParameters: MissionParameters): void => this.completeMission(missionName, completionParameters));
     ipcRenderer.on('stopMission', this.stopMission);
   }
@@ -179,7 +191,10 @@ class Orchestrator {
    * @param missions Description for all missions. Includes name of mission and information
    * required for mission.
    */
-  private startMissions(missions: MissionDescription[], requireConfirmation: boolean): void {
+  private startMissions(
+    missions: MissionDescription[],
+    requireConfirmation: boolean,
+  ): void {
     if (this.running) {
       ipc.postLogMessages({
         type: 'failure',
@@ -188,12 +203,35 @@ class Orchestrator {
       return;
     }
 
+    if (missions.length === 0) {
+      ipc.postLogMessages({
+        type: 'failure',
+        message: 'Cannot start new mission with no specified mission',
+      });
+      return;
+    }
+
     this.running = true;
     this.missions = missions;
     this.requireConfirmation = requireConfirmation;
 
-    // TODO: Set current mission to start. No code yet since those missions arent implemented.
     this.currentMissionIndex = 0;
+    const missionObj = missionObject[this.missions[this.currentMissionIndex].missionName];
+    if (!missionObj) {
+      ipc.postLogMessages({
+        type: 'failure',
+        message: 'Cannot start mission with unknown mission name',
+      });
+    }
+
+    const mission = missionObj as MissionObject;
+
+    this.currentMissionIndex += 1;
+    this.currentMission = new mission.constructor(
+      this.vehicles,
+      this.missions[this.currentMissionIndex].information,
+      this.missions[this.currentMissionIndex].activeVehicleMapping,
+    );
   }
 
   /**
@@ -240,9 +278,22 @@ class Orchestrator {
       });
       return;
     }
+    const missionObj = missionObject[this.missions[this.currentMissionIndex].missionName];
+    if (!missionObj) {
+      ipc.postLogMessages({
+        type: 'failure',
+        message: 'Cannot start mission with unknown mission name',
+      });
+    }
+
+    const mission = missionObj as MissionObject;
 
     this.currentMissionIndex += 1;
-    // TODO: Set next mission to start. No code yet since those missions arent implemented.
+    this.currentMission = new mission.constructor(
+      this.vehicles,
+      this.missions[this.currentMissionIndex].information,
+      this.missions[this.currentMissionIndex].activeVehicleMapping,
+    );
   }
 
   /**

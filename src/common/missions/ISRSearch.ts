@@ -132,5 +132,5 @@ class ISRSearch extends Mission {
 export default {
   missionName,
   jobTypes,
-  Mission: ISRSearch,
+  constructor: ISRSearch,
 };

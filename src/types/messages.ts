@@ -453,6 +453,7 @@ export type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'ugvRetri
 
 export interface MissionDescription {
   missionName: MissionName;
+  activeVehicleMapping: { [vehicleId: number]: JobType };
   information: MissionInformation;
 }
 

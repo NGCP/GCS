@@ -102,22 +102,15 @@ export default abstract class Mission {
   private waitingVehicles = new DictionaryList<Vehicle>();
 
   /**
-   * Callback to occur when mission has completed.
-   */
-  private completionCallback: (parameters: MissionParameters | undefined) => void;
-
-  /**
    * Handles different states of the vehicle.
    */
   private statusEventHandler = new UpdateHandler();
 
   public constructor(
-    completionCallback: (parameters: MissionParameters | undefined) => void,
     vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation,
     activeVehicleMapping: { [vehicleId: number]: JobType },
   ) {
-    this.completionCallback = completionCallback;
     this.vehicles = vehicles;
     this.parameters = information.parameters;
     this.options = information.options;
@@ -407,7 +400,6 @@ export default abstract class Mission {
        * throughout the mission.
        */
       if (this.activeTasks.size === 0 && this.waitingTasks.size() === 0) {
-        this.completionCallback(this.generateCompletionParameters());
         this.stop(true);
       } else {
         // This should never happen. There is a big issue in the system if this somehow happens.

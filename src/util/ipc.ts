@@ -253,8 +253,9 @@ function postShowMissionWindow(): void {
  */
 function postStartMissions(
   missions: MissionDescription[],
+  requireConfirmation: boolean,
 ): void {
-  ipcRenderer.send('post', 'startMissions', missions);
+  ipcRenderer.send('post', 'startMissions', missions, requireConfirmation);
 }
 
 /**
