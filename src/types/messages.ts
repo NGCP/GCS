@@ -356,8 +356,16 @@ export interface ISRSearchMissionParameters {
   land: LandTaskParameters;
 }
 
+export function isISRSearchMissionParameters(parameters: MissionParameters): boolean {
+  return 'takeoff' in parameters && 'isrSearch' in parameters && 'land' in parameters;
+}
+
 export interface VTOLSearchMissionParameters {
   quickScan: QuickScanTaskParameters;
+}
+
+export function isVTOLSearchMissionParameters(parameters: MissionParameters): boolean {
+  return 'quickScan' in parameters;
 }
 
 export interface PayloadDropMissionParameters {
@@ -366,15 +374,35 @@ export interface PayloadDropMissionParameters {
   land: LandTaskParameters;
 }
 
+export function isPayloadDropMissionParameters(parameters: MissionParameters): boolean {
+  return 'takeoff' in parameters && 'payloadDrop' in parameters && 'land' in parameters;
+}
+
 export interface UGVRetreiveMissionParameters {
   retrieveTarget: UGVRetreiveMissionParameters;
   deliverTarget: DeliverTargetTaskParameters;
 }
 
+export function isUGVRetreiveMissionParameters(parameters: MissionParameters): boolean {
+  return 'retrieveTarget' in parameters && 'deliverTarget' in parameters;
+}
+
 // UUVRetrieveMission does not need parameters, as its one task does not need any.
+
+export function isUUVRetrieveMissionParameters(parameters: MissionParameters): boolean {
+  return Object.keys(parameters).length === 0;
+}
 
 export type MissionParameters = ISRSearchMissionParameters | VTOLSearchMissionParameters
 | PayloadDropTaskParameters | UGVRetreiveMissionParameters | {};
+
+export const missionParametersTypeGuard = {
+  isISRSearchMissionParameters,
+  isVTOLSearchMissionParameters,
+  isPayloadDropMissionParameters,
+  isUGVRetreiveMissionParameters,
+  isUUVRetrieveMissionParameters,
+};
 
 /**
  * Options for the mission. All variables are optional so the UI should

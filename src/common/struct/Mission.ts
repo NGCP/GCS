@@ -8,6 +8,7 @@ import {
   JSONMessage,
   messageTypeGuard,
   MissionInformation,
+  MissionName,
   MissionOptions,
   MissionParameters,
   Task,
@@ -22,6 +23,8 @@ import UpdateHandler from './UpdateHandler';
 
 export type MissionStatus = 'ready' | 'initializing' | 'waiting' | 'running';
 
+export type CompareTaskFunction = (a: Task, b: Task) => number;
+
 /**
  * Mission backend for the GCS. Automatically creates and assigns tasks. No provided value should
  * be undefined (specifically the vehicle mapping).
@@ -30,7 +33,7 @@ export default abstract class Mission {
   /**
    * Name of mission.
    */
-  protected abstract missionName: string;
+  protected abstract missionName: MissionName;
 
   /**
    * Related job types to the mission.
@@ -76,7 +79,8 @@ export default abstract class Mission {
    * comparison function specified for the jobType, then jobs will be added and taken
    * on a FILO order (queue).
    */
-  protected abstract addTaskCompare: { [jobType: string]: (a: Task, b: Task) => number };
+  protected abstract addTaskCompare:
+  { [jobType: string]: CompareTaskFunction | undefined };
 
   /**
    * Map of the id of the vehicle to the task it is performing.
@@ -100,7 +104,7 @@ export default abstract class Mission {
   /**
    * Callback to occur when mission has completed.
    */
-  private completionCallback: (parameters: MissionParameters) => void;
+  private completionCallback: (parameters: MissionParameters | undefined) => void;
 
   /**
    * Handles different states of the vehicle.
@@ -108,7 +112,7 @@ export default abstract class Mission {
   private statusEventHandler = new UpdateHandler();
 
   public constructor(
-    completionCallback: (parameters: MissionParameters) => void,
+    completionCallback: (parameters: MissionParameters | undefined) => void,
     vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation,
     activeVehicleMapping: { [vehicleId: number]: JobType },
@@ -301,7 +305,7 @@ export default abstract class Mission {
             const index = searchIndex(
               this.waitingTasks.get(jobType) || [],
               task,
-              this.addTaskCompare[jobType],
+              this.addTaskCompare[jobType] as CompareTaskFunction,
             );
             this.waitingTasks.insert(jobType, index, task);
           });
@@ -448,7 +452,7 @@ export default abstract class Mission {
       const index = searchIndex(
         this.waitingTasks.get(jobType) as Task[],
         task,
-        this.addTaskCompare[jobType],
+        this.addTaskCompare[jobType] as CompareTaskFunction,
       );
       this.waitingTasks.insert(jobType, index, task);
     } else {
@@ -476,7 +480,12 @@ export default abstract class Mission {
 
     if (success) {
       const completionParameters = this.generateCompletionParameters();
-      ipc.postCompleteMission(this.missionName, completionParameters);
+      if (!completionParameters) {
+        this.stop(false, 'No parameters were generated from this mission');
+        return;
+      }
+
+      ipc.postCompleteMission(this.missionName, completionParameters as MissionParameters);
       ipc.postLogMessages({
         type: 'success',
         message: `Completion parameters for ${this.missionName}: ${JSON.stringify(completionParameters)}`,
@@ -608,5 +617,5 @@ export default abstract class Mission {
    * user or to the next mission. For example, data produced here for an ISR Search mission should
    * be data for the VTOL Search mission (of type VTOLSearchMissionParameters).
    */
-  protected abstract generateCompletionParameters(): MissionParameters;
+  protected abstract generateCompletionParameters(): MissionParameters | undefined;
 }
