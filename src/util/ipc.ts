@@ -259,6 +259,16 @@ function postStartMissions(
 }
 
 /**
+ * Post "startNextMission" notification.
+ *
+ * Files that take this notification:
+ * - common/Orchestrator
+ */
+function postStartNextMission(): void {
+  ipcRenderer.send('post', 'startNextMission');
+}
+
+/**
  * Post "stopMission" notification.
  *
  * Files that take this notification:
@@ -339,6 +349,7 @@ export default {
   postSetMapToUserLocation,
   postShowMissionWindow,
   postStartMissions,
+  postStartNextMission,
   postStopMission,
   postStopSendingMessages,
   postToggleTheme,

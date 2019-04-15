@@ -87,6 +87,7 @@ class Orchestrator {
     ): void => this.startMissions(missions, requireConfirmation));
 
 
+    ipcRenderer.on('startNextMission', this.startNextMission);
     ipcRenderer.on('completeMission', (_: Event, missionName: string, completionParameters: MissionParameters): void => this.completeMission(missionName, completionParameters));
     ipcRenderer.on('stopMission', this.stopMission);
   }
@@ -261,7 +262,7 @@ class Orchestrator {
       this.stopMission();
       ipc.postFinishMissions(completionParameters);
     } else if (this.requireConfirmation) {
-      ipc.postConfirmCompleteMission();
+      ipc.postConfirmCompleteMission(); // Start next mission on "startNextMission" notification.
     } else {
       this.startNextMission();
     }
