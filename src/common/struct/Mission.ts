@@ -171,7 +171,7 @@ export default abstract class Mission {
   private initialize(): void {
     // Stops mission if mission is not in the "ready" state.
     if (this.status !== 'ready') {
-      this.stop(false, `Something wrong happend in ${this.missionName}`);
+      this.stop(false, `Something wrong happend in ${this.missionName} mission`);
       return;
     }
 
@@ -198,7 +198,7 @@ export default abstract class Mission {
   private assignJobs(): void {
     // Fails to assign jobs if mission is not in the "initializing" state.
     if (this.status !== 'initializing') {
-      this.stop(false, `Something wrong happened in ${this.missionName}`);
+      this.stop(false, `Something wrong happened in ${this.missionName} mission`);
       return;
     }
 
@@ -230,7 +230,7 @@ export default abstract class Mission {
       if (pendingVehicleIds.length === 0) {
         ipc.postLogMessages({
           type: 'success',
-          message: `Assigned jobs to all vehicles for ${this.missionName}`,
+          message: `Assigned jobs to all vehicles for ${this.missionName} mission`,
         });
 
         this.statusEventHandler.event<MissionStatus>('status', 'waiting');
@@ -284,7 +284,7 @@ export default abstract class Mission {
   private start(): void {
     // Fails to initialize if mission is not in the "ready" state.
     if (this.status !== 'waiting') {
-      this.stop(false, `Something wrong happened in ${this.missionName}`);
+      this.stop(false, `Something wrong happened in ${this.missionName} mission`);
       return;
     }
 
@@ -403,7 +403,7 @@ export default abstract class Mission {
         this.stop(true);
       } else {
         // This should never happen. There is a big issue in the system if this somehow happens.
-        this.stop(false, `Failed to complete ${this.missionName}`);
+        this.stop(false, `Failed to complete ${this.missionName} mission`);
       }
     }
   }

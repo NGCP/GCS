@@ -37,6 +37,16 @@ class Orchestrator {
   }
 
   /**
+   * Posts error message when error happens in Orchestrator.
+   */
+  private static postOrchestratorError(error: string): void {
+    ipc.postLogMessages({
+      type: 'failure',
+      message: `Something wrong happened in Orchestrator: ${error}`,
+    });
+  }
+
+  /**
    * List of mission names and information for each mission.
    */
   private missions: MissionDescription[] = [];
@@ -124,24 +134,41 @@ class Orchestrator {
   }
 
   /**
-   * Disconnects from a vehicle (if it does not communicate recently enough).
+   * Disconnects from a vehicle.
    * @param vehicleId ID of vehicle to disconnect from.
    */
   private disconnectFromVehicle(vehicleId: number): void {
-    // Just in case, the statement should never pass.
-    if (!this.vehicles[vehicleId]) return;
-    this.vehicles[vehicleId].disconnect();
+    if (!this.vehicles[vehicleId]) {
+      Orchestrator.postOrchestratorError(`Tried to disconnect from nonexisting vehicle id ${vehicleId}`);
+      return;
+    }
 
+    this.vehicles[vehicleId].disconnect();
     ipc.postUpdateVehicles(this.vehicles[vehicleId].toPlainObject());
   }
 
+  /**
+   * Handles acknowledgement messages.
+   * @param jsonMessage Message from vehicle.
+   */
   private handleAcknowledgementMessage(jsonMessage: JSONMessage): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
+      Orchestrator.postOrchestratorError(`Received acknowledgement message from disconnected vehicle id ${jsonMessage.sid}`);
+      return;
+    }
     this.vehicles[jsonMessage.sid].updateLastConnectionTime(jsonMessage);
   }
 
+  /**
+   * Handles bad messages.
+   * @param jsonMessage Message from vehicle.
+   */
   private handleBadMessage(jsonMessage: JSONMessage): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
+      Orchestrator.postOrchestratorError(`Received bad message from disconnected vehicle id ${jsonMessage.sid}`);
+      return;
+    }
+
     this.vehicles[jsonMessage.sid].updateLastConnectionTime(jsonMessage);
 
     const badMessage = jsonMessage as BadMessage;
@@ -151,8 +178,15 @@ class Orchestrator {
     });
   }
 
+  /**
+   * Handles update messages.
+   * @param jsonMessage Message from vehicle.
+   */
   private handleUpdateMessage(jsonMessage: JSONMessage): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
+      Orchestrator.postOrchestratorError(`Received update message from disconnected vehicle id ${jsonMessage.sid}`);
+      return;
+    }
 
     this.vehicles[jsonMessage.sid].update(jsonMessage);
     if (this.currentMission) this.currentMission.update(jsonMessage);
@@ -161,23 +195,32 @@ class Orchestrator {
     ipc.postUpdateVehicles(this.vehicles[jsonMessage.sid].toPlainObject());
   }
 
+  /**
+   * Handles point of interest messages.
+   * @param jsonMessage Message from vehicle.
+   */
   private handlePOIMessage(jsonMessage: JSONMessage): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
-
-    if (this.currentMission) {
-      this.currentMission.update(jsonMessage);
+    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
+      Orchestrator.postOrchestratorError(`Received point of interest message from disconnected vehicle id ${jsonMessage.sid}`);
+      return;
     }
+
+    if (this.currentMission) this.currentMission.update(jsonMessage);
     Orchestrator.acknowledge(jsonMessage);
   }
 
+  /**
+   * Handles complete messages.
+   * @param jsonMessage Message from vehicle.
+   */
   private handleCompleteMessage(jsonMessage: JSONMessage): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
+      Orchestrator.postOrchestratorError(`Received complete message from disconnected vehicle id ${jsonMessage.sid}`);
+      return;
+    }
 
     if (!this.currentMission) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: `Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while no mission was running`,
-      });
+      Orchestrator.postOrchestratorError(`Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while no mission was running`);
       return;
     }
 
@@ -197,42 +240,21 @@ class Orchestrator {
     requireConfirmation: boolean,
   ): void {
     if (this.running) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: 'Cannot start new missions while missions are already running',
-      });
+      Orchestrator.postOrchestratorError('Cannot start new missions while missions are already running');
       return;
     }
 
     if (missions.length === 0) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: 'Cannot start new mission with no specified mission',
-      });
+      Orchestrator.postOrchestratorError('Cannot start new missions with no missions provided');
       return;
     }
 
     this.running = true;
     this.missions = missions;
     this.requireConfirmation = requireConfirmation;
-
     this.currentMissionIndex = 0;
-    const missionObj = missionObject[this.missions[this.currentMissionIndex].missionName];
-    if (!missionObj) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: 'Cannot start mission with unknown mission name',
-      });
-    }
 
-    const mission = missionObj as MissionObject;
-
-    this.currentMissionIndex += 1;
-    this.currentMission = new mission.constructor(
-      this.vehicles,
-      this.missions[this.currentMissionIndex].information,
-      this.missions[this.currentMissionIndex].activeVehicleMapping,
-    );
+    this.startMission();
   }
 
   /**
@@ -244,17 +266,9 @@ class Orchestrator {
    * @param completionParameters Paramters for next mission.
    */
   private completeMission(missionName: string, completionParameters: MissionParameters): void {
-    /*
-     * The following should not happen. Only happens if the currentMissionIndex somehow
-     * does not match up with the mission that just finished, or if no mission was running for
-     * some reason.
-     */
     if (!this.running || (this.currentMissionIndex >= 0
       && this.missions[this.currentMissionIndex].missionName !== missionName)) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: 'Received invalid completion for a mission',
-      });
+      Orchestrator.postOrchestratorError('Invalid mission was completed');
       return;
     }
 
@@ -273,18 +287,24 @@ class Orchestrator {
    */
   private startNextMission(): void {
     if (!this.running) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: 'Cannot start next mission while no missions are running',
-      });
+      Orchestrator.postOrchestratorError('Tried to start next mission while no missions are running');
       return;
     }
+
+    this.currentMissionIndex += 1;
+    this.startMission();
+  }
+
+  /**
+   * Support function to start a mission. Uses currentMissionIndex to determine which
+   * mission to start. Ensure to set the currentMissionIndex properly before calling
+   * this function.
+   */
+  private startMission(): void {
     const missionObj = missionObject[this.missions[this.currentMissionIndex].missionName];
     if (!missionObj) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: 'Cannot start mission with unknown mission name',
-      });
+      Orchestrator.postOrchestratorError('Tried to start mission with unknown mission name');
+      return;
     }
 
     const mission = missionObj as MissionObject;
@@ -298,7 +318,8 @@ class Orchestrator {
   }
 
   /**
-   * Clears all missions in Orchestrator.
+   * Clears all missions in Orchestrator. Run after all missions are completed or
+   * mission is stopped.
    */
   private stopMission(): void {
     this.currentMissionIndex = -1;
