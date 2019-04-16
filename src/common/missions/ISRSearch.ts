@@ -31,21 +31,24 @@ class ISRSearch extends Mission {
   protected addTaskCompare = {};
 
   /**
-   * List of point of interests to get parameters for next mission (VTOL Search).
+   * List of point of interests.
    */
   private missionData: LatLngZoom[] = [];
 
-  protected generateTasks(): DictionaryList<Task> {
-    // Check if options and parameters line up.
+  protected generateTasks(): DictionaryList<Task> | undefined {
     if (!this.options.isrSearch
       || missionParametersTypeGuard.isISRSearchMissionParameters(this.parameters)) {
-      throw new Error('Failed to generate tasks as options/parameters were invalid');
-    }
-    const missionParameters = this.parameters as ISRSearchMissionParameters;
+      ipc.postLogMessages({
+        type: 'failure',
+        message: `Failed to generate tasks for ${this.missionName} as parameters were invalid`,
+      });
 
+      return undefined; // Mission will stop from this, not complete.
+    }
+
+    const missionParameters = this.parameters as ISRSearchMissionParameters;
     const tasks = new DictionaryList<Task>();
 
-    // Add takeoff to our tasks.
     if (!this.options.isrSearch.noTakeoff) {
       tasks.push('isrSearch', {
         taskType: 'takeoff',
@@ -68,15 +71,13 @@ class ISRSearch extends Mission {
     return tasks;
   }
 
-  protected generateCompletionParameters(): VTOLSearchMissionParameters {
-    // Will be changed depending on what VTOL wants from UAV.
+  protected generateCompletionParameters(): VTOLSearchMissionParameters | undefined {
     if (this.missionData.length === 0) {
       ipc.postLogMessages({
         type: 'failure',
         message: 'No points of interests were found in the mission',
       });
-
-      throw new Error('No points of interests were found in the mission');
+      return undefined; // Mission will stop from this, not complete.
     }
 
     let bottom: number = Number.MIN_VALUE;

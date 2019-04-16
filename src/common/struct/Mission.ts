@@ -109,6 +109,11 @@ export default abstract class Mission {
     activeVehicleMapping: { [vehicleId: number]: JobType },
   ) {
     if (!information.parameters) {
+      ipc.postLogMessages({
+        type: 'failure',
+        message: 'Parameters for mission are not provided',
+      });
+
       throw new Error('Parameters for mission are not provided');
     }
 
@@ -262,6 +267,11 @@ export default abstract class Mission {
     }
 
     const jobTasks = this.generateTasks();
+    if (!jobTasks) {
+      this.stop(false, `No tasks were generated from ${this.missionName}`);
+      return;
+    }
+
     const allValidTasksForJobs = jobTasks.keys().some(
       (jobType): boolean => !vehicleConfig.isValidJobType(jobType as JobType)
         || jobTasks.some(
@@ -463,7 +473,7 @@ export default abstract class Mission {
     if (success) {
       const completionParameters = this.generateCompletionParameters();
       if (!completionParameters) {
-        this.stop(false, 'No parameters were generated from this mission');
+        this.stop(false, `No parameters were generated from ${this.missionName}`);
         return;
       }
 
@@ -476,7 +486,7 @@ export default abstract class Mission {
       ipc.postStopMissions();
       ipc.postLogMessages({
         type: 'failure',
-        message: `Stopped mission: ${error}`,
+        message: `Stopped ${this.missionName} mission: ${error}`,
       }, {
         message: `Terminated parameters for ${this.missionName}: ${JSON.stringify(this.parameters)}`,
       });
@@ -561,13 +571,15 @@ export default abstract class Mission {
 
   /**
    * Generates all tasks to perform, given this.options and this.parameters.
+   * Returns undefined if not able to generate tasks.
    */
-  protected abstract generateTasks(): DictionaryList<Task>;
+  protected abstract generateTasks(): DictionaryList<Task> | undefined;
 
   /**
    * Generates new mission parameters after the mission has completed, either to be given to the
    * user or to the next mission. For example, data produced here for an ISR Search mission should
    * be data for the VTOL Search mission (of type VTOLSearchMissionParameters).
+   * Returns undefined if not able to generate parameters.
    */
-  protected abstract generateCompletionParameters(): MissionParameters;
+  protected abstract generateCompletionParameters(): MissionParameters | undefined;
 }
