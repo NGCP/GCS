@@ -441,7 +441,7 @@ export interface MissionInformation {
   /**
    * Parameters for the mission.
    */
-  parameters: MissionParameters;
+  parameters?: MissionParameters;
 
   /**
    * Options for the mission.

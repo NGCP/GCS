@@ -263,7 +263,7 @@ export default class Vehicle {
       } else if (value === 'disconnected') {
         if (disconnectionCallback) disconnectionCallback();
       }
-      return value === 'waiting';
+      return value === 'waiting' || value === 'disconnected';
     });
 
     return true;

@@ -101,7 +101,7 @@ class Orchestrator {
 
     ipcRenderer.on('startNextMission', this.startNextMission);
     ipcRenderer.on('completeMission', (_: Event, missionName: string, completionParameters: MissionParameters): void => this.completeMission(missionName, completionParameters));
-    ipcRenderer.on('stopMission', this.stopMission);
+    ipcRenderer.on('stopMissions', this.stopMissions);
   }
 
   /**
@@ -191,7 +191,9 @@ class Orchestrator {
     }
 
     this.vehicles[jsonMessage.sid].update(jsonMessage);
-    if (this.currentMission) this.currentMission.update(jsonMessage);
+    if (this.currentMission && this.currentMission.getVehicles()[jsonMessage.sid]) {
+      this.currentMission.update(jsonMessage);
+    }
 
     ipc.postUpdateVehicles(this.vehicles[jsonMessage.sid].toObject());
   }
@@ -202,7 +204,12 @@ class Orchestrator {
    */
   private handlePOIMessage(jsonMessage: JSONMessage): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
-      Orchestrator.postOrchestratorError(`Received point of interest message from disconnected vehicle id ${jsonMessage.sid}`);
+      Orchestrator.postOrchestratorError(`Received point of interest message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} but it is currently disconnected`);
+      return;
+    }
+
+    if (this.currentMission && !this.currentMission.getVehicles()[jsonMessage.sid]) {
+      Orchestrator.postOrchestratorError(`Received point of interest message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while it is not assigned to mission`);
       return;
     }
 
@@ -220,7 +227,12 @@ class Orchestrator {
     }
 
     if (!this.currentMission) {
-      Orchestrator.postOrchestratorError(`Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while no mission was running`);
+      Orchestrator.postOrchestratorError(`Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while no mission is running`);
+      return;
+    }
+
+    if (!this.currentMission.getVehicles()[jsonMessage.sid]) {
+      Orchestrator.postOrchestratorError(`Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while it is not assigned to the mission`);
       return;
     }
 
@@ -265,16 +277,21 @@ class Orchestrator {
    * @param completionParameters Paramters for next mission.
    */
   private completeMission(missionName: string, completionParameters: MissionParameters): void {
-    if (!this.running || (this.currentMissionIndex >= 0
-      && this.missions[this.currentMissionIndex].missionName !== missionName)) {
+    if (!this.running
+      || (this.currentMissionIndex >= 0
+        && this.missions[this.currentMissionIndex].missionName !== missionName)) {
       Orchestrator.postOrchestratorError('Invalid mission was completed');
       return;
     }
 
     if (this.currentMissionIndex === this.missions.length - 1) {
-      this.stopMission();
       ipc.postFinishMissions(completionParameters);
-    } else if (this.requireConfirmation) {
+      this.stopMissions();
+    } else {
+      this.missions[this.currentMissionIndex + 1].information.parameters = completionParameters;
+    }
+
+    if (this.requireConfirmation) {
       ipc.postConfirmCompleteMission(); // Start next mission on "startNextMission" notification.
     } else {
       this.startNextMission();
@@ -320,7 +337,7 @@ class Orchestrator {
    * Clears all missions in Orchestrator. Run after all missions are completed or
    * mission is stopped.
    */
-  private stopMission(): void {
+  private stopMissions(): void {
     this.currentMissionIndex = -1;
     this.currentMission = null;
     this.missions = [];

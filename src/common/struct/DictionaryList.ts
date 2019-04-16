@@ -144,7 +144,8 @@ export default class DictionaryList<T> {
   }
 
   /**
-   * Removes all elements of an array that meets the condition specified in a callback function.
+   * Removes all elements of an array of a specified key that meets the condition
+   * specified in a callback function.
    *
    * @param key The key to access the list in the dictionary.
    * @param callback Test each element, from oldest to newest. All elements to pass
@@ -170,7 +171,8 @@ export default class DictionaryList<T> {
   }
 
   /**
-   * Returns the elements of an array that meet the condition specified in a callback function.
+   * Returns the elements of an array of a specified key that meet the condition
+   * specified in a callback function.
    *
    * @param key The key to access the list in the dictionary.
    * @param callback Test each element, from oldest to newest. All elements to pass
@@ -181,6 +183,29 @@ export default class DictionaryList<T> {
     if (!list) return undefined;
 
     return list.filter(callback);
+  }
+
+  /**
+   * Performs the specified action for each element in an array of a specified key.
+   */
+  public forEach(key: string, callback: (value: T, index: number, array: T[]) => void): void {
+    const list = this.dictionary[key];
+    if (!list) return;
+
+    list.forEach(callback);
+  }
+
+  /**
+   * Determines whether the specified callback function returns true for any element of an array.
+   *
+   * @param key The key to access the list in the dictionary.
+   * @param callback Test each element, and return true if an element passes the callback.
+   */
+  public some(key: string, callback: Callback<T>): boolean {
+    const list = this.dictionary[key];
+    if (!list) return true;
+
+    return list.some(callback);
   }
 
   /**

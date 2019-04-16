@@ -168,7 +168,7 @@ class MessageHandler {
       ipc.postAcknowledgeMessage(jsonMessage);
       if (newMessage) ipc.postHandleUpdateMessage(jsonMessage);
     } else if (messageTypeGuard.isBadMessage(jsonMessage)) {
-      ipc.postHandleBadMessage(jsonMessage);
+      if (newMessage) ipc.postHandleBadMessage(jsonMessage);
     } else if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
       const { ackid } = jsonMessage as AcknowledgementMessage;
 
@@ -192,10 +192,7 @@ class MessageHandler {
    * Stops sending all messages.
    */
   private stopSendingMessages(): void {
-    const outbox = this.messageDictionary.get('outbox');
-    if (!outbox) return;
-
-    outbox.forEach((jsonMessage): void => {
+    this.messageDictionary.forEach('outbox', (jsonMessage): void => {
       const hash = `${jsonMessage.tid}#${jsonMessage.id}`;
       this.updateHandler.event(hash, true);
     });

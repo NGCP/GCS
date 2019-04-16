@@ -279,13 +279,13 @@ function postStartNextMission(): void {
 }
 
 /**
- * Post "stopMission" notification.
+ * Post "stopMissions" notification.
  *
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postStopMission(): void {
-  ipcRenderer.send('post', 'stopMission');
+function postStopMissions(): void {
+  ipcRenderer.send('post', 'stopMissions');
 }
 
 /**
@@ -361,7 +361,7 @@ export default {
   postShowMissionWindow,
   postStartMissions,
   postStartNextMission,
-  postStopMission,
+  postStopMissions,
   postStopSendingMessages,
   postToggleTheme,
   postUpdateMapLocation,
