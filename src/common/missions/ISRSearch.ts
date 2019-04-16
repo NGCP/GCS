@@ -68,14 +68,15 @@ class ISRSearch extends Mission {
     return tasks;
   }
 
-  protected generateCompletionParameters(): VTOLSearchMissionParameters | undefined {
+  protected generateCompletionParameters(): VTOLSearchMissionParameters {
     // Will be changed depending on what VTOL wants from UAV.
     if (this.missionData.length === 0) {
       ipc.postLogMessages({
         type: 'failure',
         message: 'No points of interests were found in the mission',
       });
-      return undefined;
+
+      throw new Error('No points of interests were found in the mission');
     }
 
     let bottom: number = Number.MIN_VALUE;
