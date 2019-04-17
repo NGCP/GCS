@@ -57,38 +57,38 @@ Payload Drop
         "jobType": "payloadDrop"
       }
 
-------------
+----------
 
-UGV Retrieve
-------------
+UGV Rescue
+----------
 
 .. confval:: Details
 
-  :job type: ``ugvRetrieve``
+  :job type: ``ugvRescue``
   :tasks: UGV Retrieve Target, Deliver Target
   :start message:
     .. code-block:: json
 
       {
         "type": "start",
-        "jobType": "ugvRetrieve"
+        "jobType": "ugvRescue"
       }
 
-------------
+----------
 
-UUV Retrieve
-------------
+UUV Rescue
+----------
 
 .. confval:: Details
 
-  :job type: ``uuvRetrieve``
+  :job type: ``uuvRescue``
   :tasks: UUV Retrieve Target
   :start message:
     .. code-block:: json
 
       {
         "type": "start",
-        "jobType": "uuvRetrieve"
+        "jobType": "uuvRescue"
       }
 
 ----------
