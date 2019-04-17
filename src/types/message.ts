@@ -8,7 +8,7 @@
 
 import { JobType, vehicleConfig } from '../static/index';
 
-import { isVehicleStatus, VehicleStatus } from './types';
+import { isVehicleStatus, VehicleStatus } from './vehicle';
 
 import * as Task from './task';
 

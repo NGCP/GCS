@@ -1,11 +1,7 @@
 import React, { Component, ReactNode } from 'react';
 
-import {
-  ISRSearchMissionParameters,
-  PayloadDropMissionParameters,
-  UGVRetreiveMissionParameters,
-} from '../../types/message';
-import { ThemeProps } from '../../types/types';
+import { ThemeProps } from '../../types/componentStyle';
+// import * as MissionInformation from '../../types/missionInformation';
 
 import ISRSearch from './parameters/ISRSearch';
 import PayLoadDrop from './parameters/PayloadDrop';
@@ -16,22 +12,16 @@ import VTOLSearch from './parameters/VTOLSearch';
 const layouts: { [missionName: string]: () => ReactNode } = {
   payloadDrop: PayLoadDrop,
   isrSearch: ISRSearch,
-  ugvRetrieve: UGVRetrieveTarget,
-  uuvRetrieve: UUVRetreiveTarget,
+  ugvRescue: UGVRetrieveTarget,
+  uuvRescue: UUVRetreiveTarget,
   vtolSearch: VTOLSearch,
 };
-
-interface Parameters {
-  isrSearch: ISRSearchMissionParameters;
-  payloadDrop: PayloadDropMissionParameters;
-  ugvRetrieve: UGVRetreiveMissionParameters;
-}
 
 type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'ugvRetrieve' | 'uuvRetrieve';
 
 interface State {
   firstMission: MissionName;
-  parameters?: Parameters;
+  // information: Information;
 }
 
 /**
