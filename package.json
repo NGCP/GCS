@@ -19,6 +19,7 @@
     "@yaga/leaflet-cached-tile-layer": "^1.0.0",
     "leaflet": "^1.4.0",
     "moment": "^2.24.0",
+    "msgpack-lite": "^0.1.26",
     "pouchdb": "^7.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
@@ -34,6 +35,7 @@
     "@babel/preset-react": "^7.0.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.6",
+    "@types/msgpack-lite": "^0.1.6",
     "@types/node": "^11.13.4",
     "@types/pouchdb": "^6.3.3",
     "@types/react": "^16.8.13",
@@ -62,7 +64,6 @@
     "stylelint": "^9.10.1",
     "stylelint-config-standard": "^18.2.0",
     "stylelint-order": "^2.2.1",
-    "ts-mocha": "^6.0.0",
     "ts-node": "^8.0.3",
     "typescript": "^3.4.3",
     "webpack": "^4.30.0"

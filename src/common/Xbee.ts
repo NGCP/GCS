@@ -1,3 +1,4 @@
+import msgpack from 'msgpack-lite';
 import SerialPort from 'serialport';
 import { constants as C, Frame, XBeeAPI } from 'xbee-api';
 
@@ -45,7 +46,7 @@ function sendMessage(message: JSONMessage): void {
   xbeeAPI.builder.write({
     type: C.FRAME_TYPE.ZIGBEE_TRANSMIT_STATUS,
     destination64: macAddress,
-    data: message,
+    data: msgpack.encode(message),
   });
 }
 
@@ -89,7 +90,7 @@ serialport.on('close', (): void => {
 
 xbeeAPI.parser.on('data', (frame: Frame): void => {
   if (frame.type !== C.FRAME_TYPE.ZIGBEE_RECEIVE_PACKET || !frame.data) return;
-  ipc.postReceiveMessage(frame.data.toString());
+  ipc.postReceiveMessage(msgpack.decode(frame.data));
 });
 
 export default {
