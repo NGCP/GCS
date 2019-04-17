@@ -22,12 +22,17 @@ NGCP Ground Control Station
   :target: https://ground-control-station.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
 
+Introduction
+============
 
 The `Northrop Grumman Collaboration Project`_ presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the project.
 
-This is based on `Node.js`_, `React`_, `Webpack`_, and `Electron`_.
-
 Our documentation can be found `here <https://ground-control-station.readthedocs.io/>`_.
+
+Requirements
+============
+
+You will need the latest version of `Node.js`_.
 
 Getting Started
 ===============
@@ -66,7 +71,4 @@ License
 
 .. _Northrop Grumman Collaboration Project: http://www.ngcpcalpoly.com/about.html
 .. _Node.js: https://github.com/nodejs/node
-.. _React: https://github.com/facebook/react
-.. _Webpack: https://github.com/webpack/webpack
-.. _Electron: https://github.com/electron/electron
 .. _Mapbox account: https://www.mapbox.com/account/
