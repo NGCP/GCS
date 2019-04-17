@@ -2,12 +2,7 @@ import { Event, ipcRenderer } from 'electron';
 
 import { config, vehicleConfig } from '../static/index';
 
-import {
-  AcknowledgementMessage,
-  messageTypeGuard,
-  JSONMessage,
-  Message,
-} from '../types/messages';
+import * as Message from '../types/message';
 
 import ipc from '../util/ipc';
 import { isJSON } from '../util/util';
@@ -27,7 +22,7 @@ class MessageHandler {
    * "sent": will have a list of messages that have been sent.
    * "received": will have a list of messages that have been received.
    */
-  private messageDictionary = new DictionaryList<JSONMessage>();
+  private messageDictionary = new DictionaryList<Message.JSONMessage>();
 
   /**
    * Handler that listens for different update events.
@@ -45,7 +40,7 @@ class MessageHandler {
   private receivedMessageId: { [key: string]: number | undefined } = {};
 
   public constructor() {
-    ipcRenderer.on('sendMessage', (_: Event, vehicleId: number, message: Message): void => this.sendMessage(vehicleId, message));
+    ipcRenderer.on('sendMessage', (_: Event, vehicleId: number, message: Message.Message): void => this.sendMessage(vehicleId, message));
     ipcRenderer.on('receiveMessage', (_: Event, text: string): void => this.receiveMessage(text));
     ipcRenderer.on('stopSendingMessages', this.stopSendingMessages);
   }
@@ -55,8 +50,9 @@ class MessageHandler {
    *
    * @param id Message id
    */
-  private removeMessage(key: 'outbox' | 'sent' | 'received', id: number): JSONMessage | undefined {
-    return this.messageDictionary.remove(key, (message: JSONMessage): boolean => message.id === id);
+  private removeMessage(key: 'outbox' | 'sent' | 'received', id: number): Message.JSONMessage | undefined {
+    return this.messageDictionary.remove(key,
+      (message: Message.JSONMessage): boolean => message.id === id);
   }
 
   /**
@@ -65,8 +61,8 @@ class MessageHandler {
    * @param vehicleId Vehicle id to send the message to.
    * @param message Message format (note this does not have sid, tid, id, and time).
    */
-  private sendMessage(vehicleId: number, message: Message): void {
-    const jsonMessage: JSONMessage = {
+  private sendMessage(vehicleId: number, message: Message.Message): void {
+    const jsonMessage: Message.JSONMessage = {
       id: this.id,
       sid: 0,
       tid: vehicleId,
@@ -78,8 +74,8 @@ class MessageHandler {
 
     this.messageDictionary.push('sent', jsonMessage);
 
-    if (messageTypeGuard.isAcknowledgementMessage(message)
-      || messageTypeGuard.isBadMessage(message)) {
+    if (Message.TypeGuard.isAcknowledgementMessage(message)
+      || Message.TypeGuard.isBadMessage(message)) {
       xbee.sendMessage(jsonMessage);
       return;
     }
@@ -113,7 +109,7 @@ class MessageHandler {
    * @param jsonMessage The bad message.
    * @param error Error message.
    */
-  private sendBadMessage(jsonMessage: JSONMessage, error?: string): void {
+  private sendBadMessage(jsonMessage: Message.JSONMessage, error?: string): void {
     this.sendMessage(jsonMessage.sid, {
       type: 'badMessage',
       error,
@@ -135,9 +131,9 @@ class MessageHandler {
     }
 
     const json = JSON.parse(text);
-    if (!messageTypeGuard.isJSONMessage(json)) {
+    if (!Message.TypeGuard.isMessage(json)) {
       if (!Number.isNaN(json.sid) && vehicleConfig.isValidVehicleId(json.sid as number)) {
-        this.sendBadMessage(json as JSONMessage, 'Invalid message, does not meet requirements for a message');
+        this.sendBadMessage(json as Message.JSONMessage, 'Invalid message, does not meet requirements for a message');
       } else {
         ipc.postLogMessages({
           message: `Received JSON from Xbee that is not a valid message, could not send bad message to sender: ${text}`,
@@ -147,7 +143,7 @@ class MessageHandler {
     }
 
     json.type = (json.type as string).toLowerCase();
-    const jsonMessage = json as JSONMessage;
+    const jsonMessage = json as Message.JSONMessage;
 
     // Ignore messages from unrecognized vehicles.
     if (!vehicleConfig.isValidVehicleId(jsonMessage.sid)) return;
@@ -155,22 +151,22 @@ class MessageHandler {
     const newMessage = !this.receivedMessageId[jsonMessage.sid]
       || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id;
 
-    if (messageTypeGuard.isConnectMessage(jsonMessage)) {
+    if (Message.TypeGuard.isConnectMessage(jsonMessage)) {
       ipc.postAcknowledgeMessage(jsonMessage);
       if (newMessage) ipc.postConnectToVehicle(jsonMessage);
-    } else if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
+    } else if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
       ipc.postAcknowledgeMessage(jsonMessage);
       if (newMessage) ipc.postHandleCompleteMessage(jsonMessage);
-    } else if (messageTypeGuard.isPOIMessage(jsonMessage)) {
+    } else if (Message.TypeGuard.isPOIMessage(jsonMessage)) {
       ipc.postAcknowledgeMessage(jsonMessage);
       if (newMessage) ipc.postHandlePOIMessage(jsonMessage);
-    } else if (messageTypeGuard.isUpdateMessage(jsonMessage)) {
+    } else if (Message.TypeGuard.isUpdateMessage(jsonMessage)) {
       ipc.postAcknowledgeMessage(jsonMessage);
       if (newMessage) ipc.postHandleUpdateMessage(jsonMessage);
-    } else if (messageTypeGuard.isBadMessage(jsonMessage)) {
+    } else if (Message.TypeGuard.isBadMessage(jsonMessage)) {
       if (newMessage) ipc.postHandleBadMessage(jsonMessage);
-    } else if (messageTypeGuard.isAcknowledgementMessage(jsonMessage)) {
-      const { ackid } = jsonMessage as AcknowledgementMessage;
+    } else if (Message.TypeGuard.isAcknowledgementMessage(jsonMessage)) {
+      const { ackid } = jsonMessage as Message.AcknowledgementMessage;
 
       if (newMessage) {
         const hash = `${jsonMessage.sid}#${ackid}`;
