@@ -6,14 +6,6 @@ NGCP Ground Control Station
   :target: https://travis-ci.com/NGCP/GCS
   :alt: Build Status
 
-.. image:: https://david-dm.org/NGCP/GCS/status.svg
-  :target: https://david-dm.org/NGCP/GCS
-  :alt: dependencies Status
-
-.. image:: https://david-dm.org/NGCP/GCS/dev-status.svg
-  :target: https://david-dm.org/NGCP/GCS?type=dev
-  :alt: devDependencies Status
-
 .. image:: https://app.fossa.com/api/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS.svg?type=shield
   :target: https://app.fossa.com/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS?ref=badge_shield
   :alt: FOSSA Status
@@ -21,6 +13,14 @@ NGCP Ground Control Station
 .. image:: https://readthedocs.org/projects/ground-control-station/badge/?version=latest
   :target: https://ground-control-station.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
+
+.. image:: https://david-dm.org/NGCP/GCS/status.svg
+  :target: https://david-dm.org/NGCP/GCS
+  :alt: dependencies Status
+
+.. image:: https://david-dm.org/NGCP/GCS/dev-status.svg
+  :target: https://david-dm.org/NGCP/GCS?type=dev
+  :alt: devDependencies Status
 
 Introduction
 ============
