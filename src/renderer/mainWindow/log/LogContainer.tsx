@@ -9,12 +9,7 @@ import {
   ListRowProps,
 } from 'react-virtualized';
 
-import {
-  isMessageType,
-  LogMessage,
-  MessageType,
-  ThemeProps,
-} from '../../../types/types';
+import * as ComponentStyle from '../../../types/componentStyle';
 
 import './log.css';
 
@@ -23,13 +18,13 @@ interface State {
    * The current filter being applied to messages. If the filter is not "", then only messages
    * of the same type as the filter will be shown.
    */
-  filter: MessageType;
+  filter: ComponentStyle.MessageType;
 
   /**
    * All messages that have been logged. This includes message that are being hidden
    * if a filter is being applied.
    */
-  messages: LogMessage[];
+  messages: ComponentStyle.LogMessage[];
 
   /**
    * All messages that are being shown. If there's no filter, then this is the same
@@ -37,14 +32,14 @@ interface State {
    * message every time the component is re-rendered) for a space (a duplicate array
    * of messages).
    */
-  filteredMessages: LogMessage[];
+  filteredMessages: ComponentStyle.LogMessage[];
 }
 
 /**
  * Container that displays messages regarding status, error, etc.
  */
-export default class LogContainer extends Component<ThemeProps, State> {
-  public constructor(props: ThemeProps) {
+export default class LogContainer extends Component<ComponentStyle.ThemeProps, State> {
+  public constructor(props: ComponentStyle.ThemeProps) {
     super(props);
 
     this.state = {
@@ -65,7 +60,7 @@ export default class LogContainer extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('logMessages', (_: Event, ...messages: LogMessage[]): void => this.logMessages(...messages));
+    ipcRenderer.on('logMessages', (_: Event, ...messages: ComponentStyle.LogMessage[]): void => this.logMessages(...messages));
   }
 
   /**
@@ -122,10 +117,10 @@ export default class LogContainer extends Component<ThemeProps, State> {
     const newFilter = event.currentTarget.value;
 
     // Ensures our new value has a type of MessageType.
-    if ((!newFilter && newFilter !== '') || !isMessageType(newFilter)) return;
+    if ((!newFilter && newFilter !== '') || !ComponentStyle.isMessageType(newFilter)) return;
 
     this.setState({
-      filter: newFilter as MessageType,
+      filter: newFilter as ComponentStyle.MessageType,
       filteredMessages: newFilter === '' ? messages.slice(0) : messages.filter((message): boolean => message.type === newFilter),
     });
   }
@@ -133,13 +128,13 @@ export default class LogContainer extends Component<ThemeProps, State> {
   /**
    * Updates the messages in the log. Will update filtered messages accordingly.
    */
-  private logMessages(...messages: LogMessage[]): void {
+  private logMessages(...messages: ComponentStyle.LogMessage[]): void {
     const { filteredMessages, messages: thisMessages, filter } = this.state;
     const currentMessages = thisMessages;
     const currentFilteredMessages = filteredMessages;
 
     messages.forEach((message): void => {
-      const msg: LogMessage = {
+      const msg: ComponentStyle.LogMessage = {
         type: message.type || '',
         message: message.message,
         time: message.time || moment(),

@@ -3,7 +3,9 @@ import React, { Component, ReactNode } from 'react';
 
 import VehicleTable from './VehicleTable';
 
-import { ThemeProps, VehicleObject } from '../../../types/types';
+import { ThemeProps } from '../../../types/componentStyle';
+import { VehicleObject } from '../../../types/vehicle';
+
 import { updateVehicles } from '../../../util/util';
 
 import './vehicle.css';

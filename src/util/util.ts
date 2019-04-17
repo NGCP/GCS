@@ -1,6 +1,6 @@
 import { Component } from 'react';
 
-import { VehicleObject } from '../types/types';
+import { VehicleObject } from '../types/vehicle';
 
 /**
  * Updates vehicles being shown. This is run on map and vehicle containers.

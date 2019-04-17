@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
 
-import { LatLngZoom } from '../types/types';
-
 import ngcp_calpoly from './images/logo/ngcp_calpoly.png';
 import ngcp_pomona from './images/logo/ngcp_pomona.png';
 
@@ -34,15 +32,6 @@ import {
   vehicleStatuses as vehicleStatusesObject,
 } from './vehicle.json';
 
-// Add signature to json objects to allow us to access it with TypeScript.
-const locations: {
-  [name: string]: { lat: number; lng: number; zoom?: number } | undefined;
-} = locationsObject;
-
-export const vehicleIds: {
-  [name: string]: number | undefined;
-} = vehicleIdsObject;
-
 /**
  * Object contained in vehicleInfos in vehicle.json.
  */
@@ -51,6 +40,24 @@ export interface VehicleInfo {
   name: string;
   'type': string;
 }
+
+/**
+ * Latitude, longitude and zoom.
+ */
+export interface LatLngZoom {
+  lat: number;
+  lng: number;
+  zoom?: number;
+}
+
+// Add signature to json objects to allow us to access it with TypeScript.
+const locations: {
+  [name: string]: { lat: number; lng: number; zoom?: number } | undefined;
+} = locationsObject;
+
+export const vehicleIds: {
+  [name: string]: number | undefined;
+} = vehicleIdsObject;
 
 /**
  * All valid job types. This should always match up to the job types in vehicle.json.

@@ -2,7 +2,7 @@ import Vehicle, { VehicleOptions } from '../../common/struct/Vehicle';
 
 import { locationConfig, vehicleConfig } from '../../static/index';
 
-import { VehicleObject, VehicleStatus } from '../../types/types';
+import { VehicleObject, VehicleStatus } from '../../types/vehicle';
 
 import ipc from '../../util/ipc';
 

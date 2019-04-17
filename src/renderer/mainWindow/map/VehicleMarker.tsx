@@ -10,7 +10,8 @@ import {
   VehicleStatus,
 } from '../../../static/index';
 
-import { MessageType, VehicleObject } from '../../../types/types';
+import { MessageType } from '../../../types/componentStyle';
+import { VehicleObject } from '../../../types/vehicle';
 
 const vehicleIcons = (imageConfig.markers as RecursiveImageSignature)
   .vehicles as RecursiveImageSignature;

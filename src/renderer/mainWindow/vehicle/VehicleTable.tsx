@@ -14,7 +14,8 @@ import {
   VehicleStatus,
 } from '../../../static/index';
 
-import { ThemeProps, VehicleObject } from '../../../types/types';
+import { ThemeProps } from '../../../types/componentStyle';
+import { VehicleObject } from '../../../types/vehicle';
 
 import ipc from '../../../util/ipc';
 

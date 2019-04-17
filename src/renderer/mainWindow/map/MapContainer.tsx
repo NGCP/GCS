@@ -10,15 +10,12 @@ import React, {
 } from 'react';
 import { Map, TileLayer, Viewport } from 'react-leaflet';
 
-import { locationConfig } from '../../../static/index';
+import { LatLngZoom, locationConfig } from '../../../static/index';
 
-import {
-  FileLoadOptions,
-  FileSaveOptions,
-  LatLngZoom,
-  ThemeProps,
-  VehicleObject,
-} from '../../../types/types';
+import { ThemeProps } from '../../../types/componentStyle';
+import { FileLoadOptions, FileSaveOptions } from '../../../types/fileOption';
+import { VehicleObject } from '../../../types/vehicle';
+
 import { updateVehicles } from '../../../util/util';
 
 import GeolocationControl from './control/GeolocationControl';

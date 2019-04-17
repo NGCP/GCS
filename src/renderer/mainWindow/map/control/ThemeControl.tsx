@@ -1,6 +1,6 @@
 import React, { Component, ReactNode } from 'react';
 
-import { ThemeProps } from '../../../../types/types';
+import { ThemeProps } from '../../../../types/componentStyle';
 
 import ipc from '../../../../util/ipc';
 

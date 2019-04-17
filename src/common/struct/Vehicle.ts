@@ -4,10 +4,10 @@ import {
   JSONMessage,
   Message,
   StartMessage,
-  Task,
   UpdateMessage,
-} from '../../types/messages';
-import { VehicleObject, VehicleStatus } from '../../types/types';
+} from '../../types/message';
+import * as Task from '../../types/task';
+import { VehicleObject, VehicleStatus } from '../../types/vehicle';
 
 import ipc from '../../util/ipc';
 
@@ -240,7 +240,6 @@ export default class Vehicle {
     completionCallback?: () => void,
     disconnectionCallback?: () => void,
     errorCallback?: ErrorCallback,
-    options?: object,
   ): boolean {
     if (this.status !== 'ready') {
       return false;
@@ -253,8 +252,6 @@ export default class Vehicle {
       type: 'start',
       jobType,
     };
-
-    if (options) startMessage.options = options;
 
     this.sendMessage(startMessage);
     this.updateEventHandler.addHandler<VehicleStatus>('status', (value): boolean => {
@@ -276,7 +273,7 @@ export default class Vehicle {
    *
    * @param task The task for the vehicle to perform. Must support the vehicle's job.
    */
-  public assignTask(task: Task): boolean {
+  public assignTask(task: Task.Task): boolean {
     if (this.status !== 'waiting' || !this.assignedJob || !vehicleConfig.isValidTaskTypeForJob(task.taskType, this.assignedJob)) {
       return false;
     }

@@ -16,19 +16,14 @@
 
 import { BrowserWindow, ipcRenderer } from 'electron';
 
-import {
-  JSONMessage,
-  Message,
-  MissionDescription,
-  MissionParameters,
-} from '../types/messages';
-import {
-  FileLoadOptions,
-  FileSaveOptions,
-  LatLngZoom,
-  LogMessage,
-  VehicleObject,
-} from '../types/types';
+import { LatLngZoom } from '../static/index';
+
+import { LogMessage } from '../types/componentStyle';
+import * as FileOptions from '../types/fileOption';
+import * as Message from '../types/message';
+import { Information } from '../types/missionInformation';
+import * as Task from '../types/task';
+import { VehicleObject } from '../types/vehicle';
 
 /**
  * Post "acknowledgeMessage" notification.
@@ -36,7 +31,7 @@ import {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postAcknowledgeMessage(jsonMessage: JSONMessage): void {
+function postAcknowledgeMessage(jsonMessage: Message.JSONMessage): void {
   ipcRenderer.send('post', 'acknowledgeMessage', jsonMessage);
 }
 
@@ -56,7 +51,10 @@ function postCenterMapToVehicle(vehicle: VehicleObject): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postCompleteMission(missionName: string, completionParameters: MissionParameters): void {
+function postCompleteMission(
+  missionName: string,
+  completionParameters: { [key: string]: Task.TaskParameters },
+): void {
   ipcRenderer.send('post', 'completeMission', missionName, completionParameters);
 }
 
@@ -75,7 +73,7 @@ function postConfirmCompleteMission(): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postConnectToVehicle(jsonMessage: JSONMessage): void {
+function postConnectToVehicle(jsonMessage: Message.JSONMessage): void {
   ipcRenderer.send('post', 'connectToVehicle', jsonMessage);
 }
 
@@ -95,7 +93,7 @@ function postDisconnectFromVehicle(vehicleId: number): void {
  *
  * Files that take this notification:
  */
-function postFinishMissions(completionParameters: MissionParameters): void {
+function postFinishMissions(completionParameters: Task.TaskParameters[]): void {
   ipcRenderer.send('post', 'finishMissions', completionParameters);
 }
 
@@ -105,7 +103,7 @@ function postFinishMissions(completionParameters: MissionParameters): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandleAcknowledgementMessage(jsonMessage: JSONMessage): void {
+function postHandleAcknowledgementMessage(jsonMessage: Message.JSONMessage): void {
   ipcRenderer.send('post', 'handleAcknowledgementMessage', jsonMessage);
 }
 
@@ -115,7 +113,7 @@ function postHandleAcknowledgementMessage(jsonMessage: JSONMessage): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandleBadMessage(jsonMessage: JSONMessage): void {
+function postHandleBadMessage(jsonMessage: Message.JSONMessage): void {
   ipcRenderer.send('post', 'handleBadMessage', jsonMessage);
 }
 
@@ -125,7 +123,7 @@ function postHandleBadMessage(jsonMessage: JSONMessage): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandleCompleteMessage(jsonMessage: JSONMessage): void {
+function postHandleCompleteMessage(jsonMessage: Message.JSONMessage): void {
   ipcRenderer.send('post', 'handleCompleteMessage', jsonMessage);
 }
 
@@ -135,7 +133,7 @@ function postHandleCompleteMessage(jsonMessage: JSONMessage): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandlePOIMessage(jsonMessage: JSONMessage): void {
+function postHandlePOIMessage(jsonMessage: Message.JSONMessage): void {
   ipcRenderer.send('post', 'handlePOIMessage', jsonMessage);
 }
 
@@ -145,7 +143,7 @@ function postHandlePOIMessage(jsonMessage: JSONMessage): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandleUpdateMessage(jsonMessage: JSONMessage): void {
+function postHandleUpdateMessage(jsonMessage: Message.JSONMessage): void {
   ipcRenderer.send('post', 'handleUpdateMessage', jsonMessage);
 }
 
@@ -166,7 +164,7 @@ function postHideMissionWindow(): void {
  * - renderer/mainWindow/map/MapContainer
  */
 function postLoadConfig(
-  loadOptions: FileLoadOptions,
+  loadOptions: FileOptions.FileLoadOptions,
   mainWindow?: BrowserWindow | null,
   missionWindow?: BrowserWindow | null,
 ): void {
@@ -205,7 +203,7 @@ function postReceiveMessage(text: string): void {
  * - renderer/mainWindow/map/MapContainer
  */
 function postSaveConfig(
-  saveOptions: FileSaveOptions,
+  saveOptions: FileOptions.FileSaveOptions,
   mainWindow?: BrowserWindow | null,
   missionWindow?: BrowserWindow | null,
 ): void {
@@ -223,7 +221,7 @@ function postSaveConfig(
  * Files that take this notification:
  * - common/MessageHandler
  */
-function postSendMessage(vehicleId: number, message: Message): void {
+function postSendMessage(vehicleId: number, message: Message.Message): void {
   ipcRenderer.send('post', 'sendMessage', vehicleId, message);
 }
 
@@ -262,7 +260,7 @@ function postShowMissionWindow(): void {
  * - common/Orchestrator
  */
 function postStartMissions(
-  missions: MissionDescription[],
+  missions: Information[],
   requireConfirmation: boolean,
 ): void {
   ipcRenderer.send('post', 'startMissions', missions, requireConfirmation);

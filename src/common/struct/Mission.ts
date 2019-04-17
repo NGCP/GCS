@@ -1,18 +1,8 @@
-import {
-  JobType,
-  vehicleConfig,
-  VehicleInfo,
-} from '../../static/index';
+import { JobType, vehicleConfig, VehicleInfo } from '../../static/index';
 
-import {
-  JSONMessage,
-  messageTypeGuard,
-  MissionInformation,
-  MissionName,
-  MissionOptions,
-  MissionParameters,
-  Task,
-} from '../../types/messages';
+import * as Message from '../../types/message';
+import * as MissionInformation from '../../types/missionInformation';
+import { Task, TaskParameters } from '../../types/task';
 
 import ipc from '../../util/ipc';
 import { searchIndex } from '../../util/util';
@@ -33,7 +23,7 @@ export default abstract class Mission {
   /**
    * Name of mission.
    */
-  protected abstract missionName: MissionName;
+  protected abstract missionName: MissionInformation.MissionName;
 
   /**
    * Related job types to the mission.
@@ -51,17 +41,15 @@ export default abstract class Mission {
   private status: MissionStatus = 'ready';
 
   /**
-   * Options for the mission. Generated from the constructor's parameters variable.
-   * This can determine which tasks are generated as well as other potential things.
-   * Subclasses implement which tasks get generated so this variable is protected.
+   * Information for this mission, has three fields:
+   * 1. The mission's name.
+   * 2. Options for the mission. Generated from the constructor's parameters variable.
+   *    This can determine which tasks are generated as well as other potential things.
+   *    Subclasses implement which tasks get generated so this variable is protected.
+   * 3. Parameters for the mission. Used to generate tasks.
+   *    Subclasses implement which tasks get generated so this variable is protected.
    */
-  protected options: MissionOptions;
-
-  /**
-   * Parameters for the mission. Used to generate tasks.
-   * Subclasses implement which tasks get generated so this variable is protected.
-   */
-  protected parameters: MissionParameters;
+  protected information: MissionInformation.Information;
 
   /**
    * Map of the id of the vehicle that is currently performing all tasks
@@ -105,21 +93,11 @@ export default abstract class Mission {
 
   public constructor(
     vehicles: { [vehicleId: number]: Vehicle },
-    information: MissionInformation,
+    information: MissionInformation.Information,
     activeVehicleMapping: { [vehicleId: number]: JobType },
   ) {
-    if (!information.parameters) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: 'Parameters for mission are not provided',
-      });
-
-      throw new Error('Parameters for mission are not provided');
-    }
-
     this.vehicles = vehicles;
-    this.parameters = information.parameters;
-    this.options = information.options;
+    this.information = information;
 
     // Filters out any irrelevant jobs when adding to activeVehicleMapping.
     Object.keys(activeVehicleMapping).forEach((vehicleIdString): void => {
@@ -355,12 +333,12 @@ export default abstract class Mission {
    *
    * Subclasses can override this to check for even more types of messages.
    */
-  public update(jsonMessage: JSONMessage): void {
-    if (messageTypeGuard.isUpdateMessage(jsonMessage)) {
+  public update(jsonMessage: Message.JSONMessage): void {
+    if (Message.TypeGuard.isUpdateMessage(jsonMessage)) {
       this.vehicles[jsonMessage.sid].update(jsonMessage);
     }
 
-    if (messageTypeGuard.isCompleteMessage(jsonMessage)) {
+    if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
       const jobType = this.activeVehicleMapping[jsonMessage.sid];
 
       /*
@@ -488,7 +466,7 @@ export default abstract class Mission {
         type: 'failure',
         message: `Stopped ${this.missionName} mission: ${error}`,
       }, {
-        message: `Terminated parameters for ${this.missionName}: ${JSON.stringify(this.parameters)}`,
+        message: `Terminated parameters for ${this.missionName}: ${JSON.stringify(this.information.parameters)}`,
       });
     }
   }
@@ -581,5 +559,5 @@ export default abstract class Mission {
    * be data for the VTOL Search mission (of type VTOLSearchMissionParameters).
    * Returns undefined if not able to generate parameters.
    */
-  protected abstract generateCompletionParameters(): MissionParameters | undefined;
+  protected abstract generateCompletionParameters(): { [key: string]: TaskParameters } | undefined;
 }

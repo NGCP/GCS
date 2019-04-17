@@ -13,9 +13,9 @@ import {
 import fs from 'fs';
 import moment from 'moment';
 
-import { imageConfig, locationConfig } from '../static/index';
+import { imageConfig, LatLngZoom, locationConfig } from '../static/index';
 
-import { FileSaveOptions, LatLngZoom } from '../types/types';
+import { FileSaveOptions } from '../types/fileOption';
 
 import ipc from '../util/ipc';
 

@@ -3,7 +3,7 @@ import { constants as C, Frame, XBeeAPI } from 'xbee-api';
 
 import { VehicleInfo, vehicleConfig } from '../static/index';
 
-import { JSONMessage } from '../types/messages';
+import { JSONMessage } from '../types/message';
 
 import ipc from '../util/ipc';
 

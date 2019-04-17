@@ -1,18 +1,10 @@
 import { ipcRenderer, Event } from 'electron';
 
-import {
-  config,
-  vehicleConfig,
-  VehicleInfo,
-} from '../static/index';
+import { config, vehicleConfig, VehicleInfo } from '../static/index';
 
-import {
-  BadMessage,
-  ConnectMessage,
-  JSONMessage,
-  MissionDescription,
-  MissionParameters,
-} from '../types/messages';
+import * as Message from '../types/message';
+import * as MissionInformation from '../types/missionInformation';
+import * as Task from '../types/task';
 
 import ipc from '../util/ipc';
 
@@ -29,7 +21,7 @@ class Orchestrator {
    * Acknowledges a message. All messages are passed here through the MessageHandler.
    * Only messages that are no acknowledged are bad messages and acknowledgements.
    */
-  private static acknowledgeMessage(jsonMessage: JSONMessage): void {
+  private static acknowledgeMessage(jsonMessage: Message.JSONMessage): void {
     ipc.postSendMessage(jsonMessage.sid, {
       type: 'ack',
       ackid: jsonMessage.id,
@@ -49,7 +41,7 @@ class Orchestrator {
   /**
    * List of mission names and information for each mission.
    */
-  private missions: MissionDescription[] = [];
+  private missions: MissionInformation.Information[] = [];
 
   /**
    * Current index of missions that mission is performing.
@@ -81,26 +73,26 @@ class Orchestrator {
   private vehiclePinger = new UpdateHandler();
 
   public constructor() {
-    ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: JSONMessage): void => this.connectToVehicle(jsonMessage));
+    ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: Message.JSONMessage): void => this.connectToVehicle(jsonMessage));
     ipcRenderer.on('disconnectFromVehicle', (_: Event, vehicleId: number): void => this.disconnectFromVehicle(vehicleId));
 
-    ipcRenderer.on('acknowledgeMessage', (_: Event, jsonMessage: JSONMessage): void => Orchestrator.acknowledgeMessage(jsonMessage));
+    ipcRenderer.on('acknowledgeMessage', (_: Event, jsonMessage: Message.JSONMessage): void => Orchestrator.acknowledgeMessage(jsonMessage));
 
-    ipcRenderer.on('handleAcknowledgementMessage', (_: Event, jsonMessage: JSONMessage): void => this.handleAcknowledgementMessage(jsonMessage));
-    ipcRenderer.on('handleBadMessage', (_: Event, jsonMessage: JSONMessage): void => this.handleBadMessage(jsonMessage));
-    ipcRenderer.on('handleUpdateMessage', (_: Event, jsonMessage: JSONMessage): void => this.handleUpdateMessage(jsonMessage));
-    ipcRenderer.on('handlePOIMessage', (_: Event, jsonMessage: JSONMessage): void => this.handlePOIMessage(jsonMessage));
-    ipcRenderer.on('handleCompleteMessage', (_: Event, jsonMessage: JSONMessage): void => this.handleCompleteMessage(jsonMessage));
+    ipcRenderer.on('handleAcknowledgementMessage', (_: Event, jsonMessage: Message.JSONMessage): void => this.handleAcknowledgementMessage(jsonMessage));
+    ipcRenderer.on('handleBadMessage', (_: Event, jsonMessage: Message.JSONMessage): void => this.handleBadMessage(jsonMessage));
+    ipcRenderer.on('handleUpdateMessage', (_: Event, jsonMessage: Message.JSONMessage): void => this.handleUpdateMessage(jsonMessage));
+    ipcRenderer.on('handlePOIMessage', (_: Event, jsonMessage: Message.JSONMessage): void => this.handlePOIMessage(jsonMessage));
+    ipcRenderer.on('handleCompleteMessage', (_: Event, jsonMessage: Message.JSONMessage): void => this.handleCompleteMessage(jsonMessage));
 
     ipcRenderer.on('startMissions', (
       _: Event,
-      missions: MissionDescription[],
+      missions: MissionInformation.Information[],
       requireConfirmation: boolean,
     ): void => this.startMissions(missions, requireConfirmation));
 
 
     ipcRenderer.on('startNextMission', this.startNextMission);
-    ipcRenderer.on('completeMission', (_: Event, missionName: string, completionParameters: MissionParameters): void => this.completeMission(missionName, completionParameters));
+    ipcRenderer.on('completeMission', (_: Event, missionName: string, completionParameters: Task.TaskParameters[]): void => this.completeMission(missionName, completionParameters));
     ipcRenderer.on('stopMissions', this.stopMissions);
   }
 
@@ -108,8 +100,8 @@ class Orchestrator {
    * Connects to vehicle specified by the connect message.
    * @param jsonMessage The connect message.
    */
-  private connectToVehicle(jsonMessage: JSONMessage): void {
-    const connectMessage = jsonMessage as ConnectMessage;
+  private connectToVehicle(jsonMessage: Message.JSONMessage): void {
+    const connectMessage = jsonMessage as Message.ConnectMessage;
 
     this.vehicles[jsonMessage.sid] = new Vehicle({
       sid: jsonMessage.sid,
@@ -153,7 +145,7 @@ class Orchestrator {
    * Handles acknowledgement messages.
    * @param jsonMessage Message from vehicle.
    */
-  private handleAcknowledgementMessage(jsonMessage: JSONMessage): void {
+  private handleAcknowledgementMessage(jsonMessage: Message.JSONMessage): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
       Orchestrator.postOrchestratorError(`Received acknowledgement message from disconnected vehicle id ${jsonMessage.sid}`);
       return;
@@ -165,7 +157,7 @@ class Orchestrator {
    * Handles bad messages.
    * @param jsonMessage Message from vehicle.
    */
-  private handleBadMessage(jsonMessage: JSONMessage): void {
+  private handleBadMessage(jsonMessage: Message.JSONMessage): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
       Orchestrator.postOrchestratorError(`Received bad message from disconnected vehicle id ${jsonMessage.sid}`);
       return;
@@ -173,7 +165,7 @@ class Orchestrator {
 
     this.vehicles[jsonMessage.sid].updateLastConnectionTime(jsonMessage);
 
-    const badMessage = jsonMessage as BadMessage;
+    const badMessage = jsonMessage as Message.BadMessage;
     ipc.postLogMessages({
       type: 'failure',
       message: `Received bad message from ${(vehicleConfig.vehicleInfos[jsonMessage.sid] as VehicleInfo).name}: ${badMessage.error || 'No error message specified'}}`,
@@ -184,7 +176,7 @@ class Orchestrator {
    * Handles update messages.
    * @param jsonMessage Message from vehicle.
    */
-  private handleUpdateMessage(jsonMessage: JSONMessage): void {
+  private handleUpdateMessage(jsonMessage: Message.JSONMessage): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
       Orchestrator.postOrchestratorError(`Received update message from disconnected vehicle id ${jsonMessage.sid}`);
       return;
@@ -202,7 +194,7 @@ class Orchestrator {
    * Handles point of interest messages.
    * @param jsonMessage Message from vehicle.
    */
-  private handlePOIMessage(jsonMessage: JSONMessage): void {
+  private handlePOIMessage(jsonMessage: Message.JSONMessage): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
       Orchestrator.postOrchestratorError(`Received point of interest message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} but it is currently disconnected`);
       return;
@@ -220,7 +212,7 @@ class Orchestrator {
    * Handles complete messages.
    * @param jsonMessage Message from vehicle.
    */
-  private handleCompleteMessage(jsonMessage: JSONMessage): void {
+  private handleCompleteMessage(jsonMessage: Message.JSONMessage): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') {
       Orchestrator.postOrchestratorError(`Received complete message from disconnected vehicle id ${jsonMessage.sid}`);
       return;
@@ -247,7 +239,7 @@ class Orchestrator {
    * required for mission.
    */
   private startMissions(
-    missions: MissionDescription[],
+    missions: MissionInformation.Information[],
     requireConfirmation: boolean,
   ): void {
     if (this.running) {
@@ -276,7 +268,7 @@ class Orchestrator {
    * being kept track of.
    * @param completionParameters Paramters for next mission.
    */
-  private completeMission(missionName: string, completionParameters: MissionParameters): void {
+  private completeMission(missionName: string, completionParameters: Task.TaskParameters[]): void {
     if (!this.running
       || (this.currentMissionIndex >= 0
         && this.missions[this.currentMissionIndex].missionName !== missionName)) {
@@ -288,7 +280,7 @@ class Orchestrator {
       ipc.postFinishMissions(completionParameters);
       this.stopMissions();
     } else {
-      this.missions[this.currentMissionIndex + 1].information.parameters = completionParameters;
+      this.missions[this.currentMissionIndex + 1].parameters = completionParameters;
     }
 
     if (this.requireConfirmation) {
@@ -328,7 +320,7 @@ class Orchestrator {
     this.currentMissionIndex += 1;
     this.currentMission = new mission.constructor(
       this.vehicles,
-      this.missions[this.currentMissionIndex].information,
+      this.missions[this.currentMissionIndex],
       this.missions[this.currentMissionIndex].activeVehicleMapping,
     );
   }

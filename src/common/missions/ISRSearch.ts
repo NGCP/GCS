@@ -1,25 +1,17 @@
 import DictionaryList from '../struct/DictionaryList';
 import Mission from '../struct/Mission';
 
-import { JobType } from '../../static/index';
+import { JobType, LatLngZoom } from '../../static/index';
 
-import {
-  ISRSearchMissionParameters,
-  JSONMessage,
-  messageTypeGuard,
-  missionParametersTypeGuard,
-  MissionName,
-  POIMessage,
-  Task,
-  toFloat,
-  toHexFloat,
-  VTOLSearchMissionParameters,
-} from '../../types/messages';
-import { LatLngZoom } from '../../types/types';
+import * as Message from '../../types/message';
+import * as MissionInformation from '../../types/missionInformation';
+import { Task, TaskParameters } from '../../types/task';
 
 import ipc from '../../util/ipc';
 
-export const missionName: MissionName = 'isrSearch';
+import Vehicle from '../struct/Vehicle';
+
+export const missionName: MissionInformation.MissionName = 'isrSearch';
 
 export const jobTypes: JobType[] = ['isrSearch'];
 
@@ -30,26 +22,27 @@ class ISRSearch extends Mission {
 
   protected addTaskCompare = {};
 
+  protected information: MissionInformation.ISRSearchInformation;
+
   /**
    * List of point of interests.
    */
   private missionData: LatLngZoom[] = [];
 
+  public constructor(
+    vehicles: { [vehicleId: number]: Vehicle },
+    information: MissionInformation.ISRSearchInformation,
+    activeVehicleMapping: { [vehicleId: number]: JobType },
+  ) {
+    super(vehicles, information, activeVehicleMapping);
+    this.information = information;
+  }
+
   protected generateTasks(): DictionaryList<Task> | undefined {
-    if (!this.options.isrSearch
-      || missionParametersTypeGuard.isISRSearchMissionParameters(this.parameters)) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: `Failed to generate tasks for ${this.missionName} as parameters were invalid`,
-      });
-
-      return undefined; // Mission will stop from this, not complete.
-    }
-
-    const missionParameters = this.parameters as ISRSearchMissionParameters;
+    const missionParameters = this.information.parameters;
     const tasks = new DictionaryList<Task>();
 
-    if (!this.options.isrSearch.noTakeoff) {
+    if (!this.information.options.noTakeoff) {
       tasks.push('isrSearch', {
         taskType: 'takeoff',
         ...missionParameters.takeoff,
@@ -61,7 +54,7 @@ class ISRSearch extends Mission {
       ...missionParameters.isrSearch,
     });
 
-    if (!this.options.isrSearch.noLand) {
+    if (!this.information.options.noLand) {
       tasks.push('isrSearch', {
         taskType: 'land',
         ...missionParameters.land,
@@ -71,7 +64,7 @@ class ISRSearch extends Mission {
     return tasks;
   }
 
-  protected generateCompletionParameters(): VTOLSearchMissionParameters | undefined {
+  protected generateCompletionParameters(): { [key: string]: TaskParameters } | undefined {
     if (this.missionData.length === 0) {
       ipc.postLogMessages({
         type: 'failure',
@@ -98,34 +91,34 @@ class ISRSearch extends Mission {
       quickScan: {
         waypoints: [
           {
-            lat: toHexFloat(top),
-            lng: toHexFloat(left),
+            lat: top,
+            lng: left,
           },
           {
-            lat: toHexFloat(top),
-            lng: toHexFloat(right),
+            lat: top,
+            lng: right,
           },
           {
-            lat: toHexFloat(bottom),
-            lng: toHexFloat(left),
+            lat: bottom,
+            lng: left,
           },
           {
-            lat: toHexFloat(bottom),
-            lng: toHexFloat(right),
+            lat: bottom,
+            lng: right,
           },
         ],
       },
     };
   }
 
-  public update(jsonMessage: JSONMessage): void {
+  public update(jsonMessage: Message.JSONMessage): void {
     super.update(jsonMessage);
 
-    if (messageTypeGuard.isPOIMessage(jsonMessage)) {
-      const poiMessage = jsonMessage as POIMessage;
+    if (Message.TypeGuard.isPOIMessage(jsonMessage)) {
+      const poiMessage = jsonMessage as Message.POIMessage;
       this.missionData.push({
-        lat: toFloat(poiMessage.lat),
-        lng: toFloat(poiMessage.lng),
+        lat: poiMessage.lat,
+        lng: poiMessage.lng,
       });
     }
   }

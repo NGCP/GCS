@@ -1,4 +1,4 @@
-import { LogMessage } from '../../types/types';
+import { LogMessage } from '../../types/componentStyle';
 
 import ipc from '../../util/ipc';
 

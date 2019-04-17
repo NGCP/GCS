@@ -1,6 +1,6 @@
 import { JobType } from '../../static/index';
 
-import { MissionName } from '../../types/messages';
+import { MissionName } from '../../types/missionInformation';
 
 import Mission from '../struct/Mission';
 

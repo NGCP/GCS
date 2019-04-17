@@ -4,7 +4,7 @@ import {
   ISRSearchMissionParameters,
   PayloadDropMissionParameters,
   UGVRetreiveMissionParameters,
-} from '../../types/messages';
+} from '../../types/message';
 import { ThemeProps } from '../../types/types';
 
 import ISRSearch from './parameters/ISRSearch';
