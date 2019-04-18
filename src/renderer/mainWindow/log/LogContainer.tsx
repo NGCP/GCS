@@ -1,6 +1,12 @@
 import { Event, ipcRenderer } from 'electron';
 import moment, { Moment } from 'moment';
-import React, { Component, FormEvent, ReactNode } from 'react';
+import React, {
+  Component,
+  createRef,
+  FormEvent,
+  ReactNode,
+  RefObject,
+} from 'react';
 import {
   AutoSizer,
   CellMeasurerCache,
@@ -33,12 +39,40 @@ interface State {
    * of messages).
    */
   filteredMessages: ComponentStyle.LogMessage[];
+
+  /**
+   * Scroll to newest element or not.
+   */
+  scrollToBottom: boolean;
 }
 
 /**
  * Container that displays messages regarding status, error, etc.
  */
 export default class LogContainer extends Component<ComponentStyle.ThemeProps, State> {
+  /**
+   * Value to ensure the onScroll works as intended (at least in our case).
+   */
+  private scrollFromUser = true;
+
+  /**
+   * Timeout for scrollFromUser variable.
+   */
+  private scrollFromUserTimer: NodeJS.Timeout = setTimeout((): void => {}, 200);;
+
+  /**
+   * Cache that stores the height for all log messages. Allows the messages to have proper height.
+   */
+  private heightCache = new CellMeasurerCache({
+    fixedWidth: true,
+    minHeight: 20,
+  });;
+
+  /**
+   * Reference to log.
+   */
+  private ref: RefObject<List> = createRef();
+
   public constructor(props: ComponentStyle.ThemeProps) {
     super(props);
 
@@ -46,17 +80,20 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
       filter: '',
       messages: [],
       filteredMessages: [],
+      scrollToBottom: true,
     };
 
-    this.heightCache = new CellMeasurerCache({
-      fixedWidth: true,
-      minHeight: 20,
-    });
-
+    this.onScroll = this.onScroll.bind(this);
+    this.onRowsRenderered = this.onRowsRenderered.bind(this);
     this.rowRenderer = this.rowRenderer.bind(this);
     this.clearMessages = this.clearMessages.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
     this.logMessages = this.logMessages.bind(this);
+
+    this.scrollTimer = setTimeout((): void => {
+      this.setState({ scrollToBottom: true });
+      this.onRowsRenderered();
+    }, 5000);
   }
 
   public componentDidMount(): void {
@@ -64,9 +101,43 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
   }
 
   /**
-   * Cache that stores the height for all log messages. Allows the messages to have proper height.
+   * Resets scroll timer.
    */
-  private heightCache: CellMeasurerCache;
+  private onScroll(): void {
+    if (!this.scrollFromUser) return;
+
+    const { scrollToBottom } = this.state;
+
+    if (scrollToBottom) this.setState({ scrollToBottom: false });
+
+    clearTimeout(this.scrollTimer);
+    this.scrollTimer = setTimeout((): void => {
+      this.setState({ scrollToBottom: true });
+      this.onRowsRenderered();
+    }, 3000);
+  }
+
+  /**
+   * Checks whenever rows are rendered.
+   */
+  private onRowsRenderered(): void {
+    const { filteredMessages, scrollToBottom } = this.state;
+
+    if (scrollToBottom) {
+      const list = this.ref.current;
+      if (!list) return;
+
+      this.scrollFromUser = false;
+      clearTimeout(this.scrollFromUserTimer);
+      this.scrollFromUserTimer = setTimeout((): void => { this.scrollFromUser = true; }, 150);
+      list.scrollToRow(filteredMessages.length - 1);
+    }
+  }
+
+  /**
+   * Timeout that will scroll to bottom when it times out.
+   */
+  private scrollTimer: NodeJS.Timeout;
 
   /**
    * Custom function to render a row in the list.
@@ -123,6 +194,8 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
       filter: newFilter as ComponentStyle.MessageType,
       filteredMessages: newFilter === '' ? messages.slice(0) : messages.filter((message): boolean => message.type === newFilter),
     });
+
+    this.onRowsRenderered();
   }
 
   /**
@@ -150,6 +223,8 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
       messages: currentMessages,
       filteredMessages: currentFilteredMessages,
     });
+
+    this.onRowsRenderered();
   }
 
   public render(): ReactNode {
@@ -165,11 +240,12 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
                 deferredMeasurementCache={this.heightCache}
                 height={height}
                 width={width}
+                onScroll={this.onScroll}
                 overscanRowCount={0}
+                ref={this.ref}
                 rowCount={filteredMessages.length}
                 rowHeight={this.heightCache.rowHeight}
                 rowRenderer={this.rowRenderer}
-                scrollToIndex={filteredMessages.length - 1}
               />
             )}
           </AutoSizer>
