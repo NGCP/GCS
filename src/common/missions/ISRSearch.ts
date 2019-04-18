@@ -8,6 +8,7 @@ import * as MissionInformation from '../../types/missionInformation';
 import { Task, TaskParameters } from '../../types/task';
 
 import ipc from '../../util/ipc';
+import { getBoundingBox } from '../../util/util';
 
 import Vehicle from '../struct/Vehicle';
 
@@ -73,38 +74,26 @@ class ISRSearch extends Mission {
       return undefined; // Mission will stop from this, not complete.
     }
 
-    let bottom: number = Number.MIN_VALUE;
-    let top: number = Number.MAX_VALUE;
-
-    let left: number = Number.MIN_VALUE;
-    let right: number = Number.MAX_VALUE;
-
-    this.missionData.forEach((data): void => {
-      if (!bottom || data.lat < bottom) bottom = data.lat;
-      if (!top || data.lat > top) top = data.lat;
-
-      if (!left || data.lng < left) left = data.lng;
-      if (!right || data.lng > right) right = data.lng;
-    });
+    const boundingBox = getBoundingBox(this.missionData, 15);
 
     return {
       quickScan: {
         waypoints: [
           {
-            lat: top,
-            lng: left,
+            lat: boundingBox.top,
+            lng: boundingBox.left,
           },
           {
-            lat: top,
-            lng: right,
+            lat: boundingBox.top,
+            lng: boundingBox.right,
           },
           {
-            lat: bottom,
-            lng: left,
+            lat: boundingBox.bottom,
+            lng: boundingBox.left,
           },
           {
-            lat: bottom,
-            lng: right,
+            lat: boundingBox.bottom,
+            lng: boundingBox.right,
           },
         ],
       },
