@@ -13,11 +13,11 @@ const fixtureOptions: VehicleOptions[] = [
   },
   {
     sid: 200,
-    jobs: ['ugvRetrieve'],
+    jobs: ['ugvRescue'],
   },
   {
     sid: 300,
-    jobs: ['uuvRetrieve'],
+    jobs: ['uuvRescue'],
   },
   {
     sid: 400,
