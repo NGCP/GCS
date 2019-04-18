@@ -102,3 +102,10 @@ export function getBoundingBox(waypoints: LatLngZoom[], error: number): Bounding
     right: right + deltaLng,
   };
 }
+
+/**
+ * Calculates distance between two points.
+ */
+export function getDistance(x: LatLngZoom, y: LatLngZoom): number {
+  return Math.sqrt(((x.lat - y.lat) ** 2) + ((x.lng - y.lng) ** 2));
+}

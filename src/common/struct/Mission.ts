@@ -33,7 +33,7 @@ export default abstract class Mission {
   /**
    * All connected vehicles (at least when this class was created).
    */
-  private vehicles: { [vehicleId: number]: Vehicle };
+  protected vehicles: { [vehicleId: number]: Vehicle };
 
   /**
    * Current status of mission.
@@ -57,7 +57,7 @@ export default abstract class Mission {
    *
    * There will be no job types in this mapping that are irrelevant to the mission.
    */
-  private activeVehicleMapping: { [vehicleId: number]: JobType } = {};
+  protected activeVehicleMapping: { [vehicleId: number]: JobType } = {};
 
   /**
    * Comparison to how tasks are added to the waiting task list. If there is no
@@ -374,7 +374,7 @@ export default abstract class Mission {
    * @param addToFront True if the task should be added to the front of the queue
    * instead of the back.
    */
-  protected addTask(jobType: string, task: Task, addToFront?: boolean): void {
+  protected addTask(jobType: JobType, task: Task, addToFront?: boolean): void {
     if (this.status !== 'running') {
       this.stop(false, `Tried to add ${task.taskType} task while ${this.missionName} is not running`);
       return;

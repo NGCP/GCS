@@ -62,7 +62,7 @@ export const vehicleIds: {
 /**
  * All valid job types. This should always match up to the job types in vehicle.json.
  */
-export type JobType = 'isrSearch' | 'payloadDrop' | 'ugvRetrieve' | 'uuvRetrieve'
+export type JobType = 'isrSearch' | 'payloadDrop' | 'ugvRescue' | 'uuvRescue'
 | 'quickScan' | 'detailedSearch';
 
 const vehicleInfos: {

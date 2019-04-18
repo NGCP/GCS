@@ -53,8 +53,8 @@
   "vehicleJobs": {
     "isrSearch": ["takeoff", "loiter", "isrSearch", "land"],
     "payloadDrop": ["takeoff", "loiter", "payloadDrop", "land"],
-    "ugvRetrieve": ["retrieveTarget", "deliverTarget"],
-    "uuvRetrieve": ["retrieveTarget"],
+    "ugvRescue": ["retrieveTarget", "deliverTarget"],
+    "uuvRescue": ["retrieveTarget"],
     "quickScan": ["quickScan"],
     "detailedSearch": ["detailedSearch"]
   },
