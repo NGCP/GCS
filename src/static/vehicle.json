@@ -20,7 +20,7 @@
       "type": "plane"
     },
     "200": {
-      "macAddress": "",
+      "macAddress": "0013A20041947790",
       "name": "UGV",
       "type": "rover"
     },

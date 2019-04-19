@@ -1,5 +1,5 @@
 {
-  "fixtures": true,
+  "fixtures": false,
   "geolocation": true,
 
   "vehicleDisconnectionTime": 20,

@@ -136,7 +136,7 @@ class MessageHandler {
     // Filter out all invalid messages.
     if (!isJSON(text)) {
       ipc.postLogMessages({
-        message: `Received text from Xbee that is not a JSON, could not send bad message to sender ${text}`,
+        message: `Received text from Xbee that is not a JSON, could not send bad message to sender: ${text}`,
       });
       return;
     }
