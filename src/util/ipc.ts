@@ -18,7 +18,7 @@ import { BrowserWindow, ipcRenderer } from 'electron';
 
 import { Location } from '../static/index';
 
-import { LogMessage } from '../types/componentStyle';
+import { BoundingBoxBounds, LogMessage } from '../types/componentStyle';
 import * as FileOptions from '../types/fileOption';
 import * as Message from '../types/message';
 import { Information } from '../types/missionInformation';
@@ -307,6 +307,18 @@ function postToggleTheme(): void {
 }
 
 /**
+ * Post "updateBoundingBoxes" notification.
+ *
+ * Files that take this notification:
+ * - renderer/mainWindow/map/MapContainer
+ */
+function postUpdateBoundingBoxes(
+  ...boundingBoxes: { name: string; bounds: BoundingBoxBounds }[]
+): void {
+  ipcRenderer.send('post', 'updateBoundingBoxes', ...boundingBoxes);
+}
+
+/**
  * Post "updateMapLocation" notification.
  *
  * Files that take this notification:
@@ -336,6 +348,16 @@ function postUpdateVehicles(...vehicles: VehicleObject[]): void {
   ipcRenderer.send('post', 'updateVehicles', ...vehicles);
 }
 
+/**
+ * Post "updateWaypoints" notification.
+ *
+ * Files that take this notification:
+ * - renderer/mainWindow/map/MapContainer
+ */
+function postUpdateWaypoint(...waypoints: { name: string; location: Location }[]): void {
+  ipcRenderer.send('post', 'updateWaypoints', ...waypoints);
+}
+
 export default {
   postAcknowledgeMessage,
   postCenterMapToVehicle,
@@ -362,6 +384,8 @@ export default {
   postStopMissions,
   postStopSendingMessages,
   postToggleTheme,
+  postUpdateBoundingBoxes,
   postUpdateMapLocation,
   postUpdateVehicles,
+  postUpdateWaypoint,
 };

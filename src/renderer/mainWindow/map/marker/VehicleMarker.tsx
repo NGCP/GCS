@@ -1,4 +1,4 @@
-import L from 'leaflet';
+import Leaflet from 'leaflet';
 import React, { PureComponent, ReactNode } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 
@@ -38,7 +38,7 @@ export default class VehicleMarker extends PureComponent<VehicleMarkerProps> {
     return (
       <Marker
         position={[vehicle.lat, vehicle.lng]}
-        icon={L.icon({
+        icon={Leaflet.icon({
           iconUrl: (vehicleIcons[vehicleType] || imageConfig.pin) as string,
           iconSize: [50, 50],
           iconAnchor: [25, 25],

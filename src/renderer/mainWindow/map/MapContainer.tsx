@@ -1,6 +1,6 @@
 import { Event, ipcRenderer } from 'electron';
 import fs from 'fs';
-import { LocationEvent } from 'leaflet';
+import Leaflet from 'leaflet';
 import React, {
   Component,
   createRef,
@@ -72,13 +72,42 @@ interface State {
   /**
    * Bounding boxes for the mission. Not all missions need bounding boxes.
    */
-  boundingBoxes: { [name: string]: { bounds: BoundingBoxBounds; color?: string } };
+  boundingBoxes: {
+    [name: string]: {
+      /**
+       * Boundaries of the bounding box.
+       */
+      bounds: BoundingBoxBounds;
+
+      /**
+       * Color of the bounding box.
+       */
+      color?: string;
+
+      /**
+       * Whether or not the box is modifiable (resizeable, etc).
+       */
+      locked: boolean;
+    };
+  };
 
   /**
    * Waypoints with radius. Basically points that are required for a mission.
    * Not all waypoints require a radius.
    */
-  waypoints: { [name: string]: Location };
+  waypoints: {
+    [name: string]: {
+      /**
+       * Location of the waypoint itself.
+       */
+      location: Location;
+
+      /**
+       * Whether or not the waypoint is modifiable (draggable, etc).
+       */
+      locked: boolean;
+    };
+  };
 }
 
 /**
@@ -112,6 +141,8 @@ export default class MapContainer extends Component<ThemeProps, State> {
     this.saveConfig = this.saveConfig.bind(this);
     this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
     this.updateMapLocation = this.updateMapLocation.bind(this);
+    this.updateWaypoints = this.updateWaypoints.bind(this);
+    this.updateBoundingBoxes = this.updateBoundingBoxes.bind(this);
   }
 
   public componentDidMount(): void {
@@ -122,6 +153,8 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (_: Event, location: Location): void => this.updateMapLocation(location));
     ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
+    ipcRenderer.on('updateWaypoints', (_: Event, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(...waypoints));
+    ipcRenderer.on('updateBoundingBoxes', (_: Event, ...boundingBoxes: { name: string; bounds: BoundingBoxBounds}[]): void => this.updateBoundingBoxes(...boundingBoxes));
   }
 
   /**
@@ -134,7 +167,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
   /**
    * Callback to whenever geolocation call is successful.
    */
-  private onlocationfound(location: LocationEvent): void {
+  private onlocationfound(location: Leaflet.LocationEvent): void {
     this.updateMapLocation(location.latlng);
   }
 
@@ -184,9 +217,50 @@ export default class MapContainer extends Component<ThemeProps, State> {
   }
 
   /**
+   * Updates waypoints.
+   */
+  private updateWaypoints(...waypoints: { name: string; location: Location }[]): void {
+    const { waypoints: thisWaypoints } = this.state;
+    const currentWaypoints = thisWaypoints;
+
+    waypoints.forEach((waypoint): void => {
+      if (!currentWaypoints[waypoint.name]) {
+        currentWaypoints[waypoint.name] = { location: waypoint.location, locked: false };
+      } else {
+        currentWaypoints[waypoint.name].location = waypoint.location;
+      }
+    });
+
+    this.setState({ waypoints: currentWaypoints });
+  }
+
+  /**
+   * Updates bounding boxes.
+   */
+  private updateBoundingBoxes(
+    ...boundingBoxes: { name: string; bounds: BoundingBoxBounds }[]
+  ): void {
+    const { boundingBoxes: thisBoundingBoxes } = this.state;
+    const currentBoundingBoxes = thisBoundingBoxes;
+
+    boundingBoxes.forEach((boundingBox): void => {
+      if (!currentBoundingBoxes[boundingBox.name]) {
+        currentBoundingBoxes[boundingBox.name] = {
+          bounds: boundingBox.bounds,
+          locked: false,
+        };
+      } else {
+        currentBoundingBoxes[boundingBox.name].bounds = boundingBox.bounds;
+      }
+    });
+
+    this.setState({ boundingBoxes: currentBoundingBoxes });
+  }
+
+  /**
    * Callback to whenever the map location has been changed.
    */
-  public updateMapLocation(location: Location): void {
+  private updateMapLocation(location: Location): void {
     const { lat, lng, zoom } = location;
 
     const { viewport } = this.state;
@@ -240,7 +314,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
         <WaypointMarker
           key={name}
           name={name}
-          location={waypoints[name]}
+          {...waypoints[name]}
         />
       ));
 
