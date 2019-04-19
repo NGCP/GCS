@@ -1,9 +1,7 @@
 // Import all fixtures in here. Feel free to enable/disable fixtures by commenting them out.
 
-import updateMessages from './updateMessagesFixtures';
-import updateVehicles from './updateVehiclesFixtures';
+/* eslint-disable multiline-comment-style */
 
-setInterval((): void => {
-  updateMessages();
-  updateVehicles();
-}, 1000);
+// import './logMessagesFixtures';
+// import './updateVehiclesFixtures';
+import './updateWaypointsFixtures';

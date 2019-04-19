@@ -16,14 +16,13 @@ export default class WaypointMarker extends PureComponent<WaypointMarkerProps> {
   public constructor(props: WaypointMarkerProps) {
     super(props);
 
-    this.postUpdateWaypoint = this.postUpdateWaypoint.bind(this);
+    this.ondrag = this.ondrag.bind(this);
   }
 
-  private postUpdateWaypoint(event: Leaflet.LeafletEvent): void {
+  private ondrag(event: Leaflet.LeafletMouseEvent): void {
     const { name } = this.props;
-    const location: Location = event.target.latlng;
 
-    ipc.postUpdateWaypoint({ name, location });
+    ipc.postUpdateWaypoint(false, { name, location: event.latlng });
   }
 
   public render(): ReactNode {
@@ -36,7 +35,7 @@ export default class WaypointMarker extends PureComponent<WaypointMarkerProps> {
     return (
       <Marker
         draggable={!locked}
-        ondrag={this.postUpdateWaypoint}
+        ondrag={this.ondrag}
         position={[location.lat, location.lng]}
         icon={Leaflet.icon({
           iconUrl: imageConfig.pin as string,

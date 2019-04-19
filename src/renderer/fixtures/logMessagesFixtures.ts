@@ -23,7 +23,9 @@ const fixtures: LogMessage[] = [
 /**
  * Sends an updateMessages notification with random message fixtures.
  */
-export default function updateMessages(): void {
+function updateMessages(): void {
   const fixture = fixtures[Math.floor(Math.random() * fixtures.length)];
   ipc.postLogMessages(fixture);
 }
+
+setInterval((): void => { updateMessages(); }, 1000);

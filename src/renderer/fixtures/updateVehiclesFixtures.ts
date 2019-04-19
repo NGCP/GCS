@@ -52,7 +52,7 @@ const fixtures: VehicleObject[] = [];
 /**
  * Sends an updateVehicle notification with random vehicle fixtures.
  */
-export default function updateVehicles(): void {
+function updateVehicles(): void {
   for (let i = 0; i < vehicles.length; i += 1) {
     vehicles[i].getUpdateEventHandler().events({
       lat: vehicles[i].getLat() + (Math.random() / 5000) - 0.0001,
@@ -65,3 +65,5 @@ export default function updateVehicles(): void {
 
   ipc.postUpdateVehicles(...fixtures);
 }
+
+setInterval((): void => { updateVehicles(); }, 1000);

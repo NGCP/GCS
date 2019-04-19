@@ -353,9 +353,14 @@ function postUpdateVehicles(...vehicles: VehicleObject[]): void {
  *
  * Files that take this notification:
  * - renderer/mainWindow/map/MapContainer
+ *
+ * @param updateMap Set this to true, except from the marker's drag event.
  */
-function postUpdateWaypoint(...waypoints: { name: string; location: Location }[]): void {
-  ipcRenderer.send('post', 'updateWaypoints', ...waypoints);
+function postUpdateWaypoint(
+  updateMap?: boolean,
+  ...waypoints: { name: string; location: Location }[]
+): void {
+  ipcRenderer.send('post', 'updateWaypoints', updateMap, ...waypoints);
 }
 
 export default {

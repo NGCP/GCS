@@ -44,23 +44,7 @@ const mapOptions = {
  */
 interface State {
   /**
-   * Latitude location of map.
-   */
-  lat: number;
-
-  /**
-   * Longitude location of map.
-   */
-  lng: number;
-
-  /**
-   * Zoom of map.
-   */
-  zoom?: number;
-
-  /**
-   * Viewport storing locations on location of map. This is more precise than
-   * the (lat, lng, zoom) coordinates.
+   * Keeps track of map location and zoom.
    */
   viewport: Viewport;
 
@@ -120,12 +104,9 @@ export default class MapContainer extends Component<ThemeProps, State> {
     const { startLocation } = locationConfig;
 
     this.state = {
-      lat: startLocation.lat,
-      lng: startLocation.lng,
-      zoom: startLocation.zoom,
       viewport: {
         center: [startLocation.lat, startLocation.lng],
-        zoom: startLocation.zoom,
+        zoom: startLocation.zoom || 18,
       },
       vehicles: {},
       boundingBoxes: {},
@@ -134,13 +115,12 @@ export default class MapContainer extends Component<ThemeProps, State> {
 
     this.ref = createRef();
 
-    this.onViewportChanged = this.onViewportChanged.bind(this);
     this.onlocationfound = this.onlocationfound.bind(this);
+    this.onViewportChanged = this.onViewportChanged.bind(this);
     this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
     this.loadConfig = this.loadConfig.bind(this);
     this.saveConfig = this.saveConfig.bind(this);
     this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
-    this.updateMapLocation = this.updateMapLocation.bind(this);
     this.updateWaypoints = this.updateWaypoints.bind(this);
     this.updateBoundingBoxes = this.updateBoundingBoxes.bind(this);
   }
@@ -153,15 +133,8 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (_: Event, location: Location): void => this.updateMapLocation(location));
     ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
-    ipcRenderer.on('updateWaypoints', (_: Event, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(...waypoints));
+    ipcRenderer.on('updateWaypoints', (_: Event, updateMap?: boolean, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(updateMap, ...waypoints));
     ipcRenderer.on('updateBoundingBoxes', (_: Event, ...boundingBoxes: { name: string; bounds: BoundingBoxBounds}[]): void => this.updateBoundingBoxes(...boundingBoxes));
-  }
-
-  /**
-   * Callback to whenever map viewport is changed.
-   */
-  private onViewportChanged(viewport: Viewport): void {
-    this.setState({ viewport });
   }
 
   /**
@@ -172,6 +145,13 @@ export default class MapContainer extends Component<ThemeProps, State> {
   }
 
   /**
+   * Callback to whenever the viewport has changed.
+   */
+  private onViewportChanged(viewport: Viewport): void {
+    this.setState({ viewport });
+  }
+
+  /**
    * Centers map to user location using geolocation (if possible).
    */
   private setMapToUserLocation(): void {
@@ -179,6 +159,16 @@ export default class MapContainer extends Component<ThemeProps, State> {
     if (map) {
       map.leafletElement.locate();
     }
+  }
+
+  /**
+   * Updates map location.
+   */
+  private updateMapLocation(location: Location): void {
+    const { viewport } = this.state;
+    const { lat, lng, zoom } = location;
+
+    this.onViewportChanged({ center: [lat, lng], zoom: zoom || viewport.zoom });
   }
 
   /**
@@ -219,14 +209,17 @@ export default class MapContainer extends Component<ThemeProps, State> {
   /**
    * Updates waypoints.
    */
-  private updateWaypoints(...waypoints: { name: string; location: Location }[]): void {
+  private updateWaypoints(
+    updateMap?: boolean,
+    ...waypoints: { name: string; location: Location }[]
+  ): void {
     const { waypoints: thisWaypoints } = this.state;
     const currentWaypoints = thisWaypoints;
 
     waypoints.forEach((waypoint): void => {
       if (!currentWaypoints[waypoint.name]) {
         currentWaypoints[waypoint.name] = { location: waypoint.location, locked: false };
-      } else {
+      } else if (updateMap) {
         currentWaypoints[waypoint.name].location = waypoint.location;
       }
     });
@@ -257,35 +250,12 @@ export default class MapContainer extends Component<ThemeProps, State> {
     this.setState({ boundingBoxes: currentBoundingBoxes });
   }
 
-  /**
-   * Callback to whenever the map location has been changed.
-   */
-  private updateMapLocation(location: Location): void {
-    const { lat, lng, zoom } = location;
-
-    const { viewport } = this.state;
-
-    // Do not allow null for viewport zoom.
-    const viewportZoom = viewport.zoom === null ? undefined : viewport.zoom;
-
-    this.setState({
-      lat,
-      lng,
-      zoom: zoom || viewportZoom,
-    });
-
-    this.onViewportChanged({
-      center: [lat, lng],
-      zoom: zoom || viewport.zoom,
-    });
-  }
-
   public render(): ReactNode {
     const { theme } = this.props;
     const {
+      viewport,
       boundingBoxes,
       vehicles,
-      viewport,
       waypoints,
     } = this.state;
 
@@ -321,8 +291,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
     return (
       <Map
         className="mapContainer container"
-        center={viewport.center as [number, number]}
-        zoom={viewport.zoom as number | undefined}
+        viewport={viewport}
         ref={this.ref}
         onlocationfound={this.onlocationfound}
         onViewportChanged={this.onViewportChanged}
