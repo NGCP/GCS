@@ -109,6 +109,10 @@ class VTOLSearch extends Mission {
         lat: this.missionData.lat,
         lng: this.missionData.lng,
       },
+      /*
+       * TODO: ensure this data passes on correctly to payload drop, cannnot do automatically
+       * w/o calculations? Will require mission to be run separately for now.
+       */
     };
   }
 }

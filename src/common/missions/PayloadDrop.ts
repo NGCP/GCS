@@ -87,10 +87,11 @@ class PayloadDrop extends Mission {
     }
 
     return {
-      payloadDrop: {
+      retrieveTarget: {
         lat: this.missionData.lat,
         lng: this.missionData.lng,
       },
+      // TODO: generate data for deliverTarget
     };
   }
 }
