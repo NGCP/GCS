@@ -13,7 +13,7 @@ import {
 import fs from 'fs';
 import moment from 'moment';
 
-import { imageConfig, LatLngZoom, locationConfig } from '../static/index';
+import { imageConfig, Location, locationConfig } from '../static/index';
 
 import { FileSaveOptions } from '../types/fileOption';
 
@@ -385,7 +385,7 @@ function setLocationMenu(): void {
       label,
       click: (menuItem): void => {
         ipc.postUpdateMapLocation(
-          locationConfig.locations[menuItem.label] as LatLngZoom,
+          locationConfig.locations[menuItem.label] as Location,
           mainWindow,
           missionWindow,
         );

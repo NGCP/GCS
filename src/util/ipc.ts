@@ -16,7 +16,7 @@
 
 import { BrowserWindow, ipcRenderer } from 'electron';
 
-import { LatLngZoom } from '../static/index';
+import { Location } from '../static/index';
 
 import { LogMessage } from '../types/componentStyle';
 import * as FileOptions from '../types/fileOption';
@@ -169,8 +169,8 @@ function postLoadConfig(
   missionWindow?: BrowserWindow | null,
 ): void {
   if (mainWindow !== undefined) {
-    if (mainWindow) mainWindow.webContents.send('post', 'loadConfig', loadOptions);
-    if (missionWindow) missionWindow.webContents.send('post', 'loadConfig', loadOptions);
+    if (mainWindow) mainWindow.webContents.send('loadConfig', loadOptions);
+    if (missionWindow) missionWindow.webContents.send('loadConfig', loadOptions);
   } else {
     ipcRenderer.send('post', 'loadConfig', loadOptions);
   }
@@ -208,8 +208,8 @@ function postSaveConfig(
   missionWindow?: BrowserWindow | null,
 ): void {
   if (mainWindow !== undefined) {
-    if (mainWindow) mainWindow.webContents.send('post', 'saveConfig', saveOptions);
-    if (missionWindow) missionWindow.webContents.send('post', 'saveConfig', saveOptions);
+    if (mainWindow) mainWindow.webContents.send('saveConfig', saveOptions);
+    if (missionWindow) missionWindow.webContents.send('saveConfig', saveOptions);
   } else {
     ipcRenderer.send('post', 'saveConfig', saveOptions);
   }
@@ -313,7 +313,7 @@ function postToggleTheme(): void {
  * - renderer/mainWindow/map/MapContainer
  */
 function postUpdateMapLocation(
-  location: LatLngZoom,
+  location: Location,
   mainWindow?: BrowserWindow | null,
   missionWindow?: BrowserWindow | null,
 ): void {

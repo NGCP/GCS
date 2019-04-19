@@ -8,11 +8,16 @@ import React, {
   ReactNode,
   RefObject,
 } from 'react';
-import { Map, TileLayer, Viewport } from 'react-leaflet';
+import {
+  Map,
+  Rectangle,
+  TileLayer,
+  Viewport,
+} from 'react-leaflet';
 
-import { LatLngZoom, locationConfig } from '../../../static/index';
+import { Location, locationConfig } from '../../../static/index';
 
-import { ThemeProps } from '../../../types/componentStyle';
+import { BoundingBoxBounds, ThemeProps } from '../../../types/componentStyle';
 import { FileLoadOptions, FileSaveOptions } from '../../../types/fileOption';
 import { VehicleObject } from '../../../types/vehicle';
 
@@ -22,7 +27,8 @@ import GeolocationControl from './control/GeolocationControl';
 import ThemeControl from './control/ThemeControl';
 
 // import CachedTileLayer from './CachedTileLayer';
-import VehicleMarker from './VehicleMarker';
+import VehicleMarker from './marker/VehicleMarker';
+import WaypointMarker from './marker/WaypointMarker';
 
 import './map.css';
 
@@ -36,17 +42,43 @@ const mapOptions = {
 /**
  * State of the map container.
  */
-interface State extends LatLngZoom {
+interface State {
   /**
-   * Object of vehicles displayed in the user interface.
+   * Latitude location of map.
    */
-  vehicles: { [vehicleId: string]: VehicleObject };
+  lat: number;
+
+  /**
+   * Longitude location of map.
+   */
+  lng: number;
+
+  /**
+   * Zoom of map.
+   */
+  zoom?: number;
 
   /**
    * Viewport storing locations on location of map. This is more precise than
    * the (lat, lng, zoom) coordinates.
    */
   viewport: Viewport;
+
+  /**
+   * Object of vehicles displayed in the user interface.
+   */
+  vehicles: { [vehicleId: number]: VehicleObject };
+
+  /**
+   * Bounding boxes for the mission. Not all missions need bounding boxes.
+   */
+  boundingBoxes: { [name: string]: { bounds: BoundingBoxBounds; color?: string } };
+
+  /**
+   * Waypoints with radius. Basically points that are required for a mission.
+   * Not all waypoints require a radius.
+   */
+  waypoints: { [name: string]: Location };
 }
 
 /**
@@ -59,12 +91,16 @@ export default class MapContainer extends Component<ThemeProps, State> {
     const { startLocation } = locationConfig;
 
     this.state = {
-      vehicles: {},
-      ...startLocation,
+      lat: startLocation.lat,
+      lng: startLocation.lng,
+      zoom: startLocation.zoom,
       viewport: {
         center: [startLocation.lat, startLocation.lng],
         zoom: startLocation.zoom,
       },
+      vehicles: {},
+      boundingBoxes: {},
+      waypoints: {},
     };
 
     this.ref = createRef();
@@ -84,7 +120,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
 
     ipcRenderer.on('centerMapToVehicle', (_: Event, vehicle: VehicleObject): void => this.centerMapToVehicle(vehicle));
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
-    ipcRenderer.on('updateMapLocation', (_: Event, location: LatLngZoom): void => this.updateMapLocation(location));
+    ipcRenderer.on('updateMapLocation', (_: Event, location: Location): void => this.updateMapLocation(location));
     ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
   }
 
@@ -130,7 +166,9 @@ export default class MapContainer extends Component<ThemeProps, State> {
   private saveConfig(file: FileSaveOptions): void {
     // Performs a hard copy of this.state, deletes vehicles from it, and saves it to file.
     const data = { ...this.state };
+    delete data.boundingBoxes;
     delete data.vehicles;
+    delete data.waypoints;
 
     fs.writeFileSync(file.filePath, JSON.stringify({
       ...file.data,
@@ -148,15 +186,18 @@ export default class MapContainer extends Component<ThemeProps, State> {
   /**
    * Callback to whenever the map location has been changed.
    */
-  public updateMapLocation(location: LatLngZoom): void {
+  public updateMapLocation(location: Location): void {
     const { lat, lng, zoom } = location;
 
     const { viewport } = this.state;
 
+    // Do not allow null for viewport zoom.
+    const viewportZoom = viewport.zoom === null ? undefined : viewport.zoom;
+
     this.setState({
       lat,
       lng,
-      zoom: zoom || (viewport.zoom as number | undefined),
+      zoom: zoom || viewportZoom,
     });
 
     this.onViewportChanged({
@@ -167,14 +208,39 @@ export default class MapContainer extends Component<ThemeProps, State> {
 
   public render(): ReactNode {
     const { theme } = this.props;
-    const { viewport, vehicles } = this.state;
+    const {
+      boundingBoxes,
+      vehicles,
+      viewport,
+      waypoints,
+    } = this.state;
 
-    const markers = Object
-      .keys(vehicles)
+    const boundingBoxRectangles = Object.keys(boundingBoxes)
+      .map((name): ReactNode => (
+        <Rectangle
+          key={name}
+          color={boundingBoxes[name].color}
+          bounds={[
+            [boundingBoxes[name].bounds.bottom, boundingBoxes[name].bounds.left],
+            [boundingBoxes[name].bounds.top, boundingBoxes[name].bounds.right],
+          ]}
+        />
+      ));
+
+    const vehicleMarkers = Object.keys(vehicles)
       .map((vehicleId): ReactNode => (
         <VehicleMarker
           key={vehicleId}
-          vehicle={vehicles[vehicleId]}
+          vehicle={vehicles[parseInt(vehicleId, 10)]}
+        />
+      ));
+
+    const waypointMarkers = Object.keys(waypoints)
+      .map((name): ReactNode => (
+        <WaypointMarker
+          key={name}
+          name={name}
+          location={waypoints[name]}
         />
       ));
 
@@ -190,7 +256,9 @@ export default class MapContainer extends Component<ThemeProps, State> {
         <GeolocationControl />
         <ThemeControl theme={theme} />
         <TileLayer {...mapOptions} />
-        <Fragment>{markers}</Fragment>
+        <Fragment>{boundingBoxRectangles}</Fragment>
+        <Fragment>{vehicleMarkers}</Fragment>
+        <Fragment>{waypointMarkers}</Fragment>
       </Map>
     );
   }

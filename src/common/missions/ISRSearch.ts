@@ -1,7 +1,7 @@
 import DictionaryList from '../struct/DictionaryList';
 import Mission from '../struct/Mission';
 
-import { JobType, LatLngZoom } from '../../static/index';
+import { JobType, Location } from '../../static/index';
 
 import * as Message from '../../types/message';
 import * as MissionInformation from '../../types/missionInformation';
@@ -28,7 +28,7 @@ class ISRSearch extends Mission {
   /**
    * List of point of interests.
    */
-  private missionData: LatLngZoom[] = [];
+  private missionData: Location[] = [];
 
   public constructor(
     vehicles: { [vehicleId: number]: Vehicle },

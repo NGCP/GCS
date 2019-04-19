@@ -42,17 +42,19 @@ export interface VehicleInfo {
 }
 
 /**
- * Latitude, longitude and zoom.
+ * Latitude and longitude. Optional zoom and radius, used for different
+ * parts of the application.
  */
-export interface LatLngZoom {
+export interface Location {
   lat: number;
   lng: number;
   zoom?: number;
+  radius?: number;
 }
 
 // Add signature to json objects to allow us to access it with TypeScript.
 const locations: {
-  [name: string]: { lat: number; lng: number; zoom?: number } | undefined;
+  [name: string]: Location | undefined;
 } = locationsObject;
 
 export const vehicleIds: {
@@ -86,8 +88,8 @@ const vehicleStatuses: {
 } = vehicleStatusesObject;
 
 // Add logic to set startLocation.
-const startLocation: LatLngZoom = startLocationString && locations[startLocationString]
-  ? locations[startLocationString] as LatLngZoom : {
+const startLocation: Location = startLocationString && locations[startLocationString]
+  ? locations[startLocationString] as Location : {
     lat: 0,
     lng: 0,
     zoom: 18,

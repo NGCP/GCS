@@ -1,4 +1,4 @@
-import { LatLngZoom } from '../static/index';
+import { Location } from '../static/index';
 
 /**
  * Data contents for information that is loaded from a configuration file.
@@ -7,7 +7,7 @@ export interface FileLoadOptions {
   /**
    * Information related to the map.
    */
-  map: LatLngZoom;
+  map: Location;
 }
 
 /**

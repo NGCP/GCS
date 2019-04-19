@@ -48,3 +48,13 @@ export interface LogMessage {
    */
   time?: Moment;
 }
+
+/**
+ * Bounding box used in a map container as well as in missions.
+ */
+export interface BoundingBoxBounds {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}

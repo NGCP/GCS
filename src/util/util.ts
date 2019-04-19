@@ -1,7 +1,8 @@
 import { Component } from 'react';
 
-import { LatLngZoom } from '../static/index';
+import { Location } from '../static/index';
 
+import { BoundingBoxBounds } from '../types/componentStyle';
 import { VehicleObject } from '../types/vehicle';
 
 /**
@@ -72,20 +73,13 @@ export function searchIndex<T>(
   return left;
 }
 
-interface BoundingBox {
-  top: number;
-  bottom: number;
-  left: number;
-  right: number;
-}
-
 /**
  * Calculates bounding box given a list of (lat, lng).
  *
  * @param waypoints Points in bounding box.
  * @param error Extra margin of error around box.
  */
-export function getBoundingBox(waypoints: LatLngZoom[], error: number): BoundingBox {
+export function getBoundingBox(waypoints: Location[], error: number): BoundingBoxBounds {
   const top = Math.max(...waypoints.map((waypoint): number => waypoint.lat));
   const bottom = Math.min(...waypoints.map((waypoint): number => waypoint.lat));
   const left = Math.max(...waypoints.map((waypoint): number => waypoint.lng));
@@ -106,6 +100,6 @@ export function getBoundingBox(waypoints: LatLngZoom[], error: number): Bounding
 /**
  * Calculates distance between two points.
  */
-export function getDistance(x: LatLngZoom, y: LatLngZoom): number {
+export function getDistance(x: Location, y: Location): number {
   return Math.sqrt(((x.lat - y.lat) ** 2) + ((x.lng - y.lng) ** 2));
 }

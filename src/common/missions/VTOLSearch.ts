@@ -1,7 +1,7 @@
 import DictionaryList from '../struct/DictionaryList';
 import Mission from '../struct/Mission';
 
-import { JobType, LatLngZoom } from '../../static/index';
+import { JobType, Location } from '../../static/index';
 
 import * as Message from '../../types/message';
 import * as MissionInformation from '../../types/missionInformation';
@@ -42,7 +42,7 @@ class VTOLSearch extends Mission {
   /**
    * Point of interest.
    */
-  private missionData: LatLngZoom | null = null;
+  private missionData: Location | null = null;
 
   public constructor(
     vehicles: { [vehicleId: number]: Vehicle },

@@ -8,10 +8,10 @@ import {
   vehicleConfig,
   VehicleInfo,
   VehicleStatus,
-} from '../../../static/index';
+} from '../../../../static/index';
 
-import { MessageType } from '../../../types/componentStyle';
-import { VehicleObject } from '../../../types/vehicle';
+import { MessageType } from '../../../../types/componentStyle';
+import { VehicleObject } from '../../../../types/vehicle';
 
 const vehicleIcons = (imageConfig.markers as RecursiveImageSignature)
   .vehicles as RecursiveImageSignature;
@@ -39,7 +39,7 @@ export default class VehicleMarker extends PureComponent<VehicleMarkerProps> {
       <Marker
         position={[vehicle.lat, vehicle.lng]}
         icon={L.icon({
-          iconUrl: vehicleIcons[(vehicleType || imageConfig.pin as string)] as string,
+          iconUrl: (vehicleIcons[vehicleType] || imageConfig.pin) as string,
           iconSize: [50, 50],
           iconAnchor: [25, 25],
           popupAnchor: [0, -25],
