@@ -104,4 +104,4 @@ function updateVehicles(): void {
 }
 
 connectVehicles();
-setInterval((): void => { updateVehicles(); }, 1000);
+setInterval((): void => { updateVehicles(); }, 1000); // Call updateVehicles once for disconnection.

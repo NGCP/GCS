@@ -3,7 +3,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import statics from '../static/index';
+import { config } from '../static/index';
 
 import ipc from '../util/ipc';
 
@@ -23,12 +23,12 @@ function runOnce(): void {
   require('../common/Orchestrator');
 
   // Set up geolocation if geolocation is enabled in config.
-  if (statics.config.geolocation) {
+  if (config.geolocation) {
     ipc.postSetMapToUserLocation();
   }
 
   // Sets up fixtures if in development and fixtures are enabled in config.
-  if (isDevelopment && statics.config.fixtures) {
+  if (isDevelopment && config.fixtures) {
     require('./fixtures/index');
   }
 }

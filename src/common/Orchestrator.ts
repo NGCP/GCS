@@ -100,6 +100,8 @@ class Orchestrator {
       type: 'success',
       message: `${(vehicleConfig.vehicleInfos[jsonMessage.sid] as VehicleInfo).name} has connected`,
     });
+
+    this.ping(this.vehicles[jsonMessage.sid]);
   }
 
   /**
@@ -109,7 +111,8 @@ class Orchestrator {
    */
   private ping(vehicle: Vehicle): void {
     const delta = Date.now() - vehicle.getLastConnectionTime();
-    if (delta >= 0 && delta <= config.vehicleDisconnectionTime) {
+
+    if (delta >= 0 && delta <= config.vehicleDisconnectionTime * 1000) {
       // Handler that expires and creates itself everytime it "pings" the vehicle.
       this.vehiclePinger.addHandler(`${vehicle.getVehicleId()}`, (): boolean => false, {
         callback: (): void => this.ping(vehicle),

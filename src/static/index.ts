@@ -23,7 +23,7 @@ import arrow from './images/arrow.png';
 import icon from './images/icon.png';
 import pin from './images/pin.png';
 
-import config from './config.json';
+import configStatic from './config.json';
 import { startLocation as startLocationString, locations as locationsObject } from './location.json';
 import {
   vehicleIds as vehicleIdsObject,
@@ -57,7 +57,7 @@ const locations: {
   [name: string]: Location | undefined;
 } = locationsObject;
 
-export const vehicleIds: {
+const vehicleIds: {
   [name: string]: number | undefined;
 } = vehicleIdsObject;
 
@@ -121,6 +121,8 @@ function isValidTaskTypeForJob(taskType: string, jobType: JobType): boolean {
   return (vehicleJobs[jobType] as string[]).includes(taskType);
 }
 
+export const config = configStatic;
+
 export const locationConfig = {
   locations,
   startLocation,
@@ -135,8 +137,6 @@ export const vehicleConfig = {
   vehicleStatuses,
   vehicleJobs,
 };
-
-export { default as config } from './config.json';
 
 /**
  * A given key for an image will give either a string or an object with similar structure.
