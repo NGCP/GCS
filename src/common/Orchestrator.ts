@@ -18,17 +18,6 @@ import './MessageHandler';
 
 class Orchestrator {
   /**
-   * Acknowledges a message. All messages are passed here through the MessageHandler.
-   * Only messages that are no acknowledged are bad messages and acknowledgements.
-   */
-  private static acknowledgeMessage(jsonMessage: Message.JSONMessage): void {
-    ipc.postSendMessage(jsonMessage.sid, {
-      type: 'ack',
-      ackid: jsonMessage.id,
-    });
-  }
-
-  /**
    * Posts error message when error happens in Orchestrator.
    */
   private static postOrchestratorError(error: string): void {
@@ -76,8 +65,6 @@ class Orchestrator {
     ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: Message.JSONMessage): void => this.connectToVehicle(jsonMessage));
     ipcRenderer.on('disconnectFromVehicle', (_: Event, vehicleId: number): void => this.disconnectFromVehicle(vehicleId));
 
-    ipcRenderer.on('acknowledgeMessage', (_: Event, jsonMessage: Message.JSONMessage): void => Orchestrator.acknowledgeMessage(jsonMessage));
-
     ipcRenderer.on('handleAcknowledgementMessage', (_: Event, jsonMessage: Message.JSONMessage): void => this.handleAcknowledgementMessage(jsonMessage));
     ipcRenderer.on('handleBadMessage', (_: Event, jsonMessage: Message.JSONMessage): void => this.handleBadMessage(jsonMessage));
     ipcRenderer.on('handleUpdateMessage', (_: Event, jsonMessage: Message.JSONMessage): void => this.handleUpdateMessage(jsonMessage));
@@ -106,6 +93,12 @@ class Orchestrator {
     this.vehicles[jsonMessage.sid] = new Vehicle({
       sid: jsonMessage.sid,
       jobs: connectMessage.jobsAvailable,
+      status: 'ready',
+    });
+
+    ipc.postLogMessages({
+      type: 'success',
+      message: `${(vehicleConfig.vehicleInfos[jsonMessage.sid] as VehicleInfo).name} has connected`,
     });
   }
 
@@ -139,6 +132,11 @@ class Orchestrator {
 
     this.vehicles[vehicleId].disconnect();
     ipc.postUpdateVehicles(this.vehicles[vehicleId].toObject());
+
+    ipc.postLogMessages({
+      type: 'failure',
+      message: `${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name} has disconnected`,
+    });
   }
 
   /**

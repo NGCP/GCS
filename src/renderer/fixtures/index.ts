@@ -3,5 +3,6 @@
 /* eslint-disable multiline-comment-style */
 
 // import './logMessagesFixtures';
-// import './updateVehiclesFixtures';
+import './updateBoundingBoxesFixtures';
+import './updateVehiclesFixtures';
 import './updateWaypointsFixtures';

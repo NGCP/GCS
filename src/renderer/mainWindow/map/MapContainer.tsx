@@ -231,7 +231,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
    * Updates bounding boxes.
    */
   private updateBoundingBoxes(
-    ...boundingBoxes: { name: string; bounds: BoundingBoxBounds }[]
+    ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds }[]
   ): void {
     const { boundingBoxes: thisBoundingBoxes } = this.state;
     const currentBoundingBoxes = thisBoundingBoxes;
@@ -239,6 +239,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
     boundingBoxes.forEach((boundingBox): void => {
       if (!currentBoundingBoxes[boundingBox.name]) {
         currentBoundingBoxes[boundingBox.name] = {
+          color: boundingBox.color || '#000',
           bounds: boundingBox.bounds,
           locked: false,
         };
@@ -264,6 +265,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
         <Rectangle
           key={name}
           color={boundingBoxes[name].color}
+          opacity={0.5}
           bounds={[
             [boundingBoxes[name].bounds.bottom, boundingBoxes[name].bounds.left],
             [boundingBoxes[name].bounds.top, boundingBoxes[name].bounds.right],

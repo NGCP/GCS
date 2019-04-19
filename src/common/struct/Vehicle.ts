@@ -28,6 +28,11 @@ export interface VehicleOptions {
    * Jobs vehicle can handle.
    */
   jobs: JobType[];
+
+  /**
+   * Status of vehicle.
+   */
+  status: VehicleStatus;
 }
 
 /**
@@ -51,7 +56,7 @@ export default class Vehicle {
   /**
    * Current status of the vehicle.
    */
-  private status: VehicleStatus = 'disconnected';
+  private status: VehicleStatus;
 
   /**
    * Jobs the vehicle has. These define the tasks the vehicle is capable of performing.
@@ -102,6 +107,7 @@ export default class Vehicle {
   public constructor(options: VehicleOptions) {
     this.vehicleId = options.sid;
     this.jobs = options.jobs;
+    this.status = options.status;
 
     this.updateEventHandler.addHandler<VehicleStatus>('status', (status, message): boolean => {
       this.status = status;

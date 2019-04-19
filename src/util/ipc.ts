@@ -26,16 +26,6 @@ import * as Task from '../types/task';
 import { VehicleObject } from '../types/vehicle';
 
 /**
- * Post "acknowledgeMessage" notification.
- *
- * Files that take this notification:
- * - common/Orchestrator
- */
-function postAcknowledgeMessage(jsonMessage: Message.JSONMessage): void {
-  ipcRenderer.send('post', 'acknowledgeMessage', jsonMessage);
-}
-
-/**
  * Post "centerMapToVehicle" notification.
  *
  * Files that take this notification:
@@ -313,7 +303,7 @@ function postToggleTheme(): void {
  * - renderer/mainWindow/map/MapContainer
  */
 function postUpdateBoundingBoxes(
-  ...boundingBoxes: { name: string; bounds: BoundingBoxBounds }[]
+  ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds }[]
 ): void {
   ipcRenderer.send('post', 'updateBoundingBoxes', ...boundingBoxes);
 }
@@ -364,7 +354,6 @@ function postUpdateWaypoint(
 }
 
 export default {
-  postAcknowledgeMessage,
   postCenterMapToVehicle,
   postCompleteMission,
   postConfirmCompleteMission,

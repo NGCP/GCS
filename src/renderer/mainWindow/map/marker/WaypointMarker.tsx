@@ -40,13 +40,12 @@ export default class WaypointMarker extends PureComponent<WaypointMarkerProps> {
         icon={Leaflet.icon({
           iconUrl: imageConfig.pin as string,
           iconSize: [50, 50],
-          iconAnchor: [25, 25],
-          popupAnchor: [0, -25],
+          iconAnchor: [25, 50],
         })}
       >
         <Tooltip
           direction="top"
-          offset={[0, -20]}
+          offset={[0, -45]}
         >
           <p><b>{name}</b></p>
         </Tooltip>

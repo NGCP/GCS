@@ -1,12 +1,26 @@
-import Vehicle, { VehicleOptions } from '../../common/struct/Vehicle';
+/*
+ * This fixture bypasses the MessageHandler, and interacts directly with the Orchestrator
+ * to add vehicles and post update messages about them.
+ *
+ * In a real field test, all messages are sent through the MessageHandler (as it is received
+ * on an Xbee).
+ */
 
-import { locationConfig, vehicleConfig } from '../../static/index';
+import { JobType, locationConfig } from '../../static/index';
 
-import { VehicleObject, VehicleStatus } from '../../types/vehicle';
+import * as Message from '../../types/message';
+import { VehicleStatus } from '../../types/vehicle';
 
 import ipc from '../../util/ipc';
 
-const fixtureOptions: VehicleOptions[] = [
+interface Fixture {
+  sid: number;
+  jobs: JobType[];
+  lat: number;
+  lng: number;
+}
+
+const fixtureOptions: { sid: number; jobs: JobType[] }[] = [
   {
     sid: 100,
     jobs: ['isrSearch', 'payloadDrop'],
@@ -37,33 +51,57 @@ const fixtureOptions: VehicleOptions[] = [
   },
 ];
 
-const status = Object.keys(vehicleConfig.vehicleStatuses);
+let fixtures: Fixture[] = fixtureOptions.map(
+  (fixtureOption): Fixture => ({ ...fixtureOption, ...locationConfig.startLocation }),
+);
 
-const vehicles = fixtureOptions.map((options): Vehicle => new Vehicle(options));
-vehicles.forEach((vehicle): void => {
-  vehicle.getUpdateEventHandler().events({
-    lat: locationConfig.startLocation.lat + (Math.random() / 1000) - 0.0005,
-    lng: locationConfig.startLocation.lng + (Math.random() / 1000) - 0.0005,
-  });
-});
+const status: VehicleStatus[] = ['ready', 'waiting', 'paused', 'running', 'error'];
 
-const fixtures: VehicleObject[] = [];
+let messageId = 0;
 
-/**
- * Sends an updateVehicle notification with random vehicle fixtures.
- */
-function updateVehicles(): void {
-  for (let i = 0; i < vehicles.length; i += 1) {
-    vehicles[i].getUpdateEventHandler().events({
-      lat: vehicles[i].getLat() + (Math.random() / 5000) - 0.0001,
-      lng: vehicles[i].getLng() + (Math.random() / 5000) - 0.0001,
-      status: status[Math.floor(Math.random() * status.length)] as VehicleStatus,
-    });
+function generateJSONMessage(vehicleId: number, message: Message.Message): Message.JSONMessage {
+  const jsonMessage = {
+    id: messageId,
+    sid: vehicleId,
+    tid: 0,
+    time: Date.now(),
+    ...message,
+  };
 
-    fixtures[i] = vehicles[i].toObject();
-  }
-
-  ipc.postUpdateVehicles(...fixtures);
+  messageId += 1;
+  return jsonMessage;
 }
 
+function randomCoordinate(location: { lat: number; lng: number }): { lat: number; lng: number } {
+  return {
+    lat: location.lat + (Math.random() / 5000) - 0.0001,
+    lng: location.lng + (Math.random() / 5000) - 0.0001,
+  };
+}
+
+function connectVehicles(): void {
+  fixtures.forEach((fixture): void => {
+    ipc.postConnectToVehicle(generateJSONMessage(fixture.sid, {
+      type: 'connect',
+      jobsAvailable: fixture.jobs,
+    }));
+  });
+}
+
+function updateVehicles(): void {
+  fixtures = fixtures.map(
+    (fixture): Fixture => ({ ...fixture, ...randomCoordinate(fixture) }),
+  );
+
+  fixtures.forEach((fixture): void => {
+    ipc.postHandleUpdateMessage(generateJSONMessage(fixture.sid, {
+      type: 'update',
+      lat: fixture.lat,
+      lng: fixture.lng,
+      status: status[Math.floor(Math.random() * status.length)],
+    }));
+  });
+}
+
+connectVehicles();
 setInterval((): void => { updateVehicles(); }, 1000);

@@ -104,6 +104,17 @@ class MessageHandler {
   }
 
   /**
+   * Acknowledges a message. All messages are passed here through the MessageHandler.
+   * Only messages that are no acknowledged are bad messages and acknowledgements.
+   */
+  private sendAcknowledgeMessage(jsonMessage: Message.JSONMessage): void {
+    this.sendMessage(jsonMessage.sid, {
+      type: 'ack',
+      ackid: jsonMessage.id,
+    });
+  }
+
+  /**
    * Send a bad message.
    *
    * @param jsonMessage The bad message.
@@ -152,16 +163,18 @@ class MessageHandler {
       || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id;
 
     if (Message.TypeGuard.isConnectMessage(jsonMessage)) {
-      ipc.postAcknowledgeMessage(jsonMessage);
-      if (newMessage) ipc.postConnectToVehicle(jsonMessage);
+      if (newMessage) {
+        this.sendMessage(jsonMessage.sid, { type: 'connectionAck' });
+        ipc.postConnectToVehicle(jsonMessage);
+      }
     } else if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
-      ipc.postAcknowledgeMessage(jsonMessage);
+      this.sendAcknowledgeMessage(jsonMessage);
       if (newMessage) ipc.postHandleCompleteMessage(jsonMessage);
     } else if (Message.TypeGuard.isPOIMessage(jsonMessage)) {
-      ipc.postAcknowledgeMessage(jsonMessage);
+      this.sendAcknowledgeMessage(jsonMessage);
       if (newMessage) ipc.postHandlePOIMessage(jsonMessage);
     } else if (Message.TypeGuard.isUpdateMessage(jsonMessage)) {
-      ipc.postAcknowledgeMessage(jsonMessage);
+      this.sendAcknowledgeMessage(jsonMessage);
       if (newMessage) ipc.postHandleUpdateMessage(jsonMessage);
     } else if (Message.TypeGuard.isBadMessage(jsonMessage)) {
       if (newMessage) ipc.postHandleBadMessage(jsonMessage);

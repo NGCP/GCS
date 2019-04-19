@@ -78,13 +78,13 @@ const vehicleJobs: {
 /**
  * Object contained in vehicleStatuses in vehicle.json.
  */
-export interface VehicleStatus {
+export interface VehicleStatusStyle {
   'type': string;
   message: string;
 }
 
 const vehicleStatuses: {
-  [status: string]: VehicleStatus | undefined;
+  [status: string]: VehicleStatusStyle | undefined;
 } = vehicleStatusesObject;
 
 // Add logic to set startLocation.

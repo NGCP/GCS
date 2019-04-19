@@ -11,7 +11,7 @@ import {
 import {
   vehicleConfig,
   VehicleInfo,
-  VehicleStatus,
+  VehicleStatusStyle,
 } from '../../../static/index';
 
 import { ThemeProps } from '../../../types/componentStyle';
@@ -60,7 +60,7 @@ export default class VehicleTable extends Component<VehicleTableProps> {
    */
   private static statusRenderer(props: TableCellProps): ReactNode {
     const { rowData }: { rowData: VehicleObject } = props;
-    const vehicleStatus = vehicleConfig.vehicleStatuses[rowData.status] as VehicleStatus;
+    const vehicleStatus = vehicleConfig.vehicleStatuses[rowData.status] as VehicleStatusStyle;
     return <span className={vehicleStatus.type}>{vehicleStatus.message}</span>;
   }
 

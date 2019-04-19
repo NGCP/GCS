@@ -7,7 +7,7 @@ import {
   RecursiveImageSignature,
   vehicleConfig,
   VehicleInfo,
-  VehicleStatus,
+  VehicleStatusStyle,
 } from '../../../../static/index';
 
 import { MessageType } from '../../../../types/componentStyle';
@@ -31,7 +31,7 @@ export default class VehicleMarker extends PureComponent<VehicleMarkerProps> {
     const {
       type: vehicleStatusTypeString,
       message,
-    } = vehicleConfig.vehicleStatuses[vehicle.status] as VehicleStatus;
+    } = vehicleConfig.vehicleStatuses[vehicle.status] as VehicleStatusStyle;
     const vehicleStatusType = vehicleStatusTypeString as MessageType;
     const vehicleType = `${type}${vehicleStatusType === 'failure' ? '_red' : ''}`;
 
@@ -42,7 +42,6 @@ export default class VehicleMarker extends PureComponent<VehicleMarkerProps> {
           iconUrl: (vehicleIcons[vehicleType] || imageConfig.pin) as string,
           iconSize: [50, 50],
           iconAnchor: [25, 25],
-          popupAnchor: [0, -25],
         })}
       >
         <Tooltip
