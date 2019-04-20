@@ -4,7 +4,6 @@ import {
   JSONMessage,
   Message,
   StartMessage,
-  UpdateMessage,
 } from '../../types/message';
 import * as Task from '../../types/task';
 import { VehicleObject, VehicleStatus } from '../../types/vehicle';
@@ -117,6 +116,11 @@ export default class Vehicle {
       return false;
     });
 
+    this.updateEventHandler.addHandler<number>('time', (time): boolean => {
+      this.lastConnectionTime = time;
+      return false;
+    });
+
     this.updateEventHandler.addHandler<number>('lat', (lat): boolean => {
       this.lat = lat;
       return false;
@@ -190,15 +194,12 @@ export default class Vehicle {
 
   /**
    * Updates all variables in this vehicle to the variables in the message. Called
-   * by the Orchestrator when the GCS receives an update message from the vehicle.
-   * Also updates the lastConnectionTime accordingly.
+   * by the Orchestrator when the GCS receives a message from the vehicle.
    *
    * @param message The message from the vehicle itself.
    */
   public update(jsonMessage: JSONMessage): void {
-    const updateMessage = jsonMessage as UpdateMessage;
-
-    this.lastConnectionTime = jsonMessage.time;
+    const updateMessage = jsonMessage;
     this.updateEventHandler.events(updateMessage);
   }
 
@@ -209,14 +210,6 @@ export default class Vehicle {
    */
   public disconnect(): void {
     this.status = 'disconnected';
-  }
-
-  /**
-   * Sets lastConnectionTime to current time when function is called. Called
-   * by the Orchestrator whenever GCS receives a message from the vehicle.
-   */
-  public updateLastConnectionTime(jsonMessage: JSONMessage): void {
-    this.lastConnectionTime = jsonMessage.time;
   }
 
   /**
@@ -254,12 +247,11 @@ export default class Vehicle {
     this.assignedJob = jobType;
     if (errorCallback) this.errorCallback = errorCallback;
 
-    const startMessage: StartMessage = {
+    this.sendMessage({
       type: 'start',
       jobType,
-    };
+    });
 
-    this.sendMessage(startMessage);
     this.updateEventHandler.addHandler<VehicleStatus>('status', (value): boolean => {
       if (value === 'waiting') {
         if (completionCallback) completionCallback();

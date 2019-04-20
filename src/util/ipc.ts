@@ -93,8 +93,11 @@ function postFinishMissions(completionParameters: Task.TaskParameters[]): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandleAcknowledgementMessage(jsonMessage: Message.JSONMessage): void {
-  ipcRenderer.send('post', 'handleAcknowledgementMessage', jsonMessage);
+function postHandleAcknowledgementMessage(
+  jsonMessage: Message.JSONMessage,
+  newMessage: boolean,
+): void {
+  ipcRenderer.send('post', 'handleAcknowledgementMessage', jsonMessage, newMessage);
 }
 
 /**
@@ -103,8 +106,8 @@ function postHandleAcknowledgementMessage(jsonMessage: Message.JSONMessage): voi
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandleBadMessage(jsonMessage: Message.JSONMessage): void {
-  ipcRenderer.send('post', 'handleBadMessage', jsonMessage);
+function postHandleBadMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
+  ipcRenderer.send('post', 'handleBadMessage', jsonMessage, newMessage);
 }
 
 /**
@@ -113,8 +116,8 @@ function postHandleBadMessage(jsonMessage: Message.JSONMessage): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandleCompleteMessage(jsonMessage: Message.JSONMessage): void {
-  ipcRenderer.send('post', 'handleCompleteMessage', jsonMessage);
+function postHandleCompleteMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
+  ipcRenderer.send('post', 'handleCompleteMessage', jsonMessage, newMessage);
 }
 
 /**
@@ -123,8 +126,8 @@ function postHandleCompleteMessage(jsonMessage: Message.JSONMessage): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandlePOIMessage(jsonMessage: Message.JSONMessage): void {
-  ipcRenderer.send('post', 'handlePOIMessage', jsonMessage);
+function postHandlePOIMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
+  ipcRenderer.send('post', 'handlePOIMessage', jsonMessage, newMessage);
 }
 
 /**
@@ -133,8 +136,8 @@ function postHandlePOIMessage(jsonMessage: Message.JSONMessage): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postHandleUpdateMessage(jsonMessage: Message.JSONMessage): void {
-  ipcRenderer.send('post', 'handleUpdateMessage', jsonMessage);
+function postHandleUpdateMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
+  ipcRenderer.send('post', 'handleUpdateMessage', jsonMessage, newMessage);
 }
 
 /**
@@ -277,6 +280,16 @@ function postStopMissions(): void {
 }
 
 /**
+ * Post "stopSendingMessage" notification.
+ *
+ * Files that take this notification:
+ * - common/MessageHandler
+ */
+function postStopSendingMessage(ackMessage: Message.JSONMessage): void {
+  ipcRenderer.send('post', 'stopSendingMessage', ackMessage);
+}
+
+/**
  * Post "stopSendingMessages" notification.
  *
  * Files that take this notification:
@@ -376,6 +389,7 @@ export default {
   postStartMissions,
   postStartNextMission,
   postStopMissions,
+  postStopSendingMessage,
   postStopSendingMessages,
   postToggleTheme,
   postUpdateBoundingBoxes,

@@ -42,6 +42,8 @@ class MessageHandler {
   public constructor() {
     ipcRenderer.on('sendMessage', (_: Event, vehicleId: number, message: Message.Message): void => this.sendMessage(vehicleId, message));
     ipcRenderer.on('receiveMessage', (_: Event, text: string): void => this.receiveMessage(text));
+
+    ipcRenderer.on('stopSendingMessage', (_: Event, ackMessage: Message.JSONMessage): void => this.stopSendingMessage(ackMessage));
     ipcRenderer.on('stopSendingMessages', this.stopSendingMessages);
   }
 
@@ -104,17 +106,6 @@ class MessageHandler {
   }
 
   /**
-   * Acknowledges a message. All messages are passed here through the MessageHandler.
-   * Only messages that are no acknowledged are bad messages and acknowledgements.
-   */
-  private sendAcknowledgeMessage(jsonMessage: Message.JSONMessage): void {
-    this.sendMessage(jsonMessage.sid, {
-      type: 'ack',
-      ackid: jsonMessage.id,
-    });
-  }
-
-  /**
    * Send a bad message.
    *
    * @param jsonMessage The bad message.
@@ -163,29 +154,17 @@ class MessageHandler {
       || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id;
 
     if (Message.TypeGuard.isConnectMessage(jsonMessage)) {
-      if (newMessage) {
-        this.sendMessage(jsonMessage.sid, { type: 'connectionAck' });
-        ipc.postConnectToVehicle(jsonMessage);
-      }
+      ipc.postConnectToVehicle(jsonMessage);
     } else if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
-      this.sendAcknowledgeMessage(jsonMessage);
-      if (newMessage) ipc.postHandleCompleteMessage(jsonMessage);
+      ipc.postHandleCompleteMessage(jsonMessage, newMessage);
     } else if (Message.TypeGuard.isPOIMessage(jsonMessage)) {
-      this.sendAcknowledgeMessage(jsonMessage);
-      if (newMessage) ipc.postHandlePOIMessage(jsonMessage);
+      ipc.postHandlePOIMessage(jsonMessage, newMessage);
     } else if (Message.TypeGuard.isUpdateMessage(jsonMessage)) {
-      this.sendAcknowledgeMessage(jsonMessage);
-      if (newMessage) ipc.postHandleUpdateMessage(jsonMessage);
+      ipc.postHandleUpdateMessage(jsonMessage, newMessage);
     } else if (Message.TypeGuard.isBadMessage(jsonMessage)) {
-      if (newMessage) ipc.postHandleBadMessage(jsonMessage);
+      if (newMessage) ipc.postHandleBadMessage(jsonMessage, newMessage);
     } else if (Message.TypeGuard.isAcknowledgementMessage(jsonMessage)) {
-      const { ackid } = jsonMessage as Message.AcknowledgementMessage;
-
-      if (newMessage) {
-        const hash = `${jsonMessage.sid}#${ackid}`;
-        this.updateHandler.event(hash, true); // Stop sending message that this message acknowleges.
-        ipc.postHandleAcknowledgementMessage(jsonMessage);
-      }
+      ipc.postHandleAcknowledgementMessage(jsonMessage, newMessage);
     } else {
       this.sendBadMessage(jsonMessage, `Message of type ${jsonMessage.type} is invalid or is not acceptable by GCS`);
     }
@@ -195,6 +174,14 @@ class MessageHandler {
       this.receivedMessageId[jsonMessage.sid] = jsonMessage.id;
       this.messageDictionary.push('received', jsonMessage);
     }
+  }
+
+  /**
+   * Stops sending certain message, specified by ackid and tid of message.
+   */
+  private stopSendingMessage(ackMessage: Message.JSONMessage): void {
+    const hash = `${ackMessage.sid}#${(ackMessage as Message.AcknowledgementMessage).ackid}`;
+    this.updateHandler.event(hash, true);
   }
 
   /**
