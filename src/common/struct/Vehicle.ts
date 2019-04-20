@@ -3,7 +3,6 @@ import { JobType, vehicleConfig } from '../../static/index';
 import {
   JSONMessage,
   Message,
-  StartMessage,
 } from '../../types/message';
 import * as Task from '../../types/task';
 import { VehicleObject, VehicleStatus } from '../../types/vehicle';

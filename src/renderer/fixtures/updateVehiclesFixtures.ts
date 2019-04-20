@@ -99,7 +99,7 @@ function updateVehicles(): void {
       lat: fixture.lat,
       lng: fixture.lng,
       status: status[Math.floor(Math.random() * status.length)],
-    }));
+    }), true);
   });
 }
 
