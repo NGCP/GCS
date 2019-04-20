@@ -63,8 +63,8 @@ function postConfirmCompleteMission(): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postConnectToVehicle(jsonMessage: Message.JSONMessage): void {
-  ipcRenderer.send('post', 'connectToVehicle', jsonMessage);
+function postConnectToVehicle(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
+  ipcRenderer.send('post', 'connectToVehicle', jsonMessage, newMessage);
 }
 
 /**
@@ -185,8 +185,9 @@ function postLogMessages(...messages: LogMessage[]): void {
  * Files that take this notification:
  * - common/MessageHandler
  */
-function postReceiveMessage(text: string): void {
-  ipcRenderer.send('post', 'receiveMessage', text);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function postReceiveMessage(message: any): void {
+  ipcRenderer.send('post', 'receiveMessage', message);
 }
 
 /**

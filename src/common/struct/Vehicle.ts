@@ -203,6 +203,15 @@ export default class Vehicle {
   }
 
   /**
+   * Sets the vehicle to connected. It will go back to "ready" status and
+   * its update messages will bring it to its real status.
+   */
+  public connect(): void {
+    this.status = 'ready';
+    this.lastConnectionTime = Date.now();
+  }
+
+  /**
    * Sets the vehicle as disconnected by changing it status to "disconnected".
    * The Orchestrator is in charge of preventing any more updates to the vehicle
    * if it is disconnected.

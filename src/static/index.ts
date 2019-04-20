@@ -108,8 +108,8 @@ function isValidVehicleId(vehicleId: number): boolean {
 function isValidJobType(jobType: string): boolean {
   return jobType === 'isrSearch'
     || jobType === 'payloadDrop'
-    || jobType === 'ugvRetrieve'
-    || jobType === 'uuvRetrieve'
+    || jobType === 'ugvRescue'
+    || jobType === 'uuvRescue'
     || jobType === 'quickScan'
     || jobType === 'detailedSearch';
 }

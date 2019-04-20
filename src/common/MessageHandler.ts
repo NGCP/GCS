@@ -5,7 +5,6 @@ import { config, vehicleConfig } from '../static/index';
 import * as Message from '../types/message';
 
 import ipc from '../util/ipc';
-import { isJSON } from '../util/util';
 
 import DictionaryList from './struct/DictionaryList';
 import UpdateHandler from './struct/UpdateHandler';
@@ -41,7 +40,7 @@ class MessageHandler {
 
   public constructor() {
     ipcRenderer.on('sendMessage', (_: Event, vehicleId: number, message: Message.Message): void => this.sendMessage(vehicleId, message));
-    ipcRenderer.on('receiveMessage', (_: Event, text: string): void => this.receiveMessage(text));
+    ipcRenderer.on('receiveMessage', (_: Event, message: any): void => this.receiveMessage(message)); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     ipcRenderer.on('stopSendingMessage', (_: Event, ackMessage: Message.JSONMessage): void => this.stopSendingMessage(ackMessage));
     ipcRenderer.on('stopSendingMessages', this.stopSendingMessages);
@@ -123,29 +122,23 @@ class MessageHandler {
    *
    * @param text The raw string in the message.
    */
-  private receiveMessage(text: string): void {
-    // Filter out all invalid messages.
-    if (!isJSON(text)) {
-      ipc.postLogMessages({
-        message: `Received text from Xbee that is not a JSON, could not send bad message to sender: ${text}`,
-      });
-      return;
-    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private receiveMessage(message: any): void {
+    if (!message) return;
 
-    const json = JSON.parse(text);
-    if (!Message.TypeGuard.isMessage(json)) {
-      if (!Number.isNaN(json.sid) && vehicleConfig.isValidVehicleId(json.sid as number)) {
-        this.sendBadMessage(json as Message.JSONMessage, 'Invalid message, does not meet requirements for a message');
+    if (!Message.TypeGuard.isJSONMessage(message)) {
+      if (!Number.isNaN(message.sid) && vehicleConfig.isValidVehicleId(message.sid as number)) {
+        this.sendBadMessage(message as Message.JSONMessage, 'Invalid message, does not meet requirements for a message');
       } else {
         ipc.postLogMessages({
-          message: `Received JSON from Xbee that is not a valid message, could not send bad message to sender: ${text}`,
+          message: `Received JSON from Xbee that is not a valid message, could not send bad message to sender: ${message}`,
         });
       }
       return;
     }
 
-    json.type = (json.type as string).toLowerCase();
-    const jsonMessage = json as Message.JSONMessage;
+    message.type = message.type.toLowerCase(); // eslint-disable-line no-param-reassign
+    const jsonMessage = message as Message.JSONMessage;
 
     // Ignore messages from unrecognized vehicles.
     if (!vehicleConfig.isValidVehicleId(jsonMessage.sid)) return;
@@ -154,7 +147,7 @@ class MessageHandler {
       || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id;
 
     if (Message.TypeGuard.isConnectMessage(jsonMessage)) {
-      ipc.postConnectToVehicle(jsonMessage);
+      ipc.postConnectToVehicle(jsonMessage, newMessage);
     } else if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
       ipc.postHandleCompleteMessage(jsonMessage, newMessage);
     } else if (Message.TypeGuard.isPOIMessage(jsonMessage)) {

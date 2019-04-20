@@ -11,7 +11,6 @@ import ipc from '../util/ipc';
 import missionObject, { MissionObject } from './missions/index';
 
 import Mission from './struct/Mission';
-import UpdateHandler from './struct/UpdateHandler';
 import Vehicle from './struct/Vehicle';
 
 import './MessageHandler';
@@ -67,13 +66,8 @@ class Orchestrator {
 
   private vehicles: { [vehicleId: number]: Vehicle } = {};
 
-  /**
-   * Keeps track of the vehicle and ensures it is connected.
-   */
-  private vehiclePinger = new UpdateHandler();
-
   public constructor() {
-    ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: Message.JSONMessage): void => this.connectToVehicle(jsonMessage));
+    ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: Message.JSONMessage, newMessage: boolean): void => this.connectToVehicle(jsonMessage, newMessage));
     ipcRenderer.on('disconnectFromVehicle', (_: Event, vehicleId: number): void => this.disconnectFromVehicle(vehicleId));
 
     ipcRenderer.on('handleAcknowledgementMessage', (_: Event, jsonMessage: Message.JSONMessage, newMessage: boolean): void => this.handleAcknowledgementMessage(jsonMessage, newMessage));
@@ -98,23 +92,29 @@ class Orchestrator {
    * Connects to vehicle specified by the connect message.
    * @param jsonMessage The connect message.
    */
-  private connectToVehicle(jsonMessage: Message.JSONMessage): void {
-    if (this.vehicles[jsonMessage.sid] && this.vehicles[jsonMessage.sid].getStatus() !== 'disconnected') return;
+  private connectToVehicle(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
+    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (!newMessage) return;
 
+    // Put this after newMessage return since this message will be sent repeatedly.
     ipc.postSendMessage(jsonMessage.sid, { type: 'connectionAck' });
 
-    this.vehicles[jsonMessage.sid] = new Vehicle({
-      sid: jsonMessage.sid,
-      jobs: (jsonMessage as Message.ConnectMessage).jobsAvailable,
-      status: 'ready',
-    });
+    if (!this.vehicles[jsonMessage.sid]) {
+      this.vehicles[jsonMessage.sid] = new Vehicle({
+        sid: jsonMessage.sid,
+        jobs: (jsonMessage as Message.ConnectMessage).jobsAvailable,
+        status: 'ready',
+      });
+
+      this.ping(this.vehicles[jsonMessage.sid]);
+    } else {
+      this.vehicles[jsonMessage.sid].connect();
+    }
 
     ipc.postLogMessages({
       type: 'success',
       message: `${(vehicleConfig.vehicleInfos[jsonMessage.sid] as VehicleInfo).name} has connected`,
     });
-
-    this.ping(this.vehicles[jsonMessage.sid]);
   }
 
   /**
@@ -127,11 +127,8 @@ class Orchestrator {
 
     if (delta >= 0 && delta <= config.vehicleDisconnectionTime * 1000) {
       // Handler that expires and creates itself everytime it "pings" the vehicle.
-      this.vehiclePinger.addHandler(`${vehicle.getVehicleId()}`, (): boolean => false, {
-        callback: (): void => this.ping(vehicle),
-        time: delta,
-      });
-    } else {
+      setTimeout((): void => { this.ping(vehicle); }, delta);
+    } else if (vehicle.getStatus() !== 'disconnected') {
       this.disconnectFromVehicle(vehicle.getVehicleId());
     }
   }
@@ -143,6 +140,11 @@ class Orchestrator {
   private disconnectFromVehicle(vehicleId: number): void {
     if (!this.vehicles[vehicleId]) {
       Orchestrator.postOrchestratorError(`Tried to disconnect from nonexisting vehicle id ${vehicleId}`);
+      return;
+    }
+
+    if (this.vehicles[vehicleId].getStatus() === 'disconnected') {
+      Orchestrator.postOrchestratorError(`Tried to disconnect from disconnected vehicle id ${vehicleId}`);
       return;
     }
 
@@ -194,17 +196,22 @@ class Orchestrator {
    */
   private handleUpdateMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
-    if (!newMessage) return;
 
-    Orchestrator.acknowledgeMessage(jsonMessage);
+    if (newMessage) {
+      this.vehicles[jsonMessage.sid].update(jsonMessage);
+      if (this.currentMission && this.currentMission.getVehicles()[jsonMessage.sid]) {
+        this.currentMission.update(jsonMessage);
+      } else {
+        const status = this.vehicles[jsonMessage.sid].getStatus();
+        if (status === 'waiting' || status === 'running' || status === 'paused') {
+          this.vehicles[jsonMessage.sid].stop();
+        }
+      }
 
-    // This function updates the lastConnectionTime variable of the vehicle too.
-    this.vehicles[jsonMessage.sid].update(jsonMessage);
-    if (this.currentMission && this.currentMission.getVehicles()[jsonMessage.sid]) {
-      this.currentMission.update(jsonMessage);
+      ipc.postUpdateVehicles(this.vehicles[jsonMessage.sid].toObject());
     }
 
-    ipc.postUpdateVehicles(this.vehicles[jsonMessage.sid].toObject());
+    Orchestrator.acknowledgeMessage(jsonMessage);
   }
 
   /**
@@ -213,20 +220,21 @@ class Orchestrator {
    */
   private handlePOIMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
-    if (!newMessage) return;
 
-    if (this.currentMission && !this.currentMission.getVehicles()[jsonMessage.sid]) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: `Received point of interest message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while it is not assigned to mission`,
-      });
-      return;
+    if (newMessage) {
+      if (this.currentMission && !this.currentMission.getVehicles()[jsonMessage.sid]) {
+        ipc.postLogMessages({
+          type: 'failure',
+          message: `Received point of interest message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while it is not assigned to mission`,
+        });
+        return;
+      }
+
+      this.vehicles[jsonMessage.sid].update(jsonMessage);
+      if (this.currentMission) this.currentMission.update(jsonMessage);
     }
 
     Orchestrator.acknowledgeMessage(jsonMessage);
-
-    this.vehicles[jsonMessage.sid].update(jsonMessage);
-    if (this.currentMission) this.currentMission.update(jsonMessage);
   }
 
   /**
@@ -235,27 +243,28 @@ class Orchestrator {
    */
   private handleCompleteMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
     if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
-    if (!newMessage) return;
 
-    if (!this.currentMission) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: `Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while no mission is running`,
-      });
-      return;
-    }
+    if (newMessage) {
+      if (!this.currentMission) {
+        ipc.postLogMessages({
+          type: 'failure',
+          message: `Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while no mission is running`,
+        });
+        return;
+      }
 
-    if (!this.currentMission.getVehicles()[jsonMessage.sid]) {
-      ipc.postLogMessages({
-        type: 'failure',
-        message: `Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while it is not assigned to the mission`,
-      });
-      return;
+      if (!this.currentMission.getVehicles()[jsonMessage.sid]) {
+        ipc.postLogMessages({
+          type: 'failure',
+          message: `Received complete message from ${vehicleConfig.vehicleInfos[jsonMessage.sid]} while it is not assigned to the mission`,
+        });
+        return;
+      }
+
+      this.currentMission.update(jsonMessage);
     }
 
     Orchestrator.acknowledgeMessage(jsonMessage);
-
-    this.currentMission.update(jsonMessage);
   }
 
   /**
