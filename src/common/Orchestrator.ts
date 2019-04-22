@@ -93,7 +93,7 @@ class Orchestrator {
    * @param jsonMessage The connect message.
    */
   private connectToVehicle(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (this.vehicles[jsonMessage.sid] && this.vehicles[jsonMessage.sid].getStatus() !== 'disconnected') return;
     if (!newMessage) return;
 
     // Put this after newMessage return since this message will be sent repeatedly.

@@ -44,7 +44,7 @@ function sendMessage(message: JSONMessage): void {
   const { macAddress } = vehicleInfoObject as VehicleInfo;
 
   xbeeAPI.builder.write({
-    type: C.FRAME_TYPE.ZIGBEE_TRANSMIT_STATUS,
+    type: C.FRAME_TYPE.ZIGBEE_TRANSMIT_REQUEST,
     destination64: macAddress,
     data: msgpack.encode(message),
   });

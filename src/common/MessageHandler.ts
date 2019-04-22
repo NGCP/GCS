@@ -73,11 +73,11 @@ class MessageHandler {
 
     this.id += 1;
 
+    xbee.sendMessage(jsonMessage);
     this.messageDictionary.push('sent', jsonMessage);
 
     if (Message.TypeGuard.isAcknowledgementMessage(message)
       || Message.TypeGuard.isBadMessage(message)) {
-      xbee.sendMessage(jsonMessage);
       return;
     }
 
