@@ -65,6 +65,8 @@ Sent to the GCS to let it know of the vehicle's status. This should always be se
     "errorMessage": <string>                 // Optional, see notes below for more info
   }
 
+.. note::
+  Requires an `acknowledgement message`_ from the GCS.
 
 .. confval:: lat
 
