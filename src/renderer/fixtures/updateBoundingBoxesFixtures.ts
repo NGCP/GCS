@@ -15,4 +15,4 @@ const boundingBox = {
   },
 };
 
-ipc.postUpdateBoundingBoxes(boundingBox);
+ipc.postUpdateBoundingBoxes(true, boundingBox);

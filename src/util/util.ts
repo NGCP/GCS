@@ -12,14 +12,14 @@ export function updateVehicles(
   component: Component<{}, { vehicles: { [vehicleId: string]: VehicleObject } }>,
   ...vehicles: VehicleObject[]
 ): void {
-  const { vehicles: thisVehicles } = component.state;
-  const currentVehicles = thisVehicles;
+  const { vehicles: currentVehicles } = component.state;
+  const newVehicles = currentVehicles;
 
   vehicles.forEach((vehicle): void => {
-    currentVehicles[vehicle.vehicleId] = vehicle;
+    newVehicles[vehicle.vehicleId] = vehicle;
   });
 
-  component.setState({ vehicles: currentVehicles });
+  component.setState({ vehicles: newVehicles });
 }
 
 /**

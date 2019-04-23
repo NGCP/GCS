@@ -1,16 +1,9 @@
 import { Event, ipcRenderer } from 'electron';
 import fs from 'fs';
 import Leaflet from 'leaflet';
-import React, {
-  Component,
-  createRef,
-  Fragment,
-  ReactNode,
-  RefObject,
-} from 'react';
+import React, { Component, Fragment, ReactNode } from 'react';
 import {
   Map,
-  Rectangle,
   TileLayer,
   Viewport,
 } from 'react-leaflet';
@@ -25,6 +18,8 @@ import { updateVehicles } from '../../../util/util';
 
 import GeolocationControl from './control/GeolocationControl';
 import ThemeControl from './control/ThemeControl';
+
+import BoundingBox from './shape/BoundingBox';
 
 // import CachedTileLayer from './CachedTileLayer';
 import VehicleMarker from './marker/VehicleMarker';
@@ -113,7 +108,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
       waypoints: {},
     };
 
-    this.ref = createRef();
+    this.ref = React.createRef();
 
     this.onlocationfound = this.onlocationfound.bind(this);
     this.onViewportChanged = this.onViewportChanged.bind(this);
@@ -133,8 +128,8 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (_: Event, location: Location): void => this.updateMapLocation(location));
     ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
-    ipcRenderer.on('updateWaypoints', (_: Event, updateMap?: boolean, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(updateMap, ...waypoints));
-    ipcRenderer.on('updateBoundingBoxes', (_: Event, ...boundingBoxes: { name: string; bounds: BoundingBoxBounds}[]): void => this.updateBoundingBoxes(...boundingBoxes));
+    ipcRenderer.on('updateWaypoints', (_: Event, updateMap: boolean, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(updateMap, ...waypoints));
+    ipcRenderer.on('updateBoundingBoxes', (_: Event, updateMap: boolean, ...boundingBoxes: { name: string; bounds: BoundingBoxBounds}[]): void => this.updateBoundingBoxes(updateMap, ...boundingBoxes));
   }
 
   /**
@@ -174,7 +169,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
   /**
    * Reference to map (to access its leaflet element).
    */
-  private ref: RefObject<Map>;
+  private ref: React.RefObject<Map>;
 
   /**
    * Callback whenever a "loadConfig" notification is received.
@@ -210,45 +205,46 @@ export default class MapContainer extends Component<ThemeProps, State> {
    * Updates waypoints.
    */
   private updateWaypoints(
-    updateMap?: boolean,
+    updateMap: boolean,
     ...waypoints: { name: string; location: Location }[]
   ): void {
-    const { waypoints: thisWaypoints } = this.state;
-    const currentWaypoints = thisWaypoints;
+    const { waypoints: currentWaypoints } = this.state;
+    const newWaypoints = currentWaypoints;
 
     waypoints.forEach((waypoint): void => {
-      if (!currentWaypoints[waypoint.name]) {
-        currentWaypoints[waypoint.name] = { location: waypoint.location, locked: false };
+      if (!newWaypoints[waypoint.name]) {
+        newWaypoints[waypoint.name] = { location: waypoint.location, locked: false };
       } else if (updateMap) {
-        currentWaypoints[waypoint.name].location = waypoint.location;
+        newWaypoints[waypoint.name].location = waypoint.location;
       }
     });
 
-    this.setState({ waypoints: currentWaypoints });
+    this.setState({ waypoints: newWaypoints });
   }
 
   /**
    * Updates bounding boxes.
    */
   private updateBoundingBoxes(
+    updateMap: boolean,
     ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds }[]
   ): void {
-    const { boundingBoxes: thisBoundingBoxes } = this.state;
-    const currentBoundingBoxes = thisBoundingBoxes;
+    const { boundingBoxes: currentBoundingBoxes } = this.state;
+    const newBoundingBoxes = currentBoundingBoxes;
 
     boundingBoxes.forEach((boundingBox): void => {
-      if (!currentBoundingBoxes[boundingBox.name]) {
-        currentBoundingBoxes[boundingBox.name] = {
+      if (!newBoundingBoxes[boundingBox.name]) {
+        newBoundingBoxes[boundingBox.name] = {
           color: boundingBox.color || '#000',
           bounds: boundingBox.bounds,
           locked: false,
         };
-      } else {
-        currentBoundingBoxes[boundingBox.name].bounds = boundingBox.bounds;
+      } else if (updateMap) {
+        newBoundingBoxes[boundingBox.name].bounds = boundingBox.bounds;
       }
     });
 
-    this.setState({ boundingBoxes: currentBoundingBoxes });
+    this.setState({ boundingBoxes: newBoundingBoxes });
   }
 
   public render(): ReactNode {
@@ -262,14 +258,12 @@ export default class MapContainer extends Component<ThemeProps, State> {
 
     const boundingBoxRectangles = Object.keys(boundingBoxes)
       .map((name): ReactNode => (
-        <Rectangle
+        <BoundingBox
           key={name}
+          name={name}
           color={boundingBoxes[name].color}
-          opacity={0.5}
-          bounds={[
-            [boundingBoxes[name].bounds.bottom, boundingBoxes[name].bounds.left],
-            [boundingBoxes[name].bounds.top, boundingBoxes[name].bounds.right],
-          ]}
+          locked={boundingBoxes[name].locked}
+          startingBounds={boundingBoxes[name].bounds}
         />
       ));
 

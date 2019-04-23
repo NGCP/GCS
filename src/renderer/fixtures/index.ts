@@ -4,5 +4,5 @@
 
 // import './logMessagesFixtures';
 import './updateBoundingBoxesFixtures';
-import './updateVehiclesFixtures';
+// import './updateVehiclesFixtures';
 import './updateWaypointsFixtures';

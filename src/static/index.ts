@@ -8,6 +8,7 @@ import plane from './images/markers/vehicles/plane.png';
 import rover_red from './images/markers/vehicles/rover_red.png';
 import rover from './images/markers/vehicles/rover.png';
 
+import draggable_selector from './images/markers/draggable_selector.png';
 import poi_fp from './images/markers/poi_fp.png';
 import poi_unknwn from './images/markers/poi_unkwn.png';
 import poi_vld from './images/markers/poi_vld.png';
@@ -99,7 +100,7 @@ const startLocation: Location = startLocationString && locations[startLocationSt
  * Checks if a number is a valid vehicle id.
  */
 function isValidVehicleId(vehicleId: number): boolean {
-  return vehicleInfos[vehicleId] !== undefined;
+  return vehicleId !== 0 && vehicleInfos[vehicleId] !== undefined;
 }
 
 /**
@@ -151,6 +152,7 @@ export const imageConfig: RecursiveImageSignature = {
   pin,
   logo: { ngcp_calpoly, ngcp_pomona },
   markers: {
+    draggable_selector,
     poi_fp,
     poi_unknwn,
     poi_vld,

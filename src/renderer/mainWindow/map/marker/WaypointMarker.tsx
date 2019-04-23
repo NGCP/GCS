@@ -2,7 +2,7 @@ import Leaflet from 'leaflet';
 import React, { PureComponent, ReactNode } from 'react';
 import { Marker, Tooltip } from 'react-leaflet';
 
-import { imageConfig, Location } from '../../../../static/index';
+import { Location } from '../../../../static/index';
 
 import ipc from '../../../../util/ipc';
 
@@ -11,6 +11,17 @@ export interface WaypointMarkerProps {
   location: Location;
   locked: boolean;
 }
+
+// @ts-ignore
+delete Leaflet.Icon.Default.prototype._getIconUrl; // eslint-disable-line no-underscore-dangle
+
+/* eslint-disable global-require */
+Leaflet.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
+/* eslint-disable global-require */
 
 export default class WaypointMarker extends PureComponent<WaypointMarkerProps> {
   public constructor(props: WaypointMarkerProps) {
@@ -37,15 +48,10 @@ export default class WaypointMarker extends PureComponent<WaypointMarkerProps> {
         draggable={!locked}
         ondrag={this.ondrag}
         position={[location.lat, location.lng]}
-        icon={Leaflet.icon({
-          iconUrl: imageConfig.pin as string,
-          iconSize: [50, 50],
-          iconAnchor: [25, 50],
-        })}
       >
         <Tooltip
           direction="top"
-          offset={[0, -45]}
+          offset={[0, -10]}
         >
           <p><b>{name}</b></p>
         </Tooltip>

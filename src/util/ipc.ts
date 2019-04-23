@@ -317,9 +317,10 @@ function postToggleTheme(): void {
  * - renderer/mainWindow/map/MapContainer
  */
 function postUpdateBoundingBoxes(
+  updateMap: boolean,
   ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds }[]
 ): void {
-  ipcRenderer.send('post', 'updateBoundingBoxes', ...boundingBoxes);
+  ipcRenderer.send('post', 'updateBoundingBoxes', updateMap, ...boundingBoxes);
 }
 
 /**
@@ -361,7 +362,7 @@ function postUpdateVehicles(...vehicles: VehicleObject[]): void {
  * @param updateMap Set this to true, except from the marker's drag event.
  */
 function postUpdateWaypoint(
-  updateMap?: boolean,
+  updateMap: boolean,
   ...waypoints: { name: string; location: Location }[]
 ): void {
   ipcRenderer.send('post', 'updateWaypoints', updateMap, ...waypoints);
