@@ -55,49 +55,45 @@ Sent to the GCS to let it know of the vehicle's status. This should always be se
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
 
-    "lat": <hex string>,
-    "lng": <hex string>,
-    "alt": <hex string>,                     // Optional
-    "heading": <hex string>,                 // Optional
-    "battery": <hex string>,                 // Optional, must be a value from 0 < x <= 1
+    "lat": <float>,
+    "lng": <float>,
+    "alt": <float>,                     // Optional
+    "heading": <float>,                 // Optional
+    "battery": <float>,                 // Optional, must be a value from 0 < x <= 1
 
     "status": <string>,                      // Vehicle status
     "errorMessage": <string>                 // Optional, see notes below for more info
   }
 
-.. note::
-  | Requires an `acknowledgement message`_ from the GCS.
-  | Also, click `here <implementation.html#hex-string>`_ to see what a hex string is and how to implement it.
-
 
 .. confval:: lat
 
-  :type: hex string
+  :type: float
 
   Latitude of vehicle.
 
 .. confval:: lng
 
-  :type: hex string
+  :type: float
 
   Longitude of vehicle.
 
 .. confval:: alt
 
-  :type: hex string
+  :type: float
   :optional: true
 
   Altitude of vehicle.
 
 .. confval:: heading : Optional
 
-  :type: hex string
+  :type: float
 
   Heading of vehicle.
 
 .. confval:: battery : Optional
 
-  :type: hex string
+  :type: float
 
   Battery percentage of vehicle, expressed as a decimal. Range is 0 < x <= 1.
 
@@ -137,8 +133,8 @@ Sent to the GCS to let it know of a point of interest found in a mission. Not al
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
 
-    "lat": <hex string>,                   // Latitude of point of interest
-    "lng": <hex string>,                   // Longitude of point of interest
+    "lat": <float>,                   // Latitude of point of interest
+    "lng": <float>,                   // Longitude of point of interest
   }
 
 .. note::
@@ -146,13 +142,13 @@ Sent to the GCS to let it know of a point of interest found in a mission. Not al
 
 .. confval:: lat
 
-  :type: hex string
+  :type: float
 
   Latitude of point of interest.
 
 .. confval:: lng
 
-  :type: hex string
+  :type: float
 
   Longitude of point of interest.
 
