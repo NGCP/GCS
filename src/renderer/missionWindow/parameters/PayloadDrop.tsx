@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-import { jobTypes } from '../../../common/missions/PayloadDrop';
+import { missionName, jobTypes } from '../../../common/missions/PayloadDrop';
 
 export const name = 'Payload Drop';
 
@@ -12,6 +12,7 @@ export function PayloadDrop(): ReactNode {
 
 export default {
   name,
+  missionName,
   jobTypes,
   layout: PayloadDrop as React.ElementType,
 };

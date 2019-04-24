@@ -6,10 +6,11 @@
   height: 100%;
   width: 100;
   grid-template-areas:
-    'selector'
-    'info'
-    'button';
+    'selector selector selector selector'
+    'parameter parameter parameter mapping'
+    'button button button button';
   grid-template-rows: 25px auto 25px;
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .selectorContainer {
@@ -17,8 +18,12 @@
   margin: auto;
 }
 
-.infoContainer {
-  grid-area: info;
+.parameterContainer {
+  grid-area: parameter;
+}
+
+.mappingContainer {
+  grid-area: mapping;
 }
 
 .buttonContainer {

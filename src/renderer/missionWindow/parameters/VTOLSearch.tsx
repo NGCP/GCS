@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-import { jobTypes } from '../../../common/missions/VTOLSearch';
+import { missionName, jobTypes } from '../../../common/missions/VTOLSearch';
 
 export const name = 'VTOL Search';
 
@@ -12,6 +12,7 @@ export function VTOLSearch(): ReactNode {
 
 export default {
   name,
+  missionName,
   jobTypes,
   layout: VTOLSearch as React.ElementType,
 };

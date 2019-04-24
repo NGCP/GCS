@@ -68,6 +68,28 @@ function postConnectToVehicle(jsonMessage: Message.JSONMessage, newMessage: bool
 }
 
 /**
+ * Post "createBoundingBoxes" notification.
+ *
+ * Files that take this notification:
+ * - renderer/mainWindow/map/MapContainer
+ */
+function postCreateBoundingBoxes(
+  ...boundingBoxes: { name: string; color?: string; bounds?: BoundingBoxBounds}[]
+): void {
+  ipcRenderer.send('post', 'createBoundingBoxes', ...boundingBoxes);
+}
+
+/**
+ * Post "createWaypoints" notification.
+ *
+ * Files that take this notification:
+ * - renderer/mainWindow/map/MapContainer
+ */
+function postCreateWaypoints(...waypoints: { name: string; location?: Location }[]): void {
+  ipcRenderer.send('post', 'createWaypoints', ...waypoints);
+}
+
+/**
  * Post "disconnectFromVehicle" notification.
  *
  * Files that take this notification:
@@ -346,6 +368,16 @@ function postUpdateBoundingBoxes(
 }
 
 /**
+ * Post "updateInformation" notification.
+ *
+ * Files that take this notification:
+ * - renderer/missionWindow/MissionWindow
+ */
+function postUpdateInformation(information: Information): void {
+  ipcRenderer.send('post', 'updateInformation', information);
+}
+
+/**
  * Post "updateMapLocation" notification.
  *
  * Files that take this notification:
@@ -380,10 +412,11 @@ function postUpdateVehicles(...vehicles: VehicleObject[]): void {
  *
  * Files that take this notification:
  * - renderer/mainWindow/map/MapContainer
+ * - renderer/missionWindow/parameters/ISRSearch
  *
  * @param updateMap Set this to true, except from the marker's drag event.
  */
-function postUpdateWaypoint(
+function postUpdateWaypoints(
   updateMap: boolean,
   ...waypoints: { name: string; location: Location }[]
 ): void {
@@ -395,6 +428,8 @@ export default {
   postCompleteMission,
   postConfirmCompleteMission,
   postConnectToVehicle,
+  postCreateBoundingBoxes,
+  postCreateWaypoints,
   postDisconnectFromVehicle,
   postFinishMissions,
   postHandleAcknowledgementMessage,
@@ -419,7 +454,8 @@ export default {
   postStopSendingMessages,
   postToggleTheme,
   postUpdateBoundingBoxes,
+  postUpdateInformation,
   postUpdateMapLocation,
   postUpdateVehicles,
-  postUpdateWaypoint,
+  postUpdateWaypoints,
 };

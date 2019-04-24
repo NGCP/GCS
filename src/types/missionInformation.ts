@@ -1,5 +1,3 @@
-import { JobType } from '../static/index';
-
 import * as Task from './task';
 
 export type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'ugvRescue' | 'uuvRescue';
@@ -19,11 +17,6 @@ interface InformationBase {
    * Options for the mission. User generated.
    */
   options: {};
-
-  /**
-   * Vehicle mapping for specific mission. User generated.
-   */
-  activeVehicleMapping: { [vehicleId: number]: JobType };
 }
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix

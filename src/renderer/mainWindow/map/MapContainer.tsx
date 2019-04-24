@@ -14,6 +14,7 @@ import { BoundingBoxBounds, ThemeProps } from '../../../types/componentStyle';
 import { FileLoadOptions, FileSaveOptions } from '../../../types/fileOption';
 import { VehicleObject } from '../../../types/vehicle';
 
+import ipc from '../../../util/ipc';
 import { updateVehicles } from '../../../util/util';
 
 import GeolocationControl from './control/GeolocationControl';
@@ -116,7 +117,9 @@ export default class MapContainer extends Component<ThemeProps, State> {
     this.loadConfig = this.loadConfig.bind(this);
     this.saveConfig = this.saveConfig.bind(this);
     this.centerMapToVehicle = this.centerMapToVehicle.bind(this);
+    this.createWaypoints = this.createWaypoints.bind(this);
     this.updateWaypoints = this.updateWaypoints.bind(this);
+    this.createBoundingBoxes = this.createBoundingBoxes.bind(this);
     this.updateBoundingBoxes = this.updateBoundingBoxes.bind(this);
   }
 
@@ -128,8 +131,11 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('setMapToUserLocation', this.setMapToUserLocation);
     ipcRenderer.on('updateMapLocation', (_: Event, location: Location): void => this.updateMapLocation(location));
     ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
+
+    ipcRenderer.on('createWaypoints', (_: Event, ...waypoints: { name: string; location: Location }[]): void => this.createWaypoints(...waypoints));
     ipcRenderer.on('updateWaypoints', (_: Event, updateMap: boolean, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(updateMap, ...waypoints));
-    ipcRenderer.on('updateBoundingBoxes', (_: Event, updateMap: boolean, ...boundingBoxes: { name: string; bounds: BoundingBoxBounds}[]): void => this.updateBoundingBoxes(updateMap, ...boundingBoxes));
+    ipcRenderer.on('createBoundingBoxes', (_: Event, ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds}[]): void => this.createBoundingBoxes(...boundingBoxes));
+    ipcRenderer.on('updateBoundingBoxes', (_: Event, updateMap: boolean, ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds}[]): void => this.updateBoundingBoxes(updateMap, ...boundingBoxes));
   }
 
   /**
@@ -202,6 +208,30 @@ export default class MapContainer extends Component<ThemeProps, State> {
   }
 
   /**
+   * Creates waypoints.
+   */
+  private createWaypoints(...waypoints: { name: string; location?: Location }[]): void {
+    const { viewport, waypoints: currentWaypoints } = this.state;
+    const newWaypoints = currentWaypoints;
+
+    waypoints.forEach((waypoint): void => {
+      if (!newWaypoints[waypoint.name]) {
+        newWaypoints[waypoint.name] = {
+          locked: false,
+          location: waypoint.location || (viewport.center && {
+            lat: viewport.center[0],
+            lng: viewport.center[1],
+          }) || locationConfig.startLocation,
+        };
+
+        ipc.postUpdateWaypoints(false, { name: waypoint.name, ...newWaypoints[waypoint.name] });
+      }
+    });
+
+    this.setState({ waypoints: newWaypoints });
+  }
+
+  /**
    * Updates waypoints.
    */
   private updateWaypoints(
@@ -212,14 +242,48 @@ export default class MapContainer extends Component<ThemeProps, State> {
     const newWaypoints = currentWaypoints;
 
     waypoints.forEach((waypoint): void => {
-      if (!newWaypoints[waypoint.name]) {
-        newWaypoints[waypoint.name] = { location: waypoint.location, locked: false };
-      } else if (updateMap) {
+      if (newWaypoints[waypoint.name] && updateMap) {
         newWaypoints[waypoint.name].location = waypoint.location;
       }
     });
 
     this.setState({ waypoints: newWaypoints });
+  }
+
+  /**
+   * Creates bounding boxes.
+   */
+  private createBoundingBoxes(
+    ...boundingBoxes: {
+      name: string;
+      bounds?: BoundingBoxBounds;
+      color?: string;
+    }[]
+  ): void {
+    const { boundingBoxes: currentBoundingBoxes, viewport } = this.state;
+    const newBoundingBoxes = currentBoundingBoxes;
+
+    boundingBoxes.forEach((boundingBox): void => {
+      if (!newBoundingBoxes[boundingBox.name]) {
+        newBoundingBoxes[boundingBox.name] = {
+          color: boundingBox.color || 'red',
+          bounds: boundingBox.bounds || (viewport.center && {
+            top: viewport.center[0],
+            bottom: viewport.center[0],
+            left: viewport.center[1],
+            right: viewport.center[1],
+          }) || {
+            top: locationConfig.startLocation.lat,
+            bottom: locationConfig.startLocation.lat,
+            left: locationConfig.startLocation.lng,
+            right: locationConfig.startLocation.lng,
+          },
+          locked: false,
+        };
+      }
+    });
+
+    this.setState({ boundingBoxes: newBoundingBoxes });
   }
 
   /**
@@ -231,21 +295,15 @@ export default class MapContainer extends Component<ThemeProps, State> {
       name: string;
       bounds: BoundingBoxBounds;
       color?: string;
-      locked?: boolean;
     }[]
   ): void {
     const { boundingBoxes: currentBoundingBoxes } = this.state;
     const newBoundingBoxes = currentBoundingBoxes;
 
     boundingBoxes.forEach((boundingBox): void => {
-      if (!newBoundingBoxes[boundingBox.name]) {
-        newBoundingBoxes[boundingBox.name] = {
-          color: boundingBox.color || '#000',
-          bounds: boundingBox.bounds,
-          locked: boundingBox.locked || false,
-        };
-      } else if (updateMap) {
+      if (newBoundingBoxes[boundingBox.name] && updateMap) {
         newBoundingBoxes[boundingBox.name].bounds = boundingBox.bounds;
+        if (boundingBox.color) newBoundingBoxes[boundingBox.name].color = boundingBox.color;
       }
     });
 

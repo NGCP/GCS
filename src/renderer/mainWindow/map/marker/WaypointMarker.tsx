@@ -35,7 +35,7 @@ export default class WaypointMarker extends PureComponent<WaypointMarkerProps> {
   private ondrag(event: Leaflet.LeafletMouseEvent): void {
     const { name } = this.props;
 
-    ipc.postUpdateWaypoint(false, { name, location: event.latlng });
+    ipc.postUpdateWaypoints(false, { name, location: event.latlng });
   }
 
   public render(): ReactNode {

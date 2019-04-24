@@ -8,7 +8,9 @@ import { JobType } from '../../static/index';
 
 import { ThemeProps } from '../../types/componentStyle';
 import * as MissionInformation from '../../types/missionInformation';
-import { VehicleStatus } from '../../types/vehicle';
+import { VehicleObject, VehicleStatus } from '../../types/vehicle';
+
+import { updateVehicles } from '../../util/util';
 
 import ISRSearch from './parameters/ISRSearch';
 import PayloadDrop from './parameters/PayloadDrop';
@@ -24,6 +26,7 @@ const Range = Slider.createSliderWithTooltip(Slider.Range);
 
 interface MissionLayout {
   name: string;
+  missionName: string;
   jobTypes: JobType[];
   layout: React.ElementType;
 }
@@ -65,21 +68,19 @@ interface State {
   status: VehicleStatus | 'next';
 
   /**
-   * Information passed to Orchestrator for Mission to start.
+   * Current vehicles connected.
    */
-  information: {
-    land: MissionInformation.Information[];
-    underwater: MissionInformation.Information[];
-  };
+  vehicles: { [vehicleId: number]: VehicleObject };
 
   /**
-   * Information passed from missions as their information gets filled up. This is to
-   * prevent old information from being lost when user switches start mission.
+   * Mapping for all missions selected.
    */
-  informationCache: {
-    land: MissionInformation.Information[];
-    underwater: MissionInformation.Information[];
-  };
+  activeVehicleMapping: { [vehicleId: number]: JobType };
+
+  /**
+   * Information passed to Orchestrator for Mission to start.
+   */
+  information: { [missionName: string]: undefined | MissionInformation.Information };
 }
 
 /**
@@ -95,23 +96,22 @@ export default class MissionWindow extends Component<ThemeProps, State> {
       startMissionIndex: 0,
       endMissionIndex: 0,
       status: 'ready',
-      information: {
-        land: [],
-        underwater: [],
-      },
-      informationCache: {
-        land: [],
-        underwater: [],
-      },
+      vehicles: {},
+      activeVehicleMapping: {},
+      information: {},
     };
 
     this.onSliderChange = this.onSliderChange.bind(this);
+    this.updateInformation = this.updateInformation.bind(this);
     this.postStartMissions = this.postStartMissions.bind(this);
     this.toggleMissionType = this.toggleMissionType.bind(this);
     this.tipFormatter = this.tipFormatter.bind(this);
   }
 
   public componentDidMount(): void {
+    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
+    ipcRenderer.on('updateInformation', (_event: Event, information: MissionInformation.Information): void => this.updateInformation(information));
+
     ipcRenderer.on('confirmCompleteMission', (): void => { this.setState({ status: 'next' }); });
     ipcRenderer.on('stopMissions', (): void => { this.setState({ status: 'ready' }); });
   }
@@ -123,6 +123,14 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     });
   }
 
+  private updateInformation(information: MissionInformation.Information): void {
+    const { information: currentInformation } = this.state;
+    const newInformation = currentInformation;
+
+    newInformation[information.missionName] = information;
+    this.setState({ information: newInformation });
+  }
+
   private postStartMissions(): void {
     const {
       missionType,
@@ -132,10 +140,16 @@ export default class MissionWindow extends Component<ThemeProps, State> {
       information,
     } = this.state;
 
-    ipc.postStartMissions(
-      information[missionType].slice(startMissionIndex, endMissionIndex + 1),
-      requireConfirmation,
-    );
+    // Gets all relevant mission information for the missions being performed for the mission type.
+    const missionInformation = layouts[missionType].slice(startMissionIndex, endMissionIndex + 1)
+      .map(({ missionName }): MissionInformation.Information => {
+        if (!information[missionName]) {
+          throw new Error(`Undefined mission information for ${missionName}`);
+        }
+        return information[missionName] as MissionInformation.Information;
+      });
+
+    ipc.postStartMissions(missionInformation, requireConfirmation);
   }
 
   private toggleMissionType(): void {
@@ -153,21 +167,29 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     const { theme } = this.props;
     const {
       information,
-      informationCache,
       missionType,
       status,
       startMissionIndex,
+      endMissionIndex,
     } = this.state;
 
+    // Text displayed on toggle button.
     const missionTypeText = missionType === 'land' ? 'Land Missions' : 'Underwater Missions';
 
-    const Layout = layouts[missionType][startMissionIndex].layout;
+    /*
+     * Used to render mission UI layout as well as determine which mission layout
+     * corresponds to which mission information.
+     */
+    const { layout: Layout, missionName } = layouts[missionType][startMissionIndex];
+
+    // Used to render all the required jobs and options.
+    const selectedLayouts = layouts[missionType].slice(startMissionIndex, endMissionIndex + 1);
 
     /*
      * Start button will not appear unless all mission information is filled out
      * (and no mission is running).
      */
-    const readyToStart = information[missionType][startMissionIndex] !== undefined;
+    const readyToStart = information[missionName] !== undefined;
 
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
@@ -181,8 +203,11 @@ export default class MissionWindow extends Component<ThemeProps, State> {
             tipFormatter={this.tipFormatter}
           />
         </div>
-        <div className="infoContainer">
-          <Layout information={informationCache[missionType][startMissionIndex]} />
+        <div className="parameterContainer">
+          {status === 'ready' && <Layout />}
+          {status !== 'ready' && <p>:)</p>}
+        </div>
+        <div className="mappingContainer">
         </div>
         <div className="buttonContainer">
           {status === 'ready' && <button type="button" disabled={!readyToStart} onClick={this.postStartMissions}>Start Missions</button>}

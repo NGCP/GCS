@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-import { jobTypes } from '../../../common/missions/UGVRescue';
+import { missionName, jobTypes } from '../../../common/missions/UGVRescue';
 
 export const name = 'UGV Rescue';
 
@@ -12,6 +12,7 @@ export function UGVRescue(): ReactNode {
 
 export default {
   name,
+  missionName,
   jobTypes,
   layout: UGVRescue as React.ElementType,
 };

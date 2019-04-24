@@ -1,6 +1,11 @@
 import { ipcRenderer, Event } from 'electron';
 
-import { config, vehicleConfig, VehicleInfo } from '../static/index';
+import {
+  config,
+  JobType,
+  vehicleConfig,
+  VehicleInfo,
+} from '../static/index';
 
 import * as Message from '../types/message';
 import * as MissionInformation from '../types/missionInformation';
@@ -64,7 +69,15 @@ class Orchestrator {
    */
   private currentMission: Mission | null = null;
 
+  /**
+   * All vehicles that have connected to the GCS.
+   */
   private vehicles: { [vehicleId: number]: Vehicle } = {};
+
+  /**
+   * Used for a mission to process which vehicle is doing which job.
+   */
+  private activeVehicleMapping: { [vehicleId: number]: JobType } = {};
 
   public constructor() {
     ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: Message.JSONMessage, newMessage: boolean): void => this.connectToVehicle(jsonMessage, newMessage));
@@ -79,8 +92,9 @@ class Orchestrator {
     ipcRenderer.on('startMissions', (
       _: Event,
       missions: MissionInformation.Information[],
+      activeVehicleMapping: { [vehicleId: number]: JobType },
       requireConfirmation: boolean,
-    ): void => this.startMissions(missions, requireConfirmation));
+    ): void => this.startMissions(missions, activeVehicleMapping, requireConfirmation));
     ipcRenderer.on('pauseMission', this.pauseMission);
     ipcRenderer.on('resumeMission', this.resumeMission);
     ipcRenderer.on('startNextMission', this.startNextMission);
@@ -276,6 +290,7 @@ class Orchestrator {
    */
   private startMissions(
     missions: MissionInformation.Information[],
+    activeVehicleMapping: { [vehicleId: number]: JobType },
     requireConfirmation: boolean,
   ): void {
     if (this.running) {
@@ -290,6 +305,7 @@ class Orchestrator {
 
     this.running = true;
     this.missions = missions;
+    this.activeVehicleMapping = activeVehicleMapping;
     this.requireConfirmation = requireConfirmation;
     this.currentMissionIndex = 0;
 
@@ -383,7 +399,7 @@ class Orchestrator {
     this.currentMission = new mission.constructor(
       this.vehicles,
       this.missions[this.currentMissionIndex],
-      this.missions[this.currentMissionIndex].activeVehicleMapping,
+      this.activeVehicleMapping,
     );
   }
 
@@ -397,6 +413,7 @@ class Orchestrator {
     this.missions = [];
     this.running = false;
     this.requireConfirmation = false;
+    this.activeVehicleMapping = {};
   }
 }
 

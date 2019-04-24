@@ -6,7 +6,7 @@ const { lat, lng } = locationConfig.startLocation;
 
 const boundingBox = {
   name: 'Test Bounding Box',
-  color: 'red',
+  color: 'blue',
   bounds: {
     top: lat,
     bottom: lat - 0.001,
@@ -15,4 +15,4 @@ const boundingBox = {
   },
 };
 
-ipc.postUpdateBoundingBoxes(true, boundingBox);
+ipc.postCreateBoundingBoxes(boundingBox);
