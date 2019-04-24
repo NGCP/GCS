@@ -1,6 +1,6 @@
 {
   "name": "GCS",
-  "version": "0.6.5",
+  "version": "0.7.0",
   "license": "MIT",
   "author": "Northrop Grumman Collaboration Project",
   "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
@@ -22,6 +22,7 @@
     "msgpack-lite": "^0.1.26",
     "pouchdb": "^7.0.0",
     "prop-types": "^15.7.2",
+    "rc-slider": "^8.6.9",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-leaflet": "^2.2.1",
@@ -38,6 +39,7 @@
     "@types/msgpack-lite": "^0.1.6",
     "@types/node": "^11.13.5",
     "@types/pouchdb": "^6.3.3",
+    "@types/rc-slider": "^8.6.3",
     "@types/react": "^16.8.13",
     "@types/react-dom": "^16.8.4",
     "@types/react-leaflet": "^2.2.1",

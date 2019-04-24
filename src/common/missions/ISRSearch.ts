@@ -12,11 +12,11 @@ import { getBoundingBox } from '../../util/util';
 
 import Vehicle from '../struct/Vehicle';
 
-const missionName: MissionInformation.MissionName = 'isrSearch';
+export const missionName: MissionInformation.MissionName = 'isrSearch';
 
-const jobTypes: JobType[] = ['isrSearch'];
+export const jobTypes: JobType[] = ['isrSearch'];
 
-class ISRSearch extends Mission {
+export class ISRSearch extends Mission {
   protected missionName = missionName;
 
   protected jobTypes = new Set<JobType>(jobTypes);

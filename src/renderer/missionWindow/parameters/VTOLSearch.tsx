@@ -1,9 +1,8 @@
 import React, { ReactNode } from 'react';
+// import { jobTypes } from '../../../common/missions/VTOLSearch';
 
-export const jobs = ['quickScan', 'detailedSearch'];
-
-export default function ISRSearch(): ReactNode {
+export default function VTOLSearch(): ReactNode {
   return (
-    <div>ISRSearch</div>
+    <div>VTOL Search</div>
   );
 }

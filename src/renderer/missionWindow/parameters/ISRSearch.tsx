@@ -1,9 +1,8 @@
 import React, { ReactNode } from 'react';
-
-export const jobs = ['isrSearch'];
+// import { jobTypes } from '../../../common/missions/ISRSearch';
 
 export default function ISRSearch(): ReactNode {
   return (
-    <div>ISRSearch</div>
+    <div>ISR Search</div>
   );
 }

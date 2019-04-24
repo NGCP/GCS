@@ -8,6 +8,7 @@ import MissionWindow from './missionWindow/MissionWindow';
 
 import 'leaflet/dist/leaflet.css';
 import 'react-virtualized/styles.css';
+import 'rc-slider/assets/index.css';
 
 import './app.css';
 
@@ -23,7 +24,7 @@ export default class App extends Component<{}, State> {
     super(props);
 
     this.state = {
-      theme: 'light',
+      theme: 'dark',
     };
 
     this.toggleTheme = this.toggleTheme.bind(this);

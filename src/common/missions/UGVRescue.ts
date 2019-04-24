@@ -8,11 +8,11 @@ import { Task, TaskParameters } from '../../types/task';
 
 import Vehicle from '../struct/Vehicle';
 
-const missionName: MissionInformation.MissionName = 'ugvRescue';
+export const missionName: MissionInformation.MissionName = 'ugvRescue';
 
-const jobTypes: JobType[] = ['ugvRescue'];
+export const jobTypes: JobType[] = ['ugvRescue'];
 
-class UGVRescue extends Mission {
+export class UGVRescue extends Mission {
   protected missionName = missionName;
 
   protected jobTypes = new Set<JobType>(jobTypes);

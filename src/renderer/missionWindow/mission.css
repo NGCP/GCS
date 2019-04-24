@@ -1,19 +1,19 @@
 /* Defined styles for MissionWindow.jsx */
 
 .missionWrapper,
-.missionWrapper_dark,
-.mission,
-.job {
+.missionWrapper_dark {
   display: grid;
   height: 100%;
   width: 100;
-}
-
-.job {
   grid-template-areas:
+    'selector'
     'info'
     'button';
-  grid-template-rows: 7fr 1fr;
+  grid-template-rows: 25px auto 25px;
+}
+
+.selectorContainer {
+  grid-area: selector;
 }
 
 .infoContainer {
@@ -36,4 +36,14 @@
 .missionWrapper_dark {
   background-color: #212121;
   color: #fff;
+}
+
+.selectorButton {
+  margin-right: 10px;
+}
+
+.selectorSlider,
+.selectorSlider_dark {
+  width: 200px !important;
+  display: inline-block;
 }

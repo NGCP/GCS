@@ -11,11 +11,11 @@ import ipc from '../../util/ipc';
 
 import Vehicle from '../struct/Vehicle';
 
-const missionName: MissionInformation.MissionName = 'payloadDrop';
+export const missionName: MissionInformation.MissionName = 'payloadDrop';
 
-const jobTypes: JobType[] = ['payloadDrop'];
+export const jobTypes: JobType[] = ['payloadDrop'];
 
-class PayloadDrop extends Mission {
+export class PayloadDrop extends Mission {
   protected missionName = missionName;
 
   protected jobTypes = new Set<JobType>(jobTypes);

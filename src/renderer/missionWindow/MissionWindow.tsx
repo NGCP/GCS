@@ -1,18 +1,21 @@
 import React, { Component, ReactNode } from 'react';
+import { Range } from 'rc-slider';
 
 import { ThemeProps } from '../../types/componentStyle';
 import * as MissionInformation from '../../types/missionInformation';
 
 import ISRSearch from './parameters/ISRSearch';
 import PayloadDrop from './parameters/PayloadDrop';
-import UGVRetrieveTarget from './parameters/UGVRetrieveTarget';
-import UUVRetreiveTarget from './parameters/UUVRetrieveTarget';
+import UGVRescue from './parameters/UGVRescue';
+import UUVRescue from './parameters/UUVRescue';
 import VTOLSearch from './parameters/VTOLSearch';
 
 import ipc from '../../util/ipc';
 
-const layoutsLandMission = [ISRSearch, VTOLSearch, PayloadDrop, UGVRetrieveTarget];
-const layoutsUnderwaterMission = [ISRSearch, VTOLSearch, PayloadDrop, UUVRetreiveTarget];
+import './mission.css';
+
+const layoutsLandMission = [ISRSearch, VTOLSearch, PayloadDrop, UGVRescue];
+const layoutsUnderwaterMission = [ISRSearch, VTOLSearch, PayloadDrop, UUVRescue];
 
 interface State {
   missionType: 'land' | 'underwater';
@@ -43,7 +46,16 @@ export default class MissionWindow extends Component<ThemeProps, State> {
       },
     };
 
+    this.onSliderChange = this.onSliderChange.bind(this);
     this.postStartMissions = this.postStartMissions.bind(this);
+    this.toggleMissionType = this.toggleMissionType.bind(this);
+  }
+
+  private onSliderChange(value: [number, number]): void {
+    this.setState({
+      startMissionIndex: value[0],
+      endMissionIndex: value[1],
+    });
   }
 
   private postStartMissions(): void {
@@ -63,17 +75,44 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     );
   }
 
+  private toggleMissionType(): void {
+    const { missionType } = this.state;
+
+    this.setState({ missionType: missionType === 'land' ? 'underwater' : 'land' });
+  }
+
   public render(): ReactNode {
     const { theme } = this.props;
     const { missionType, startMissionIndex } = this.state;
 
-    const Layout = (missionType === 'land' ? layoutsLandMission[startMissionIndex]
-      : layoutsUnderwaterMission[startMissionIndex]) as React.ElementType;
+    const missionTypeText = missionType === 'land' ? 'Land Missions' : 'Underwater Missions';
+
+    const layouts = missionType === 'land' ? layoutsLandMission : layoutsUnderwaterMission;
+
+    if (startMissionIndex >= layouts.length) {
+      throw new RangeError('Layout chosen is out of range');
+    }
+
+    const Layout = layouts[startMissionIndex] as React.ElementType;
+
 
     return (
-      <div className={`missionWrapper${theme} === 'dark' ? '_dark : ''}`}>
-        <Layout />
-        <button type="button" onClick={this.postStartMissions}>Start Mission</button>
+      <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
+        <div className="selectorContainer">
+          <button className="selectorButton" type="button" onClick={this.toggleMissionType}>{missionTypeText}</button>
+          <Range
+            className={`selectorSlider${theme === 'dark' ? '_dark' : ''}`}
+            min={0}
+            max={layouts.length - 1}
+            onChange={this.onSliderChange}
+          />
+        </div>
+        <div className="infoContainer">
+          <Layout />
+        </div>
+        <div className="buttonContainer">
+          <button type="button" onClick={this.postStartMissions}>Start Mission</button>
+        </div>
       </div>
     );
   }

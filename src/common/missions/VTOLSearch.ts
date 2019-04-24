@@ -12,11 +12,11 @@ import { getDistance } from '../../util/util';
 
 import Vehicle from '../struct/Vehicle';
 
-const missionName: MissionInformation.MissionName = 'vtolSearch';
+export const missionName: MissionInformation.MissionName = 'vtolSearch';
 
-const jobTypes: JobType[] = ['quickScan', 'detailedSearch'];
+export const jobTypes: JobType[] = ['quickScan', 'detailedSearch'];
 
-class VTOLSearch extends Mission {
+export class VTOLSearch extends Mission {
   protected missionName = missionName;
 
   protected jobTypes = new Set<JobType>(jobTypes);
