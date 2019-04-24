@@ -14,6 +14,7 @@
 
 .selectorContainer {
   grid-area: selector;
+  margin: auto;
 }
 
 .infoContainer {
@@ -22,6 +23,7 @@
 
 .buttonContainer {
   grid-area: button;
+  margin: auto;
 }
 
 /* Light theme */
@@ -39,7 +41,8 @@
 }
 
 .selectorButton {
-  margin-right: 10px;
+  min-width: 150px;
+  margin-right: 20px;
 }
 
 .selectorSlider,
