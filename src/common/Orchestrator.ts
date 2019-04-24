@@ -8,7 +8,7 @@ import * as Task from '../types/task';
 
 import ipc from '../util/ipc';
 
-import missionObject, { MissionObject } from './missions/index';
+import missionObject from './missions/index';
 
 import Mission from './struct/Mission';
 import Vehicle from './struct/Vehicle';
@@ -351,7 +351,7 @@ class Orchestrator {
       return;
     }
 
-    const mission = missionObj as MissionObject;
+    const mission = missionObj;
 
     this.currentMissionIndex += 1;
     this.currentMission = new mission.constructor(

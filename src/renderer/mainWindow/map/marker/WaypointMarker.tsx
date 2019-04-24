@@ -12,16 +12,18 @@ export interface WaypointMarkerProps {
   locked: boolean;
 }
 
-// @ts-ignore
-delete Leaflet.Icon.Default.prototype._getIconUrl; // eslint-disable-line no-underscore-dangle
+/* eslint-disable */
 
-/* eslint-disable global-require */
+// See this issue for the following logic: https://github.com/PaulLeCam/react-leaflet/issues/255#issuecomment-269750542.
+delete (Leaflet.Icon.Default.prototype as any)._getIconUrl;
+
 Leaflet.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
-/* eslint-disable global-require */
+
+/* eslint-disable */
 
 export default class WaypointMarker extends PureComponent<WaypointMarkerProps> {
   public constructor(props: WaypointMarkerProps) {

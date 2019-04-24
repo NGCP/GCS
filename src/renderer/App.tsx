@@ -11,8 +11,8 @@ import 'react-virtualized/styles.css';
 
 import './app.css';
 
-const windows: { [hash: string]: ReactNode } = {
-  '#main': MainWindow,
+const windows: { [hash: string]: React.ElementType } = {
+  '#main': MainWindow as React.ElementType,
   '#mission': MissionWindow,
 };
 
@@ -44,11 +44,14 @@ export default class App extends Component<{}, State> {
 
     // In the case another hash was somehow loaded.
     if (window.location.hash !== '#main' && window.location.hash !== '#mission') {
-      return <div />;
+      return (
+        <div>
+          <h1>404 Not Found</h1>
+        </div>
+      );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const Window = windows[window.location.hash] as any;
+    const Window = windows[window.location.hash];
 
     return <Window theme={theme} />;
   }

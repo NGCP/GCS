@@ -201,8 +201,41 @@ export default class BoundingBox extends PureComponent<BoundingBoxProps, State> 
   public render(): ReactNode {
     const { locked, color, startingBounds } = this.props;
 
+    const boundingMarkers = (
+      <div>
+        <Marker
+          draggable
+          ondrag={this.ondrag1}
+          ref={this.ref1}
+          position={[startingBounds.top, startingBounds.left]}
+          icon={selectorIcon}
+        />
+        <Marker
+          draggable
+          ondrag={this.ondrag2}
+          ref={this.ref2}
+          position={[startingBounds.bottom, startingBounds.left]}
+          icon={selectorIcon}
+        />
+        <Marker
+          draggable
+          ondrag={this.ondrag3}
+          ref={this.ref3}
+          position={[startingBounds.top, startingBounds.right]}
+          icon={selectorIcon}
+        />
+        <Marker
+          draggable
+          ondrag={this.ondrag4}
+          ref={this.ref4}
+          position={[startingBounds.bottom, startingBounds.right]}
+          icon={selectorIcon}
+        />
+      </div>
+    );
+
     return (
-      <>
+      <div>
         <Rectangle
           color={color}
           weight={2}
@@ -213,35 +246,8 @@ export default class BoundingBox extends PureComponent<BoundingBoxProps, State> 
             [startingBounds.top, startingBounds.right],
           ]}
         />
-        <Marker
-          draggable={!locked}
-          ondrag={this.ondrag1}
-          ref={this.ref1}
-          position={[startingBounds.top, startingBounds.left]}
-          icon={selectorIcon}
-        />
-        <Marker
-          draggable={!locked}
-          ondrag={this.ondrag2}
-          ref={this.ref2}
-          position={[startingBounds.bottom, startingBounds.left]}
-          icon={selectorIcon}
-        />
-        <Marker
-          draggable={!locked}
-          ondrag={this.ondrag3}
-          ref={this.ref3}
-          position={[startingBounds.top, startingBounds.right]}
-          icon={selectorIcon}
-        />
-        <Marker
-          draggable={!locked}
-          ondrag={this.ondrag4}
-          ref={this.ref4}
-          position={[startingBounds.bottom, startingBounds.right]}
-          icon={selectorIcon}
-        />
-      </>
+        {!locked && boundingMarkers}
+      </div>
     );
   }
 }

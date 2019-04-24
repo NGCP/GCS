@@ -227,7 +227,12 @@ export default class MapContainer extends Component<ThemeProps, State> {
    */
   private updateBoundingBoxes(
     updateMap: boolean,
-    ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds }[]
+    ...boundingBoxes: {
+      name: string;
+      bounds: BoundingBoxBounds;
+      color?: string;
+      locked?: boolean;
+    }[]
   ): void {
     const { boundingBoxes: currentBoundingBoxes } = this.state;
     const newBoundingBoxes = currentBoundingBoxes;
@@ -237,7 +242,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
         newBoundingBoxes[boundingBox.name] = {
           color: boundingBox.color || '#000',
           bounds: boundingBox.bounds,
-          locked: false,
+          locked: boundingBox.locked || false,
         };
       } else if (updateMap) {
         newBoundingBoxes[boundingBox.name].bounds = boundingBox.bounds;

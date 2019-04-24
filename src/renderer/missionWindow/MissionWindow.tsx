@@ -1,27 +1,28 @@
 import React, { Component, ReactNode } from 'react';
 
 import { ThemeProps } from '../../types/componentStyle';
-// import * as MissionInformation from '../../types/missionInformation';
+import * as MissionInformation from '../../types/missionInformation';
 
 import ISRSearch from './parameters/ISRSearch';
-import PayLoadDrop from './parameters/PayloadDrop';
+import PayloadDrop from './parameters/PayloadDrop';
 import UGVRetrieveTarget from './parameters/UGVRetrieveTarget';
 import UUVRetreiveTarget from './parameters/UUVRetrieveTarget';
 import VTOLSearch from './parameters/VTOLSearch';
 
-const layouts: { [missionName: string]: () => ReactNode } = {
-  payloadDrop: PayLoadDrop,
-  isrSearch: ISRSearch,
-  ugvRescue: UGVRetrieveTarget,
-  uuvRescue: UUVRetreiveTarget,
-  vtolSearch: VTOLSearch,
-};
+import ipc from '../../util/ipc';
 
-type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'ugvRetrieve' | 'uuvRetrieve';
+const layoutsLandMission = [ISRSearch, VTOLSearch, PayloadDrop, UGVRetrieveTarget];
+const layoutsUnderwaterMission = [ISRSearch, VTOLSearch, PayloadDrop, UUVRetreiveTarget];
 
 interface State {
-  firstMission: MissionName;
-  // information: Information;
+  missionType: 'land' | 'underwater';
+  requireConfirmation: boolean;
+  startMissionIndex: number;
+  endMissionIndex: number;
+  information: {
+    landMission: MissionInformation.Information[];
+    underwaterMission: MissionInformation.Information[];
+  };
 }
 
 /**
@@ -32,21 +33,47 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     super(props);
 
     this.state = {
-      firstMission: 'isrSearch',
+      missionType: 'land',
+      requireConfirmation: true,
+      startMissionIndex: 0,
+      endMissionIndex: 0,
+      information: {
+        landMission: [],
+        underwaterMission: [],
+      },
     };
+
+    this.postStartMissions = this.postStartMissions.bind(this);
+  }
+
+  private postStartMissions(): void {
+    const {
+      missionType,
+      requireConfirmation,
+      startMissionIndex,
+      endMissionIndex,
+      information,
+    } = this.state;
+
+    const missionInformation = missionType === 'land' ? information.landMission : information.underwaterMission;
+
+    ipc.postStartMissions(
+      missionInformation.slice(startMissionIndex, endMissionIndex + 1),
+      requireConfirmation,
+    );
   }
 
   public render(): ReactNode {
     const { theme } = this.props;
-    const { firstMission } = this.state;
+    const { missionType, startMissionIndex } = this.state;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const Layout = layouts[firstMission] as any;
+    const Layout = (missionType === 'land' ? layoutsLandMission[startMissionIndex]
+      : layoutsUnderwaterMission[startMissionIndex]) as React.ElementType;
 
     return (
       <div className={`missionWrapper${theme} === 'dark' ? '_dark : ''}`}>
         <Layout />
-        <button type="button">Start Mission</button>
+        <button type="button" onClick={this.postStartMissions}>Start Mission</button>
       </div>
     );
   }
