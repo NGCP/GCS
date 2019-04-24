@@ -81,8 +81,8 @@ class Orchestrator {
       missions: MissionInformation.Information[],
       requireConfirmation: boolean,
     ): void => this.startMissions(missions, requireConfirmation));
-
-
+    ipcRenderer.on('pauseMission', this.pauseMission);
+    ipcRenderer.on('resumeMission', this.resumeMission);
     ipcRenderer.on('startNextMission', this.startNextMission);
     ipcRenderer.on('completeMission', (_: Event, missionName: string, completionParameters: Task.TaskParameters[]): void => this.completeMission(missionName, completionParameters));
     ipcRenderer.on('stopMissions', this.stopMissions);
@@ -294,6 +294,32 @@ class Orchestrator {
     this.currentMissionIndex = 0;
 
     this.startMission();
+  }
+
+  /**
+   * Sends pause message to all vehicles (regardless if they're running a mission or not).
+   */
+  private pauseMission(): void {
+    if (!this.running) return;
+
+    Object.values(this.vehicles).forEach((vehicle): void => {
+      ipc.postSendMessage(vehicle.getVehicleId(), {
+        type: 'pause',
+      });
+    });
+  }
+
+  /**
+   * Sends pause message to all vehicles (regardless if they're running a mission or not).
+   */
+  private resumeMission(): void {
+    if (!this.running) return;
+
+    Object.values(this.vehicles).forEach((vehicle): void => {
+      ipc.postSendMessage(vehicle.getVehicleId(), {
+        type: 'resume',
+      });
+    });
   }
 
   /**

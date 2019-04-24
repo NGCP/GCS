@@ -1,5 +1,6 @@
 /* eslint-disable import/no-named-as-default */
 
+import { ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 import * as Slider from 'rc-slider';
 
@@ -70,6 +71,15 @@ interface State {
     land: MissionInformation.Information[];
     underwater: MissionInformation.Information[];
   };
+
+  /**
+   * Information passed from missions as their information gets filled up. This is to
+   * prevent old information from being lost when user switches start mission.
+   */
+  informationCache: {
+    land: MissionInformation.Information[];
+    underwater: MissionInformation.Information[];
+  };
 }
 
 /**
@@ -89,12 +99,21 @@ export default class MissionWindow extends Component<ThemeProps, State> {
         land: [],
         underwater: [],
       },
+      informationCache: {
+        land: [],
+        underwater: [],
+      },
     };
 
     this.onSliderChange = this.onSliderChange.bind(this);
     this.postStartMissions = this.postStartMissions.bind(this);
     this.toggleMissionType = this.toggleMissionType.bind(this);
     this.tipFormatter = this.tipFormatter.bind(this);
+  }
+
+  public componentDidMount(): void {
+    ipcRenderer.on('confirmCompleteMission', (): void => { this.setState({ status: 'next' }); });
+    ipcRenderer.on('stopMissions', (): void => { this.setState({ status: 'ready' }); });
   }
 
   private onSliderChange(value: [number, number]): void {
@@ -134,6 +153,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     const { theme } = this.props;
     const {
       information,
+      informationCache,
       missionType,
       status,
       startMissionIndex,
@@ -162,14 +182,14 @@ export default class MissionWindow extends Component<ThemeProps, State> {
           />
         </div>
         <div className="infoContainer">
-          <Layout />
+          <Layout information={informationCache[missionType][startMissionIndex]} />
         </div>
         <div className="buttonContainer">
-          {status === 'ready' && <button type="button" disabled={!readyToStart} onClick={this.postStartMissions}>Start Mission</button>}
-          {status !== 'ready' && <button type="button">Stop Mission</button>}
-          {status === 'running' && <button type="button">Pause Mission</button>}
-          {status === 'paused' && <button type="button">Resume Mission</button>}
-          {status === 'next' && <button type="button">Next Mission</button>}
+          {status === 'ready' && <button type="button" disabled={!readyToStart} onClick={this.postStartMissions}>Start Missions</button>}
+          {status !== 'ready' && <button type="button" onClick={ipc.postStopMissions}>Stop Missions</button>}
+          {status === 'running' && <button type="button" onClick={ipc.postPauseMission}>Pause Mission</button>}
+          {status === 'paused' && <button type="button" onClick={ipc.postResumeMission}>Resume Mission</button>}
+          {status === 'next' && <button type="button" onClick={ipc.postStartNextMission}>Next Mission</button>}
         </div>
       </div>
     );

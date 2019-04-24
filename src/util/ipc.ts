@@ -180,6 +180,16 @@ function postLogMessages(...messages: LogMessage[]): void {
 }
 
 /**
+ * Post "pauseMission" notification.
+ *
+ * Files that take this notification:
+ * - common/Orchestrator
+ */
+function postPauseMission(): void {
+  ipcRenderer.send('post', 'pauseMission');
+}
+
+/**
  * Post "receiveMessage" notification.
  *
  * Files that take this notification:
@@ -188,6 +198,16 @@ function postLogMessages(...messages: LogMessage[]): void {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function postReceiveMessage(message: any): void {
   ipcRenderer.send('post', 'receiveMessage', message);
+}
+
+/**
+ * Post "resumeMission" notification.
+ *
+ * Files that take this notification:
+ * - common/Orchestrator
+ */
+function postResumeMission(): void {
+  ipcRenderer.send('post', 'resumeMission');
 }
 
 /**
@@ -265,6 +285,7 @@ function postStartMissions(
  *
  * Files that take this notification:
  * - common/Orchestrator
+ * - renderer/missionWindow/MissionWindow
  */
 function postStartNextMission(): void {
   ipcRenderer.send('post', 'startNextMission');
@@ -275,6 +296,7 @@ function postStartNextMission(): void {
  *
  * Files that take this notification:
  * - common/Orchestrator
+ * - renderer/missionWindow/MissionWindow
  */
 function postStopMissions(): void {
   ipcRenderer.send('post', 'stopMissions');
@@ -383,7 +405,9 @@ export default {
   postHideMissionWindow,
   postLoadConfig,
   postLogMessages,
+  postPauseMission,
   postReceiveMessage,
+  postResumeMission,
   postSaveConfig,
   postSendMessage,
   postSetMapToUserLocation,
