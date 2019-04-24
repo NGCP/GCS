@@ -1,3 +1,5 @@
+/* eslint-disable import/no-named-as-default */
+
 import { JobType } from '../../static/index';
 
 import { MissionName } from '../../types/missionInformation';
