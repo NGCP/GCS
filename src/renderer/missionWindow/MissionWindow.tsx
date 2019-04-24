@@ -1,5 +1,5 @@
 import React, { Component, ReactNode } from 'react';
-import { Range } from 'rc-slider';
+import * as Slider from 'rc-slider';
 
 import { ThemeProps } from '../../types/componentStyle';
 import * as MissionInformation from '../../types/missionInformation';
@@ -14,8 +14,40 @@ import ipc from '../../util/ipc';
 
 import './mission.css';
 
-const layoutsLandMission = [ISRSearch, VTOLSearch, PayloadDrop, UGVRescue];
-const layoutsUnderwaterMission = [ISRSearch, VTOLSearch, PayloadDrop, UUVRescue];
+const Range = Slider.createSliderWithTooltip(Slider.Range);
+
+interface MissionLayout {
+  name: string;
+  layout: React.ElementType;
+}
+
+const layoutsLandMission: MissionLayout[] = [{
+  name: 'ISR Search',
+  layout: ISRSearch as React.ElementType,
+}, {
+  name: 'VTOL Search',
+  layout: VTOLSearch as React.ElementType,
+}, {
+  name: 'Payload Drop',
+  layout: PayloadDrop as React.ElementType,
+}, {
+  name: 'UGV Rescue',
+  layout: UGVRescue as React.ElementType,
+}];
+
+const layoutsUnderwaterMission: MissionLayout[] = [{
+  name: 'ISR Search',
+  layout: ISRSearch as React.ElementType,
+}, {
+  name: 'VTOL Search',
+  layout: VTOLSearch as React.ElementType,
+}, {
+  name: 'Payload Drop',
+  layout: PayloadDrop as React.ElementType,
+}, {
+  name: 'UUV Rescue',
+  layout: UUVRescue as React.ElementType,
+}];
 
 interface State {
   missionType: 'land' | 'underwater';
@@ -49,6 +81,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     this.onSliderChange = this.onSliderChange.bind(this);
     this.postStartMissions = this.postStartMissions.bind(this);
     this.toggleMissionType = this.toggleMissionType.bind(this);
+    this.tipFormatter = this.tipFormatter.bind(this);
   }
 
   private onSliderChange(value: [number, number]): void {
@@ -77,8 +110,13 @@ export default class MissionWindow extends Component<ThemeProps, State> {
 
   private toggleMissionType(): void {
     const { missionType } = this.state;
-
     this.setState({ missionType: missionType === 'land' ? 'underwater' : 'land' });
+  }
+
+  private tipFormatter(value: number): string {
+    const { missionType } = this.state;
+
+    return missionType === 'land' ? layoutsLandMission[value].name : layoutsUnderwaterMission[value].name;
   }
 
   public render(): ReactNode {
@@ -88,13 +126,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     const missionTypeText = missionType === 'land' ? 'Land Missions' : 'Underwater Missions';
 
     const layouts = missionType === 'land' ? layoutsLandMission : layoutsUnderwaterMission;
-
-    if (startMissionIndex >= layouts.length) {
-      throw new RangeError('Layout chosen is out of range');
-    }
-
-    const Layout = layouts[startMissionIndex] as React.ElementType;
-
+    const Layout = layouts[startMissionIndex].layout;
 
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
@@ -105,6 +137,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
             min={0}
             max={layouts.length - 1}
             onChange={this.onSliderChange}
+            tipFormatter={this.tipFormatter}
           />
         </div>
         <div className="infoContainer">
