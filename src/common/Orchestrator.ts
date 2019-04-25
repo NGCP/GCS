@@ -116,7 +116,7 @@ class Orchestrator {
     if (!newMessage) return;
 
     // Put this after newMessage return since this message will be sent repeatedly.
-    ipc.postSendMessage(jsonMessage.sid, { type: 'connectionAck' });
+    if (!config.fixtures) ipc.postSendMessage(jsonMessage.sid, { type: 'connectionAck' });
 
     if (!this.vehicles[jsonMessage.sid]) {
       this.vehicles[jsonMessage.sid] = new Vehicle({
@@ -147,7 +147,7 @@ class Orchestrator {
     if (delta >= 0 && delta <= config.vehicleDisconnectionTime * 1000) {
       // Handler that expires and creates itself everytime it "pings" the vehicle.
       setTimeout((): void => { this.ping(vehicle); }, delta);
-    } else if (vehicle.getStatus() !== 'disconnected') {
+    } else {
       this.disconnectFromVehicle(vehicle.getVehicleId());
     }
   }
@@ -157,15 +157,7 @@ class Orchestrator {
    * @param vehicleId ID of vehicle to disconnect from.
    */
   private disconnectFromVehicle(vehicleId: number): void {
-    if (!this.vehicles[vehicleId]) {
-      Orchestrator.postOrchestratorError(`Tried to disconnect from nonexisting vehicle id ${vehicleId}`);
-      return;
-    }
-
-    if (this.vehicles[vehicleId].getStatus() === 'disconnected') {
-      Orchestrator.postOrchestratorError(`Tried to disconnect from disconnected vehicle id ${vehicleId}`);
-      return;
-    }
+    if (!this.vehicles[vehicleId] || this.vehicles[vehicleId].getStatus() === 'disconnected') return;
 
     this.vehicles[vehicleId].disconnect();
     ipc.postUpdateVehicles(this.vehicles[vehicleId].toObject());
@@ -222,7 +214,7 @@ class Orchestrator {
         this.currentMission.update(jsonMessage);
       } else {
         const status = this.vehicles[jsonMessage.sid].getStatus();
-        if (status === 'waiting' || status === 'running' || status === 'paused') {
+        if (!config.fixtures && (status === 'waiting' || status === 'running' || status === 'paused')) {
           this.vehicles[jsonMessage.sid].stop();
         }
       }
