@@ -1,7 +1,7 @@
 import { Event, ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
-import { missionName, jobTypes } from '../../../common/missions/ISRSearch';
+import { missionName } from '../../../common/missions/ISRSearch';
 
 import { Location } from '../../../static/index';
 
@@ -58,11 +58,6 @@ const information: ISRSearchInformation = {
         },
       ],
     },
-  },
-  // TODO: Move options as a separate entity for Orchestrator to take to make Mission UI easier.
-  options: {
-    noTakeoff: false,
-    noLand: false,
   },
 };
 
@@ -254,26 +249,12 @@ export class ISRSearch extends Component<ISRSearchProps> {
         <button type="button" onClick={ISRSearch.onClickLand2}>Create Pin</button>
         <br />
         <input type="number" name="landAlt1" placeholder="Altitude" value={checklist.landAlt1 && parameters.land.waypoints[1].alt} onChange={ISRSearch.onChange} />
-
-        <br />
-
-        <label htmlFor="takeoffbox">
-          <input type="checkbox" id="takeoffbox" name="takeoff" />
-          {'Do not takeoff'}
-        </label>
-        <br />
-        <label htmlFor="landbox">
-          <input type="checkbox" id="landbox" name="landbox" />
-          {'Do not land after mission'}
-        </label>
       </div>
     );
   }
 }
 
 export default {
-  name,
   missionName,
-  jobTypes,
   layout: ISRSearch as React.ElementType,
 };

@@ -1,6 +1,51 @@
+import { JobType } from '../static/index';
+
 import * as Task from './task';
 
 export type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'ugvRescue' | 'uuvRescue';
+
+type ActiveVehicleMappingSignature = {
+  [missionName in MissionName]: { [vehicleId: number]: JobType };
+}
+
+/**
+ * Mapping of vehicle to job to perform for all missions.
+ */
+export interface ActiveVehicleMapping extends ActiveVehicleMappingSignature {
+  isrSearch: { [vehicleId: number]: JobType };
+  vtolSearch: { [vehicleId: number]: JobType };
+  payloadDrop: { [vehicleId: number]: JobType };
+  ugvRescue: { [vehicleId: number]: JobType };
+  uuvRescue: { [vehicleId: number]: JobType };
+}
+
+/**
+ * Options for all missions run.
+ */
+export interface MissionOptions {
+  isrSearch: {
+    /**
+     * Will not require takeoff task if true.
+     */
+    noTakeoff: boolean;
+
+    /**
+     * Will not require land task if true.
+     */
+    noLand: boolean;
+  };
+  payloadDrop: {
+    /**
+     * Will not require takeoff task if true.
+     */
+    noTakeoff: boolean;
+
+    /**
+     * Will not require land task if true.
+     */
+    noLand: boolean;
+  };
+}
 
 interface InformationBase {
   /**
@@ -12,11 +57,6 @@ interface InformationBase {
    * Parameters for the mission. Both user and mission generated.
    */
   parameters: {};
-
-  /**
-   * Options for the mission. User generated.
-   */
-  options: {};
 }
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
@@ -26,17 +66,6 @@ export interface ISRSearchInformation extends InformationBase {
     takeoff: Task.TakeoffTaskParameters;
     isrSearch: Task.ISRSearchTaskParameters;
     land: Task.LandTaskParameters;
-  };
-  options: {
-    /**
-     * Will not require takeoff task if true.
-     */
-    noTakeoff: boolean;
-
-    /**
-     * Will not require land task if true.
-     */
-    noLand: boolean;
   };
 }
 
@@ -70,17 +99,6 @@ export interface PayloadDropInformation extends InformationBase {
     takeoff: Task.TakeoffTaskParameters;
     payloadDrop: Task.PayloadDropTaskParameters;
     land: Task.LandTaskParameters;
-  };
-  options: {
-    /**
-     * Will not require takeoff task if true.
-     */
-    noTakeoff: boolean;
-
-    /**
-     * Will not require land task if true.
-     */
-    noLand: boolean;
   };
 }
 

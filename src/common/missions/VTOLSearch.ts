@@ -47,9 +47,10 @@ export class VTOLSearch extends Mission {
   public constructor(
     vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation.VTOLSearchInformation,
-    activeVehicleMapping: { [vehicleId: number]: JobType },
+    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
+    options: MissionInformation.MissionOptions,
   ) {
-    super(vehicles, information, activeVehicleMapping);
+    super(vehicles, information, activeVehicleMapping, options);
     this.information = information;
   }
 
@@ -57,7 +58,7 @@ export class VTOLSearch extends Mission {
     const vehicleIdString = Object.keys(this.activeVehicleMapping)
       .find((idString): boolean => {
         const id = parseInt(idString, 10);
-        return this.activeVehicleMapping[id] === 'detailedSearch';
+        return this.activeVehicleMapping[this.missionName][id] === 'detailedSearch';
       });
     if (!vehicleIdString) return undefined;
 
@@ -83,13 +84,13 @@ export class VTOLSearch extends Mission {
     if (Message.TypeGuard.isPOIMessage(jsonMessage)) {
       const poiMessage = jsonMessage as Message.POIMessage;
 
-      if (this.activeVehicleMapping[jsonMessage.sid] === 'quickScan') {
+      if (this.activeVehicleMapping[this.missionName][jsonMessage.sid] === 'quickScan') {
         this.addTask('detailedSearch', {
           taskType: 'detailedSearch',
           lat: poiMessage.lat,
           lng: poiMessage.lng,
         });
-      } else if (this.activeVehicleMapping[jsonMessage.sid] === 'detailedSearch') {
+      } else if (this.activeVehicleMapping[this.missionName][jsonMessage.sid] === 'detailedSearch') {
         this.missionData = { lat: poiMessage.lat, lng: poiMessage.lng };
       }
     }

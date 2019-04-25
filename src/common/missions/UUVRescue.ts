@@ -24,9 +24,10 @@ export class UUVRescue extends Mission {
   public constructor(
     vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation.UUVRescueInformation,
-    activeVehicleMapping: { [vehicleId: number]: JobType },
+    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
+    options: MissionInformation.MissionOptions,
   ) {
-    super(vehicles, information, activeVehicleMapping);
+    super(vehicles, information, activeVehicleMapping, options);
     this.information = information;
   }
 

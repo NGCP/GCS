@@ -32,9 +32,10 @@ export class PayloadDrop extends Mission {
   public constructor(
     vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation.PayloadDropInformation,
-    activeVehicleMapping: { [vehicleId: number]: JobType },
+    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
+    options: MissionInformation.MissionOptions,
   ) {
-    super(vehicles, information, activeVehicleMapping);
+    super(vehicles, information, activeVehicleMapping, options);
     this.information = information;
   }
 
@@ -42,7 +43,7 @@ export class PayloadDrop extends Mission {
     const missionParameters = this.information.parameters;
     const tasks = new DictionaryList<Task>();
 
-    if (!this.information.options.noTakeoff) {
+    if (!this.options.payloadDrop.noTakeoff) {
       tasks.push('payloadDrop', {
         taskType: 'takeoff',
         ...missionParameters.takeoff,
@@ -54,7 +55,7 @@ export class PayloadDrop extends Mission {
       ...missionParameters.payloadDrop,
     });
 
-    if (!this.information.options.noLand) {
+    if (!this.options.payloadDrop.noLand) {
       tasks.push('payloadDrop', {
         taskType: 'land',
         ...missionParameters.land,
@@ -68,7 +69,7 @@ export class PayloadDrop extends Mission {
     super.update(jsonMessage);
 
     if (Message.TypeGuard.isPOIMessage(jsonMessage)
-      && this.activeVehicleMapping[jsonMessage.sid] === 'payloadDrop') {
+      && this.activeVehicleMapping[this.missionName][jsonMessage.sid] === 'payloadDrop') {
       const poiMessage = jsonMessage as Message.POIMessage;
       this.missionData = {
         lat: poiMessage.lat,

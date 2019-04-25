@@ -16,12 +16,12 @@
 
 import { BrowserWindow, ipcRenderer } from 'electron';
 
-import { Location } from '../static/index';
+import { JobType, Location } from '../static/index';
 
 import { BoundingBoxBounds, LogMessage } from '../types/componentStyle';
 import * as FileOptions from '../types/fileOption';
 import * as Message from '../types/message';
-import { Information } from '../types/missionInformation';
+import * as MissionInformation from '../types/missionInformation';
 import * as Task from '../types/task';
 import { VehicleObject } from '../types/vehicle';
 
@@ -296,10 +296,12 @@ function postShowMissionWindow(): void {
  * - common/Orchestrator
  */
 function postStartMissions(
-  missions: Information[],
+  missions: MissionInformation.Information[],
+  activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
+  options: MissionInformation.MissionOptions,
   requireConfirmation: boolean,
 ): void {
-  ipcRenderer.send('post', 'startMissions', missions, requireConfirmation);
+  ipcRenderer.send('post', 'startMissions', missions, activeVehicleMapping, options, requireConfirmation);
 }
 
 /**
@@ -355,6 +357,20 @@ function postToggleTheme(): void {
 }
 
 /**
+ * Post "updateActiveVehicleMapping" notification.
+ *
+ * Files that take this notification:
+ * - renderer/missionWindow/MissionWindow
+ */
+function postUpdateActiveVehicleMapping(
+  missionName: MissionInformation.MissionName,
+  jobType: JobType,
+  vehicleId: number,
+): void {
+  ipcRenderer.send('post', 'updateActiveVehicleMapping', missionName, jobType, vehicleId);
+}
+
+/**
  * Post "updateBoundingBoxes" notification.
  *
  * Files that take this notification:
@@ -373,7 +389,7 @@ function postUpdateBoundingBoxes(
  * Files that take this notification:
  * - renderer/missionWindow/MissionWindow
  */
-function postUpdateInformation(information: Information): void {
+function postUpdateInformation(information: MissionInformation.Information): void {
   ipcRenderer.send('post', 'updateInformation', information);
 }
 
@@ -394,6 +410,20 @@ function postUpdateMapLocation(
   } else {
     ipcRenderer.send('post', 'updateMapLocation', location);
   }
+}
+
+/**
+ * Post "updateOptions" notification.
+ *
+ * Files that take this notification:
+ * - renderer/missionWindow/MissionWindow
+ */
+function postUpdateOptions(
+  missionName: MissionInformation.MissionName,
+  option: string,
+  value: boolean,
+): void {
+  ipcRenderer.send('post', 'updateOptions', missionName, option, value);
 }
 
 /**
@@ -453,9 +483,11 @@ export default {
   postStopSendingMessage,
   postStopSendingMessages,
   postToggleTheme,
+  postUpdateActiveVehicleMapping,
   postUpdateBoundingBoxes,
   postUpdateInformation,
   postUpdateMapLocation,
+  postUpdateOptions,
   postUpdateVehicles,
   postUpdateWaypoints,
 };

@@ -8,8 +8,9 @@
   grid-template-areas:
     'selector selector selector selector'
     'parameter parameter parameter mapping'
+    'parameter parameter parameter options'
     'button button button button';
-  grid-template-rows: 25px auto 25px;
+  grid-template-rows: 25px 1fr 1fr 25px;
   grid-template-columns: repeat(4, 1fr);
 }
 
@@ -24,6 +25,10 @@
 
 .mappingContainer {
   grid-area: mapping;
+}
+
+.optionsContainer {
+  grid-area: options;
 }
 
 .buttonContainer {

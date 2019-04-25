@@ -3,7 +3,6 @@ import moment, { Moment } from 'moment';
 import React, {
   Component,
   createRef,
-  FormEvent,
   ReactNode,
   RefObject,
 } from 'react';
@@ -16,6 +15,8 @@ import {
 } from 'react-virtualized';
 
 import * as ComponentStyle from '../../../types/componentStyle';
+
+import Select from '../../form/Select';
 
 import './log.css';
 
@@ -181,7 +182,7 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
   /**
    * Changes the filter applied to the log.
    */
-  private updateFilter(event: FormEvent<HTMLSelectElement>): void {
+  private updateFilter(event: React.ChangeEvent<HTMLSelectElement>): void {
     const { messages } = this.state;
 
     this.heightCache.clearAll();
@@ -229,7 +230,7 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
 
   public render(): ReactNode {
     const { theme } = this.props;
-    const { filter, filteredMessages } = this.state;
+    const { filteredMessages } = this.state;
 
     return (
       <div className={`logContainer container${theme === 'dark' ? '_dark' : ''}`}>
@@ -251,12 +252,23 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
           </AutoSizer>
         </div>
         <div className="control">
-          <select onChange={this.updateFilter} value={filter}>
-            <option value="">No Filter</option>
-            <option className="success" value="success">Success</option>
-            <option className="progress" value="progress">Progress</option>
-            <option className="failure" value="failure">Failure</option>
-          </select>
+          <Select
+            onChange={this.updateFilter}
+            defaultOptionValue={{
+              value: '',
+              title: 'No filter',
+            }}
+            optionValues={[{
+              value: 'success',
+              title: 'Success',
+            }, {
+              value: 'progress',
+              title: 'Progress',
+            }, {
+              value: 'failure',
+              title: 'Failure',
+            }]}
+          />
           <button type="button" onClick={this.clearMessages}>Clear Log</button>
         </div>
       </div>

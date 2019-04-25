@@ -37,7 +37,7 @@ export interface MissionObject {
   constructor: MissionWrapper;
 }
 
-const missionObject: { [missionName: string]: MissionObject | undefined } = {
+const missionObject: { [missionName in MissionName]: MissionObject } = {
   isrSearch: ISRSearch,
   vtolSearch: VTOLSearch,
   payloadDrop: PayloadDrop,

@@ -36,7 +36,7 @@ class MessageHandler {
   /**
    * Map of last message ID received from specific vehicle.
    */
-  private receivedMessageId: { [key: string]: number | undefined } = {};
+  private receivedMessageId: { [vehicleId: number]: number | undefined } = {};
 
   public constructor() {
     ipcRenderer.on('sendMessage', (_: Event, vehicleId: number, message: Message.Message): void => this.sendMessage(vehicleId, message));

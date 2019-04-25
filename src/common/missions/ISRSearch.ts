@@ -33,9 +33,10 @@ export class ISRSearch extends Mission {
   public constructor(
     vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation.ISRSearchInformation,
-    activeVehicleMapping: { [vehicleId: number]: JobType },
+    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
+    options: MissionInformation.MissionOptions,
   ) {
-    super(vehicles, information, activeVehicleMapping);
+    super(vehicles, information, activeVehicleMapping, options);
     this.information = information;
   }
 
@@ -43,7 +44,7 @@ export class ISRSearch extends Mission {
     const missionParameters = this.information.parameters;
     const tasks = new DictionaryList<Task>();
 
-    if (!this.information.options.noTakeoff) {
+    if (!this.options.isrSearch.noTakeoff) {
       tasks.push('isrSearch', {
         taskType: 'takeoff',
         ...missionParameters.takeoff,
@@ -55,7 +56,7 @@ export class ISRSearch extends Mission {
       ...missionParameters.isrSearch,
     });
 
-    if (!this.information.options.noLand) {
+    if (!this.options.isrSearch.noLand) {
       tasks.push('isrSearch', {
         taskType: 'land',
         ...missionParameters.land,
@@ -69,7 +70,7 @@ export class ISRSearch extends Mission {
     super.update(jsonMessage);
 
     if (Message.TypeGuard.isPOIMessage(jsonMessage)
-      && this.activeVehicleMapping[jsonMessage.sid] === 'isrSearch') {
+      && this.activeVehicleMapping[this.missionName][jsonMessage.sid] === 'isrSearch') {
       const poiMessage = jsonMessage as Message.POIMessage;
       this.missionData.push({
         lat: poiMessage.lat,

@@ -57,7 +57,12 @@ export default abstract class Mission {
    *
    * There will be no job types in this mapping that are irrelevant to the mission.
    */
-  protected activeVehicleMapping: { [vehicleId: number]: JobType } = {};
+  protected activeVehicleMapping: MissionInformation.ActiveVehicleMapping;
+
+  /**
+   * Options to generate tasks for the mission.
+   */
+  protected options: MissionInformation.MissionOptions;
 
   /**
    * Comparison to how tasks are added to the waiting task list. If there is no
@@ -94,19 +99,13 @@ export default abstract class Mission {
   public constructor(
     vehicles: { [vehicleId: number]: Vehicle },
     information: MissionInformation.Information,
-    activeVehicleMapping: { [vehicleId: number]: JobType },
+    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
+    options: MissionInformation.MissionOptions,
   ) {
     this.vehicles = vehicles;
     this.information = information;
-
-    // Filters out any irrelevant jobs when adding to activeVehicleMapping.
-    Object.keys(activeVehicleMapping).forEach((vehicleIdString): void => {
-      const vehicleId = parseInt(vehicleIdString, 10);
-      const jobType = activeVehicleMapping[vehicleId];
-      if (this.jobTypes.has(jobType)) {
-        this.activeVehicleMapping[vehicleId] = jobType;
-      }
-    });
+    this.options = options;
+    this.activeVehicleMapping = activeVehicleMapping;
 
     /*
      * Create event handler that will handle all changes of mission status:
@@ -224,7 +223,7 @@ export default abstract class Mission {
     };
 
     pendingAssignVehicleIds.forEach((vehicleId): void => {
-      const jobType = this.activeVehicleMapping[vehicleId];
+      const jobType = this.activeVehicleMapping[this.missionName][vehicleId];
 
       this.vehicles[vehicleId].assignJob(jobType,
         (): void => onSuccess(vehicleId),
@@ -291,7 +290,7 @@ export default abstract class Mission {
 
     // Puts vehicles in activeVehicleMapping to waitingVehicles.
     pendingAssignVehicleIds.forEach((vehicleId): void => {
-      const jobType = this.activeVehicleMapping[vehicleId];
+      const jobType = this.activeVehicleMapping[this.missionName][vehicleId];
       const vehicle = this.vehicles[vehicleId];
 
       this.waitingVehicles.push(jobType, vehicle);
@@ -339,7 +338,7 @@ export default abstract class Mission {
     }
 
     if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
-      const jobType = this.activeVehicleMapping[jsonMessage.sid];
+      const jobType = this.activeVehicleMapping[this.missionName][jsonMessage.sid];
 
       /*
        * Mission is not yet finished, continue to assign tasks. One of the following will happen:
@@ -483,7 +482,9 @@ export default abstract class Mission {
    * @param activeVehicleMapping User provided map of vehicle to their job type.
    */
   private checkActiveVehicleMapping(): boolean {
-    const providedJobTypes = new Set<JobType>(Object.values(this.activeVehicleMapping));
+    const providedJobTypes = new Set<JobType>(
+      Object.values(this.activeVehicleMapping[this.missionName]),
+    );
 
     const hasRequiredJobTypes = Array.from(this.jobTypes).every(
       (requiredJobType): boolean => providedJobTypes.has(requiredJobType),
@@ -495,7 +496,9 @@ export default abstract class Mission {
       (vehicleIdString): number => parseInt(vehicleIdString, 10),
     ).every((vehicleId): boolean => vehicleConfig.isValidVehicleId(vehicleId)
       && this.vehicles[vehicleId]
-      && this.vehicles[vehicleId].getJobs().includes(this.activeVehicleMapping[vehicleId]));
+      && this.vehicles[vehicleId]
+        .getJobs()
+        .includes(this.activeVehicleMapping[this.missionName][vehicleId]));
 
     if (!hasValidVehicleAssigned) return false;
 
@@ -509,7 +512,7 @@ export default abstract class Mission {
    */
   private handleUnresponsiveVehicle(vehicleId: number): void {
     // Ignore vehicles that are not related to the mission.
-    if (!this.activeVehicleMapping[vehicleId]) return;
+    if (!this.activeVehicleMapping[this.missionName][vehicleId]) return;
 
     if (this.status === 'waiting') {
       this.stop(false, `Take manual control over ${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name}`);
@@ -517,9 +520,9 @@ export default abstract class Mission {
       ipc.postStopSendingMessages();
       this.stop(false, `Take manual control over ${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name}`);
     } else {
-      const jobType = this.activeVehicleMapping[vehicleId];
+      const jobType = this.activeVehicleMapping[this.missionName][vehicleId];
 
-      delete this.activeVehicleMapping[vehicleId];
+      delete this.activeVehicleMapping[this.missionName][vehicleId];
 
       // Put the task vehicle is performing back to the front of waitingTasks.
       if (this.activeTasks.has(vehicleId)) {
@@ -532,7 +535,7 @@ export default abstract class Mission {
       const newVehicle = this.waitingVehicles.shift(jobType);
       const task = this.waitingTasks.shift(jobType);
       if (newVehicle && task) {
-        this.activeVehicleMapping[newVehicle.getVehicleId()] = jobType;
+        this.activeVehicleMapping[this.missionName][newVehicle.getVehicleId()] = jobType;
 
         if (!this.assignTask(newVehicle, task)) return;
         this.activeTasks.set(newVehicle.getVehicleId(), task);

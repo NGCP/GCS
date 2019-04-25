@@ -2,7 +2,6 @@ import { ipcRenderer, Event } from 'electron';
 
 import {
   config,
-  JobType,
   vehicleConfig,
   VehicleInfo,
 } from '../static/index';
@@ -77,7 +76,12 @@ class Orchestrator {
   /**
    * Used for a mission to process which vehicle is doing which job.
    */
-  private activeVehicleMapping: { [vehicleId: number]: JobType } = {};
+  private activeVehicleMapping: MissionInformation.ActiveVehicleMapping | null = null;
+
+  /**
+   * Used for a mission to know options for specific missions.
+   */
+  private options: MissionInformation.MissionOptions | null = null;
 
   public constructor() {
     ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: Message.JSONMessage, newMessage: boolean): void => this.connectToVehicle(jsonMessage, newMessage));
@@ -92,9 +96,10 @@ class Orchestrator {
     ipcRenderer.on('startMissions', (
       _: Event,
       missions: MissionInformation.Information[],
-      activeVehicleMapping: { [vehicleId: number]: JobType },
+      options: MissionInformation.MissionOptions,
+      activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
       requireConfirmation: boolean,
-    ): void => this.startMissions(missions, activeVehicleMapping, requireConfirmation));
+    ): void => this.startMissions(missions, activeVehicleMapping, options, requireConfirmation));
     ipcRenderer.on('pauseMission', this.pauseMission);
     ipcRenderer.on('resumeMission', this.resumeMission);
     ipcRenderer.on('startNextMission', this.startNextMission);
@@ -290,7 +295,8 @@ class Orchestrator {
    */
   private startMissions(
     missions: MissionInformation.Information[],
-    activeVehicleMapping: { [vehicleId: number]: JobType },
+    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
+    options: MissionInformation.MissionOptions,
     requireConfirmation: boolean,
   ): void {
     if (this.running) {
@@ -306,6 +312,7 @@ class Orchestrator {
     this.running = true;
     this.missions = missions;
     this.activeVehicleMapping = activeVehicleMapping;
+    this.options = options;
     this.requireConfirmation = requireConfirmation;
     this.currentMissionIndex = 0;
 
@@ -388,8 +395,9 @@ class Orchestrator {
    */
   private startMission(): void {
     const missionObj = missionObject[this.missions[this.currentMissionIndex].missionName];
-    if (!missionObj) {
-      Orchestrator.postOrchestratorError('Tried to start mission with unknown mission name');
+
+    if (!this.options || !this.activeVehicleMapping) {
+      Orchestrator.postOrchestratorError('Tried to start mission while options/mapping are null');
       return;
     }
 
@@ -400,6 +408,7 @@ class Orchestrator {
       this.vehicles,
       this.missions[this.currentMissionIndex],
       this.activeVehicleMapping,
+      this.options,
     );
   }
 
@@ -413,7 +422,8 @@ class Orchestrator {
     this.missions = [];
     this.running = false;
     this.requireConfirmation = false;
-    this.activeVehicleMapping = {};
+    this.activeVehicleMapping = null;
+    this.options = null;
   }
 }
 
