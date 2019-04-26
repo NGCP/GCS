@@ -72,6 +72,7 @@ function postConnectToVehicle(jsonMessage: Message.JSONMessage, newMessage: bool
  *
  * Files that take this notification:
  * - renderer/mainWindow/map/MapContainer
+ * - renderer/missionWindow/extra/CreateBoundingBox
  */
 function postCreateBoundingBoxes(
   ...boundingBoxes: { name: string; color?: string; bounds?: BoundingBoxBounds}[]
@@ -361,6 +362,8 @@ function postToggleTheme(): void {
  *
  * Files that take this notification:
  * - renderer/missionWindow/parameter/ISRSearch
+ * - renderer/missionWindow/parameter/VTOLSearch
+ * - renderer/missionWindow/parameter/PayloadDrop
  */
 function postUnlockParameterInputs(waypointType: string): void {
   ipcRenderer.send('post', 'unlockParameterInputs', waypointType);
@@ -453,6 +456,8 @@ function postUpdateVehicles(...vehicles: VehicleObject[]): void {
  * Files that take this notification:
  * - renderer/mainWindow/map/MapContainer
  * - renderer/missionWindow/parameters/ISRSearch
+ * - renderer/missionWindow/parameters/VTOLSearch
+ * - renderer/missionWindow/parameters/PayloadDrop
  *
  * @param updateMap Set this to true, except from the marker's drag event.
  */
