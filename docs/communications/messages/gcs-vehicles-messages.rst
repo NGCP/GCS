@@ -11,7 +11,7 @@ Connection acknowledgement message
 
 Sent back to the vehicle that GCS has accepted its request to connect. GCS forwards its time in the ``time`` field for the vehicle to create an offset to and send all future messages to in GCS's time.
 
-See the connect message that initiates this acknowledgement request `here <vehicles-gcs-messages.html#connect-message>`_. Also see the implementation for the ``time`` field for messages, which directly relates to this message `here <implementation.html#setting-time>`_.
+See the connect message that initiates this acknowledgement request `here <vehicles-gcs-messages.html#connect-message>`_. Also see the implementation for the ``time`` field for messages, which directly relates to this message `here <../implementation.html#setting-time>`_.
 
 .. code-block:: js
 
