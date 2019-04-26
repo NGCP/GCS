@@ -5,7 +5,6 @@ import { missionName } from '../../../common/missions/ISRSearch';
 
 import { Location } from '../../../static/index';
 
-// import { ISRSearchInformation } from '../../../types/missionInformation';
 import { VehicleObject } from '../../../types/vehicle';
 
 import ipc from '../../../util/ipc';
@@ -243,7 +242,54 @@ export class ISRSearch extends Component<ISRSearchProps, State> {
     });
 
     if (ready || readyToStart(this)) {
-      // ipc.postUpdateInformation(information);
+      ipc.postUpdateInformation({
+        missionName: 'isrSearch',
+        parameters: {
+          takeoff: {
+            lat: newChecklist.takeoffLat as number,
+            lng: newChecklist.takeoffLng as number,
+            alt: newChecklist.takeoffAlt as number,
+            loiter: {
+              lat: newChecklist.loiterLat as number,
+              lng: newChecklist.loiterLng as number,
+              alt: newChecklist.loiterAlt as number,
+              radius: newChecklist.loiterRadius as number,
+              direction: newChecklist.loiterDirection as number,
+            },
+          },
+          isrSearch: {
+            alt: newChecklist.isrSearchAlt as number,
+            waypoints: [
+              {
+                lat: newChecklist.isrSearchLat1 as number,
+                lng: newChecklist.isrSearchLng1 as number,
+              },
+              {
+                lat: newChecklist.isrSearchLat2 as number,
+                lng: newChecklist.isrSearchLng2 as number,
+              },
+              {
+                lat: newChecklist.isrSearchLat3 as number,
+                lng: newChecklist.isrSearchLng3 as number,
+              },
+            ],
+          },
+          land: {
+            waypoints: [
+              {
+                lat: newChecklist.landLat1 as number,
+                lng: newChecklist.landLng1 as number,
+                alt: newChecklist.landAlt1 as number,
+              },
+              {
+                lat: newChecklist.landLat2 as number,
+                lng: newChecklist.landLng2 as number,
+                alt: newChecklist.landAlt2 as number,
+              },
+            ],
+          },
+        },
+      });
     }
 
     this.setState({ checklist: newChecklist });
