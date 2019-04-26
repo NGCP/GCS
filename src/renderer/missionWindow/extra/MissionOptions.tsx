@@ -4,7 +4,7 @@ import * as MissionInformation from '../../../types/missionInformation';
 
 import ipc from '../../../util/ipc';
 
-import Checkbox from '../../form/Checkbox';
+import Checkbox from './Checkbox';
 
 export interface MissionOptionsProps {
   title: { [missionName in MissionInformation.MissionName]: string };

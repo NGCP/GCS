@@ -12,8 +12,8 @@ import { VehicleObject, VehicleStatus } from '../../types/vehicle';
 
 import { updateVehicles } from '../../util/util';
 
-import ActiveVehicleMapping from './mapping/ActiveVehicleMapping';
-import MissionOptions from './mapping/MissionOptions';
+import ActiveVehicleMapping from './extra/ActiveVehicleMapping';
+import MissionOptions from './extra/MissionOptions';
 
 import ISRSearch from './parameter/ISRSearch';
 import PayloadDrop from './parameter/PayloadDrop';

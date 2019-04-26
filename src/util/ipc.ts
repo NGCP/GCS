@@ -357,6 +357,16 @@ function postToggleTheme(): void {
 }
 
 /**
+ * Post "unlockParameterInputs" notification.
+ *
+ * Files that take this notification:
+ * - renderer/missionWindow/parameter/ISRSearch
+ */
+function postUnlockParameterInputs(waypointType: string): void {
+  ipcRenderer.send('post', 'unlockParameterInputs', waypointType);
+}
+
+/**
  * Post "updateActiveVehicleMapping" notification.
  *
  * Files that take this notification:
@@ -483,6 +493,7 @@ export default {
   postStopSendingMessage,
   postStopSendingMessages,
   postToggleTheme,
+  postUnlockParameterInputs,
   postUpdateActiveVehicleMapping,
   postUpdateBoundingBoxes,
   postUpdateInformation,

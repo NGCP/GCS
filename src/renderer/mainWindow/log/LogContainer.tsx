@@ -16,7 +16,7 @@ import {
 
 import * as ComponentStyle from '../../../types/componentStyle';
 
-import Select from '../../form/Select';
+import Select from '../../common/Select';
 
 import './log.css';
 

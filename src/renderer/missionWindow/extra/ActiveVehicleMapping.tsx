@@ -9,7 +9,7 @@ import { VehicleObject } from '../../../types/vehicle';
 
 import ipc from '../../../util/ipc';
 
-import Select from '../../form/Select';
+import Select from '../../common/Select';
 
 export interface ActiveVehicleMappingProps {
   title: { [missionName in MissionInformation.MissionName]: string };
@@ -27,7 +27,7 @@ export default class ActiveVehicleMapping extends PureComponent<ActiveVehicleMap
           .sort((a, b): number => parseInt(a, 10) - parseInt(b, 10))
           .filter((vehicleIdString): boolean => {
             const vehicleId = parseInt(vehicleIdString, 10);
-            return vehicles[vehicleId].jobs.includes(jobType);
+            return vehicles[vehicleId].status !== 'disconnected' && vehicles[vehicleId].jobs.includes(jobType);
           });
 
         const optionValues = eligibleVehicles

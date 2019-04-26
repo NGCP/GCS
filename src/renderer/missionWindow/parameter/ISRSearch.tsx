@@ -5,69 +5,30 @@ import { missionName } from '../../../common/missions/ISRSearch';
 
 import { Location } from '../../../static/index';
 
-import { ISRSearchInformation } from '../../../types/missionInformation';
+// import { ISRSearchInformation } from '../../../types/missionInformation';
 import { VehicleObject } from '../../../types/vehicle';
 
 import ipc from '../../../util/ipc';
+import { readyToStart } from '../../../util/parameter';
 
-export const name = 'ISR Search';
+import CreateWaypointButton from '../extra/CreateWaypointButton';
 
-const information: ISRSearchInformation = {
-  missionName: 'isrSearch',
-  parameters: {
-    takeoff: {
-      lat: 0,
-      lng: 0,
-      alt: 0,
-      loiter: {
-        lat: 0,
-        lng: 0,
-        alt: 0,
-        radius: 0,
-        direction: 0,
-      },
-    },
-    isrSearch: {
-      alt: 0,
-      waypoints: [
-        {
-          lat: 0,
-          lng: 0,
-        },
-        {
-          lat: 0,
-          lng: 0,
-        },
-        {
-          lat: 0,
-          lng: 0,
-        },
-      ],
-    },
-    land: {
-      waypoints: [
-        {
-          lat: 0,
-          lng: 0,
-          alt: 0,
-        },
-        {
-          lat: 0,
-          lng: 0,
-          alt: 0,
-        },
-      ],
-    },
-  },
-};
+type ISRChecklistType = 'takeoffLat' | 'takeoffLng' | 'takeoffAlt'
+| 'loiterLat' | 'loiterLng' | 'loiterAlt' | 'loiterRadius' | 'loiterDirection'
+| 'isrSearchAlt'
+| 'isrSearchLat1' | 'isrSearchLng1'
+| 'isrSearchLat2' | 'isrSearchLng2'
+| 'isrSearchLat3' | 'isrSearchLng3'
+| 'landLat1' | 'landLng1' | 'landAlt1'
+| 'landLat2' | 'landLng2' | 'landAlt2';
 
-const checklist: { [check: string]: number | undefined } = {
-  // Parameter checks.
+const checklistCache: { [check in ISRChecklistType]: number | undefined } = {
   takeoffLat: undefined,
   takeoffLng: undefined,
   takeoffAlt: undefined,
   loiterLat: undefined,
   loiterLng: undefined,
+  loiterAlt: undefined,
   loiterRadius: undefined,
   loiterDirection: undefined,
   isrSearchAlt: undefined,
@@ -85,20 +46,147 @@ const checklist: { [check: string]: number | undefined } = {
   landAlt2: undefined,
 };
 
+type ISRWaypointType = 'takeoff' | 'loiter' | 'isrSearch1' | 'isrSearch2' | 'isrSearch3' | 'land1' | 'land2';
+
+type Locked = { [waypointType in ISRWaypointType]: boolean } & {
+  takeoff: boolean;
+  loiter: boolean;
+  isrSearch1: boolean;
+  isrSearch2: boolean;
+  isrSearch3: boolean;
+  land1: boolean;
+  land2: boolean;
+}
+
+const lockedCache: Locked = {
+  takeoff: true,
+  loiter: true,
+  isrSearch1: true,
+  isrSearch2: true,
+  isrSearch3: true,
+  land1: true,
+  land2: true,
+};
+
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export interface ISRSearchProps {
   vehicles: { [vehicleId: number]: VehicleObject };
 }
 
-export class ISRSearch extends Component<ISRSearchProps> {
-  private static onChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    ISRSearch.updateChecklist({
-      [event.target.name]: parseInt(event.target.value, 10),
-    });
+interface State {
+  /**
+   * Checklist of all required waypoints/coordinates. This is used to generate the
+   * parameters for the mission.
+   */
+  checklist: { [check in ISRChecklistType]: number | undefined };
+
+  /**
+   * True once all checks in checklist are filled in properly.
+   */
+  ready: boolean;
+
+  /**
+   * True if the inputs for the waypoint type is disabled. Will become disabled
+   * once the create pin is clicked.
+   */
+  locked: Locked;
+}
+
+export class ISRSearch extends Component<ISRSearchProps, State> {
+  public constructor(props: ISRSearchProps) {
+    super(props);
+
+    this.state = {
+      checklist: checklistCache,
+      ready: false,
+      locked: lockedCache,
+    };
+
+    this.onChange = this.onChange.bind(this);
+    this.updateWaypoints = this.updateWaypoints.bind(this);
+    this.updateChecklist = this.updateChecklist.bind(this);
+    this.unlockParameterInputs = this.unlockParameterInputs.bind(this);
+    this.readyToStart = this.readyToStart.bind(this);
   }
 
-  private static updateWaypoints(...waypoints: { name: string; location: Location }[]): void {
-    const checks: { [checkName: string]: number } = {};
+  public componentDidMount(): void {
+    ipcRenderer.on('updateWaypoints', (__: Event, _: boolean, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(...waypoints));
+    ipcRenderer.on('unlockParameterInputs', (_: Event, waypointType: string): void => this.unlockParameterInputs(waypointType));
+  }
+
+  private onChange(event: React.ChangeEvent<HTMLInputElement>): void {
+    const { checklist } = this.state;
+
+    if (!(event.target.name in checklist)) return;
+
+    const name = event.target.name as ISRChecklistType;
+    const value = parseInt(event.target.value, 10);
+
+    switch (name) {
+      case 'takeoffLat':
+        ipc.postUpdateWaypoints(true, { name: 'Takeoff', location: { lat: value, lng: checklist.takeoffLng as number } });
+        break;
+
+      case 'takeoffLng':
+        ipc.postUpdateWaypoints(true, { name: 'Takeoff', location: { lat: checklist.takeoffLat as number, lng: value } });
+        break;
+
+      case 'loiterLat':
+        ipc.postUpdateWaypoints(true, { name: 'Loiter', location: { lat: value, lng: checklist.loiterLng as number } });
+        break;
+
+      case 'loiterLng':
+        ipc.postUpdateWaypoints(true, { name: 'Loiter', location: { lat: checklist.loiterLat as number, lng: value } });
+        break;
+
+      case 'isrSearchLat1':
+        ipc.postUpdateWaypoints(true, { name: 'ISR Search 1', location: { lat: value, lng: checklist.isrSearchLng1 as number } });
+        break;
+
+      case 'isrSearchLng1':
+        ipc.postUpdateWaypoints(true, { name: 'ISR Search 1', location: { lat: checklist.isrSearchLat1 as number, lng: value } });
+        break;
+
+      case 'isrSearchLat2':
+        ipc.postUpdateWaypoints(true, { name: 'ISR Search 2', location: { lat: value, lng: checklist.isrSearchLng2 as number } });
+        break;
+
+      case 'isrSearchLng2':
+        ipc.postUpdateWaypoints(true, { name: 'ISR Search 2', location: { lat: checklist.isrSearchLat2 as number, lng: value } });
+        break;
+
+      case 'isrSearchLat3':
+        ipc.postUpdateWaypoints(true, { name: 'ISR Search 3', location: { lat: value, lng: checklist.isrSearchLng3 as number } });
+        break;
+
+      case 'isrSearchLng3':
+        ipc.postUpdateWaypoints(true, { name: 'ISR Search 3', location: { lat: checklist.isrSearchLat3 as number, lng: value } });
+        break;
+
+      case 'landLat1':
+        ipc.postUpdateWaypoints(true, { name: 'Land 1', location: { lat: value, lng: checklist.landLng1 as number } });
+        break;
+
+      case 'landLng1':
+        ipc.postUpdateWaypoints(true, { name: 'Land 1', location: { lat: checklist.landLat1 as number, lng: value } });
+        break;
+
+      case 'landLat2':
+        ipc.postUpdateWaypoints(true, { name: 'Land 2', location: { lat: value, lng: checklist.landLng2 as number } });
+        break;
+
+      case 'landLng2':
+        ipc.postUpdateWaypoints(true, { name: 'Land 2', location: { lat: checklist.landLat2 as number, lng: value } });
+        break;
+
+      default:
+        this.updateChecklist({ [name]: value });
+        break;
+    }
+  }
+
+  private updateWaypoints(...waypoints: { name: string; location: Location }[]): void {
+    const checks: { [checkName in ISRChecklistType]?: number } = {};
 
     waypoints.forEach((waypoint): void => {
       switch (waypoint.name) {
@@ -124,7 +212,7 @@ export class ISRSearch extends Component<ISRSearchProps> {
 
         case 'ISR Search 3':
           checks.isrSearchLat3 = waypoint.location.lat;
-          checks.isrSearchLng4 = waypoint.location.lng;
+          checks.isrSearchLng3 = waypoint.location.lng;
           break;
 
         case 'Land 1':
@@ -141,114 +229,91 @@ export class ISRSearch extends Component<ISRSearchProps> {
       }
     });
 
-    ISRSearch.updateChecklist(checks);
+    this.updateChecklist(checks);
   }
 
-  private static updateChecklist(checks: { [checkName: string]: number }): void {
-    Object.keys(checks).forEach((checkName): void => {
-      const value = checks[checkName];
-      /*
-       * Following check is to ensure that we have all the "name" fields in the
-       * form correctly put in. Delete the following check when we ensure it works.
-       */
-      if (!(checkName in checklist)) {
-        throw new RangeError('Wrong value provided');
-      }
+  private updateChecklist(checks: { [checklistType in ISRChecklistType]?: number }): void {
+    const { checklist: newChecklist, ready } = this.state;
 
-      checklist[checkName] = value;
+    Object.keys(checks).forEach((checklistTypeString): void => {
+      const checklistType = checklistTypeString as ISRChecklistType;
+      const value = checks[checklistType];
+
+      newChecklist[checklistType] = value;
     });
 
-    if (ISRSearch.isReadyToStart) {
-      ipc.postUpdateInformation(information);
+    if (ready || readyToStart(this)) {
+      // ipc.postUpdateInformation(information);
     }
+
+    this.setState({ checklist: newChecklist });
   }
 
-  private static isReadyToStart(): boolean {
-    return Object.values(checklist).every((value): boolean => value !== undefined);
+  private unlockParameterInputs(waypointType: string): void {
+    const { locked: newLocked } = this.state;
+
+    if (waypointType in newLocked) {
+      newLocked[waypointType as ISRWaypointType] = false;
+    }
+
+    this.setState({ locked: newLocked });
   }
 
-  private static onClickTakeoff(): void {
-    ipc.postCreateWaypoints({ name: 'Takeoff' });
-  }
+  private readyToStart(): boolean {
+    const { checklist } = this.state;
 
-  private static onClickLoiter(): void {
-    ipc.postCreateWaypoints({ name: 'Loiter' });
-  }
+    const ready = Object.values(checklist).every((value): boolean => value !== undefined);
 
-  private static onClickSearch1(): void {
-    ipc.postCreateWaypoints({ name: 'ISR Search 1' });
-  }
-
-  private static onClickSearch2(): void {
-    ipc.postCreateWaypoints({ name: 'ISR Search 2' });
-  }
-
-  private static onClickSearch3(): void {
-    ipc.postCreateWaypoints({ name: 'ISR Search 3' });
-  }
-
-  private static onClickLand1(): void {
-    ipc.postCreateWaypoints({ name: 'Land 1' });
-  }
-
-  private static onClickLand2(): void {
-    ipc.postCreateWaypoints({ name: 'Land 2' });
-  }
-
-  public componentDidMount(): void {
-    ipcRenderer.on('updateWaypoints', (__: Event, _: boolean, ...waypoints: { name: string; location: Location }[]): void => ISRSearch.updateWaypoints(...waypoints));
+    if (ready) this.setState({ ready });
+    return ready;
   }
 
   public render(): ReactNode {
-    const { parameters } = information;
+    const { checklist, locked } = this.state;
 
     return (
       <div>
-        <h2>ISR Search</h2>
-
         <p>Takeoff Coordinates</p>
-        <input type="number" name="takeoffLat" placeholder="Latitude" value={checklist.takeoffLat && parameters.takeoff.lat} onChange={ISRSearch.onChange} />
-        <input type="number" name="takeoffLng" placeholder="Longitude" value={checklist.takeoffLng && parameters.takeoff.lng} onChange={ISRSearch.onChange} />
-        <button type="button" onClick={ISRSearch.onClickTakeoff}>Create Pin</button>
-        <br />
-        <input type="number" name="takeoffAlt" placeholder="Altitude" value={checklist.takeoffAlt && parameters.takeoff.alt} onChange={ISRSearch.onChange} />
+        <input type="number" name="takeoffLat" value={checklist.takeoffLat || ''} disabled={locked.takeoff} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="takeoffLng" value={checklist.takeoffLng || ''} disabled={locked.takeoff} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="takeoffAlt" value={checklist.takeoffAlt || ''} disabled={locked.takeoff} onChange={this.onChange} placeholder="Altitude" />
+        <CreateWaypointButton name="takeoff" value="Takeoff" />
 
         <p>Loiter Coordinates</p>
-        <input type="number" name="loiterLat" placeholder="Latitude" value={checklist.loiterLat && parameters.takeoff.loiter.lat} onChange={ISRSearch.onChange} />
-        <input type="number" name="loiterLng" placeholder="Longitude" value={checklist.loiterLng && parameters.takeoff.loiter.lng} onChange={ISRSearch.onChange} />
-        <button type="button" onClick={ISRSearch.onClickLoiter}>Create Pin</button>
-        <br />
-        <input type="number" name="loiterAlt" placeholder="Altitude" value={checklist.loiterAlt && parameters.takeoff.loiter.alt} onChange={ISRSearch.onChange} />
-        <input type="number" name="loiterRadius" placeholder="Radius" value={checklist.loiterRadius && parameters.takeoff.loiter.radius} onChange={ISRSearch.onChange} />
-        <input type="number" name="loiterDirection" placeholder="Direction" value={checklist.loiterDirection && parameters.takeoff.loiter.direction} onChange={ISRSearch.onChange} />
+        <input type="number" name="loiterLat" value={checklist.loiterLat || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="loiterLng" value={checklist.loiterLng || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="loiterAlt" value={checklist.loiterAlt || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Altitude" />
+        <input type="number" name="loiterRadius" value={checklist.loiterRadius || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Radius" />
+        <input type="number" name="loiterDirection" value={checklist.loiterDirection || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Direction" />
+        <CreateWaypointButton name="loiter" value="Loiter" />
 
         <p>ISR Search Waypoints</p>
-        <input type="number" id="isrSearchLat1" placeholder="Latitude" value={checklist.isrSearchLat1 && parameters.isrSearch.waypoints[0].lat} onChange={ISRSearch.onChange} />
-        <input type="number" id="isrSearchLng1" placeholder="Longitude" value={checklist.isrSearchLng1 && parameters.isrSearch.waypoints[0].lng} onChange={ISRSearch.onChange} />
-        <button type="button" onClick={ISRSearch.onClickSearch1}>Create Pin</button>
+        <input type="number" name="isrSearchAlt" value={checklist.isrSearchAlt || ''} disabled={locked.isrSearch1 && locked.isrSearch2 && locked.isrSearch3} onChange={this.onChange} placeholder="Altitude" />
         <br />
-        <input type="number" id="isrSearchLat2" placeholder="Latitude" value={checklist.isrSearchLat2 && parameters.isrSearch.waypoints[1].lat} onChange={ISRSearch.onChange} />
-        <input type="number" id="isrSearchLng2" placeholder="Longitude" value={checklist.isrSearchLng2 && parameters.isrSearch.waypoints[1].lng} onChange={ISRSearch.onChange} />
-        <button type="button" onClick={ISRSearch.onClickSearch2}>Create Pin</button>
+        <input type="number" name="isrSearchLat1" value={checklist.isrSearchLat1 || ''} disabled={locked.isrSearch1} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="isrSearchLng1" value={checklist.isrSearchLng1 || ''} disabled={locked.isrSearch1} onChange={this.onChange} placeholder="Longitude" />
+        <CreateWaypointButton name="isrSearch1" value="ISR Search 1" />
         <br />
-        <input type="number" id="isrSearchLat3" placeholder="Latitude" value={checklist.isrSearchLat3 && parameters.isrSearch.waypoints[2].lat} onChange={ISRSearch.onChange} />
-        <input type="number" id="isrSearchLng3" placeholder="Longitude" value={checklist.isrSearchLng3 && parameters.isrSearch.waypoints[2].lng} onChange={ISRSearch.onChange} />
-        <button type="button" onClick={ISRSearch.onClickSearch3}>Create Pin</button>
+        <input type="number" name="isrSearchLat2" value={checklist.isrSearchLat2 || ''} disabled={locked.isrSearch2} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="isrSearchLng2" value={checklist.isrSearchLng2 || ''} disabled={locked.isrSearch2} onChange={this.onChange} placeholder="Longitude" />
+        <CreateWaypointButton name="isrSearch2" value="ISR Search 2" />
         <br />
-        <input type="number" name="isrSearchAlt" placeholder="Altitude" value={checklist.isrSearchAlt && parameters.isrSearch.alt} onChange={ISRSearch.onChange} />
+        <input type="number" name="isrSearchLat3" value={checklist.isrSearchLat3 || ''} disabled={locked.isrSearch3} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="isrSearchLng3" value={checklist.isrSearchLng3 || ''} disabled={locked.isrSearch3} onChange={this.onChange} placeholder="Longitude" />
+        <CreateWaypointButton name="isrSearch3" value="ISR Search 3" />
 
         <p>Land Waypoints</p>
-        <input type="number" id="landLat1" placeholder="Latitude" value={checklist.landLat1 && parameters.land.waypoints[0].lat} onChange={ISRSearch.onChange} />
-        <input type="number" id="landLng1" placeholder="Longitude" value={checklist.landLng1 && parameters.land.waypoints[0].lng} onChange={ISRSearch.onChange} />
-        <button type="button" onClick={ISRSearch.onClickLand1}>Create Pin</button>
+        <input type="number" name="landLat1" value={checklist.landLat1 || ''} disabled={locked.land1} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="landLng1" value={checklist.landLng1 || ''} disabled={locked.land1} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="landAlt1" value={checklist.landAlt1 || ''} disabled={locked.land1} onChange={this.onChange} placeholder="Altitude" />
+        <CreateWaypointButton name="land1" value="Land 1" />
         <br />
-        <input type="number" name="landAlt1" placeholder="Altitude" value={checklist.landAlt1 && parameters.land.waypoints[0].alt} onChange={ISRSearch.onChange} />
         <br />
-        <input type="number" id="landLat1" placeholder="Latitude" value={checklist.landLat1 && parameters.land.waypoints[1].lat} onChange={ISRSearch.onChange} />
-        <input type="number" id="landLng1" placeholder="Longitude" value={checklist.landLng1 && parameters.land.waypoints[1].lng} onChange={ISRSearch.onChange} />
-        <button type="button" onClick={ISRSearch.onClickLand2}>Create Pin</button>
+        <input type="number" name="landLat2" value={checklist.landLat2 || ''} disabled={locked.land2} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="landLng2" value={checklist.landLng2 || ''} disabled={locked.land2} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="landAlt2" value={checklist.landAlt2 || ''} disabled={locked.land2} onChange={this.onChange} placeholder="Altitude" />
+        <CreateWaypointButton name="land2" value="Land 2" />
         <br />
-        <input type="number" name="landAlt1" placeholder="Altitude" value={checklist.landAlt1 && parameters.land.waypoints[1].alt} onChange={ISRSearch.onChange} />
       </div>
     );
   }

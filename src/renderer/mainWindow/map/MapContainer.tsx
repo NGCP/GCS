@@ -224,7 +224,10 @@ export default class MapContainer extends Component<ThemeProps, State> {
           }) || locationConfig.startLocation,
         };
 
-        ipc.postUpdateWaypoints(false, { name: waypoint.name, ...newWaypoints[waypoint.name] });
+        ipc.postUpdateWaypoints(false, {
+          name: waypoint.name,
+          location: newWaypoints[waypoint.name].location,
+        });
       }
     });
 
