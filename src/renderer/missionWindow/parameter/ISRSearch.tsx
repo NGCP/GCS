@@ -119,7 +119,7 @@ export class ISRSearch extends Component<ISRSearchProps, State> {
     if (!(event.target.name in checklist)) return;
 
     const name = event.target.name as ISRChecklistType;
-    const value = parseInt(event.target.value, 10);
+    const value = parseInt(event.target.value, 10) || 0;
 
     switch (name) {
       case 'takeoffLat':
