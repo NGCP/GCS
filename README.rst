@@ -25,19 +25,21 @@ NGCP Ground Control Station
 Introduction
 ============
 
-The `Northrop Grumman Collaboration Project`_ presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the project.
+The `Northrop Grumman Collaboration Project`_ presents the Ground Control Station (GCS). This project's objective is to view and set missions for all autonomous vehicle platforms in the project.
 
-Our documentation can be found `here <https://ground-control-station.readthedocs.io/>`_.
+Documentation for the GCS can be found `here <https://ground-control-station.readthedocs.io/>`_.
 
 Requirements
 ============
 
-You will need the latest version of `Node.js`_.
+You will need the latest LTS version of `Node.js`_. You will also need the latest version of `Python 2`_.
 
 Getting Started
 ===============
 
-**Setting Things Up**
+
+
+|pencil2| **Setting Things Up**
 
 Open up your command line application and clone this repository
 
@@ -45,7 +47,7 @@ Open up your command line application and clone this repository
 
   git clone https://github.com/NGCP/GCS.git
 
-**Running the Program**
+|scroll| **Running the Program**
 
 Create a `Mapbox account`_ and obtain a public API access token. Create a ``.env`` file, copy the content of the ``.env.example`` to it, and replace ``your-access-token`` with your own access token.
 
@@ -57,6 +59,7 @@ Install all required third-party libraries and run the program:
 
 .. code-block:: bash
 
+  cd path/to/GCS
   npm install
   npm start
 
@@ -71,4 +74,12 @@ License
 
 .. _Northrop Grumman Collaboration Project: http://www.ngcpcalpoly.com/about.html
 .. _Node.js: https://github.com/nodejs/node
+.. _Python 2: https://www.python.org/downloads/release/python-2716/
 .. _Mapbox account: https://www.mapbox.com/account/
+
+.. |pencil2| image:: https://github.githubassets.com/images/icons/emoji/unicode/270f.png?v8
+  :height: 1.2em
+  :alt: :pencil2:
+.. |scroll| image:: https://github.githubassets.com/images/icons/emoji/unicode/1f4dc.png?v8
+  :height: 1.2em
+  :alt: :scroll:
