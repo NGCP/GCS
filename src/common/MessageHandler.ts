@@ -43,7 +43,7 @@ class MessageHandler {
     ipcRenderer.on('receiveMessage', (_: Event, message: any): void => this.receiveMessage(message)); // eslint-disable-line @typescript-eslint/no-explicit-any
 
     ipcRenderer.on('stopSendingMessage', (_: Event, ackMessage: Message.JSONMessage): void => this.stopSendingMessage(ackMessage));
-    ipcRenderer.on('stopSendingMessages', this.stopSendingMessages);
+    ipcRenderer.on('stopSendingMessages', (): void => this.stopSendingMessages());
   }
 
   /**

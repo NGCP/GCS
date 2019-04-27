@@ -190,5 +190,5 @@ export class UGVRescue extends Component<UGVRescueProps, State> {
 
 export default {
   missionName,
-  layout: UGVRescue as React.ElementType,
+  layout: UGVRescue,
 };

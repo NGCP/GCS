@@ -172,11 +172,10 @@ export default abstract class Mission {
       return;
     }
 
-    const pendingAssignVehicleIds = Object.keys(this.activeVehicleMapping[this.missionName]).map(
-      (vehicleIdString): number => parseInt(vehicleIdString, 10),
-    );
+    const pendingAssignVehicleIds = Object.keys(this.activeVehicleMapping[this.missionName])
+      .map((vehicleIdString): number => parseInt(vehicleIdString, 10));
 
-    const allVehiclesReady = pendingAssignVehicleIds.some((vehicleId): boolean => this.vehicles[vehicleId].getStatus() !== 'ready');
+    const allVehiclesReady = pendingAssignVehicleIds.every((vehicleId): boolean => this.vehicles[vehicleId].getStatus() === 'ready');
 
     if (!allVehiclesReady) {
       this.stop(false, `Cannot assign jobs to all vehicles in ${this.missionName} as some are not in a ready state`);
@@ -189,8 +188,6 @@ export default abstract class Mission {
      */
     const onSuccess = (vehicleId: number): void => {
       pendingAssignVehicleIds.splice(pendingAssignVehicleIds.indexOf(vehicleId), 1);
-
-      console.log('sucess', vehicleId);
 
       if (pendingAssignVehicleIds.length === 0) {
         ipc.postLogMessages({
@@ -206,8 +203,6 @@ export default abstract class Mission {
      * Callback when a vehicle fails to acknowledge the job assignment.
      */
     const onDisconnect = (vehicleId: number): void => {
-      console.log('disconnect', vehicleId);
-
       ipc.postStopSendingMessages();
       this.stop(false, `Failed to assign job to ${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name}, as it has disconnected`);
     };
@@ -216,7 +211,6 @@ export default abstract class Mission {
      * Callback when a vehicle performing a job enters an error state.
      */
     const onError = (vehicleId: number, message?: string): void => {
-      console.log('error', vehicleId);
       ipc.postLogMessages({
         type: 'failure',
         message: `${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name} has entered an error state in ${this.missionName}: ${message || 'No error message specified'}`,
@@ -246,24 +240,18 @@ export default abstract class Mission {
       return;
     }
 
-    console.log('LETS GO');
-
     const jobTasks = this.generateTasks();
     if (!jobTasks) {
       this.stop(false, `No tasks were generated from ${this.missionName}`);
       return;
     }
 
-    const allValidTasksForJobs = jobTasks.keys().some(
-      (jobType): boolean => !vehicleConfig.isValidJobType(jobType as JobType)
-        || jobTasks.some(
-          jobType,
-          (task): boolean => !vehicleConfig.isValidTaskTypeForJob(
-            task.taskType,
-            jobType as JobType,
-          ),
-        ),
-    );
+    const allValidTasksForJobs = jobTasks.keys()
+      .every((jobType): boolean => vehicleConfig.isValidJobType(jobType as JobType)
+        || jobTasks.every(jobType, (task): boolean => !vehicleConfig.isValidTaskTypeForJob(
+          task.taskType,
+          jobType as JobType,
+        )));
 
     if (!allValidTasksForJobs) {
       this.stop(false, `Generated tasks in ${this.missionName} are invalid for their respective jobs`);

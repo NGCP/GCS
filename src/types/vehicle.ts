@@ -1,3 +1,5 @@
+import { JobType } from '../static/index';
+
 /**
  * Status of the vehicle, lets us know of where the vehicle is in its mission.
  */
@@ -25,7 +27,7 @@ export interface VehicleObject {
   /**
    * Jobs of the vehicle.
    */
-  jobs: string[];
+  jobs: JobType[];
 
   /**
    * Current latitude of the vehicle. Starts at 0.

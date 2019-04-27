@@ -242,11 +242,13 @@ export default class MapContainer extends Component<ThemeProps, State> {
     updateMap: boolean,
     ...waypoints: { name: string; location: Location }[]
   ): void {
+    if (!updateMap) return;
+
     const { waypoints: currentWaypoints } = this.state;
     const newWaypoints = currentWaypoints;
 
     waypoints.forEach((waypoint): void => {
-      if (newWaypoints[waypoint.name] && updateMap) {
+      if (newWaypoints[waypoint.name]) {
         newWaypoints[waypoint.name].location = waypoint.location;
       }
     });
@@ -306,11 +308,13 @@ export default class MapContainer extends Component<ThemeProps, State> {
       color?: string;
     }[]
   ): void {
+    if (!updateMap) return;
+
     const { boundingBoxes: currentBoundingBoxes } = this.state;
     const newBoundingBoxes = currentBoundingBoxes;
 
     boundingBoxes.forEach((boundingBox): void => {
-      if (newBoundingBoxes[boundingBox.name] && updateMap) {
+      if (newBoundingBoxes[boundingBox.name]) {
         newBoundingBoxes[boundingBox.name].bounds = boundingBox.bounds;
         if (boundingBox.color) newBoundingBoxes[boundingBox.name].color = boundingBox.color;
       }

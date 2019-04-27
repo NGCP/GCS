@@ -135,6 +135,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     };
 
     this.onSliderChange = this.onSliderChange.bind(this);
+    this.updateVehicles = this.updateVehicles.bind(this);
     this.updateInformation = this.updateInformation.bind(this);
     this.updateOptions = this.updateOptions.bind(this);
     this.postStartMissions = this.postStartMissions.bind(this);
@@ -147,15 +148,15 @@ export default class MissionWindow extends Component<ThemeProps, State> {
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => updateVehicles(this, ...vehicles));
+    ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => this.updateVehicles(...vehicles));
 
     ipcRenderer.on('updateInformation', (_: Event, information: MissionInformation.Information): void => this.updateInformation(information));
     ipcRenderer.on('updateOptions', (_: Event, missionName: MissionInformation.MissionName, option: string, value: boolean): void => this.updateOptions(missionName, option, value));
     ipcRenderer.on('updateActiveVehicleMapping', (_: Event, missionName: MissionInformation.MissionName, jobType: JobType, vehicleId: number): void => this.updateActiveVehicleMapping(missionName, jobType, vehicleId));
 
-    ipcRenderer.on('confirmCompleteMission', (): void => { this.setState({ status: 'next' }); });
-    ipcRenderer.on('stopMissions', (): void => { this.stopMissions(); });
-    ipcRenderer.on('finishMissions', (): void => { this.setState({ status: 'finished' }); });
+    ipcRenderer.on('confirmCompleteMission', (): void => this.setState({ status: 'next' }));
+    ipcRenderer.on('stopMissions', (): void => this.stopMissions());
+    ipcRenderer.on('finishMissions', (): void => this.setState({ status: 'finished' }));
   }
 
   private onSliderChange(value: [number, number]): void {
@@ -163,6 +164,31 @@ export default class MissionWindow extends Component<ThemeProps, State> {
       startMissionIndex: value[0],
       endMissionIndex: value[1],
     });
+  }
+
+  private updateVehicles(...vehicles: VehicleObject[]): void {
+    updateVehicles(this, ...vehicles);
+
+    const { activeVehicleMapping: newActiveVehicleMapping } = this.state;
+
+    // Check for disconnected vehicles in activeVehicleMapping and remove them.
+    vehicles.forEach((vehicle): void => {
+      if (vehicle.status === 'disconnected') {
+        if (Object.keys(newActiveVehicleMapping.isrSearch).includes(`${vehicle.vehicleId}`)) {
+          delete newActiveVehicleMapping.isrSearch[vehicle.vehicleId];
+        } else if (Object.keys(newActiveVehicleMapping.vtolSearch).includes(`${vehicle.vehicleId}`)) {
+          delete newActiveVehicleMapping.vtolSearch[vehicle.vehicleId];
+        } else if (Object.keys(newActiveVehicleMapping.payloadDrop).includes(`${vehicle.vehicleId}`)) {
+          delete newActiveVehicleMapping.payloadDrop[vehicle.vehicleId];
+        } else if (Object.keys(newActiveVehicleMapping.ugvRescue).includes(`${vehicle.vehicleId}`)) {
+          delete newActiveVehicleMapping.ugvRescue[vehicle.vehicleId];
+        } else if (Object.keys(newActiveVehicleMapping.uuvRescue).includes(`${vehicle.vehicleId}`)) {
+          delete newActiveVehicleMapping.uuvRescue[vehicle.vehicleId];
+        }
+      }
+    });
+
+    this.setState({ activeVehicleMapping: newActiveVehicleMapping });
   }
 
   private updateInformation(information: MissionInformation.Information): void {
@@ -207,7 +233,20 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     const { activeVehicleMapping: currentActiveVehicleMapping } = this.state;
     const newActiveVehicleMapping = currentActiveVehicleMapping;
 
-    newActiveVehicleMapping[missionName][vehicleId] = jobType;
+    if (vehicleId !== 0) {
+      newActiveVehicleMapping[missionName][vehicleId] = jobType;
+    } else {
+      const deleteVehicleIdString = Object.keys(newActiveVehicleMapping)
+        .find((vehicleIdString): boolean => {
+          const vid = parseInt(vehicleIdString, 10);
+          return newActiveVehicleMapping[missionName][vid] === jobType;
+        });
+
+      if (deleteVehicleIdString) {
+        const deleteVehicleId = parseInt(deleteVehicleIdString, 10);
+        delete newActiveVehicleMapping[missionName][deleteVehicleId];
+      }
+    }
     this.setState({ activeVehicleMapping: newActiveVehicleMapping });
   }
 

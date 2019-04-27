@@ -209,6 +209,19 @@ export default class DictionaryList<T> {
   }
 
   /**
+   * Determines whether all the members of an array satisfy the specified test.
+   *
+   * @param key The key to access the list in the dictionary.
+   * @param callback Test each element, and return true if an element passes the callback.
+   */
+  public every(key: string, callback: Callback<T>): boolean {
+    const list = this.dictionary[key];
+    if (!list) return true;
+
+    return list.every(callback);
+  }
+
+  /**
    * Sorts a list for a given key.
    *
    * @param key The key to access the list in the dictionary.

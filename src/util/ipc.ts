@@ -52,6 +52,7 @@ function postCompleteMission(
  * Post "confirmCompleteMission" notification.
  *
  * Files that take this notification:
+ * - renderer/missionWindow/MissionWindow
  */
 function postConfirmCompleteMission(): void {
   ipcRenderer.send('post', 'confirmCompleteMission');
@@ -72,7 +73,6 @@ function postConnectToVehicle(jsonMessage: Message.JSONMessage, newMessage: bool
  *
  * Files that take this notification:
  * - renderer/mainWindow/map/MapContainer
- * - renderer/missionWindow/extra/CreateBoundingBox
  */
 function postCreateBoundingBoxes(
   ...boundingBoxes: { name: string; color?: string; bounds?: BoundingBoxBounds}[]
@@ -105,6 +105,7 @@ function postDisconnectFromVehicle(vehicleId: number): void {
  * notification in that this is sent once all missions to run are completed.
  *
  * Files that take this notification:
+ * - renderer/missionWindow/MissionWindow
  */
 function postFinishMissions(completionParameters: Task.TaskParameters[]): void {
   ipcRenderer.send('post', 'finishMissions', completionParameters);
@@ -310,7 +311,6 @@ function postStartMissions(
  *
  * Files that take this notification:
  * - common/Orchestrator
- * - renderer/missionWindow/MissionWindow
  */
 function postStartNextMission(): void {
   ipcRenderer.send('post', 'startNextMission');
@@ -362,8 +362,9 @@ function postToggleTheme(): void {
  *
  * Files that take this notification:
  * - renderer/missionWindow/parameter/ISRSearch
- * - renderer/missionWindow/parameter/VTOLSearch
  * - renderer/missionWindow/parameter/PayloadDrop
+ * - renderer/missionWindow/parameter/UGVRescue
+ * - renderer/missionWindow/parameter/VTOLSearch
  */
 function postUnlockParameterInputs(waypointType: string): void {
   ipcRenderer.send('post', 'unlockParameterInputs', waypointType);
@@ -445,6 +446,7 @@ function postUpdateOptions(
  * Files that take this notification:
  * - renderer/mainWindow/map/MapContainer
  * - renderer/mainWindow/vehicle/VehicleContainer
+ * - renderer/missionWindow/MissionWindow
  */
 function postUpdateVehicles(...vehicles: VehicleObject[]): void {
   ipcRenderer.send('post', 'updateVehicles', ...vehicles);

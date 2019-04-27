@@ -59,7 +59,7 @@ export default class Vehicle {
   /**
    * Jobs the vehicle has. These define the tasks the vehicle is capable of performing.
    */
-  private jobs: string[];
+  private jobs: JobType[];
 
   /**
    * Current latitude of the vehicle. Starts at 0.
@@ -158,7 +158,7 @@ export default class Vehicle {
 
   public getStatus(): VehicleStatus { return this.status; }
 
-  public getJobs(): string[] { return this.jobs; }
+  public getJobs(): JobType[] { return this.jobs; }
 
   public getLat(): number { return this.lat; }
 
@@ -207,8 +207,10 @@ export default class Vehicle {
    * its update messages will bring it to its real status.
    */
   public connect(): void {
-    this.status = 'ready';
-    this.lastConnectionTime = Date.now();
+    this.updateEventHandler.events({
+      status: 'ready',
+      time: Date.now(),
+    });
   }
 
   /**
@@ -217,7 +219,7 @@ export default class Vehicle {
    * if it is disconnected.
    */
   public disconnect(): void {
-    this.status = 'disconnected';
+    this.updateEventHandler.event<VehicleStatus>('status', 'disconnected');
   }
 
   /**

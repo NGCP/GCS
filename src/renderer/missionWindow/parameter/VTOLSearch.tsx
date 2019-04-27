@@ -12,8 +12,7 @@ import { readyToStart } from '../../../util/parameter';
 
 import CreateBoundingBoxButton from '../extra/CreateBoundingBoxButton';
 
-type VTOLSearchChecklistType = 'quickScanTop' | 'quickScanLeft' | 'quickScanRight'
-| 'quickScanBottom';
+type VTOLSearchChecklistType = 'quickScanTop' | 'quickScanLeft' | 'quickScanRight' | 'quickScanBottom';
 
 const checklistCache: { [check in VTOLSearchChecklistType ]: number | undefined} = {
   quickScanTop: undefined,
@@ -239,5 +238,5 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
 
 export default {
   missionName,
-  layout: VTOLSearch as React.ElementType,
+  layout: VTOLSearch,
 };
