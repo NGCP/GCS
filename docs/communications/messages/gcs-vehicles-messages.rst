@@ -24,7 +24,7 @@ See the connect message that initiates this acknowledgement request `here <vehic
   }
 
 .. note::
-  Requires an `acknowledgement message`_ from the vehicle.
+  Should **not** be acknowledged.
 
 -------------
 
@@ -43,10 +43,6 @@ Sent to the vehicle to assign a job to complete a mission.
     "time": <unsigned 64-bit integer>,
 
     "jobType": <string>,                  // Job to perform
-    "options":                            // Optional, additional information vehicle needs
-    {
-      ...
-    }
   }
 
 .. note::
@@ -57,12 +53,6 @@ Sent to the vehicle to assign a job to complete a mission.
   :type: string
 
   The job being assigned to the vehicle to in order to complete the vehicle. This vehicle is capable of doing the job.
-
-.. confval:: options : Optional
-
-  :type: object
-
-  Object of key/value pairs that the vehicle's job needs. Currently none of our platforms need this.
 
 -------------------
 
