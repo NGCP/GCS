@@ -71,6 +71,6 @@ License
   :alt: FOSSA Status
 
 .. _Northrop Grumman Collaboration Project: http://www.ngcpcalpoly.com/about.html
-.. _Node.js: https://github.com/nodejs/node
+.. _Node.js: https://nodejs.org/
 .. _Python 2: https://www.python.org/downloads/release/python-2716/
 .. _Mapbox account: https://www.mapbox.com/account/
