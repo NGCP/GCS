@@ -1,30 +1,25 @@
 import { Event, ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
-import { missionName } from '../../../common/missions/VTOLSearch';
+import { BoundingBoxBounds } from '../../../types/componentStyle';
 
-import { Location } from '../../../static/index';
+import { missionName } from '../../../common/missions/VTOLSearch';
 
 import { VehicleObject } from '../../../types/vehicle';
 
 import ipc from '../../../util/ipc';
 import { readyToStart } from '../../../util/parameter';
 
-import CreateBoundingBoxButton from '../extra/CreateBoundingBox';
+import CreateBoundingBoxButton from '../extra/CreateBoundingBoxButton';
 
-type VTOLSearchChecklistType = 'quickScanTopLeftLat' | 'quickScanTopLeftLng' | 'quickScanTopRightLat'
-| 'quickScanTopRightLng' | 'quickScanBottomLeftLat' | 'quickScanBottomLeftLng'
-| 'quickScanBottomRightLat' | 'quickScanBottomRightLng';
+type VTOLSearchChecklistType = 'quickScanTop' | 'quickScanLeft' | 'quickScanRight'
+| 'quickScanBottom';
 
 const checklistCache: { [check in VTOLSearchChecklistType ]: number | undefined} = {
-  quickScanTopLeftLat: undefined,
-  quickScanTopLeftLng: undefined,
-  quickScanTopRightLat: undefined,
-  quickScanTopRightLng: undefined,
-  quickScanBottomLeftLat: undefined,
-  quickScanBottomLeftLng: undefined,
-  quickScanBottomRightLat: undefined,
-  quickScanBottomRightLng: undefined,
+  quickScanTop: undefined,
+  quickScanLeft: undefined,
+  quickScanRight: undefined,
+  quickScanBottom: undefined,
 };
 
 type VTOLSearchType = 'quickScan';
@@ -34,7 +29,7 @@ type Locked = { [type in VTOLSearchType]: boolean} & {
 }
 
 const lockedCache: Locked = {
-  quickScan: false,
+  quickScan: true,
 };
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
@@ -44,7 +39,7 @@ export interface VTOLSearchProps {
 
 interface State {
   /**
-   * Checklist of all required waypoints/coordinates. This is used to generate the
+   * Checklist of all required points for bounding box. This is used to generate the
    * parameters for the mission.
    */
   checklist: { [check in VTOLSearchChecklistType]: number | undefined };
@@ -72,14 +67,14 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
     };
 
     this.onChange = this.onChange.bind(this);
-    this.updateWaypoints = this.updateWaypoints.bind(this);
+    this.updateBoundingBoxes = this.updateBoundingBoxes.bind(this);
     this.updateChecklist = this.updateChecklist.bind(this);
     this.readyToStart = this.readyToStart.bind(this);
     this.unlockParameterInputs = this.unlockParameterInputs.bind(this);
   }
 
   public componentDidMount(): void {
-    ipcRenderer.on('updateWaypoints', (__: Event, _: boolean, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(...waypoints));
+    ipcRenderer.on('updateBoundingBoxes', (__: Event, _: boolean, ...boxPoints: { name: string; bounds: BoundingBoxBounds }[]): void => this.updateBoundingBoxes(...boxPoints));
     ipcRenderer.on('unlockParameterInputs', (_: Event, waypointType: string): void => this.unlockParameterInputs(waypointType));
   }
 
@@ -90,36 +85,52 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
     const name = event.target.name as VTOLSearchChecklistType;
     const value = parseInt(event.target.value, 10) || 0;
     switch (name) {
-      case 'quickScanTopLeftLat':
-        ipc.postUpdateWaypoints(true, { name: 'Quick Scan 1', location: { lat: value, lng: checklist.quickScanTopLeftLng as number } });
+      case 'quickScanTop':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Bounding Box',
+          bounds: {
+            top: value,
+            bottom: checklist.quickScanBottom as number,
+            left: checklist.quickScanLeft as number,
+            right: checklist.quickScanRight as number,
+          },
+        });
         break;
 
-      case 'quickScanTopLeftLng':
-        ipc.postUpdateWaypoints(true, { name: 'Quick Scan 1', location: { lat: checklist.quickScanTopLeftLat as number, lng: value } });
+      case 'quickScanLeft':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Bounding Box',
+          bounds: {
+            top: checklist.quickScanTop as number,
+            bottom: checklist.quickScanBottom as number,
+            left: value,
+            right: checklist.quickScanRight as number,
+          },
+        });
         break;
 
-      case 'quickScanTopRightLat':
-        ipc.postUpdateWaypoints(true, { name: 'Quick Scan 2', location: { lat: value, lng: checklist.quickScanTopRightLng as number } });
+      case 'quickScanRight':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Bounding Box',
+          bounds: {
+            top: checklist.quickScanTop as number,
+            bottom: checklist.quickScanBottom as number,
+            left: checklist.quickScanLeft as number,
+            right: value,
+          },
+        });
         break;
 
-      case 'quickScanTopRightLng':
-        ipc.postUpdateWaypoints(true, { name: 'Quick Scan 2', location: { lat: checklist.quickScanTopRightLat as number, lng: value } });
-        break;
-
-      case 'quickScanBottomLeftLat':
-        ipc.postUpdateWaypoints(true, { name: 'Quick Scan 3', location: { lat: value, lng: checklist.quickScanBottomLeftLng as number } });
-        break;
-
-      case 'quickScanBottomLeftLng':
-        ipc.postUpdateWaypoints(true, { name: 'Quick Scan 3', location: { lat: checklist.quickScanBottomLeftLat as number, lng: value } });
-        break;
-
-      case 'quickScanBottomRightLat':
-        ipc.postUpdateWaypoints(true, { name: 'Quick Scan 4', location: { lat: value, lng: checklist.quickScanBottomRightLng as number } });
-        break;
-
-      case 'quickScanBottomRightLng':
-        ipc.postUpdateWaypoints(true, { name: 'Quick Scan 4', location: { lat: checklist.quickScanBottomRightLat as number, lng: value } });
+      case 'quickScanBottom':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Bounding Box',
+          bounds: {
+            top: checklist.quickScanTop as number,
+            bottom: value,
+            left: checklist.quickScanLeft as number,
+            right: checklist.quickScanRight as number,
+          },
+        });
         break;
 
       default:
@@ -128,29 +139,18 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
     }
   }
 
-  private updateWaypoints(...boundingBoxes: { name: string; location: Location }[]): void {
+  private updateBoundingBoxes(
+    ...boundingBoxes: { name: string; bounds: BoundingBoxBounds }[]
+  ): void {
     const checks: { [checkName in VTOLSearchChecklistType]?: number} = {};
 
-    boundingBoxes.forEach((waypoint): void => {
-      switch (waypoint.name) {
-        case 'Quick Scan Top Left':
-          checks.quickScanTopLeftLat = waypoint.location.lat;
-          checks.quickScanTopLeftLng = waypoint.location.lng;
-          break;
-
-        case 'Quick Scan Top Right':
-          checks.quickScanTopRightLat = waypoint.location.lat;
-          checks.quickScanTopRightLng = waypoint.location.lng;
-          break;
-
-        case 'Quick Scan Bottom Left':
-          checks.quickScanBottomLeftLat = waypoint.location.lat;
-          checks.quickScanBottomLeftLng = waypoint.location.lng;
-          break;
-
-        case 'Quick Scan Bottom Right':
-          checks.quickScanBottomRightLat = waypoint.location.lat;
-          checks.quickScanBottomRightLng = waypoint.location.lng;
+    boundingBoxes.forEach((boxpoint): void => {
+      switch (boxpoint.name) {
+        case 'Bounding Box':
+          checks.quickScanTop = boxpoint.bounds.top;
+          checks.quickScanRight = boxpoint.bounds.right;
+          checks.quickScanLeft = boxpoint.bounds.left;
+          checks.quickScanBottom = boxpoint.bounds.bottom;
           break;
 
         default: break;
@@ -176,20 +176,20 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
             quickScan: {
               waypoints: [
                 {
-                  lat: newChecklist.quickScanTopLeftLat as number,
-                  lng: newChecklist.quickScanTopLeftLng as number,
+                  lat: newChecklist.quickScanTop as number,
+                  lng: newChecklist.quickScanLeft as number,
                 },
                 {
-                  lat: newChecklist.quickScanTopRightLat as number,
-                  lng: newChecklist.quickScanTopRightLng as number,
+                  lat: newChecklist.quickScanTop as number,
+                  lng: newChecklist.quickScanRight as number,
                 },
                 {
-                  lat: newChecklist.quickScanBottomLeftLat as number,
-                  lng: newChecklist.quickScanBottomLeftLng as number,
+                  lat: newChecklist.quickScanBottom as number,
+                  lng: newChecklist.quickScanLeft as number,
                 },
                 {
-                  lat: newChecklist.quickScanBottomRightLat as number,
-                  lng: newChecklist.quickScanBottomRightLng as number,
+                  lat: newChecklist.quickScanBottom as number,
+                  lng: newChecklist.quickScanRight as number,
                 },
               ],
             },
@@ -224,19 +224,14 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
     return (
       <div>
         <p>Quick Scan</p>
-        <input type="number" name="quickScanLat1" value={checklist.quickScanTopLeftLat || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="quickScanLng1" value={checklist.quickScanTopLeftLng || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="quickScanTop" value={checklist.quickScanTop || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Top" />
         <br />
-        <input type="number" name="quickScanLat2" value={checklist.quickScanTopRightLat || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="quickScanLng2" value={checklist.quickScanTopRightLng || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="quickScanBottom" value={checklist.quickScanBottom || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Bottom" />
         <br />
-        <input type="number" name="quickScanLat3" value={checklist.quickScanBottomLeftLat || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="quickScanLng3" value={checklist.quickScanBottomLeftLng || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="quickScanLeft" value={checklist.quickScanLeft || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Left" />
         <br />
-        <input type="number" name="quickScanLat4" value={checklist.quickScanBottomRightLat || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="quickScanLng4" value={checklist.quickScanBottomRightLng || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Longitude" />
-        <br />
-        <CreateBoundingBoxButton name="boundingBox" value="Bounding Box" />
+        <input type="number" name="quickScanRight" value={checklist.quickScanRight || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Right" />
+        <CreateBoundingBoxButton name="quickScan" value="Bounding Box" />
       </div>
     );
   }
@@ -244,5 +239,5 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
 
 export default {
   missionName,
-  layout: VTOLSearch,
+  layout: VTOLSearch as React.ElementType,
 };

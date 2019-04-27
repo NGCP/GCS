@@ -26,6 +26,7 @@ import BoundingBox from './shape/BoundingBox';
 import VehicleMarker from './marker/VehicleMarker';
 import WaypointMarker from './marker/WaypointMarker';
 
+
 import './map.css';
 
 const mapOptions = {
@@ -284,6 +285,11 @@ export default class MapContainer extends Component<ThemeProps, State> {
           locked: false,
         };
       }
+
+      ipc.postUpdateBoundingBoxes(false, {
+        name: boundingBox.name,
+        bounds: newBoundingBoxes[boundingBox.name].bounds,
+      });
     });
 
     this.setState({ boundingBoxes: newBoundingBoxes });

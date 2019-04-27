@@ -2,7 +2,7 @@ import React, { PureComponent, ReactNode } from 'react';
 
 import ipc from '../../../util/ipc';
 
-export interface CreateBoundingBoxProps {
+export interface CreateBoundingBoxButtonProps {
   /**
    * Identifier that distinguishes
    */
@@ -14,8 +14,8 @@ export interface CreateBoundingBoxProps {
   value: string;
 }
 
-export default class CreateBoundingBoxButton extends PureComponent<CreateBoundingBoxProps> {
-  public constructor(props: CreateBoundingBoxProps) {
+export default class CreateBoundingBoxButton extends PureComponent<CreateBoundingBoxButtonProps> {
+  public constructor(props: CreateBoundingBoxButtonProps) {
     super(props);
 
     this.onClick = this.onClick.bind(this);
@@ -23,7 +23,6 @@ export default class CreateBoundingBoxButton extends PureComponent<CreateBoundin
 
   private onClick(): void {
     const { name, value } = this.props;
-
     ipc.postUnlockParameterInputs(name);
     ipc.postCreateBoundingBoxes({ name: value });
   }
