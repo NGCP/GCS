@@ -283,7 +283,7 @@ export function isMessage(message: { [key: string]: any }): boolean {
     'connect',
     'ack',
     'badMessage',
-  ].includes(message.type.toLowerCase());
+  ].includes(message.type);
 }
 
 /**

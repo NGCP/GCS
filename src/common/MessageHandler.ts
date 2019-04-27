@@ -137,7 +137,6 @@ class MessageHandler {
       return;
     }
 
-    message.type = message.type.toLowerCase(); // eslint-disable-line no-param-reassign
     const jsonMessage = message as Message.JSONMessage;
 
     // Ignore messages from unrecognized vehicles.
