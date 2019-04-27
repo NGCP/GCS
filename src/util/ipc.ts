@@ -458,6 +458,7 @@ function postUpdateVehicles(...vehicles: VehicleObject[]): void {
  * - renderer/missionWindow/parameters/ISRSearch
  * - renderer/missionWindow/parameters/VTOLSearch
  * - renderer/missionWindow/parameters/PayloadDrop
+ * - renderer/missionWindow/parameters/UUVRescue
  *
  * @param updateMap Set this to true, except from the marker's drag event.
  */

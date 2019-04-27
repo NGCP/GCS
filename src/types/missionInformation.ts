@@ -109,7 +109,7 @@ function isPayloadDropInformation(information: Information): boolean {
 export interface UGVRescueInformation extends InformationBase {
   missionName: 'ugvRescue';
   parameters: {
-    retrieveTarget: Task.UGVRetrieveTargetTask;
+    retrieveTarget: Task.UGVRetrieveTargetTaskParameters;
     deliverTarget: Task.DeliverTargetTaskParameters;
   };
 }

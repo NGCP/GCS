@@ -171,8 +171,6 @@ function isUGVRetrieveTargetTask(task: Task): boolean {
  * Do not import this outside of types/missionInformation.
  */
 export interface DeliverTargetTaskParameters {
-  taskType: 'deliverTarget';
-
   lat: number;
   lng: number;
 }
