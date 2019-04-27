@@ -56,7 +56,8 @@
     "ugvRescue": ["retrieveTarget", "deliverTarget"],
     "uuvRescue": ["retrieveTarget"],
     "quickScan": ["quickScan"],
-    "detailedSearch": ["detailedSearch"]
+    "detailedSearch": ["detailedSearch"],
+    "guide": []
   },
   "vehicleStatuses": {
     "ready": {
