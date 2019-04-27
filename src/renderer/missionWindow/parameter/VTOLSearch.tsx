@@ -244,5 +244,5 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
 
 export default {
   missionName,
-  layout: VTOLSearch as React.ElementType,
+  layout: VTOLSearch,
 };

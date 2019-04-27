@@ -12,54 +12,54 @@ import { readyToStart } from '../../../util/parameter';
 
 import CreateWaypointButton from '../extra/CreateWaypointButton';
 
-type PayloadDropChecklistType = 'takeoffLat' | 'takeoffLng' | 'takeoffAlt'
-| 'loiterLat' | 'loiterLng' | 'loiterAlt' | 'loiterRadius' | 'loiterDirection'
+type PayloadDropChecklistType = 'payloadDropTakoffLat' | 'payloadDropTakoffLng' | 'payloadDropTakoffAlt'
+| 'payloadDropLoiterLat' | 'payloadDropLoiterLng' | 'payloadDropLoiterAlt' | 'payloadDropLoiterRadius' | 'payloadDropLoiterDirection'
 | 'payloadDropLat1' | 'payloadDropLng1' | 'payloadDropAlt1'
 | 'payloadDropLat2' | 'payloadDropLng2' | 'payloadDropAlt2'
-| 'landLat1' | 'landLng1' | 'landAlt1'
-| 'landLat2' | 'landLng2' | 'landAlt2';
+| 'payloadDropLandLat1' | 'payloadDropLandLng1' | 'payloadDropLandAlt1'
+| 'payloadDropLandLat2' | 'payloadDropLandLng2' | 'payloadDropLandAlt2';
 
 const checklistCache: { [check in PayloadDropChecklistType ]: number | undefined } = {
-  takeoffLat: undefined,
-  takeoffLng: undefined,
-  takeoffAlt: undefined,
-  loiterLat: undefined,
-  loiterLng: undefined,
-  loiterAlt: undefined,
-  loiterRadius: undefined,
-  loiterDirection: undefined,
+  payloadDropTakoffLat: undefined,
+  payloadDropTakoffLng: undefined,
+  payloadDropTakoffAlt: undefined,
+  payloadDropLoiterLat: undefined,
+  payloadDropLoiterLng: undefined,
+  payloadDropLoiterAlt: undefined,
+  payloadDropLoiterRadius: undefined,
+  payloadDropLoiterDirection: undefined,
   payloadDropAlt1: undefined,
   payloadDropLat1: undefined,
   payloadDropLng1: undefined,
   payloadDropAlt2: undefined,
   payloadDropLat2: undefined,
   payloadDropLng2: undefined,
-  landLat1: undefined,
-  landLng1: undefined,
-  landAlt1: undefined,
-  landLat2: undefined,
-  landLng2: undefined,
-  landAlt2: undefined,
+  payloadDropLandLat1: undefined,
+  payloadDropLandLng1: undefined,
+  payloadDropLandAlt1: undefined,
+  payloadDropLandLat2: undefined,
+  payloadDropLandLng2: undefined,
+  payloadDropLandAlt2: undefined,
 };
 
-type PayloadType = 'takeoff' | 'loiter' | 'payloadDrop1'| 'payloadDrop2' | 'land1' | 'land2';
+type PayloadType = 'payloadDropTakoff' | 'payloadDropLoiter' | 'payloadDrop1'| 'payloadDrop2' | 'payloadDropLand1' | 'payloadDropLand2';
 
 type Locked = { [type in PayloadType]: boolean} & {
-  takeoff: boolean;
-  loiter: boolean;
+  payloadDropTakoff: boolean;
+  payloadDropLoiter: boolean;
   payloadDrop1: boolean;
   payloadDrop2: boolean;
-  land1: boolean;
-  land2: boolean;
+  payloadDropLand1: boolean;
+  payloadDropLand2: boolean;
 }
 
 const lockedCache: Locked = {
-  takeoff: true,
-  loiter: true,
+  payloadDropTakoff: true,
+  payloadDropLoiter: true,
   payloadDrop1: true,
   payloadDrop2: true,
-  land1: true,
-  land2: true,
+  payloadDropLand1: true,
+  payloadDropLand2: true,
 };
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
@@ -115,11 +115,11 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
     const name = event.target.name as PayloadDropChecklistType;
     const value = parseInt(event.target.value, 10) || 0;
     switch (name) {
-      case 'takeoffLat':
-        ipc.postUpdateWaypoints(true, { name: 'Takeoff', location: { lat: value, lng: checklist.takeoffLng as number } });
+      case 'payloadDropTakoffLat':
+        ipc.postUpdateWaypoints(true, { name: 'Takeoff', location: { lat: value, lng: checklist.payloadDropTakoffLng as number } });
         break;
-      case 'takeoffLng':
-        ipc.postUpdateWaypoints(true, { name: 'Takeoff', location: { lat: checklist.takeoffLat as number, lng: value } });
+      case 'payloadDropTakoffLng':
+        ipc.postUpdateWaypoints(true, { name: 'Takeoff', location: { lat: checklist.payloadDropTakoffLat as number, lng: value } });
         break;
 
       case 'payloadDropLat1':
@@ -138,20 +138,20 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
         ipc.postUpdateWaypoints(true, { name: 'Payload Drop 2', location: { lat: checklist.payloadDropLat2 as number, lng: value } });
         break;
 
-      case 'landLat1':
-        ipc.postUpdateWaypoints(true, { name: 'Land 1', location: { lat: value, lng: checklist.landLng1 as number } });
+      case 'payloadDropLandLat1':
+        ipc.postUpdateWaypoints(true, { name: 'Land 1', location: { lat: value, lng: checklist.payloadDropLandLng1 as number } });
         break;
 
-      case 'landLng1':
-        ipc.postUpdateWaypoints(true, { name: 'Land 1', location: { lat: checklist.landLat1 as number, lng: value } });
+      case 'payloadDropLandLng1':
+        ipc.postUpdateWaypoints(true, { name: 'Land 1', location: { lat: checklist.payloadDropLandLat1 as number, lng: value } });
         break;
 
-      case 'landLat2':
-        ipc.postUpdateWaypoints(true, { name: 'Land 2', location: { lat: value, lng: checklist.landLng2 as number } });
+      case 'payloadDropLandLat2':
+        ipc.postUpdateWaypoints(true, { name: 'Land 2', location: { lat: value, lng: checklist.payloadDropLandLng2 as number } });
         break;
 
-      case 'landLng2':
-        ipc.postUpdateWaypoints(true, { name: 'Land 2', location: { lat: checklist.landLat2 as number, lng: value } });
+      case 'payloadDropLandLng2':
+        ipc.postUpdateWaypoints(true, { name: 'Land 2', location: { lat: checklist.payloadDropLandLat2 as number, lng: value } });
         break;
 
       default:
@@ -166,13 +166,13 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
     waypoints.forEach((waypoint): void => {
       switch (waypoint.name) {
         case 'Takeoff':
-          checks.takeoffLat = waypoint.location.lat;
-          checks.takeoffLng = waypoint.location.lng;
+          checks.payloadDropTakoffLat = waypoint.location.lat;
+          checks.payloadDropTakoffLng = waypoint.location.lng;
           break;
 
         case 'Loiter':
-          checks.loiterLat = waypoint.location.lat;
-          checks.loiterLng = waypoint.location.lng;
+          checks.payloadDropLoiterLat = waypoint.location.lat;
+          checks.payloadDropLoiterLng = waypoint.location.lng;
           break;
 
         case 'Payload Drop 1':
@@ -186,13 +186,13 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
           break;
 
         case 'Land 1':
-          checks.landLat1 = waypoint.location.lat;
-          checks.landLng1 = waypoint.location.lng;
+          checks.payloadDropLandLat1 = waypoint.location.lat;
+          checks.payloadDropLandLng1 = waypoint.location.lng;
           break;
 
         case 'Land 2':
-          checks.landLat2 = waypoint.location.lat;
-          checks.landLng2 = waypoint.location.lng;
+          checks.payloadDropLandLat2 = waypoint.location.lat;
+          checks.payloadDropLandLng2 = waypoint.location.lng;
           break;
 
         default: break;
@@ -217,15 +217,15 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
         missionName: 'payloadDrop',
         parameters: {
           takeoff: {
-            lat: newChecklist.takeoffLat as number,
-            lng: newChecklist.takeoffLng as number,
-            alt: newChecklist.takeoffAlt as number,
+            lat: newChecklist.payloadDropTakoffLat as number,
+            lng: newChecklist.payloadDropTakoffLng as number,
+            alt: newChecklist.payloadDropTakoffAlt as number,
             loiter: {
-              lat: newChecklist.loiterLat as number,
-              lng: newChecklist.loiterLng as number,
-              alt: newChecklist.loiterAlt as number,
-              radius: newChecklist.loiterRadius as number,
-              direction: newChecklist.loiterDirection as number,
+              lat: newChecklist.payloadDropLoiterLat as number,
+              lng: newChecklist.payloadDropLoiterLng as number,
+              alt: newChecklist.payloadDropLoiterAlt as number,
+              radius: newChecklist.payloadDropLoiterRadius as number,
+              direction: newChecklist.payloadDropLoiterDirection as number,
             },
           },
           payloadDrop: {
@@ -245,14 +245,14 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
           land: {
             waypoints: [
               {
-                lat: newChecklist.landLat1 as number,
-                lng: newChecklist.landLng1 as number,
-                alt: newChecklist.landAlt1 as number,
+                lat: newChecklist.payloadDropLandLat1 as number,
+                lng: newChecklist.payloadDropLandLng1 as number,
+                alt: newChecklist.payloadDropLandAlt1 as number,
               },
               {
-                lat: newChecklist.landLat2 as number,
-                lng: newChecklist.landLng2 as number,
-                alt: newChecklist.landAlt2 as number,
+                lat: newChecklist.payloadDropLandLat2 as number,
+                lng: newChecklist.payloadDropLandLng2 as number,
+                alt: newChecklist.payloadDropLandAlt2 as number,
               },
             ],
           },
@@ -286,18 +286,18 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
     return (
       <div>
         <p>Takeoff Coordinates</p>
-        <input type="number" name="takeoffLat" value={checklist.takeoffLat || ''} disabled={locked.takeoff} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="takeoffLng" value={checklist.takeoffLng || ''} disabled={locked.takeoff} onChange={this.onChange} placeholder="Longitude" />
-        <input type="number" name="takeoffAlt" value={checklist.takeoffAlt || ''} disabled={locked.takeoff} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="takeoff" value="Takeoff" />
+        <input type="number" name="payloadDropTakoffLat" value={checklist.payloadDropTakoffLat || ''} disabled={locked.payloadDropTakoff} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="payloadDropTakoffLng" value={checklist.payloadDropTakoffLng || ''} disabled={locked.payloadDropTakoff} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="payloadDropTakoffAlt" value={checklist.payloadDropTakoffAlt || ''} disabled={locked.payloadDropTakoff} onChange={this.onChange} placeholder="Altitude" />
+        <CreateWaypointButton name="payloadDropTakoff" value="Takeoff" />
 
         <p>Loiter Coordinates</p>
-        <input type="number" name="loiterLat" value={checklist.loiterLat || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="loiterLng" value={checklist.loiterLng || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Longitude" />
-        <input type="number" name="loiterAlt" value={checklist.loiterAlt || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Altitude" />
-        <input type="number" name="loiterRadius" value={checklist.loiterRadius || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Radius" />
-        <input type="number" name="loiterDirection" value={checklist.loiterDirection || ''} disabled={locked.loiter} onChange={this.onChange} placeholder="Direction" />
-        <CreateWaypointButton name="loiter" value="Loiter" />
+        <input type="number" name="payloadDropLoiterLat" value={checklist.payloadDropLoiterLat || ''} disabled={locked.payloadDropLoiter} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="payloadDropLoiterLng" value={checklist.payloadDropLoiterLng || ''} disabled={locked.payloadDropLoiter} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="payloadDropLoiterAlt" value={checklist.payloadDropLoiterAlt || ''} disabled={locked.payloadDropLoiter} onChange={this.onChange} placeholder="Altitude" />
+        <input type="number" name="payloadDropLoiterRadius" value={checklist.payloadDropLoiterRadius || ''} disabled={locked.payloadDropLoiter} onChange={this.onChange} placeholder="Radius" />
+        <input type="number" name="payloadDropLoiterDirection" value={checklist.payloadDropLoiterDirection || ''} disabled={locked.payloadDropLoiter} onChange={this.onChange} placeholder="Direction" />
+        <CreateWaypointButton name="payloadDropLoiter" value="Loiter" />
 
         <p>Payload Drop Coordinates</p>
         <input type="number" name="payloadDropLat1" value={checklist.payloadDropLat1 || ''} disabled={locked.payloadDrop1} onChange={this.onChange} placeholder="Latitude" />
@@ -311,31 +311,23 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
         <CreateWaypointButton name="payloadDrop2" value="Payload Drop 2" />
 
         <p>Land Waypoints</p>
-        <input type="number" name="landLat1" value={checklist.landLat1 || ''} disabled={locked.land1} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="landLng1" value={checklist.landLng1 || ''} disabled={locked.land1} onChange={this.onChange} placeholder="Longitude" />
-        <input type="number" name="landAlt1" value={checklist.landAlt1 || ''} disabled={locked.land1} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="land1" value="Land 1" />
+        <input type="number" name="payloadDropLandLat1" value={checklist.payloadDropLandLat1 || ''} disabled={locked.payloadDropLand1} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="payloadDropLandLng1" value={checklist.payloadDropLandLng1 || ''} disabled={locked.payloadDropLand1} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="payloadDropLandAlt1" value={checklist.payloadDropLandAlt1 || ''} disabled={locked.payloadDropLand1} onChange={this.onChange} placeholder="Altitude" />
+        <CreateWaypointButton name="payloadDropLand1" value="Land 1" />
         <br />
         <br />
-        <input type="number" name="landLat2" value={checklist.landLat2 || ''} disabled={locked.land2} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="landLng2" value={checklist.landLng2 || ''} disabled={locked.land2} onChange={this.onChange} placeholder="Longitude" />
-        <input type="number" name="landAlt2" value={checklist.landAlt2 || ''} disabled={locked.land2} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="land2" value="Land 2" />
+        <input type="number" name="payloadDropLandLat2" value={checklist.payloadDropLandLat2 || ''} disabled={locked.payloadDropLand2} onChange={this.onChange} placeholder="Latitude" />
+        <input type="number" name="payloadDropLandLng2" value={checklist.payloadDropLandLng2 || ''} disabled={locked.payloadDropLand2} onChange={this.onChange} placeholder="Longitude" />
+        <input type="number" name="payloadDropLandAlt2" value={checklist.payloadDropLandAlt2 || ''} disabled={locked.payloadDropLand2} onChange={this.onChange} placeholder="Altitude" />
+        <CreateWaypointButton name="payloadDropLand2" value="Land 2" />
         <br />
       </div>
     );
   }
 }
 
-/*
- * export function PayloadDrop(): ReactNode {
- *   return (
- *     <div>Payload Drop</div>
- *   );
- * }
- */
-
 export default {
   missionName,
-  layout: PayloadDrop as React.ElementType,
+  layout: PayloadDrop,
 };

@@ -71,6 +71,8 @@ interface State {
    * - ready: no mission running
    * - running: mission running
    * - paused: mission paused
+   * - next: current mission has completed, waiting for next one to start
+   * - finished: all missions have finished
    *
    * A little different since when the first mission finishes, the status will go
    * to "next" instead of back to ready. From "next", it goes to "running", etc...
@@ -308,7 +310,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
           />
         </div>
         <div className="parameterContainer">
-          <h1 style={{ marginTop: 0 }}>Parameters</h1>
+          <h1 style={{ marginTop: 0 }}>{`${title[missionName]} Mission Parameters`}</h1>
           {status === 'ready' && <Layout />}
           {status !== 'ready' && <p>:)</p>}
         </div>
