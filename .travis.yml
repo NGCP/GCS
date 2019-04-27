@@ -8,7 +8,7 @@ before_script:
 
 # Use latest version of Node.js
 node_js:
-  - node
+  - lts/*
 
 # Cache node_modules after testing
 cache: npm
