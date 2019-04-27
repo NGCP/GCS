@@ -9,8 +9,6 @@ import { Task, TaskParameters } from '../../types/task';
 
 import ipc from '../../util/ipc';
 
-import Vehicle from '../struct/Vehicle';
-
 export const missionName: MissionInformation.MissionName = 'payloadDrop';
 
 export const jobTypes: JobType[] = ['payloadDrop'];
@@ -22,25 +20,14 @@ export class PayloadDrop extends Mission {
 
   protected addTaskCompare = {};
 
-  protected information: MissionInformation.PayloadDropInformation;
-
   /**
    * Point of interest.
    */
   private missionData: Location | null = null;
 
-  public constructor(
-    vehicles: { [vehicleId: number]: Vehicle },
-    information: MissionInformation.PayloadDropInformation,
-    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
-    options: MissionInformation.MissionOptions,
-  ) {
-    super(vehicles, information, activeVehicleMapping, options);
-    this.information = information;
-  }
-
   protected generateTasks(): DictionaryList<Task> | undefined {
-    const missionParameters = this.information.parameters;
+    const information = this.information as MissionInformation.PayloadDropInformation;
+    const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task>();
 
     if (!this.options.payloadDrop.noTakeoff) {
@@ -100,5 +87,5 @@ export class PayloadDrop extends Mission {
 export default {
   missionName,
   jobTypes,
-  constructor: PayloadDrop,
+  Mission: PayloadDrop,
 };

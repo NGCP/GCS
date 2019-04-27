@@ -150,7 +150,7 @@ function isLandTask(task: Task): boolean {
 /**
  * Do not import this outside of types/missionInformation.
  */
-export interface UGVRetrieveTargetTaskParameters extends TaskBase {
+export interface UGVRetrieveTargetTaskParameters {
   lat: number;
   lng: number;
 }

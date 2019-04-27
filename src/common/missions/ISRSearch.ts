@@ -10,8 +10,6 @@ import { Task, TaskParameters } from '../../types/task';
 import ipc from '../../util/ipc';
 import { getBoundingBox } from '../../util/util';
 
-import Vehicle from '../struct/Vehicle';
-
 export const missionName: MissionInformation.MissionName = 'isrSearch';
 
 export const jobTypes: JobType[] = ['isrSearch'];
@@ -23,25 +21,14 @@ export class ISRSearch extends Mission {
 
   protected addTaskCompare = {};
 
-  protected information: MissionInformation.ISRSearchInformation;
-
   /**
    * List of point of interests.
    */
   private missionData: Location[] = [];
 
-  public constructor(
-    vehicles: { [vehicleId: number]: Vehicle },
-    information: MissionInformation.ISRSearchInformation,
-    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
-    options: MissionInformation.MissionOptions,
-  ) {
-    super(vehicles, information, activeVehicleMapping, options);
-    this.information = information;
-  }
-
   protected generateTasks(): DictionaryList<Task> | undefined {
-    const missionParameters = this.information.parameters;
+    const information = this.information as MissionInformation.ISRSearchInformation;
+    const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task>();
 
     if (!this.options.isrSearch.noTakeoff) {
@@ -118,5 +105,5 @@ export class ISRSearch extends Mission {
 export default {
   missionName,
   jobTypes,
-  constructor: ISRSearch,
+  Mission: ISRSearch,
 };

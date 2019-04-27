@@ -6,8 +6,6 @@ import { JobType } from '../../static/index';
 import * as MissionInformation from '../../types/missionInformation';
 import { Task, TaskParameters } from '../../types/task';
 
-import Vehicle from '../struct/Vehicle';
-
 export const missionName: MissionInformation.MissionName = 'ugvRescue';
 
 export const jobTypes: JobType[] = ['ugvRescue'];
@@ -19,20 +17,9 @@ export class UGVRescue extends Mission {
 
   protected addTaskCompare = {};
 
-  protected information: MissionInformation.UGVRescueInformation;
-
-  public constructor(
-    vehicles: { [vehicleId: number]: Vehicle },
-    information: MissionInformation.UGVRescueInformation,
-    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
-    options: MissionInformation.MissionOptions,
-  ) {
-    super(vehicles, information, activeVehicleMapping, options);
-    this.information = information;
-  }
-
   protected generateTasks(): DictionaryList<Task> | undefined {
-    const missionParameters = this.information.parameters;
+    const information = this.information as MissionInformation.UGVRescueInformation;
+    const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task>();
 
     tasks.push('ugvRescue', {
@@ -57,5 +44,5 @@ export class UGVRescue extends Mission {
 export default {
   missionName,
   jobTypes,
-  constructor: UGVRescue,
+  Mission: UGVRescue,
 };

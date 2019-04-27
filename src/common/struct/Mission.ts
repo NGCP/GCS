@@ -126,8 +126,6 @@ export default abstract class Mission {
 
       return status === 'ready';
     });
-
-    this.initialize();
   }
 
   /**
@@ -148,9 +146,9 @@ export default abstract class Mission {
    * Initializes the mission. Called from the Message's constructor.
    * Will set status to "initializing" if mission successfully initializes.
    */
-  private initialize(): void {
+  public initialize(): void {
     if (this.status !== 'ready') {
-      this.stop(false, `Something wrong happend in ${this.missionName} mission`);
+      this.stop(false, `Something wrong happened in ${this.missionName} mission`);
       return;
     }
 
@@ -174,7 +172,7 @@ export default abstract class Mission {
       return;
     }
 
-    const pendingAssignVehicleIds = Object.keys(this.activeVehicleMapping).map(
+    const pendingAssignVehicleIds = Object.keys(this.activeVehicleMapping[this.missionName]).map(
       (vehicleIdString): number => parseInt(vehicleIdString, 10),
     );
 
@@ -192,6 +190,8 @@ export default abstract class Mission {
     const onSuccess = (vehicleId: number): void => {
       pendingAssignVehicleIds.splice(pendingAssignVehicleIds.indexOf(vehicleId), 1);
 
+      console.log('sucess', vehicleId);
+
       if (pendingAssignVehicleIds.length === 0) {
         ipc.postLogMessages({
           type: 'success',
@@ -206,6 +206,8 @@ export default abstract class Mission {
      * Callback when a vehicle fails to acknowledge the job assignment.
      */
     const onDisconnect = (vehicleId: number): void => {
+      console.log('disconnect', vehicleId);
+
       ipc.postStopSendingMessages();
       this.stop(false, `Failed to assign job to ${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name}, as it has disconnected`);
     };
@@ -214,6 +216,7 @@ export default abstract class Mission {
      * Callback when a vehicle performing a job enters an error state.
      */
     const onError = (vehicleId: number, message?: string): void => {
+      console.log('error', vehicleId);
       ipc.postLogMessages({
         type: 'failure',
         message: `${(vehicleConfig.vehicleInfos[vehicleId] as VehicleInfo).name} has entered an error state in ${this.missionName}: ${message || 'No error message specified'}`,
@@ -242,6 +245,8 @@ export default abstract class Mission {
       this.stop(false, `Something wrong happened in ${this.missionName} mission`);
       return;
     }
+
+    console.log('LETS GO');
 
     const jobTasks = this.generateTasks();
     if (!jobTasks) {
@@ -284,7 +289,7 @@ export default abstract class Mission {
       }
     });
 
-    const pendingAssignVehicleIds = Object.keys(this.activeVehicleMapping).map(
+    const pendingAssignVehicleIds = Object.keys(this.activeVehicleMapping[this.missionName]).map(
       (vehicleIdString): number => parseInt(vehicleIdString, 10),
     );
 
@@ -434,7 +439,7 @@ export default abstract class Mission {
     if (this.status !== 'ready') {
       if (this.status === 'initializing') ipc.postStopSendingMessages();
 
-      Object.keys(this.activeVehicleMapping).forEach((vehicleIdString): void => {
+      Object.keys(this.activeVehicleMapping[this.missionName]).forEach((vehicleIdString): void => {
         const vehicleId = parseInt(vehicleIdString, 10);
         this.vehicles[vehicleId].stop();
       });
@@ -482,6 +487,8 @@ export default abstract class Mission {
    * @param activeVehicleMapping User provided map of vehicle to their job type.
    */
   private checkActiveVehicleMapping(): boolean {
+    if (Object.keys(this.activeVehicleMapping[this.missionName]).length === 0) return false;
+
     const providedJobTypes = new Set<JobType>(
       Object.values(this.activeVehicleMapping[this.missionName]),
     );
@@ -492,7 +499,7 @@ export default abstract class Mission {
 
     if (!hasRequiredJobTypes) return false;
 
-    const hasValidVehicleAssigned = Object.keys(this.activeVehicleMapping).map(
+    const hasValidVehicleAssigned = Object.keys(this.activeVehicleMapping[this.missionName]).map(
       (vehicleIdString): number => parseInt(vehicleIdString, 10),
     ).every((vehicleId): boolean => vehicleConfig.isValidVehicleId(vehicleId)
       && this.vehicles[vehicleId]

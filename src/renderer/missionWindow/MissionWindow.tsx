@@ -10,6 +10,7 @@ import { ThemeProps } from '../../types/componentStyle';
 import * as MissionInformation from '../../types/missionInformation';
 import { VehicleObject, VehicleStatus } from '../../types/vehicle';
 
+import ipc from '../../util/ipc';
 import { updateVehicles } from '../../util/util';
 
 import ActiveVehicleMapping from './extra/ActiveVehicleMapping';
@@ -20,8 +21,6 @@ import PayloadDrop from './parameter/PayloadDrop';
 import UGVRescue from './parameter/UGVRescue';
 import UUVRescue from './parameter/UUVRescue';
 import VTOLSearch from './parameter/VTOLSearch';
-
-import ipc from '../../util/ipc';
 
 import './mission.css';
 
@@ -68,13 +67,15 @@ interface State {
   endMissionIndex: number;
 
   /**
-   * Current status of mission. All statuses will apply to mission except for
-   * "waiting", "error", and "disconnected".
+   * Current status of mission.
+   * - ready: no mission running
+   * - running: mission running
+   * - paused: mission paused
    *
    * A little different since when the first mission finishes, the status will go
    * to "next" instead of back to ready. From "next", it goes to "running", etc...
    */
-  status: VehicleStatus | 'next';
+  status: VehicleStatus | 'next' | 'finished';
 
   /**
    * Current vehicles connected.
@@ -135,6 +136,10 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     this.updateInformation = this.updateInformation.bind(this);
     this.updateOptions = this.updateOptions.bind(this);
     this.postStartMissions = this.postStartMissions.bind(this);
+    this.postPauseMission = this.postPauseMission.bind(this);
+    this.postResumeMission = this.postResumeMission.bind(this);
+    this.postStartNextMission = this.postStartNextMission.bind(this);
+    this.stopMissions = this.stopMissions.bind(this);
     this.toggleMissionType = this.toggleMissionType.bind(this);
     this.tipFormatter = this.tipFormatter.bind(this);
   }
@@ -147,7 +152,8 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     ipcRenderer.on('updateActiveVehicleMapping', (_: Event, missionName: MissionInformation.MissionName, jobType: JobType, vehicleId: number): void => this.updateActiveVehicleMapping(missionName, jobType, vehicleId));
 
     ipcRenderer.on('confirmCompleteMission', (): void => { this.setState({ status: 'next' }); });
-    ipcRenderer.on('stopMissions', (): void => { this.setState({ status: 'ready' }); });
+    ipcRenderer.on('stopMissions', (): void => { this.stopMissions(); });
+    ipcRenderer.on('finishMissions', (): void => { this.setState({ status: 'finished' }); });
   }
 
   private onSliderChange(value: [number, number]): void {
@@ -224,6 +230,26 @@ export default class MissionWindow extends Component<ThemeProps, State> {
       });
 
     ipc.postStartMissions(missionInformation, activeVehicleMapping, options, requireConfirmation);
+    this.setState({ status: 'running' });
+  }
+
+  private postPauseMission(): void {
+    ipc.postPauseMission();
+    this.setState({ status: 'paused' });
+  }
+
+  private postResumeMission(): void {
+    ipc.postResumeMission();
+    this.setState({ status: 'running' });
+  }
+
+  private postStartNextMission(): void {
+    ipc.postStartNextMission();
+    this.setState({ status: 'running' });
+  }
+
+  private stopMissions(): void {
+    this.setState({ status: 'ready' });
   }
 
   private toggleMissionType(): void {
@@ -297,9 +323,10 @@ export default class MissionWindow extends Component<ThemeProps, State> {
         <div className="buttonContainer">
           {status === 'ready' && <button type="button" disabled={!readyToStart} onClick={this.postStartMissions}>Start Missions</button>}
           {status !== 'ready' && <button type="button" onClick={ipc.postStopMissions}>Stop Missions</button>}
-          {status === 'running' && <button type="button" onClick={ipc.postPauseMission}>Pause Mission</button>}
-          {status === 'paused' && <button type="button" onClick={ipc.postResumeMission}>Resume Mission</button>}
-          {status === 'next' && <button type="button" onClick={ipc.postStartNextMission}>Next Mission</button>}
+          {status === 'running' && <button type="button" onClick={this.postPauseMission}>Pause Mission</button>}
+          {status === 'paused' && <button type="button" onClick={this.postResumeMission}>Resume Mission</button>}
+          {status === 'next' && <button type="button" onClick={this.postStartNextMission}>Next Mission</button>}
+          {status === 'finished' && <button type="button" onClick={this.stopMissions}>Finish Missions</button>}
         </div>
       </div>
     );

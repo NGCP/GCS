@@ -32,9 +32,9 @@ export interface MissionObject {
   jobTypes: JobType[];
 
   /**
-   * Constructor of the mission.
+   * Mission class itself.
    */
-  constructor: MissionWrapper;
+  Mission: MissionWrapper;
 }
 
 const missionObject: { [missionName in MissionName]: MissionObject } = {

@@ -9,7 +9,6 @@
 import { JobType, locationConfig } from '../../static/index';
 
 import * as Message from '../../types/message';
-import { VehicleStatus } from '../../types/vehicle';
 
 import ipc from '../../util/ipc';
 
@@ -55,8 +54,6 @@ let fixtures: Fixture[] = fixtureOptions.map(
   (fixtureOption): Fixture => ({ ...fixtureOption, ...locationConfig.startLocation }),
 );
 
-const status: VehicleStatus[] = ['ready', 'waiting', 'paused', 'running', 'error'];
-
 let messageId = 0;
 
 function generateJSONMessage(vehicleId: number, message: Message.Message): Message.JSONMessage {
@@ -98,7 +95,7 @@ function updateVehicles(): void {
       type: 'update',
       lat: fixture.lat,
       lng: fixture.lng,
-      status: status[Math.floor(Math.random() * status.length)],
+      status: 'ready',
     }), true);
   });
 }

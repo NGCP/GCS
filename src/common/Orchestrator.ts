@@ -96,15 +96,15 @@ class Orchestrator {
     ipcRenderer.on('startMissions', (
       _: Event,
       missions: MissionInformation.Information[],
-      options: MissionInformation.MissionOptions,
       activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
+      options: MissionInformation.MissionOptions,
       requireConfirmation: boolean,
     ): void => this.startMissions(missions, activeVehicleMapping, options, requireConfirmation));
-    ipcRenderer.on('pauseMission', this.pauseMission);
-    ipcRenderer.on('resumeMission', this.resumeMission);
-    ipcRenderer.on('startNextMission', this.startNextMission);
+    ipcRenderer.on('pauseMission', (): void => { this.pauseMission(); });
+    ipcRenderer.on('resumeMission', (): void => { this.resumeMission(); });
+    ipcRenderer.on('startNextMission', (): void => { this.startNextMission(); });
     ipcRenderer.on('completeMission', (_: Event, missionName: string, completionParameters: Task.TaskParameters[]): void => this.completeMission(missionName, completionParameters));
-    ipcRenderer.on('stopMissions', this.stopMissions);
+    ipcRenderer.on('stopMissions', (): void => { this.stopMissions(); });
   }
 
   /**
@@ -393,15 +393,14 @@ class Orchestrator {
       return;
     }
 
-    const mission = missionObj;
-
-    this.currentMissionIndex += 1;
-    this.currentMission = new mission.constructor(
+    this.currentMission = new missionObj.Mission(
       this.vehicles,
       this.missions[this.currentMissionIndex],
       this.activeVehicleMapping,
       this.options,
     );
+
+    this.currentMission.initialize();
   }
 
   /**
@@ -413,7 +412,7 @@ class Orchestrator {
     this.currentMission = null;
     this.missions = [];
     this.running = false;
-    this.requireConfirmation = false;
+    this.requireConfirmation = true;
     this.activeVehicleMapping = null;
     this.options = null;
   }

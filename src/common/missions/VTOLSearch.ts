@@ -37,22 +37,10 @@ export class VTOLSearch extends Mission {
     },
   };
 
-  protected information: MissionInformation.VTOLSearchInformation;
-
   /**
    * Point of interest.
    */
   private missionData: Location | null = null;
-
-  public constructor(
-    vehicles: { [vehicleId: number]: Vehicle },
-    information: MissionInformation.VTOLSearchInformation,
-    activeVehicleMapping: MissionInformation.ActiveVehicleMapping,
-    options: MissionInformation.MissionOptions,
-  ) {
-    super(vehicles, information, activeVehicleMapping, options);
-    this.information = information;
-  }
 
   private getDetailedSearchVehicle(): Vehicle | undefined {
     const vehicleIdString = Object.keys(this.activeVehicleMapping)
@@ -67,7 +55,8 @@ export class VTOLSearch extends Mission {
   }
 
   protected generateTasks(): DictionaryList<Task.Task> | undefined {
-    const missionParameters = this.information.parameters;
+    const information = this.information as MissionInformation.VTOLSearchInformation;
+    const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task.Task>();
 
     tasks.push('quickScan', {
@@ -121,5 +110,5 @@ export class VTOLSearch extends Mission {
 export default {
   missionName,
   jobTypes,
-  constructor: VTOLSearch,
+  Mission: VTOLSearch,
 };
