@@ -31,10 +31,6 @@ settings:
 
 # Additional rules
 rules:
-  # Turning off this because its buggy https://github.com/benmosher/eslint-plugin-import/pull/1304
-  import/named: off
-  import/no-useless-path-segments: off
-
   # Turn off linting about having wrong line ending, handled in .gitattributes
   linebreak-style: off
 
