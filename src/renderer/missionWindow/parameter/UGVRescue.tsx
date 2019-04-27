@@ -38,10 +38,21 @@ export interface UGVRescueProps {
 }
 
 interface State {
+  /**
+   * Checklist of all required waypoints/coordinates. This is used to generate the
+   * parameters for the mission.
+   */
   checklist: { [check in UGVChecklistType]: number | undefined };
 
+  /**
+   * True once all checks in checklist are filled in properly.
+   */
   ready: boolean;
 
+  /**
+   * True if the inputs for the waypoint type is disabled. Will become disabled
+   * once the create pin is clicked.
+   */
   locked: Locked;
 }
 
