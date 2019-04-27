@@ -37,9 +37,7 @@ You will need the latest LTS version of `Node.js`_. You will also need the lates
 Getting Started
 ===============
 
-
-
-|pencil2| **Setting Things Up**
+**Setting Things Up**
 
 Open up your command line application and clone this repository
 
@@ -47,7 +45,7 @@ Open up your command line application and clone this repository
 
   git clone https://github.com/NGCP/GCS.git
 
-|scroll| **Running the Program**
+**Running the Program**
 
 Create a `Mapbox account`_ and obtain a public API access token. Create a ``.env`` file, copy the content of the ``.env.example`` to it, and replace ``your-access-token`` with your own access token.
 
@@ -76,10 +74,3 @@ License
 .. _Node.js: https://github.com/nodejs/node
 .. _Python 2: https://www.python.org/downloads/release/python-2716/
 .. _Mapbox account: https://www.mapbox.com/account/
-
-.. |pencil2| image:: https://github.githubassets.com/images/icons/emoji/unicode/270f.png?v8
-  :height: 1.2em
-  :alt: :pencil2:
-.. |scroll| image:: https://github.githubassets.com/images/icons/emoji/unicode/1f4dc.png?v8
-  :height: 1.2em
-  :alt: :scroll:
