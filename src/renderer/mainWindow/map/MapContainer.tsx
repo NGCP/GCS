@@ -23,6 +23,7 @@ import ThemeControl from './control/ThemeControl';
 import BoundingBox from './shape/BoundingBox';
 
 // import CachedTileLayer from './CachedTileLayer';
+import POIMarker, { POIMarkerProps } from './marker/POIMarker';
 import VehicleMarker from './marker/VehicleMarker';
 import WaypointMarker from './marker/WaypointMarker';
 
@@ -89,6 +90,11 @@ interface State {
       locked: boolean;
     };
   };
+
+  /**
+   * Point of interests.
+   */
+  pois: { [hash: string]: POIMarkerProps };
 }
 
 /**
@@ -108,6 +114,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
       vehicles: {},
       boundingBoxes: {},
       waypoints: {},
+      pois: {},
     };
 
     this.ref = React.createRef();
@@ -122,6 +129,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
     this.updateWaypoints = this.updateWaypoints.bind(this);
     this.createBoundingBoxes = this.createBoundingBoxes.bind(this);
     this.updateBoundingBoxes = this.updateBoundingBoxes.bind(this);
+    this.updatePOIs = this.updatePOIs.bind(this);
   }
 
   public componentDidMount(): void {
@@ -137,6 +145,8 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('updateWaypoints', (_: Event, updateMap: boolean, ...waypoints: { name: string; location: Location }[]): void => this.updateWaypoints(updateMap, ...waypoints));
     ipcRenderer.on('createBoundingBoxes', (_: Event, ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds}[]): void => this.createBoundingBoxes(...boundingBoxes));
     ipcRenderer.on('updateBoundingBoxes', (_: Event, updateMap: boolean, ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds}[]): void => this.updateBoundingBoxes(updateMap, ...boundingBoxes));
+
+    ipcRenderer.on('updatePOIs', (_: Event, ...pois: POIMarkerProps[]): void => this.updatePOIs(...pois));
   }
 
   /**
@@ -323,11 +333,27 @@ export default class MapContainer extends Component<ThemeProps, State> {
     this.setState({ boundingBoxes: newBoundingBoxes });
   }
 
+  /**
+   * Creates/updates point of interests.
+   */
+  private updatePOIs(...pois: POIMarkerProps[]): void {
+    const { pois: currentPois } = this.state;
+    const newPois = currentPois;
+
+    pois.forEach((poi): void => {
+      const hash = `${poi.location.lat}#${poi.location.lng}`;
+      newPois[hash] = poi;
+    });
+
+    this.setState({ pois: newPois });
+  }
+
   public render(): ReactNode {
     const { theme } = this.props;
     const {
       viewport,
       boundingBoxes,
+      pois,
       vehicles,
       waypoints,
     } = this.state;
@@ -360,6 +386,9 @@ export default class MapContainer extends Component<ThemeProps, State> {
         />
       ));
 
+    const poiMarkers = Object.keys(pois)
+      .map((hash): ReactNode => <POIMarker {...pois[hash]} />);
+
     return (
       <Map
         className="mapContainer container"
@@ -374,6 +403,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
         <Fragment>{boundingBoxRectangles}</Fragment>
         <Fragment>{vehicleMarkers}</Fragment>
         <Fragment>{waypointMarkers}</Fragment>
+        <Fragment>{poiMarkers}</Fragment>
       </Map>
     );
   }

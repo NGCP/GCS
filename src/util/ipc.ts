@@ -441,6 +441,16 @@ function postUpdateOptions(
 }
 
 /**
+ * Post "updatePOIs" notification.
+ *
+ * Files that take this notification:
+ * - renderer/mainWindow/map/MapContainer
+ */
+function postUpdatePOIs(...pois: { location: Location; type: 'valid' | 'invalid' | 'unknown' }[]): void {
+  ipcRenderer.send('post', 'updatePOIs', ...pois);
+}
+
+/**
  * Post "updateVehicles" notification.
  *
  * Files that take this notification:
@@ -507,6 +517,7 @@ export default {
   postUpdateInformation,
   postUpdateMapLocation,
   postUpdateOptions,
+  postUpdatePOIs,
   postUpdateVehicles,
   postUpdateWaypoints,
 };

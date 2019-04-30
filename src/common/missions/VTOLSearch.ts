@@ -16,6 +16,11 @@ export const missionName: MissionInformation.MissionName = 'vtolSearch';
 
 export const jobTypes: JobType[] = ['quickScan', 'detailedSearch'];
 
+interface POITracker {
+  location: Location;
+  valid: boolean;
+}
+
 export class VTOLSearch extends Mission {
   protected missionName = missionName;
 
@@ -23,9 +28,6 @@ export class VTOLSearch extends Mission {
 
   protected addTaskCompare = {
     detailedSearch: (a: Task.Task, b: Task.Task): number => {
-      if (!Task.TypeGuard.isDetailedSearchTask(a)) return 1;
-      if (!Task.TypeGuard.isDetailedSearchTask(b)) return 1;
-
       const vehicle = this.getDetailedSearchVehicle();
       if (!vehicle) return 1;
 
@@ -41,6 +43,13 @@ export class VTOLSearch extends Mission {
    * Point of interest.
    */
   private missionData: Location | null = null;
+
+  /**
+   * Keeps track of the current detailed search task to see if the POI is valid or not.
+   */
+  private currentDetailedSearchTask: {
+    [vehicleId: number]: POITracker | undefined;
+  } = {};
 
   private getDetailedSearchVehicle(): Vehicle | undefined {
     const vehicleIdString = Object.keys(this.activeVehicleMapping)
@@ -67,6 +76,18 @@ export class VTOLSearch extends Mission {
     return tasks;
   }
 
+  protected assignTask(vehicle: Vehicle, task: Task.Task): boolean {
+    if (Task.TypeGuard.isDetailedSearchTask(task)) {
+      const dtask = task as Task.DetailedSearchTask;
+      this.currentDetailedSearchTask[vehicle.getVehicleId()] = {
+        location: { lat: dtask.lat, lng: dtask.lng },
+        valid: false,
+      };
+    }
+
+    return super.assignTask(vehicle, task);
+  }
+
   public update(jsonMessage: Message.JSONMessage): void {
     super.update(jsonMessage);
 
@@ -74,13 +95,39 @@ export class VTOLSearch extends Mission {
       const poiMessage = jsonMessage as Message.POIMessage;
 
       if (this.activeVehicleMapping[this.missionName][jsonMessage.sid] === 'quickScan') {
+        const location = { lat: poiMessage.lat, lng: poiMessage.lng };
         this.addTask('detailedSearch', {
           taskType: 'detailedSearch',
-          lat: poiMessage.lat,
-          lng: poiMessage.lng,
+          ...location,
         });
-      } else if (this.activeVehicleMapping[this.missionName][jsonMessage.sid] === 'detailedSearch') {
+
+        ipc.postUpdatePOIs({
+          location,
+          type: 'unknown',
+        });
+
+        return;
+      }
+
+      if (this.activeVehicleMapping[this.missionName][jsonMessage.sid] === 'detailedSearch') {
         this.missionData = { lat: poiMessage.lat, lng: poiMessage.lng };
+
+        // Sets current task POI as valid, with a check if there is a task right now or not.
+        const tracker = this.currentDetailedSearchTask[jsonMessage.sid];
+        if (tracker) tracker.valid = true;
+      }
+      return;
+    }
+
+    if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
+      if (this.activeVehicleMapping[this.missionName][jsonMessage.sid] === 'detailedSearch') {
+        const tracker = this.currentDetailedSearchTask[jsonMessage.sid];
+        if (tracker) {
+          ipc.postUpdatePOIs({
+            location: tracker.location,
+            type: tracker.valid ? 'valid' : 'invalid',
+          });
+        }
       }
     }
   }

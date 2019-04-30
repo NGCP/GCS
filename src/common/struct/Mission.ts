@@ -404,7 +404,7 @@ export default abstract class Mission {
    * @param vehicle Vehicle to assign task to.
    * @param task Task to assign vehicle.
    */
-  private assignTask(vehicle: Vehicle, task: Task): boolean {
+  protected assignTask(vehicle: Vehicle, task: Task): boolean {
     const success = vehicle.assignTask(task);
 
     if (!success) {
