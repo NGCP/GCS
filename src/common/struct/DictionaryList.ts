@@ -262,4 +262,17 @@ export default class DictionaryList<T> {
 
     return this.numItems;
   }
+
+  /**
+   * Clears all items in the dictionary, or a certain list if a key is provided.
+   *
+   * @param key The key to access the list in the dictionary.
+   */
+  public clear(key?: string): void {
+    if (key && this.dictionary[key]) {
+      this.dictionary[key] = [];
+    }
+
+    this.dictionary = {};
+  }
 }

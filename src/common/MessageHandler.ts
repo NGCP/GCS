@@ -13,15 +13,15 @@ import xbee from './Xbee';
 
 class MessageHandler {
   /**
-   * Dictionary for all messages that are being sent, sent and acknowledged, and received.
-   *
-   * Description of keys:
-   * "outbox": will have a list of messages that are being sent, but are awaiting
-   * acknowledgement.
-   * "sent": will have a list of messages that have been sent.
-   * "received": will have a list of messages that have been received.
+   * Dictionary for all messages to be sent. Messages are in a list mapped by the vehicle
+   * id they are to be sent to.
    */
-  private messageDictionary = new DictionaryList<Message.JSONMessage>();
+  private outbox = new DictionaryList<Message.JSONMessage>();
+
+  /**
+   * Messages that are currently being sent, map by the vehicle id it is being sent to.
+   */
+  private sending = new Map<number, Message.JSONMessage>();
 
   /**
    * Handler that listens for different update events.
@@ -47,17 +47,11 @@ class MessageHandler {
   }
 
   /**
-   * Removes a message from the outbox.
-   *
-   * @param id Message id
-   */
-  private removeMessage(key: 'outbox' | 'sent' | 'received', id: number): Message.JSONMessage | undefined {
-    return this.messageDictionary.remove(key,
-      (message: Message.JSONMessage): boolean => message.id === id);
-  }
-
-  /**
    * Sends message to vehicle through Xbee.
+   * Acknowledgement/Connection Acknowledgement/Bad messages are all sent here, but
+   * all other messages are forwarded to sendMessageAsync. All messages except the
+   * three mentioned above are only sent one at a time (and everything else will)
+   * be stored in the outbox to be sent afterwards.
    *
    * @param vehicleId Vehicle id to send the message to.
    * @param message Message format (note this does not have sid, tid, id, and time).
@@ -73,16 +67,28 @@ class MessageHandler {
 
     this.id += 1;
 
-    xbee.sendMessage(jsonMessage);
-    this.messageDictionary.push('sent', jsonMessage);
-
     if (Message.TypeGuard.isAcknowledgementMessage(message)
+      || Message.TypeGuard.isConnectionAcknowledgementMessage(message)
       || Message.TypeGuard.isBadMessage(message)) {
+      xbee.sendMessage(jsonMessage);
       return;
     }
 
-    this.messageDictionary.push('outbox', jsonMessage);
+    if (this.sending.has(jsonMessage.sid)) {
+      this.outbox.push(`${jsonMessage.sid}`, jsonMessage);
+      return;
+    }
 
+    this.sendMessageAsync(jsonMessage);
+  }
+
+  /**
+   * Either sends the message repeatedly or adds it to the outbox to be
+   * sent later. Once the message is acknowledged, the next one will be sent,
+   * if one is in the outbox.
+   */
+  private sendMessageAsync(jsonMessage: Message.JSONMessage): void {
+    xbee.sendMessage(jsonMessage);
     const expiry = setInterval(
       (): void => xbee.sendMessage(jsonMessage),
       config.messageSendRate * 1000,
@@ -90,18 +96,31 @@ class MessageHandler {
 
     // Keep track of message, to stop sending it once acknowledged.
     const hash = `${jsonMessage.tid}#${jsonMessage.id}`;
-    this.updateHandler.addHandler<boolean>(hash, (): boolean => {
+    this.sending.set(jsonMessage.tid, jsonMessage);
+
+    // Callback when this message is acknowledged.
+    const onAcknowledge = (): boolean => {
       clearInterval(expiry);
-      this.removeMessage('outbox', jsonMessage.id);
+      if (this.outbox.size(`${jsonMessage.tid}`) > 0) {
+        const nextMessage = this.outbox.shift(`${jsonMessage.tid}`) as Message.JSONMessage;
+        this.sendMessageAsync(nextMessage);
+      } else {
+        this.sending.delete(jsonMessage.tid);
+      }
       return true;
-    }, {
-      time: config.vehicleDisconnectionTime * 1000,
-      callback: (): void => {
-        clearInterval(expiry);
-        this.removeMessage('outbox', jsonMessage.id);
-        ipc.postDisconnectFromVehicle(vehicleId);
-      },
-    });
+    };
+
+    const onDisconnect = (): void => {
+      clearInterval(expiry);
+      this.sending.delete(jsonMessage.tid);
+      ipc.postDisconnectFromVehicle(jsonMessage.tid);
+    };
+
+    this.updateHandler.addHandler<boolean>(hash,
+      (): boolean => onAcknowledge(), {
+        time: config.vehicleDisconnectionTime * 1000,
+        callback: (): void => onDisconnect(),
+      });
   }
 
   /**
@@ -164,7 +183,6 @@ class MessageHandler {
     // Logic: https://ground-control-station.readthedocs.io/en/latest/communications/messages/other-messages.html#acknowledgement-message
     if (newMessage) {
       this.receivedMessageId[jsonMessage.sid] = jsonMessage.id;
-      this.messageDictionary.push('received', jsonMessage);
     }
   }
 
@@ -180,7 +198,9 @@ class MessageHandler {
    * Stops sending all messages.
    */
   private stopSendingMessages(): void {
-    this.messageDictionary.forEach('outbox', (jsonMessage): void => {
+    this.outbox.clear();
+
+    this.sending.forEach((jsonMessage): void => {
       const hash = `${jsonMessage.tid}#${jsonMessage.id}`;
       this.updateHandler.event(hash, true);
     });

@@ -108,32 +108,32 @@ class Orchestrator {
   }
 
   /**
-   * Connects to vehicle specified by the connect message.
+   * Connects to vehicle specified by the connect message from message handler.
    * @param jsonMessage The connect message.
    */
   private connectToVehicle(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
     if (this.vehicles[jsonMessage.sid] && this.vehicles[jsonMessage.sid].getStatus() !== 'disconnected') return;
-    if (!newMessage) return;
 
-    // Put this after newMessage return since this message will be sent repeatedly.
-    if (!config.fixtures) ipc.postSendMessage(jsonMessage.sid, { type: 'connectionAck' });
+    if (newMessage) {
+      if (!this.vehicles[jsonMessage.sid]) {
+        this.vehicles[jsonMessage.sid] = new Vehicle({
+          sid: jsonMessage.sid,
+          jobs: (jsonMessage as Message.ConnectMessage).jobsAvailable,
+          status: 'ready',
+        });
 
-    if (!this.vehicles[jsonMessage.sid]) {
-      this.vehicles[jsonMessage.sid] = new Vehicle({
-        sid: jsonMessage.sid,
-        jobs: (jsonMessage as Message.ConnectMessage).jobsAvailable,
-        status: 'ready',
+        this.ping(this.vehicles[jsonMessage.sid]);
+      } else {
+        this.vehicles[jsonMessage.sid].connect();
+      }
+
+      ipc.postLogMessages({
+        type: 'success',
+        message: `${(vehicleConfig.vehicleInfos[jsonMessage.sid] as VehicleInfo).name} has connected`,
       });
-
-      this.ping(this.vehicles[jsonMessage.sid]);
-    } else {
-      this.vehicles[jsonMessage.sid].connect();
     }
 
-    ipc.postLogMessages({
-      type: 'success',
-      message: `${(vehicleConfig.vehicleInfos[jsonMessage.sid] as VehicleInfo).name} has connected`,
-    });
+    ipc.postSendMessage(jsonMessage.sid, { type: 'connectionAck' });
   }
 
   /**
@@ -169,7 +169,7 @@ class Orchestrator {
   }
 
   /**
-   * Handles acknowledgement messages.
+   * Handles acknowledgement messages from the message handler.
    * @param jsonMessage Message from vehicle.
    */
   private handleAcknowledgementMessage(
@@ -185,7 +185,7 @@ class Orchestrator {
   }
 
   /**
-   * Handles bad messages.
+   * Handles bad messages from the message handler.
    * @param jsonMessage Message from vehicle.
    */
   private handleBadMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
@@ -202,7 +202,7 @@ class Orchestrator {
   }
 
   /**
-   * Handles update messages.
+   * Handles update messages from the message handler.
    * @param jsonMessage Message from vehicle.
    */
   private handleUpdateMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
@@ -226,7 +226,7 @@ class Orchestrator {
   }
 
   /**
-   * Handles point of interest messages.
+   * Handles point of interest messages from the message handler.
    * @param jsonMessage Message from vehicle.
    */
   private handlePOIMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
@@ -249,7 +249,7 @@ class Orchestrator {
   }
 
   /**
-   * Handles complete messages.
+   * Handles complete messages from the message handler.
    * @param jsonMessage Message from vehicle.
    */
   private handleCompleteMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
