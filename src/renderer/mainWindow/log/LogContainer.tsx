@@ -59,7 +59,7 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
   /**
    * Timeout for scrollFromUser variable.
    */
-  private scrollFromUserTimer: NodeJS.Timeout = setTimeout((): void => {}, 200);;
+  private scrollFromUserTimer: NodeJS.Timeout = setTimeout((): void => {}, 200);
 
   /**
    * Cache that stores the height for all log messages. Allows the messages to have proper height.
@@ -67,7 +67,7 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
   private heightCache = new CellMeasurerCache({
     fixedWidth: true,
     minHeight: 20,
-  });;
+  });
 
   /**
    * Reference to log.
