@@ -19,7 +19,7 @@ export default class ThemeControl extends Component<ThemeProps> {
 
     return (
       <Control
-        className={`theme-control${theme === 'dark' ? '_dark' : ''}`}
+        className={`${theme === 'dark' ? 'fas' : 'far'} fa-moon`}
         onClick={ThemeControl.onClick}
         position="topright"
         title="Toggle theme"

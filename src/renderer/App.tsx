@@ -6,6 +6,7 @@ import { ThemeProps } from '../types/componentStyle';
 import MainWindow from './mainWindow/MainWindow';
 import MissionWindow from './missionWindow/MissionWindow';
 
+import '@fortawesome/fontawesome-free/css/all.css';
 import 'leaflet/dist/leaflet.css';
 import 'react-virtualized/styles.css';
 import 'rc-slider/assets/index.css';

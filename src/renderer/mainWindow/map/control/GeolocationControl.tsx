@@ -15,9 +15,9 @@ export default class GeolocationControl extends Component {
   public render(): ReactNode {
     return (
       <Control
-        className="geolocation-control"
+        className="fas fa-location-arrow"
         onClick={GeolocationControl.onClick}
-        position="topleft"
+        position="topright"
         title="Show location"
       />
     );

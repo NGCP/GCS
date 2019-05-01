@@ -14,14 +14,6 @@ import rover from './images/markers/vehicles/rover.png';
 
 import draggable_selector from './images/markers/draggable_selector.png';
 
-
-import fullmoon_hover from './images/other/fullmoon_hover.png';
-import fullmoon from './images/other/fullmoon.png';
-import geolocation_img_hover from './images/other/geolocation_hover.png';
-import geolocation_img from './images/other/geolocation.png';
-import moon_hover from './images/other/moon_hover.png';
-import moon from './images/other/moon.png';
-
 import arrow from './images/arrow.png';
 import icon from './images/icon.png';
 
@@ -165,14 +157,6 @@ export const imageConfig: RecursiveImageSignature = {
       rover_red,
       rover,
     },
-  },
-  other: {
-    fullmoon_hover,
-    fullmoon,
-    geolocation_hover: geolocation_img_hover,
-    geolocation: geolocation_img,
-    moon_hover,
-    moon,
   },
 };
 

@@ -16,8 +16,9 @@
     "build": "electron-webpack && electron-builder"
   },
   "dependencies": {
-    "@yaga/leaflet-cached-tile-layer": "^1.0.0",
+    "@fortawesome/fontawesome-free": "^5.8.1",
     "leaflet": "^1.4.0",
+    "leaflet.offline": "^1.0.4",
     "moment": "^2.24.0",
     "msgpack-lite": "^0.1.26",
     "pouchdb": "^7.0.0",

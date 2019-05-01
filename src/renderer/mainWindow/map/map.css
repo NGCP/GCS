@@ -4,39 +4,24 @@
   margin: 0;
 }
 
-.leaflet-control-custom {
-  cursor: pointer;
-  background-size: 75%;
+/* Controls */
+
+.mapContainer i {
+  font-size: 1.2em;
 }
 
-.geolocation-control {
-  background-image: url('../../../static/images/other/geolocation.png');
+.leaflet-control-custom,
+.leaflet-control-zoom-in:not(.leaflet-disabled),
+.leaflet-control-zoom-out:not(.leaflet-disabled),
+.savetiles,
+.rmtiles {
+  color: #5b5b5b !important;
 }
 
-.geolocation-control:hover {
-  background-image: url('../../../static/images/other/geolocation_hover.png');
-}
-
-/* Light theme */
-
-.theme-control {
-  cursor: pointer;
-  background-size: 75%;
-  background-image: url('../../../static/images/other/moon.png');
-}
-
-.theme-control:hover {
-  background-image: url('../../../static/images/other/moon_hover.png');
-}
-
-/* Dark theme */
-
-.theme-control_dark {
-  cursor: pointer;
-  background-size: 75%;
-  background-image: url('../../../static/images/other/fullmoon.png');
-}
-
-.theme-control_dark:hover {
-  background-image: url('../../../static/images/other/fullmoon_hover.png');
+.leaflet-control-custom:hover,
+.leaflet-control-zoom-in:not(.leaflet-disabled):hover,
+.leaflet-control-zoom-out:not(.leaflet-disabled):hover,
+.savetiles:hover,
+.rmtiles:hover {
+  color: #000 !important;
 }

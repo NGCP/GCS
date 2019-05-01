@@ -1,12 +1,9 @@
 import { Event, ipcRenderer } from 'electron';
 import fs from 'fs';
 import Leaflet from 'leaflet';
+import 'leaflet.offline';
 import React, { Component, Fragment, ReactNode } from 'react';
-import {
-  Map,
-  TileLayer,
-  Viewport,
-} from 'react-leaflet';
+import { Map, Viewport } from 'react-leaflet';
 
 import { Location, locationConfig } from '../../../static/index';
 
@@ -22,7 +19,6 @@ import ThemeControl from './control/ThemeControl';
 
 import BoundingBox from './shape/BoundingBox';
 
-// import CachedTileLayer from './CachedTileLayer';
 import POIMarker, { POIMarkerProps } from './marker/POIMarker';
 import VehicleMarker from './marker/VehicleMarker';
 import WaypointMarker from './marker/WaypointMarker';
@@ -121,6 +117,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
 
     this.onlocationfound = this.onlocationfound.bind(this);
     this.onViewportChanged = this.onViewportChanged.bind(this);
+    this.setTileLayer = this.setTileLayer.bind(this);
     this.setMapToUserLocation = this.setMapToUserLocation.bind(this);
     this.loadConfig = this.loadConfig.bind(this);
     this.saveConfig = this.saveConfig.bind(this);
@@ -147,6 +144,8 @@ export default class MapContainer extends Component<ThemeProps, State> {
     ipcRenderer.on('updateBoundingBoxes', (_: Event, updateMap: boolean, ...boundingBoxes: { name: string; color?: string; bounds: BoundingBoxBounds}[]): void => this.updateBoundingBoxes(updateMap, ...boundingBoxes));
 
     ipcRenderer.on('updatePOIs', (_: Event, ...pois: POIMarkerProps[]): void => this.updatePOIs(...pois));
+
+    this.setTileLayer();
   }
 
   /**
@@ -164,13 +163,52 @@ export default class MapContainer extends Component<ThemeProps, State> {
   }
 
   /**
+   * Create tile layer for map. Called after component is mount.
+   */
+  /* eslint-disable no-underscore-dangle, @typescript-eslint/no-explicit-any */
+  private setTileLayer(): void {
+    /*
+     * Add cached tile layer to the map. Solution to the caching issue as there is no package that
+     * supports react-leaflet, and creating a cached tile layer with react-leaflet and the package
+     * above is extremely difficult.
+     */
+    const map = this.ref.current;
+    if (map) {
+      // @ts-ignore
+      const cachedTileLayer = Leaflet.tileLayer.offline(mapOptions.url, mapOptions)
+        .addTo(map.leafletElement);
+
+      // @ts-ignore
+      Leaflet.control.savetiles(cachedTileLayer, {
+        saveWhatYouSee: true,
+        saveText: '<i class="fa fa-download" aria-hidden="true" title="Save tiles"></i>',
+        rmText: '<i class="fa fa-trash" aria-hidden="true" title="Remove tiles"></i>',
+      }).addTo(map.leafletElement);
+
+      cachedTileLayer.on('savestart', (): void => ipc.postLogMessages({
+        type: 'progress',
+        message: 'Saving tiles to cache',
+      }));
+
+      cachedTileLayer.on('loadend', (): void => ipc.postLogMessages({
+        type: 'success',
+        message: 'Saved all tiles to cache',
+      }));
+
+      cachedTileLayer.on('tilesremoved', (): void => ipc.postLogMessages({
+        type: 'success',
+        message: 'Removed all tiles from cache',
+      }));
+    }
+  }
+  /* eslint-enable */
+
+  /**
    * Centers map to user location using geolocation (if possible).
    */
   private setMapToUserLocation(): void {
     const map = this.ref.current;
-    if (map) {
-      map.leafletElement.locate();
-    }
+    if (map) map.leafletElement.locate();
   }
 
   /**
@@ -399,7 +437,6 @@ export default class MapContainer extends Component<ThemeProps, State> {
       >
         <GeolocationControl />
         <ThemeControl theme={theme} />
-        <TileLayer {...mapOptions} />
         <Fragment>{boundingBoxRectangles}</Fragment>
         <Fragment>{vehicleMarkers}</Fragment>
         <Fragment>{waypointMarkers}</Fragment>

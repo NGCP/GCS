@@ -36,13 +36,15 @@ export default class Control extends Component<ControlProps> {
     return (
       <LeafletControl className="leaflet-bar" position={position}>
         <a
-          className={`leaflet-control-custom ${className}`}
+          className="leaflet-control-custom"
           href={window.location.hash}
           title={title}
           role="button"
           aria-label={title}
           onClick={onClick}
-        />
+        >
+          <i className={className} />
+        </a>
       </LeafletControl>
     );
   }
