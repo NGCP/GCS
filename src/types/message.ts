@@ -148,17 +148,17 @@ export interface UpdateMessage extends MessageBase {
  */
 function isUpdateMessage(message: Message): boolean {
   const mandatoryCheck = message.type === 'update'
-    && !Number.isNaN(message.lat)
-    && !Number.isNaN(message.lng)
+    && Number.isFinite(message.lat)
+    && Number.isFinite(message.lng)
     && isVehicleStatus(message.status);
 
   if (!mandatoryCheck) return false;
 
   const updateMessage = message as UpdateMessage;
 
-  if (updateMessage.alt && Number.isNaN(updateMessage.alt)) return false;
-  if (updateMessage.heading && Number.isNaN(updateMessage.heading)) return false;
-  if (updateMessage.battery && Number.isNaN(updateMessage.battery)) return false;
+  if (updateMessage.alt && !Number.isFinite(updateMessage.alt)) return false;
+  if (updateMessage.heading && !Number.isFinite(updateMessage.heading)) return false;
+  if (updateMessage.battery && !Number.isFinite(updateMessage.battery)) return false;
 
   return true;
 }
@@ -182,8 +182,8 @@ export interface POIMessage extends MessageBase {
  */
 function isPOIMessage(message: Message): boolean {
   return message.type === 'poi'
-    && !Number.isNaN(message.lat)
-    && !Number.isNaN(message.lng);
+    && Number.isFinite(message.lat)
+    && Number.isFinite(message.lng);
 }
 
 export interface CompleteMessage extends MessageBase {
@@ -233,7 +233,7 @@ export interface AcknowledgementMessage extends MessageBase {
  */
 export function isAcknowledgementMessage(message: Message): boolean {
   return message.type === 'ack'
-    && !Number.isNaN(message.ackid);
+    && Number.isInteger(message.ackid);
 }
 
 export interface BadMessage extends MessageBase {
@@ -304,14 +304,14 @@ export function isJSONMessage(message: { [key: string]: any }): boolean {
   if (!isMessage(message)) return false;
 
   // Check if id is a number.
-  const idCheck = message.id && typeof message.id !== 'boolean' && !Number.isNaN(message.id);
+  const idCheck = message.id && typeof message.id !== 'boolean' && Number.isInteger(message.id);
 
   // Check if tid is a number and is valid.
-  const tidCheck = !Number.isNaN(message.tid)
+  const tidCheck = Number.isInteger(message.tid)
      && vehicleConfig.vehicleInfos[message.tid] !== undefined;
 
   // Check if sid is a number and is valid.
-  const sidCheck = !Number.isNaN(message.sid)
+  const sidCheck = Number.isInteger(message.sid)
      && vehicleConfig.vehicleInfos[message.sid] !== undefined;
 
   return idCheck && tidCheck && sidCheck;
