@@ -28,6 +28,6 @@ export default class CreateBoundingBoxButton extends PureComponent<CreateBoundin
   }
 
   public render(): ReactNode {
-    return <button type="button" onClick={this.onClick}>Create Box</button>;
+    return <button type="button" className="boundingBoxButton" onClick={this.onClick}>Create Box</button>;
   }
 }

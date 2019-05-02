@@ -1,5 +1,7 @@
 import React, { PureComponent, ReactNode } from 'react';
 
+import '../mission.css';
+
 import ipc from '../../../util/ipc';
 
 export interface CreateWaypointButtonProps {
@@ -32,6 +34,6 @@ export default class CreateWaypointButton extends PureComponent<CreateWaypointBu
   }
 
   public render(): ReactNode {
-    return <button type="button" onClick={this.onClick}>Create Pin</button>;
+    return <button type="button" className="waypointButton" onClick={this.onClick}>Create Pin</button>;
   }
 }

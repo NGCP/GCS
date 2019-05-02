@@ -1,6 +1,8 @@
 import { Event, ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
+import './parameters.css';
+
 import { BoundingBoxBounds } from '../../../types/componentStyle';
 
 import { missionName } from '../../../common/missions/VTOLSearch';
@@ -223,13 +225,13 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
     return (
       <div>
         <p>Quick Scan</p>
-        <input type="number" name="quickScanTop" value={checklist.quickScanTop || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Top" />
+        <input className="inputFields" type="number" name="quickScanTop" value={checklist.quickScanTop || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Top" />
         <br />
-        <input type="number" name="quickScanBottom" value={checklist.quickScanBottom || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Bottom" />
+        <input className="inputFields" type="number" name="quickScanBottom" value={checklist.quickScanBottom || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Bottom" />
         <br />
-        <input type="number" name="quickScanLeft" value={checklist.quickScanLeft || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Left" />
+        <input className="inputFields" type="number" name="quickScanLeft" value={checklist.quickScanLeft || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Left" />
         <br />
-        <input type="number" name="quickScanRight" value={checklist.quickScanRight || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Right" />
+        <input className="inputFields" type="number" name="quickScanRight" value={checklist.quickScanRight || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Right" />
         <CreateBoundingBoxButton name="quickScan" value="Bounding Box" />
       </div>
     );

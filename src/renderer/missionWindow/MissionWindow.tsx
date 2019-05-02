@@ -349,7 +349,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
           />
         </div>
         <div className="parameterContainer">
-          <h1 style={{ marginTop: 0 }}>{`${title[missionName]} Mission Parameters`}</h1>
+          <h1 className="title" style={{ marginTop: 0 }}>{`${title[missionName]} Mission Parameters`}</h1>
           {status === 'ready' && <Layout />}
           {status !== 'ready' && <p>:)</p>}
         </div>

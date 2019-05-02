@@ -6,29 +6,35 @@
   height: 100%;
   width: 100;
   grid-template-areas:
-    'selector selector selector selector'
+    'selector selector selector mapping'
     'parameter parameter parameter mapping'
     'parameter parameter parameter options'
-    'button button button button';
+    'button button button options';
   grid-template-rows: 25px 1fr 1fr 25px;
   grid-template-columns: repeat(4, 1fr);
 }
 
 .selectorContainer {
   grid-area: selector;
-  margin: auto;
+  margin-left: 60%;
 }
 
 .parameterContainer {
   grid-area: parameter;
+  padding-left: 20px;
 }
 
 .mappingContainer {
   grid-area: mapping;
+  padding-left: 20px;
+  background-color: #424242;
 }
 
 .optionsContainer {
   grid-area: options;
+  padding-top: 25px;
+  padding-left: 20px;
+  background-color: #424242;
 }
 
 .buttonContainer {
@@ -59,4 +65,26 @@
 .selectorSlider_dark {
   width: 200px !important;
   display: inline-block;
+}
+
+.waypointButton,
+.boundingBoxButton,
+.selectorButton {
+  color: #bcbcbc;
+  background: transparent;
+  border: 2px;
+  border-style: solid;
+  border-color: #bcbcbc;
+  border-radius: 5px;
+}
+
+.waypointButton:hover,
+.boundingBoxButton:hover,
+.selectorButton:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+.title {
+  text-align: center;
 }

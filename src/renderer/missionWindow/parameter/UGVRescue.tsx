@@ -1,6 +1,8 @@
 import { Event, ipcRenderer } from 'electron';
 import React, { Component, ReactNode } from 'react';
 
+import './parameters.css';
+
 import { missionName } from '../../../common/missions/UGVRescue';
 
 import { Location } from '../../../static/index';
@@ -186,13 +188,13 @@ export class UGVRescue extends Component<UGVRescueProps, State> {
     return (
       <div>
         <p>UGV Retrieve Target</p>
-        <input type="number" name="ugvRetrieveTargetLat" value={checklist.ugvRetrieveTargetLat || ''} disabled={locked.retrieveTarget} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="ugvRetrieveTargetLng" value={checklist.ugvRetrieveTargetLng || ''} disabled={locked.retrieveTarget} onChange={this.onChange} placeholder="Longitude" />
+        <input className="inputFields" type="number" name="ugvRetrieveTargetLat" value={checklist.ugvRetrieveTargetLat || ''} disabled={locked.retrieveTarget} onChange={this.onChange} placeholder="Latitude" />
+        <input className="inputFields" type="number" name="ugvRetrieveTargetLng" value={checklist.ugvRetrieveTargetLng || ''} disabled={locked.retrieveTarget} onChange={this.onChange} placeholder="Longitude" />
         <CreateWaypointButton name="ugvRetrieveTarget" value="Retrieve Target" />
 
         <p>UGV Deliver Target</p>
-        <input type="number" name="ugvDeliverTargetLat" value={checklist.ugvDeliverTargetLat || ''} disabled={locked.deliverTarget} onChange={this.onChange} placeholder="Latitude" />
-        <input type="number" name="ugvDeliverTargetLng" value={checklist.ugvDeliverTargetLng || ''} disabled={locked.deliverTarget} onChange={this.onChange} placeholder="Longitude" />
+        <input className="inputFields" type="number" name="ugvDeliverTargetLat" value={checklist.ugvDeliverTargetLat || ''} disabled={locked.deliverTarget} onChange={this.onChange} placeholder="Latitude" />
+        <input className="inputFields" type="number" name="ugvDeliverTargetLng" value={checklist.ugvDeliverTargetLng || ''} disabled={locked.deliverTarget} onChange={this.onChange} placeholder="Longitude" />
         <CreateWaypointButton name="ugvDeliverTarget" value="Deliver Target" />
       </div>
     );
