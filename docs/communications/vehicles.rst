@@ -42,7 +42,10 @@ The vehicle IDs are listed as following:
     - GCS
     -
   * - 100
-    - UAV
+    - Skywalker ISR UAV
+    -
+  * - 101
+    - Piper Cub IPD UAV
     -
   * - 200
     - UGV
