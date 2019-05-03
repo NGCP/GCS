@@ -40,7 +40,7 @@ The vehicle IDs are listed as following:
     - Xbee MAC Address
   * - 000
     - GCS
-    -
+    - 0013A2004194754E
   * - 100
     - Skywalker ISR UAV
     -
