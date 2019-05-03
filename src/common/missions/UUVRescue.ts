@@ -19,7 +19,11 @@ export class UUVRescue extends Mission {
 
   // eslint-disable-next-line class-methods-use-this
   protected generateTasks(): DictionaryList<Task> | undefined {
+    const information = this.information as MissionInformation.UUVRescueInformation;
+    const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task>();
+
+    if (!missionParameters) return undefined;
 
     tasks.push('uuvRescue', {
       taskType: 'retrieveTarget',

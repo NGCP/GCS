@@ -68,6 +68,8 @@ export class VTOLSearch extends Mission {
     const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task.Task>();
 
+    if (!missionParameters) return undefined;
+
     tasks.push('quickScan', {
       taskType: 'quickScan',
       ...missionParameters.quickScan,

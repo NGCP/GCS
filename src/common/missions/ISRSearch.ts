@@ -31,6 +31,8 @@ export class ISRSearch extends Mission {
     const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task>();
 
+    if (!missionParameters) return undefined;
+
     if (!this.options.isrSearch.noTakeoff) {
       tasks.push('isrSearch', {
         taskType: 'takeoff',

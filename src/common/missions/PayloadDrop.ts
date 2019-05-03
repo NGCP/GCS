@@ -30,6 +30,8 @@ export class PayloadDrop extends Mission {
     const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task>();
 
+    if (!missionParameters) return undefined;
+
     if (!this.options.payloadDrop.noTakeoff) {
       tasks.push('payloadDrop', {
         taskType: 'takeoff',

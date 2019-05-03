@@ -22,6 +22,8 @@ export class UGVRescue extends Mission {
     const missionParameters = information.parameters;
     const tasks = new DictionaryList<Task>();
 
+    if (!missionParameters) return undefined;
+
     tasks.push('ugvRescue', {
       taskType: 'retrieveTarget',
       ...missionParameters.retrieveTarget,

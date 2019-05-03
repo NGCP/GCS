@@ -55,14 +55,17 @@ interface InformationBase {
 
   /**
    * Parameters for the mission. Both user and mission generated.
+   * Optional, but user must put parameters for first mission. Orchestrator
+   * will attach parameters provided from mission completion to the next mission
+   * automatically (if more than one mission is run).
    */
-  parameters: {};
+  parameters?: {};
 }
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
 export interface ISRSearchInformation extends InformationBase {
   missionName: 'isrSearch';
-  parameters: {
+  parameters?: {
     takeoff: Task.TakeoffTaskParameters;
     isrSearch: Task.ISRSearchTaskParameters;
     land: Task.LandTaskParameters;
@@ -78,7 +81,7 @@ function isISRSearchInformation(information: Information): boolean {
 
 export interface VTOLSearchInformation extends InformationBase {
   missionName: 'vtolSearch';
-  parameters: {
+  parameters?: {
     quickScan: Task.QuickScanTaskParameters;
   };
 }
@@ -95,7 +98,7 @@ function isVTOLSearchInformation(information: Information): boolean {
  */
 export interface PayloadDropInformation extends InformationBase {
   missionName: 'payloadDrop';
-  parameters: {
+  parameters?: {
     takeoff: Task.TakeoffTaskParameters;
     payloadDrop: Task.PayloadDropTaskParameters;
     land: Task.LandTaskParameters;
@@ -108,7 +111,7 @@ function isPayloadDropInformation(information: Information): boolean {
 
 export interface UGVRescueInformation extends InformationBase {
   missionName: 'ugvRescue';
-  parameters: {
+  parameters?: {
     retrieveTarget: Task.UGVRetrieveTargetTaskParameters;
     deliverTarget: Task.DeliverTargetTaskParameters;
   };
@@ -120,6 +123,7 @@ function isUGVRetreiveInformation(information: Information): boolean {
 
 export interface UUVRescueInformation extends InformationBase {
   missionName: 'uuvRescue';
+  parameters?: {};
 }
 
 function isUUVRetrieveInformation(information: Information): boolean {

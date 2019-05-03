@@ -16,7 +16,12 @@
     },
     "100": {
       "macAddress": "",
-      "name": "UAV",
+      "name": "Skywalker",
+      "type": "plane"
+    },
+    "101": {
+      "macAddress": "",
+      "name": "Piper Club",
       "type": "plane"
     },
     "200": {
