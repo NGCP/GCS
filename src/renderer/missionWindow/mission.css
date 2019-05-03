@@ -27,14 +27,12 @@
 .mappingContainer {
   grid-area: mapping;
   padding-left: 20px;
-  background-color: #424242;
 }
 
 .optionsContainer {
   grid-area: options;
   padding-top: 25px;
   padding-left: 20px;
-  background-color: #424242;
 }
 
 .buttonContainer {
@@ -49,6 +47,34 @@
   color: #000;
 }
 
+.container {
+  background-color: #cbcbcb;
+}
+
+.selectorButton {
+  min-width: 150px;
+  margin-right: 20px;
+}
+
+.waypointButton,
+.boundingBoxButton,
+.selectorButton {
+  color: #2a3d34;
+  background: transparent;
+  border: 2px;
+  border-style: solid;
+  border-color: #2a3d34;
+  border-radius: 5px;
+}
+
+.waypointButton:hover,
+.boundingBoxButton:hover,
+.selectorButton:hover {
+  color: #000;
+  border-color: #000;
+  background-color: #fff;
+}
+
 /* Dark theme */
 
 .missionWrapper_dark {
@@ -56,7 +82,11 @@
   color: #fff;
 }
 
-.selectorButton {
+.container_dark {
+  background-color: #424242;
+}
+
+.selectorButton_dark {
   min-width: 150px;
   margin-right: 20px;
 }
@@ -67,9 +97,9 @@
   display: inline-block;
 }
 
-.waypointButton,
-.boundingBoxButton,
-.selectorButton {
+.waypointButton_dark,
+.boundingBoxButton_dark,
+.selectorButton_dark {
   color: #bcbcbc;
   background: transparent;
   border: 2px;
@@ -78,9 +108,9 @@
   border-radius: 5px;
 }
 
-.waypointButton:hover,
-.boundingBoxButton:hover,
-.selectorButton:hover {
+.waypointButton_dark:hover,
+.boundingBoxButton_dark:hover,
+.selectorButton_dark:hover {
   color: #fff;
   border-color: #fff;
 }

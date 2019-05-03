@@ -1,8 +1,9 @@
 import React, { PureComponent, ReactNode } from 'react';
 
+import { ThemeProps } from '../../../types/componentStyle';
 import ipc from '../../../util/ipc';
 
-export interface CreateBoundingBoxButtonProps {
+export interface CreateBoundingBoxButtonProps extends ThemeProps{
   /**
    * Identifier that distinguishes
    */
@@ -28,6 +29,15 @@ export default class CreateBoundingBoxButton extends PureComponent<CreateBoundin
   }
 
   public render(): ReactNode {
-    return <button type="button" className="boundingBoxButton" onClick={this.onClick}>Create Box</button>;
+    const { theme } = this.props;
+    return (
+      <button
+        className={`boundingBoxButton${theme === 'dark' ? '_dark' : ''}`}
+        type="button"
+        onClick={this.onClick}
+      >
+          Create Box
+      </button>
+    );
   }
 }

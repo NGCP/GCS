@@ -3,6 +3,8 @@ import React, { Component, ReactNode } from 'react';
 
 import './parameters.css';
 
+import { ThemeProps } from '../../../types/componentStyle';
+
 import { missionName } from '../../../common/missions/UGVRescue';
 
 import { Location } from '../../../static/index';
@@ -35,7 +37,7 @@ const lockedCache: Locked = {
   deliverTarget: true,
 };
 
-export interface UGVRescueProps {
+export interface UGVRescueProps extends ThemeProps {
   vehicles: { [vehicleId: number]: VehicleObject };
 }
 
@@ -184,18 +186,19 @@ export class UGVRescue extends Component<UGVRescueProps, State> {
 
   public render(): ReactNode {
     const { checklist, locked } = this.state;
+    const { theme } = this.props;
 
     return (
       <div>
         <p>UGV Retrieve Target</p>
         <input className="inputFields" type="number" name="ugvRetrieveTargetLat" value={checklist.ugvRetrieveTargetLat || ''} disabled={locked.retrieveTarget} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="ugvRetrieveTargetLng" value={checklist.ugvRetrieveTargetLng || ''} disabled={locked.retrieveTarget} onChange={this.onChange} placeholder="Longitude" />
-        <CreateWaypointButton name="ugvRetrieveTarget" value="Retrieve Target" />
+        <CreateWaypointButton theme={theme} name="ugvRetrieveTarget" value="Retrieve Target" />
 
         <p>UGV Deliver Target</p>
         <input className="inputFields" type="number" name="ugvDeliverTargetLat" value={checklist.ugvDeliverTargetLat || ''} disabled={locked.deliverTarget} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="ugvDeliverTargetLng" value={checklist.ugvDeliverTargetLng || ''} disabled={locked.deliverTarget} onChange={this.onChange} placeholder="Longitude" />
-        <CreateWaypointButton name="ugvDeliverTarget" value="Deliver Target" />
+        <CreateWaypointButton theme={theme} name="ugvDeliverTarget" value="Deliver Target" />
       </div>
     );
   }

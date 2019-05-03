@@ -3,7 +3,7 @@ import React, { Component, ReactNode } from 'react';
 
 import './parameters.css';
 
-import { BoundingBoxBounds } from '../../../types/componentStyle';
+import { BoundingBoxBounds, ThemeProps } from '../../../types/componentStyle';
 
 import { missionName } from '../../../common/missions/VTOLSearch';
 
@@ -34,7 +34,7 @@ const lockedCache: Locked = {
 };
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
-export interface VTOLSearchProps {
+export interface VTOLSearchProps extends ThemeProps {
   vehicles: { [vehicleId: number]: VehicleObject };
 }
 
@@ -222,6 +222,7 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
 
   public render(): ReactNode {
     const { checklist, locked } = this.state;
+    const { theme } = this.props;
     return (
       <div>
         <p>Quick Scan</p>
@@ -232,7 +233,7 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
         <input className="inputFields" type="number" name="quickScanLeft" value={checklist.quickScanLeft || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Left" />
         <br />
         <input className="inputFields" type="number" name="quickScanRight" value={checklist.quickScanRight || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Right" />
-        <CreateBoundingBoxButton name="quickScan" value="Bounding Box" />
+        <CreateBoundingBoxButton theme={theme} name="quickScan" value="Bounding Box" />
       </div>
     );
   }

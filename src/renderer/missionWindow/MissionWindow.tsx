@@ -36,16 +36,6 @@ const layouts: { [key: string]: MissionLayout[] } = {
   underwater: [ISRSearch, VTOLSearch, PayloadDrop, UUVRescue],
 };
 
-const initialInformation: {
-  [missionName in MissionInformation.MissionName]: MissionInformation.Information;
-} = {
-  isrSearch: { missionName: 'isrSearch' },
-  vtolSearch: { missionName: 'vtolSearch' },
-  payloadDrop: { missionName: 'payloadDrop' },
-  ugvRescue: { missionName: 'ugvRescue' },
-  uuvRescue: { missionName: 'uuvRescue' },
-};
-
 const title: { [missionName in MissionInformation.MissionName]: string } = {
   isrSearch: 'ISR Search',
   vtolSearch: 'VTOL Search',
@@ -107,7 +97,7 @@ interface State {
   /**
    * Information passed to Orchestrator for Mission to start.
    */
-  information: { [missionName in MissionInformation.MissionName]: MissionInformation.Information };
+  information: { [missionName: string]: undefined | MissionInformation.Information };
 }
 
 /**
@@ -141,7 +131,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
           noLand: false,
         },
       },
-      information: initialInformation,
+      information: {},
     };
 
     this.onSliderChange = this.onSliderChange.bind(this);
@@ -273,7 +263,12 @@ export default class MissionWindow extends Component<ThemeProps, State> {
 
     // Gets all relevant mission information for the missions being performed for the mission type.
     const missionInformation = layouts[missionType].slice(startMissionIndex, endMissionIndex + 1)
-      .map(({ missionName }): MissionInformation.Information => information[missionName]);
+      .map(({ missionName }): MissionInformation.Information => {
+        if (!information[missionName]) {
+          throw new Error(`Undefined mission information for ${missionName}`);
+        }
+        return information[missionName] as MissionInformation.Information;
+      });
 
     ipc.postStartMissions(missionInformation, activeVehicleMapping, options, requireConfirmation);
     this.setState({ status: 'running' });
@@ -339,12 +334,12 @@ export default class MissionWindow extends Component<ThemeProps, State> {
      * Start button will not appear unless all mission information is filled out
      * (and no mission is running).
      */
-    const readyToStart = information[missionName].parameters !== undefined;
+    const readyToStart = information[missionName] !== undefined;
 
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
         <div className="selectorContainer">
-          <button className="selectorButton" type="button" onClick={this.toggleMissionType}>{missionTypeText}</button>
+          <button className={`selectorButton${theme === 'dark' ? '_dark' : ''}`} type="button" onClick={this.toggleMissionType}>{missionTypeText}</button>
           <Range
             className={`selectorSlider${theme === 'dark' ? '_dark' : ''}`}
             min={0}
@@ -355,14 +350,14 @@ export default class MissionWindow extends Component<ThemeProps, State> {
         </div>
         <div className="parameterContainer">
           <h1 className="title" style={{ marginTop: 0 }}>{`${title[missionName]} Mission Parameters`}</h1>
-          {status === 'ready' && <Layout />}
+          {status === 'ready' && <Layout theme={theme} />}
           {status !== 'ready' && <p>:)</p>}
         </div>
-        <div className="mappingContainer">
+        <div className={`mappingContainer container${theme === 'dark' ? '_dark' : ''}`}>
           <h1 style={{ marginTop: 0 }}>Vehicle Mapping</h1>
           <ActiveVehicleMapping title={title} vehicles={vehicles} missionNames={missionNames} />
         </div>
-        <div className="optionsContainer">
+        <div className={`optionsContainer container${theme === 'dark' ? '_dark' : ''}`}>
           <h1 style={{ marginTop: 0 }}>Options</h1>
           <MissionOptions title={title} missionNames={missionNames} options={options} />
         </div>

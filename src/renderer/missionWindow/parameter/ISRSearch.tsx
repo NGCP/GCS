@@ -3,6 +3,8 @@ import React, { Component, ReactNode } from 'react';
 
 import './parameters.css';
 
+import { ThemeProps } from '../../../types/componentStyle';
+
 import { missionName } from '../../../common/missions/ISRSearch';
 
 import { Location } from '../../../static/index';
@@ -86,8 +88,8 @@ interface State {
   locked: Locked;
 }
 
-export class ISRSearch extends Component<{}, State> {
-  public constructor(props: {}) {
+export class ISRSearch extends Component<ThemeProps, State> {
+  public constructor(props: ThemeProps) {
     super(props);
 
     this.state = {
@@ -310,6 +312,7 @@ export class ISRSearch extends Component<{}, State> {
 
   public render(): ReactNode {
     const { checklist, locked } = this.state;
+    const { theme } = this.props;
 
     return (
       <div>
@@ -317,7 +320,7 @@ export class ISRSearch extends Component<{}, State> {
         <input className="inputFields" type="number" name="isrTakeoffLat" value={checklist.isrTakeoffLat || ''} disabled={locked.isrTakeoff} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="isrTakeoffLng" value={checklist.isrTakeoffLng || ''} disabled={locked.isrTakeoff} onChange={this.onChange} placeholder="Longitude" />
         <input className="inputFields" type="number" name="isrTakeoffAlt" value={checklist.isrTakeoffAlt || ''} disabled={locked.isrTakeoff} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="isrTakeoff" value="Takeoff" />
+        <CreateWaypointButton theme={theme} name="isrTakeoff" value="Takeoff" />
 
         <p>Loiter Coordinates</p>
         <input className="inputFields" type="number" name="isrLoiterLat" value={checklist.isrLoiterLat || ''} disabled={locked.isrLoiter} onChange={this.onChange} placeholder="Latitude" />
@@ -326,34 +329,34 @@ export class ISRSearch extends Component<{}, State> {
         <br />
         <input className="inputFields" type="number" name="isrLoiterRadius" value={checklist.isrLoiterRadius || ''} disabled={locked.isrLoiter} onChange={this.onChange} placeholder="Radius" />
         <input className="inputFields" type="number" name="isrLoiterDirection" value={checklist.isrLoiterDirection || ''} disabled={locked.isrLoiter} onChange={this.onChange} placeholder="Direction" />
-        <CreateWaypointButton name="isrLoiter" value="Loiter" />
+        <CreateWaypointButton theme={theme} name="isrLoiter" value="Loiter" />
 
         <p>ISR Search Waypoints</p>
         <input className="inputFields" type="number" name="isrSearchAlt" value={checklist.isrSearchAlt || ''} disabled={locked.isrSearch1 && locked.isrSearch2 && locked.isrSearch3} onChange={this.onChange} placeholder="Altitude" />
         <br />
         <input className="inputFields" type="number" name="isrSearchLat1" value={checklist.isrSearchLat1 || ''} disabled={locked.isrSearch1} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="isrSearchLng1" value={checklist.isrSearchLng1 || ''} disabled={locked.isrSearch1} onChange={this.onChange} placeholder="Longitude" />
-        <CreateWaypointButton name="isrSearch1" value="ISR Search 1" />
+        <CreateWaypointButton theme={theme} name="isrSearch1" value="ISR Search 1" />
         <br />
         <input className="inputFields" type="number" name="isrSearchLat2" value={checklist.isrSearchLat2 || ''} disabled={locked.isrSearch2} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="isrSearchLng2" value={checklist.isrSearchLng2 || ''} disabled={locked.isrSearch2} onChange={this.onChange} placeholder="Longitude" />
-        <CreateWaypointButton name="isrSearch2" value="ISR Search 2" />
+        <CreateWaypointButton theme={theme} name="isrSearch2" value="ISR Search 2" />
         <br />
         <input className="inputFields" type="number" name="isrSearchLat3" value={checklist.isrSearchLat3 || ''} disabled={locked.isrSearch3} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="isrSearchLng3" value={checklist.isrSearchLng3 || ''} disabled={locked.isrSearch3} onChange={this.onChange} placeholder="Longitude" />
-        <CreateWaypointButton name="isrSearch3" value="ISR Search 3" />
+        <CreateWaypointButton theme={theme} name="isrSearch3" value="ISR Search 3" />
 
         <p>Land Waypoints</p>
         <input className="inputFields" type="number" name="isrLandLat1" value={checklist.isrLandLat1 || ''} disabled={locked.isrLand1} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="isrLandLng1" value={checklist.isrLandLng1 || ''} disabled={locked.isrLand1} onChange={this.onChange} placeholder="Longitude" />
         <input className="inputFields" type="number" name="isrLandAlt1" value={checklist.isrLandAlt1 || ''} disabled={locked.isrLand1} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="isrLand1" value="Land 1" />
+        <CreateWaypointButton theme={theme} name="isrLand1" value="Land 1" />
         <br />
         <br />
         <input className="inputFields" type="number" name="isrLandLat2" value={checklist.isrLandLat2 || ''} disabled={locked.isrLand2} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="isrLandLng2" value={checklist.isrLandLng2 || ''} disabled={locked.isrLand2} onChange={this.onChange} placeholder="Longitude" />
         <input className="inputFields" type="number" name="isrLandAlt2" value={checklist.isrLandAlt2 || ''} disabled={locked.isrLand2} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="isrLand2" value="Land 2" />
+        <CreateWaypointButton theme={theme} name="isrLand2" value="Land 2" />
         <br />
       </div>
     );

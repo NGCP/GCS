@@ -3,6 +3,8 @@ import React, { Component, ReactNode } from 'react';
 
 import './parameters.css';
 
+import { ThemeProps } from '../../../types/componentStyle';
+
 import { missionName } from '../../../common/missions/PayloadDrop';
 
 import { Location } from '../../../static/index';
@@ -65,7 +67,7 @@ const lockedCache: Locked = {
 };
 
 // eslint-disable-next-line @typescript-eslint/interface-name-prefix
-export interface PayloadDropProps {
+export interface PayloadDropProps extends ThemeProps {
   vehicles: { [vehicleId: number]: VehicleObject };
 }
 
@@ -285,13 +287,14 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
 
   public render(): ReactNode {
     const { checklist, locked } = this.state;
+    const { theme } = this.props;
     return (
       <div>
         <p>Takeoff Coordinates</p>
         <input className="inputFields" type="number" name="payloadDropTakoffLat" value={checklist.payloadDropTakoffLat || ''} disabled={locked.payloadDropTakoff} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="payloadDropTakoffLng" value={checklist.payloadDropTakoffLng || ''} disabled={locked.payloadDropTakoff} onChange={this.onChange} placeholder="Longitude" />
         <input className="inputFields" type="number" name="payloadDropTakoffAlt" value={checklist.payloadDropTakoffAlt || ''} disabled={locked.payloadDropTakoff} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="payloadDropTakoff" value="Takeoff" />
+        <CreateWaypointButton theme={theme} name="payloadDropTakoff" value="Takeoff" />
 
         <p>Loiter Coordinates</p>
         <input className="inputFields" type="number" name="payloadDropLoiterLat" value={checklist.payloadDropLoiterLat || ''} disabled={locked.payloadDropLoiter} onChange={this.onChange} placeholder="Latitude" />
@@ -300,30 +303,30 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
         <br />
         <input className="inputFields" type="number" name="payloadDropLoiterRadius" value={checklist.payloadDropLoiterRadius || ''} disabled={locked.payloadDropLoiter} onChange={this.onChange} placeholder="Radius" />
         <input className="inputFields" type="number" name="payloadDropLoiterDirection" value={checklist.payloadDropLoiterDirection || ''} disabled={locked.payloadDropLoiter} onChange={this.onChange} placeholder="Direction" />
-        <CreateWaypointButton name="payloadDropLoiter" value="Loiter" />
+        <CreateWaypointButton theme={theme} name="payloadDropLoiter" value="Loiter" />
 
         <p>Payload Drop Coordinates</p>
         <input className="inputFields" type="number" name="payloadDropLat1" value={checklist.payloadDropLat1 || ''} disabled={locked.payloadDrop1} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="payloadDropLng1" value={checklist.payloadDropLng1 || ''} disabled={locked.payloadDrop1} onChange={this.onChange} placeholder="Longitude" />
         <input className="inputFields" type="number" name="payloadDropAlt" value={checklist.payloadDropAlt1 || ''} disabled={locked.payloadDrop1} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="payloadDrop1" value="Payload Drop 1" />
+        <CreateWaypointButton theme={theme} name="payloadDrop1" value="Payload Drop 1" />
         <br />
         <input className="inputFields" type="number" name="payloadDropLat2" value={checklist.payloadDropLat2 || ''} disabled={locked.payloadDrop2} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="payloadDropLng2" value={checklist.payloadDropLng2 || ''} disabled={locked.payloadDrop2} onChange={this.onChange} placeholder="Longitude" />
         <input className="inputFields" type="number" name="payloadDropAlt" value={checklist.payloadDropAlt2 || ''} disabled={locked.payloadDrop2} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="payloadDrop2" value="Payload Drop 2" />
+        <CreateWaypointButton theme={theme} name="payloadDrop2" value="Payload Drop 2" />
 
         <p>Land Waypoints</p>
         <input className="inputFields" type="number" name="payloadDropLandLat1" value={checklist.payloadDropLandLat1 || ''} disabled={locked.payloadDropLand1} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="payloadDropLandLng1" value={checklist.payloadDropLandLng1 || ''} disabled={locked.payloadDropLand1} onChange={this.onChange} placeholder="Longitude" />
         <input className="inputFields" type="number" name="payloadDropLandAlt1" value={checklist.payloadDropLandAlt1 || ''} disabled={locked.payloadDropLand1} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="payloadDropLand1" value="Land 1" />
+        <CreateWaypointButton theme={theme} name="payloadDropLand1" value="Land 1" />
         <br />
         <br />
         <input className="inputFields" type="number" name="payloadDropLandLat2" value={checklist.payloadDropLandLat2 || ''} disabled={locked.payloadDropLand2} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="payloadDropLandLng2" value={checklist.payloadDropLandLng2 || ''} disabled={locked.payloadDropLand2} onChange={this.onChange} placeholder="Longitude" />
         <input className="inputFields" type="number" name="payloadDropLandAlt2" value={checklist.payloadDropLandAlt2 || ''} disabled={locked.payloadDropLand2} onChange={this.onChange} placeholder="Altitude" />
-        <CreateWaypointButton name="payloadDropLand2" value="Land 2" />
+        <CreateWaypointButton theme={theme} name="payloadDropLand2" value="Land 2" />
         <br />
       </div>
     );

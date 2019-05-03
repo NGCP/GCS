@@ -1,7 +1,8 @@
 
 .inputFields {
   background-color: #bcbcbc;
-  border: 2px solid #000;
-  width: 150px;
-  height: 15px;
+  border: none;
+  margin: 2px;
+  width: 200px;
+  height: 20px;
 }

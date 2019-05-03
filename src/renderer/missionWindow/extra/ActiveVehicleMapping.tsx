@@ -1,5 +1,7 @@
 import React, { PureComponent, Fragment, ReactNode } from 'react';
 
+import '../mission.css';
+
 import missionObject from '../../../common/missions/index';
 
 import { vehicleConfig, VehicleInfo } from '../../../static/index';
@@ -43,7 +45,6 @@ export default class ActiveVehicleMapping extends PureComponent<ActiveVehicleMap
 
         return (
           <div key={jobType}>
-            <span>{`${jobType}: `}</span>
             <Select
               defaultOptionValue={{
                 title: 'No vehicle selected',
@@ -58,6 +59,7 @@ export default class ActiveVehicleMapping extends PureComponent<ActiveVehicleMap
                 );
               }}
             />
+            <span>{`: ${jobType} `}</span>
           </div>
         );
       });

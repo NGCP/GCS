@@ -1,5 +1,7 @@
 import React, { PureComponent, ReactNode } from 'react';
 
+import '../mission.css';
+
 export interface CheckboxProps {
   checked: boolean;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;

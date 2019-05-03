@@ -1,10 +1,11 @@
 import React, { PureComponent, ReactNode } from 'react';
 
+import { ThemeProps } from '../../../types/componentStyle';
 import '../mission.css';
 
 import ipc from '../../../util/ipc';
 
-export interface CreateWaypointButtonProps {
+export interface CreateWaypointButtonProps extends ThemeProps {
   /**
    * Identifier that distinguishes this button from other buttons.
    */
@@ -34,6 +35,15 @@ export default class CreateWaypointButton extends PureComponent<CreateWaypointBu
   }
 
   public render(): ReactNode {
-    return <button type="button" className="waypointButton" onClick={this.onClick}>Create Pin</button>;
+    const { theme } = this.props;
+    return (
+      <button
+        className={`waypointButton${theme === 'dark' ? '_dark' : ''}`}
+        type="button"
+        onClick={this.onClick}
+      >
+        Create Pin
+      </button>
+    );
   }
 }
