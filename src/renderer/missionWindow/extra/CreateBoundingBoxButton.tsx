@@ -36,7 +36,7 @@ export default class CreateBoundingBoxButton extends PureComponent<CreateBoundin
         type="button"
         onClick={this.onClick}
       >
-          Create Box
+        {'Create Box'}
       </button>
     );
   }

@@ -42,7 +42,7 @@ export default class CreateWaypointButton extends PureComponent<CreateWaypointBu
         type="button"
         onClick={this.onClick}
       >
-        Create Pin
+        {'Create Pin'}
       </button>
     );
   }
