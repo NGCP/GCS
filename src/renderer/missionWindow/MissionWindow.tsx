@@ -344,7 +344,7 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
         <div className="selectorContainer">
-          <button className="selectorButton" type="button" onClick={this.toggleMissionType}>{missionTypeText}</button>
+          <button className={`selectorButton${theme === 'dark' ? '_dark' : ''}`} type="button" onClick={this.toggleMissionType}>{missionTypeText}</button>
           <Range
             className={`selectorSlider${theme === 'dark' ? '_dark' : ''}`}
             min={0}
