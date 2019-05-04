@@ -29,7 +29,7 @@ Run the following script to install the modules.
 
 .. code-block:: sh
 
-  npm install --g npm-check-updates
+  npm install -g npm-check-updates
 
 Aftwards, install the following packages into Atom. These packages will ensure that your code is consistent with other developers.
 
