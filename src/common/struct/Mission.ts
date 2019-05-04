@@ -289,8 +289,8 @@ export default abstract class Mission {
       this.waitingVehicles.push(jobType, vehicle);
     });
 
-    const allVehiclesWaiting = pendingAssignVehicleIds.some(
-      (vehicleId): boolean => this.vehicles[vehicleId].getStatus() !== 'waiting',
+    const allVehiclesWaiting = pendingAssignVehicleIds.every(
+      (vehicleId): boolean => this.vehicles[vehicleId].getStatus() === 'waiting',
     );
 
     if (!allVehiclesWaiting) {
@@ -332,6 +332,8 @@ export default abstract class Mission {
 
     if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
       const jobType = this.activeVehicleMapping[this.missionName][jsonMessage.sid];
+
+      ipc.postLogMessages({ message: `Finished a task for ${this.missionName}` });
 
       /*
        * Mission is not yet finished, continue to assign tasks. One of the following will happen:

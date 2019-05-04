@@ -9,7 +9,7 @@ import { JSONMessage } from '../types/message';
 import ipc from '../util/ipc';
 
 // TODO: Add a feature with Vehicle container to change this dynamically and reconnect.
-const port: string | undefined = 'COM5';
+const port: string | undefined = '/dev/tty.SLAB_USBtoUART';
 
 const serialport = new SerialPort(port, { baudRate: 57600 }, (error): void => {
   if (error) {

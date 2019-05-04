@@ -1,5 +1,5 @@
 {
-  "startLocation": "Cal Poly SLO",
+  "startLocation": "Prado Airpark",
   "locations": {
     "Cal Poly SLO": {
       "lat": 35.306205,
@@ -9,6 +9,11 @@
     "Cal Poly Pomona": {
       "lat": 34.055869,
       "lng": -117.819964,
+      "zoom": 18
+    },
+    "Prado Airpark": {
+      "lat": 33.9325635,
+      "lng": -117.6288792,
       "zoom": 18
     }
   }

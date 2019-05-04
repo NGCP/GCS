@@ -113,6 +113,7 @@ class MessageHandler {
     const onDisconnect = (): void => {
       clearInterval(expiry);
       this.sending.delete(jsonMessage.tid);
+      this.outbox.clear(`${jsonMessage.tid}`);
       ipc.postDisconnectFromVehicle(jsonMessage.tid);
     };
 

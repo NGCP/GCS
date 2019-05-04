@@ -308,12 +308,12 @@ export class PayloadDrop extends Component<PayloadDropProps, State> {
         <p>Payload Drop Coordinates</p>
         <input className="inputFields" type="number" name="payloadDropLat1" value={checklist.payloadDropLat1 || ''} disabled={locked.payloadDrop1} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="payloadDropLng1" value={checklist.payloadDropLng1 || ''} disabled={locked.payloadDrop1} onChange={this.onChange} placeholder="Longitude" />
-        <input className="inputFields" type="number" name="payloadDropAlt" value={checklist.payloadDropAlt1 || ''} disabled={locked.payloadDrop1} onChange={this.onChange} placeholder="Altitude" />
+        <input className="inputFields" type="number" name="payloadDropAlt1" value={checklist.payloadDropAlt1 || ''} disabled={locked.payloadDrop1} onChange={this.onChange} placeholder="Altitude" />
         <CreateWaypointButton theme={theme} name="payloadDrop1" value="Payload Drop 1" />
         <br />
         <input className="inputFields" type="number" name="payloadDropLat2" value={checklist.payloadDropLat2 || ''} disabled={locked.payloadDrop2} onChange={this.onChange} placeholder="Latitude" />
         <input className="inputFields" type="number" name="payloadDropLng2" value={checklist.payloadDropLng2 || ''} disabled={locked.payloadDrop2} onChange={this.onChange} placeholder="Longitude" />
-        <input className="inputFields" type="number" name="payloadDropAlt" value={checklist.payloadDropAlt2 || ''} disabled={locked.payloadDrop2} onChange={this.onChange} placeholder="Altitude" />
+        <input className="inputFields" type="number" name="payloadDropAlt2" value={checklist.payloadDropAlt2 || ''} disabled={locked.payloadDrop2} onChange={this.onChange} placeholder="Altitude" />
         <CreateWaypointButton theme={theme} name="payloadDrop2" value="Payload Drop 2" />
 
         <p>Land Waypoints</p>

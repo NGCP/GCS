@@ -122,7 +122,10 @@ class Orchestrator {
           status: 'ready',
         });
 
-        this.ping(this.vehicles[jsonMessage.sid]);
+        setTimeout(
+          (): void => this.ping(this.vehicles[jsonMessage.sid]),
+          config.vehicleDisconnectionTime * 1000,
+        );
       } else {
         this.vehicles[jsonMessage.sid].connect();
       }
@@ -142,11 +145,14 @@ class Orchestrator {
    * @param vehicle Vehicle to "ping".
    */
   private ping(vehicle: Vehicle): void {
-    const delta = Date.now() - vehicle.getLastConnectionTime();
+    const delta = Math.abs(Date.now() - vehicle.getLastConnectionTime());
 
     if (delta >= 0 && delta <= config.vehicleDisconnectionTime * 1000) {
       // Handler that expires and creates itself everytime it "pings" the vehicle.
-      setTimeout((): void => { this.ping(vehicle); }, delta);
+      setTimeout(
+        (): void => { this.ping(vehicle); },
+        config.vehicleDisconnectionTime * 1000 - delta,
+      );
     } else {
       this.disconnectFromVehicle(vehicle.getVehicleId());
     }
@@ -358,12 +364,12 @@ class Orchestrator {
       this.stopMissions();
     } else {
       this.missions[this.currentMissionIndex + 1].parameters = completionParameters;
-    }
 
-    if (this.requireConfirmation) {
-      ipc.postConfirmCompleteMission(); // Start next mission on "startNextMission" notification.
-    } else {
-      this.startNextMission();
+      if (this.requireConfirmation) {
+        ipc.postConfirmCompleteMission(); // Start next mission on "startNextMission" notification.
+      } else {
+        this.startNextMission();
+      }
     }
   }
 
