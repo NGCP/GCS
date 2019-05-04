@@ -112,8 +112,6 @@ class Orchestrator {
    * @param jsonMessage The connect message.
    */
   private connectToVehicle(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
-    if (this.vehicles[jsonMessage.sid] && this.vehicles[jsonMessage.sid].getStatus() !== 'disconnected') return;
-
     if (newMessage) {
       if (!this.vehicles[jsonMessage.sid]) {
         this.vehicles[jsonMessage.sid] = new Vehicle({
@@ -163,7 +161,7 @@ class Orchestrator {
    * @param vehicleId ID of vehicle to disconnect from.
    */
   private disconnectFromVehicle(vehicleId: number): void {
-    if (!this.vehicles[vehicleId] || this.vehicles[vehicleId].getStatus() === 'disconnected') return;
+    if (this.vehicles[vehicleId].getStatus() === 'disconnected') return;
 
     this.vehicles[vehicleId].disconnect();
     ipc.postUpdateVehicles(this.vehicles[vehicleId].toObject());
@@ -195,7 +193,7 @@ class Orchestrator {
    * @param jsonMessage Message from vehicle.
    */
   private handleBadMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
     if (!newMessage) return;
 
     this.vehicles[jsonMessage.sid].update(jsonMessage);
@@ -212,7 +210,7 @@ class Orchestrator {
    * @param jsonMessage Message from vehicle.
    */
   private handleUpdateMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
 
     if (newMessage) {
       this.vehicles[jsonMessage.sid].update(jsonMessage);
@@ -236,7 +234,7 @@ class Orchestrator {
    * @param jsonMessage Message from vehicle.
    */
   private handlePOIMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
 
     if (newMessage) {
       if (this.currentMission && !this.currentMission.getVehicles()[jsonMessage.sid]) {
@@ -259,7 +257,7 @@ class Orchestrator {
    * @param jsonMessage Message from vehicle.
    */
   private handleCompleteMessage(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
-    if (!this.vehicles[jsonMessage.sid] || this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
+    if (this.vehicles[jsonMessage.sid].getStatus() === 'disconnected') return;
 
     if (newMessage) {
       if (!this.currentMission) {
