@@ -304,7 +304,7 @@ export function isJSONMessage(message: { [key: string]: any }): boolean {
   if (!isMessage(message)) return false;
 
   // Check if id is a number.
-  const idCheck = message.id && typeof message.id !== 'boolean' && Number.isInteger(message.id);
+  const idCheck = Number.isInteger(message.id);
 
   // Check if tid is a number and is valid.
   const tidCheck = Number.isInteger(message.tid)

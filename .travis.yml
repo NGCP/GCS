@@ -2,10 +2,6 @@
 
 language: node_js
 
-# Install fossa-cli
-before_script:
-  - "curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | sudo bash"
-
 # Use latest version of Node.js
 node_js:
   - lts/*
@@ -19,6 +15,3 @@ script:
   - npm run test:lint
   - npm run test:types
   - npm run test:unit
-
-  - fossa init
-  - fossa analyze
