@@ -8,12 +8,12 @@ To make sure that all your dependencies are up to date, run the following comman
 
 .. code-block: sh
 
-ncu
-[====================] 49/49 100%
+  ncu
+  [====================] 49/49 100%
 
-@types/react         ^16.8.15  →  ^16.8.16
-electron               ^3.1.8  →    ^5.0.1
-eslint-plugin-react   ^7.12.4  →   ^7.13.0
+  @types/react         ^16.8.15  →  ^16.8.16
+  electron               ^3.1.8  →    ^5.0.1
+  eslint-plugin-react   ^7.12.4  →   ^7.13.0
 
 -----------------------------------
 

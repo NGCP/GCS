@@ -17,3 +17,9 @@
   communications/jobs
   communications/vehicles
   communications/examples
+
+.. toctree::
+  :caption: Setting Up
+  :maxdepth: 2
+
+  setup/ncu
