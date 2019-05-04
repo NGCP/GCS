@@ -1,12 +1,16 @@
 ==========
-Setting Up
+Upgrading Package Files
 ==========
 
 .. TODO: Write documentation of what ncu does and how to use it
 
+-----
+
+Usage
+=====
 To make sure that all your dependencies are up to date, run the following command
 
-.. code-block: sh
+.. code-block:: sh
 
   ncu
   [====================] 49/49 100%
@@ -15,14 +19,9 @@ To make sure that all your dependencies are up to date, run the following comman
   electron               ^3.1.8  →    ^5.0.1
   eslint-plugin-react   ^7.12.4  →   ^7.13.0
 
------------------------------------
-
-Upgrade the project's package file
-===================================
-
 To upgrade your dependencies to the latest version, run the following command
 
-.. code-block: sh
+.. code-block:: sh
 
   ncu -u
 
@@ -33,6 +32,6 @@ Installation
 
 Run npm install to install new versions
 
-.. code-block: sh
+.. code-block:: sh
 
   npm install
