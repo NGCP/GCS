@@ -84,7 +84,7 @@ class Orchestrator {
   private options: MissionInformation.MissionOptions | null = null;
 
   public constructor() {
-    ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: Message.JSONMessage, newMessage: boolean): void => this.connectToVehicle(jsonMessage, newMessage));
+    ipcRenderer.on('connectToVehicle', (_: Event, jsonMessage: Message.JSONMessage, newMessage: boolean, shouldAcknowledge: boolean): void => this.connectToVehicle(jsonMessage, newMessage, shouldAcknowledge));
     ipcRenderer.on('disconnectFromVehicle', (_: Event, vehicleId: number): void => this.disconnectFromVehicle(vehicleId));
 
     ipcRenderer.on('handleAcknowledgementMessage', (_: Event, jsonMessage: Message.JSONMessage, newMessage: boolean): void => this.handleAcknowledgementMessage(jsonMessage, newMessage));
@@ -111,7 +111,11 @@ class Orchestrator {
    * Connects to vehicle specified by the connect message from message handler.
    * @param jsonMessage The connect message.
    */
-  private connectToVehicle(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
+  private connectToVehicle(
+    jsonMessage: Message.JSONMessage,
+    newMessage: boolean,
+    shouldAcknowledge: boolean,
+  ): void {
     if (newMessage) {
       if (!this.vehicles[jsonMessage.sid]) {
         this.vehicles[jsonMessage.sid] = new Vehicle({
@@ -134,7 +138,7 @@ class Orchestrator {
       });
     }
 
-    ipc.postSendMessage(jsonMessage.sid, { type: 'connectionAck' });
+    if (shouldAcknowledge) ipc.postSendMessage(jsonMessage.sid, { type: 'connectionAck' });
   }
 
   /**
@@ -143,9 +147,11 @@ class Orchestrator {
    * @param vehicle Vehicle to "ping".
    */
   private ping(vehicle: Vehicle): void {
-    const delta = Math.abs(Date.now() - vehicle.getLastConnectionTime());
+    const delta = Math.max(0, Date.now() - vehicle.getLastConnectionTime());
 
-    if (delta >= 0 && delta <= config.vehicleDisconnectionTime * 1000) {
+    ipc.postLogMessages({ message: `Pinging vehicle with delta = ${delta}` });
+
+    if (delta <= config.vehicleDisconnectionTime * 1000) {
       // Handler that expires and creates itself everytime it "pings" the vehicle.
       setTimeout(
         (): void => { this.ping(vehicle); },

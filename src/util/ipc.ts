@@ -64,8 +64,12 @@ function postConfirmCompleteMission(): void {
  * Files that take this notification:
  * - common/Orchestrator
  */
-function postConnectToVehicle(jsonMessage: Message.JSONMessage, newMessage: boolean): void {
-  ipcRenderer.send('post', 'connectToVehicle', jsonMessage, newMessage);
+function postConnectToVehicle(
+  jsonMessage: Message.JSONMessage,
+  newMessage: boolean,
+  shouldAcknowledge: boolean,
+): void {
+  ipcRenderer.send('post', 'connectToVehicle', jsonMessage, newMessage, shouldAcknowledge);
 }
 
 /**

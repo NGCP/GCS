@@ -115,8 +115,8 @@ export default class Vehicle {
       return false;
     });
 
-    this.updateEventHandler.addHandler<number>('time', (time): boolean => {
-      this.lastConnectionTime = time;
+    this.updateEventHandler.addHandler<number>('time', (): boolean => {
+      this.lastConnectionTime = Date.now();
       return false;
     });
 

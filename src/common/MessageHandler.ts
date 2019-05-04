@@ -166,7 +166,9 @@ class MessageHandler {
       || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id;
 
     if (Message.TypeGuard.isConnectMessage(jsonMessage)) {
-      ipc.postConnectToVehicle(jsonMessage, newMessage);
+      const shouldAcknowledge = !this.receivedMessageId[jsonMessage.sid]
+        || this.receivedMessageId[jsonMessage.sid] as number <= jsonMessage.id;
+      ipc.postConnectToVehicle(jsonMessage, newMessage, shouldAcknowledge);
     } else if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
       ipc.postHandleCompleteMessage(jsonMessage, newMessage);
     } else if (Message.TypeGuard.isPOIMessage(jsonMessage)) {
