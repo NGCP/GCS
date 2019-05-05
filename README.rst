@@ -6,10 +6,6 @@ NGCP Ground Control Station
   :target: https://travis-ci.com/NGCP/GCS
   :alt: Build Status
 
-.. image:: https://app.fossa.com/api/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS.svg?type=shield
-  :target: https://app.fossa.com/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS?ref=badge_shield
-  :alt: FOSSA Status
-
 .. image:: https://readthedocs.org/projects/ground-control-station/badge/?version=latest
   :target: https://ground-control-station.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
@@ -65,10 +61,6 @@ License
 =======
 
 `MIT <https://github.com/NGCP/GCS/blob/dev-2018/LICENSE>`_
-
-.. image:: https://app.fossa.com/api/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS.svg?type=large
-  :target: https://app.fossa.com/projects/custom%2B9570%2Fgithub.com%2FNGCP%2FGCS?ref=badge_large
-  :alt: FOSSA Status
 
 .. _Northrop Grumman Collaboration Project: http://www.ngcpcalpoly.com/about.html
 .. _Node.js: https://nodejs.org/
