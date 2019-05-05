@@ -1,11 +1,11 @@
-# files
+# Ignore system generated files/folders
 .DS_Store
-.env
 package-lock.json
 docs/make.bat
 docs/Makefile
-
-# folders
 dist
 node_modules
 docs/_build
+
+# Ignore .env file (should be set per system)
+.env

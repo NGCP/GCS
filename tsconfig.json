@@ -1,0 +1,12 @@
+{
+  "extends": "electron-webpack/tsconfig-base.json",
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+
+    "jsx": "react",
+
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  }
+}

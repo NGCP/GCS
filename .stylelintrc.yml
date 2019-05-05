@@ -1,0 +1,12 @@
+# Rules to lint CSS
+
+# Use stylelint preset rules to lint
+extends: stylelint-config-standard
+
+# Added rules
+rules:
+  indentation: 2
+  declaration-block-no-duplicate-properties: true
+  no-empty-source: null
+  string-quotes: single
+  max-line-length: 100
