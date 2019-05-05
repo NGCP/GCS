@@ -1,4 +1,4 @@
-# prevent newline problems between macOS and Windows
+# Prevent newline problems between different systems
 
 * text=auto
 *.sln text eol=lf

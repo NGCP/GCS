@@ -1,0 +1,120 @@
+/* Defined styles for MissionWindow.jsx */
+
+.missionWrapper,
+.missionWrapper_dark {
+  display: grid;
+  height: 100%;
+  width: 100;
+  grid-template-areas:
+    'selector selector selector mapping'
+    'parameter parameter parameter mapping'
+    'parameter parameter parameter options'
+    'button button button options';
+  grid-template-rows: 25px 1fr 1fr 25px;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.selectorContainer {
+  grid-area: selector;
+  margin-left: 60%;
+}
+
+.parameterContainer {
+  grid-area: parameter;
+  padding-left: 20px;
+}
+
+.mappingContainer {
+  grid-area: mapping;
+  padding-left: 20px;
+}
+
+.optionsContainer {
+  grid-area: options;
+  padding-top: 25px;
+  padding-left: 20px;
+}
+
+.buttonContainer {
+  grid-area: button;
+  margin: auto;
+}
+
+/* Light theme */
+
+.missionWrapper {
+  background-color: #eee;
+  color: #000;
+}
+
+.container {
+  background-color: #cbcbcb;
+}
+
+.selectorButton {
+  min-width: 150px;
+  margin-right: 20px;
+}
+
+.waypointButton,
+.boundingBoxButton,
+.selectorButton {
+  color: #2a3d34;
+  background: transparent;
+  border: 2px;
+  border-style: solid;
+  border-color: #2a3d34;
+  border-radius: 5px;
+}
+
+.waypointButton:hover,
+.boundingBoxButton:hover,
+.selectorButton:hover {
+  color: #000;
+  border-color: #000;
+  background-color: #fff;
+}
+
+/* Dark theme */
+
+.missionWrapper_dark {
+  background-color: #212121;
+  color: #fff;
+}
+
+.container_dark {
+  background-color: #424242;
+}
+
+.selectorButton_dark {
+  min-width: 150px;
+  margin-right: 20px;
+}
+
+.selectorSlider,
+.selectorSlider_dark {
+  width: 200px !important;
+  display: inline-block;
+}
+
+.waypointButton_dark,
+.boundingBoxButton_dark,
+.selectorButton_dark {
+  color: #bcbcbc;
+  background: transparent;
+  border: 2px;
+  border-style: solid;
+  border-color: #bcbcbc;
+  border-radius: 5px;
+}
+
+.waypointButton_dark:hover,
+.boundingBoxButton_dark:hover,
+.selectorButton_dark:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+.title {
+  text-align: center;
+}

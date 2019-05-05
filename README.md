@@ -1,6 +1,8 @@
 # NGCP Ground Control Station
 
 [![Build Status](https://travis-ci.com/NGCP/GCS.svg?branch=dev-2018)](https://travis-ci.com/NGCP/GCS)
+[![dependencies Status](https://david-dm.org/NGCP/GCS/status.svg)](https://david-dm.org/NGCP/GCS)
+[![devDependencies Status](https://david-dm.org/NGCP/GCS/dev-status.svg)](https://david-dm.org/NGCP/GCS?type=dev)
 
 The [Northrop Grumman Collaboration Project] presents the Ground Control Station. This project's objective is to view and set missions for all autonomous vehicle platforms in the project.
 
@@ -9,11 +11,12 @@ This is based on [Node.js], [React], [Webpack], and [Electron].
 ## Getting Started
 **:pencil2: Setting Things Up**
 
-Open up your command line application and clone this repository
+Install [Node.js]. The program will not be able to run without it.
+
+Open up your command line application and clone this repository:
 
 ```sh
-# Command is accustomed to dev-2018 branch
-git clone -b dev-2018 --single-branch https://github.com/NGCP/GCS.git
+git clone https://github.com/NGCP/GCS.git
 ```
 
 **:scroll: Running the Program**
@@ -30,6 +33,9 @@ Install all required third-party libraries and run the program:
 npm install
 npm start
 ```
+
+## License
+[MIT](https://github.com/NGCP/GCS/blob/dev-2018/LICENSE)
 
 [Northrop Grumman Collaboration Project]: http://www.ngcpcalpoly.com/about.html
 [Node.js]: https://github.com/nodejs/node
