@@ -25,7 +25,7 @@ export default class App extends Component<{}, State> {
     super(props);
 
     this.state = {
-      theme: 'dark',
+      theme: 'light',
     };
 
     this.toggleTheme = this.toggleTheme.bind(this);

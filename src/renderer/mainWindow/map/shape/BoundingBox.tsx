@@ -28,6 +28,31 @@ interface State {
 }
 
 export default class BoundingBox extends PureComponent<BoundingBoxProps, State> {
+  /**
+   * Reference to marker 1 (to access its leaflet element).
+   */
+  private ref1: React.RefObject<Marker>;
+
+  /**
+   * Reference to marker 2 (to access its leaflet element).
+   */
+  private ref2: React.RefObject<Marker>;
+
+  /**
+   * Reference to marker 3 (to access its leaflet element).
+   */
+  private ref3: React.RefObject<Marker>;
+
+  /**
+   * Reference to marker 4 (to access its leaflet element).
+   */
+  private ref4: React.RefObject<Marker>;
+
+  /**
+   * Reference to rectangle (to access its leaflet element).
+   */
+  private ref: React.RefObject<Rectangle>;
+
   public constructor(props: BoundingBoxProps) {
     super(props);
 
@@ -172,31 +197,6 @@ export default class BoundingBox extends PureComponent<BoundingBoxProps, State> 
 
     this.ondrag();
   }
-
-  /**
-   * Reference to marker 1 (to access its leaflet element).
-   */
-  private ref1: React.RefObject<Marker>;
-
-  /**
-   * Reference to marker 2 (to access its leaflet element).
-   */
-  private ref2: React.RefObject<Marker>;
-
-  /**
-   * Reference to marker 3 (to access its leaflet element).
-   */
-  private ref3: React.RefObject<Marker>;
-
-  /**
-   * Reference to marker 4 (to access its leaflet element).
-   */
-  private ref4: React.RefObject<Marker>;
-
-  /**
-   * Reference to rectangle (to access its leaflet element).
-   */
-  private ref: React.RefObject<Rectangle>;
 
   public render(): ReactNode {
     const { locked, color, startingBounds } = this.props;

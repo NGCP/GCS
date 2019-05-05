@@ -64,6 +64,11 @@ export default class VehicleTable extends Component<VehicleTableProps> {
     return <span className={vehicleStatus.type}>{vehicleStatus.message}</span>;
   }
 
+  /**
+   * Width for columns in table.
+   */
+  private width: WidthSignature;
+
   public constructor(props: VehicleTableProps) {
     super(props);
 
@@ -81,11 +86,6 @@ export default class VehicleTable extends Component<VehicleTableProps> {
     const { vehicles } = this.props;
     ipc.postCenterMapToVehicle(vehicles[info.index]);
   }
-
-  /**
-   * Width for columns in table.
-   */
-  private width: WidthSignature;
 
   /**
    * Callback to obtain data for a certain row in the table.

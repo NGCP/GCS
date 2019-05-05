@@ -15,12 +15,12 @@
       "type": "station"
     },
     "100": {
-      "macAddress": "0013A200419477B6",
+      "macAddress": "0013A2004194783A",
       "name": "Skywalker",
       "type": "plane"
     },
     "101": {
-      "macAddress": "",
+      "macAddress": "0013A200419477B6",
       "name": "Piper Cub",
       "type": "plane"
     },

@@ -149,8 +149,6 @@ class Orchestrator {
   private ping(vehicle: Vehicle): void {
     const delta = Math.max(0, Date.now() - vehicle.getLastConnectionTime());
 
-    ipc.postLogMessages({ message: `Pinging vehicle with delta = ${delta}` });
-
     if (delta <= config.vehicleDisconnectionTime * 1000) {
       // Handler that expires and creates itself everytime it "pings" the vehicle.
       setTimeout(

@@ -81,7 +81,7 @@ function connectVehicles(): void {
     ipc.postConnectToVehicle(generateJSONMessage(fixture.sid, {
       type: 'connect',
       jobsAvailable: fixture.jobs,
-    }), true);
+    }), true, true);
   });
 }
 

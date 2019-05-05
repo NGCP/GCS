@@ -97,6 +97,11 @@ interface State {
  * Container that displays all vehicles and mission related info in a map.
  */
 export default class MapContainer extends Component<ThemeProps, State> {
+  /**
+   * Reference to map (to access its leaflet element).
+   */
+  private ref: React.RefObject<Map>;
+
   public constructor(props: ThemeProps) {
     super(props);
 
@@ -220,11 +225,6 @@ export default class MapContainer extends Component<ThemeProps, State> {
 
     this.onViewportChanged({ center: [lat, lng], zoom: zoom || viewport.zoom });
   }
-
-  /**
-   * Reference to map (to access its leaflet element).
-   */
-  private ref: React.RefObject<Map>;
 
   /**
    * Callback whenever a "loadConfig" notification is received.

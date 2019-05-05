@@ -62,6 +62,11 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
   private scrollFromUserTimer: NodeJS.Timeout = setTimeout((): void => {}, 200);
 
   /**
+   * Timeout that will scroll to bottom when it times out.
+   */
+  private scrollTimer: NodeJS.Timeout;
+
+  /**
    * Cache that stores the height for all log messages. Allows the messages to have proper height.
    */
   private heightCache = new CellMeasurerCache({
@@ -134,11 +139,6 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
       list.scrollToRow(filteredMessages.length - 1);
     }
   }
-
-  /**
-   * Timeout that will scroll to bottom when it times out.
-   */
-  private scrollTimer: NodeJS.Timeout;
 
   /**
    * Custom function to render a row in the list.

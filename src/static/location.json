@@ -1,5 +1,5 @@
 {
-  "startLocation": "Prado Airpark",
+  "startLocation": "Educational Flight Range",
   "locations": {
     "Cal Poly SLO": {
       "lat": 35.306205,
@@ -14,6 +14,11 @@
     "Prado Airpark": {
       "lat": 33.9325635,
       "lng": -117.6288792,
+      "zoom": 18
+    },
+    "Educational Flight Range": {
+      "lat": 35.328571,
+      "lng": -120.7521664,
       "zoom": 18
     }
   }
