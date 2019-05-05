@@ -162,12 +162,12 @@ class MessageHandler {
     // Ignore messages from unrecognized vehicles.
     if (!vehicleConfig.isValidVehicleId(jsonMessage.sid)) return;
 
-    const newMessage = !this.receivedMessageId[jsonMessage.sid]
+    const newMessage = !(jsonMessage.sid in this.receivedMessageId)
       || this.receivedMessageId[jsonMessage.sid] as number < jsonMessage.id;
 
     if (Message.TypeGuard.isConnectMessage(jsonMessage)) {
       const shouldAcknowledge = !this.receivedMessageId[jsonMessage.sid]
-        || this.receivedMessageId[jsonMessage.sid] as number <= jsonMessage.id;
+        || this.receivedMessageId[jsonMessage.sid] as number === jsonMessage.id;
       ipc.postConnectToVehicle(jsonMessage, newMessage, shouldAcknowledge);
     } else if (Message.TypeGuard.isCompleteMessage(jsonMessage)) {
       ipc.postHandleCompleteMessage(jsonMessage, newMessage);
