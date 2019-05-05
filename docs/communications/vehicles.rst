@@ -40,10 +40,13 @@ The vehicle IDs are listed as following:
     - Xbee MAC Address
   * - 000
     - GCS
-    -
+    - 0013A2004194754E
   * - 100
-    - UAV
-    -
+    - Skywalker ISR UAV
+    - 0013A2004194783A
+  * - 101
+    - Piper Cub IPD UAV
+    - 0013A200419477B6
   * - 200
     - UGV
     -
