@@ -1,5 +1,11 @@
-code/node_modules/
-code/build/
-BindingsTestCPP/node_modules/
-BindingsTestCPP/build/
+# Ignore system generated files/folders
 .DS_Store
+package-lock.json
+docs/make.bat
+docs/Makefile
+dist
+node_modules
+docs/_build
+
+# Ignore .env file (should be set per system)
+.env

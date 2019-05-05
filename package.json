@@ -1,0 +1,84 @@
+{
+  "name": "GCS",
+  "version": "0.7.4",
+  "license": "MIT",
+  "author": "Northrop Grumman Collaboration Project",
+  "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
+  "repository": "https://github.com/NGCP/GCS",
+  "scripts": {
+    "postinstall": "electron-rebuild",
+    "test": "npm run test:lint && npm run test:types && npm run test:unit",
+    "test:lint": "eslint --ext .js,.jsx,.ts,.tsx \".\" & stylelint \"**/*.css\"",
+    "test:types": "tsc --project . --outDir dist --pretty",
+    "test:unit": "mocha --require ts-node/register test/**/*.test.ts",
+    "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx \".\" & stylelint \"**/*.css\" --fix",
+    "start": "electron-webpack dev",
+    "start:windocs": "explorer http://localhost:8000/ & sphinx-autobuild docs docs/_build/html",
+    "start:macdocs": "open http://localhost:8000/ & sphinx-autobuild docs docs/_build/html",
+    "build": "electron-webpack && electron-builder"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.8.1",
+    "leaflet": "^1.4.0",
+    "leaflet.offline": "^1.0.4",
+    "moment": "^2.24.0",
+    "msgpack-lite": "^0.1.26",
+    "prop-types": "^15.7.2",
+    "rc-slider": "^8.6.9",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-leaflet": "^2.2.1",
+    "react-leaflet-control": "^2.1.1",
+    "react-virtualized": "^9.21.0",
+    "serialport": "^7.1.5",
+    "source-map-support": "^0.5.12",
+    "xbee-api": "^0.6.0"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.0.0",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "@types/msgpack-lite": "^0.1.6",
+    "@types/rc-slider": "^8.6.3",
+    "@types/react": "^16.8.16",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-leaflet": "^2.2.1",
+    "@types/react-virtualized": "^9.21.1",
+    "@types/serialport": "^7.0.3",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "@typescript-eslint/parser": "^1.7.0",
+    "babel-eslint": "^10.0.1",
+    "chai": "^4.2.0",
+    "dotenv-webpack": "^1.7.0",
+    "electron": "^3.1.9",
+    "electron-builder": "^20.40.2",
+    "electron-rebuild": "^1.8.4",
+    "electron-webpack": "^2.6.2",
+    "electron-webpack-ts": "^3.1.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-import-resolver-typescript": "^1.1.1",
+    "eslint-plugin-chai-friendly": "^0.4.1",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-react": "^7.13.0",
+    "mocha": "^6.1.4",
+    "stylelint": "^10.0.1",
+    "stylelint-config-standard": "^18.3.0",
+    "stylelint-order": "^3.0.0",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5",
+    "webpack": "^4.30.0"
+  },
+  "build": {
+    "npmRebuild": false
+  },
+  "electronWebpack": {
+    "main": {
+      "webpackConfig": "webpack.config.js"
+    },
+    "renderer": {
+      "webpackConfig": "webpack.config.js"
+    }
+  }
+}

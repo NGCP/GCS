@@ -1,0 +1,43 @@
+/* Styles for log container */
+
+.logContainer .row {
+  display: flex;
+  margin: 0;
+}
+
+.logContainer .messages,
+.logContainer .messages_dark {
+  font-family:
+    Consolas,
+    Menlo,
+    Monaco,
+    Lucida Console,
+    Liberation Mono,
+    DejaVu Sans Mono,
+    Bitstream Vera Sans Mono,
+    Courier New,
+    monospace,
+    serif;
+  font-size: 14px;
+  user-select: text;
+  width: 100%;
+  height: calc(100% - 25px);
+}
+
+.logContainer .time {
+  margin-right: 2em;
+}
+
+/* Light theme */
+
+.logContainer .messages {
+  background-color: #fff;
+  color: #000;
+}
+
+/* Dark theme */
+
+.logContainer .messages_dark {
+  background-color: #141414;
+  color: #bdbdbd;
+}

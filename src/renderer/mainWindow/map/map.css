@@ -1,0 +1,27 @@
+/* Styles for map container */
+
+.mapContainer p {
+  margin: 0;
+}
+
+/* Controls */
+
+.mapContainer i {
+  font-size: 1.2em;
+}
+
+.leaflet-control-custom,
+.leaflet-control-zoom-in:not(.leaflet-disabled),
+.leaflet-control-zoom-out:not(.leaflet-disabled),
+.savetiles,
+.rmtiles {
+  color: #5b5b5b !important;
+}
+
+.leaflet-control-custom:hover,
+.leaflet-control-zoom-in:not(.leaflet-disabled):hover,
+.leaflet-control-zoom-out:not(.leaflet-disabled):hover,
+.savetiles:hover,
+.rmtiles:hover {
+  color: #000 !important;
+}

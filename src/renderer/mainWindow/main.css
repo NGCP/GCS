@@ -1,0 +1,50 @@
+/* Styles for main window */
+
+.logContainer {
+  grid-area: log;
+}
+
+.mapContainer {
+  grid-area: map;
+}
+
+.vehicleContainer {
+  grid-area: vehicle;
+}
+
+.mainWrapper,
+.mainWrapper_dark {
+  display: grid;
+  grid-gap: 3px;
+  grid-template-areas:
+    'map map map vehicle'
+    'map map map vehicle'
+    'map map map vehicle'
+    'log log log vehicle';
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  height: 100%;
+  width: 100%;
+}
+
+/* Light theme */
+
+.mainWrapper {
+  background: #928b8a;
+  color: #000;
+}
+
+.container {
+  background-color: #eee;
+}
+
+/* Dark theme */
+
+.mainWrapper_dark {
+  background: #000;
+  color: #fff;
+}
+
+.container_dark {
+  background-color: #212121;
+}

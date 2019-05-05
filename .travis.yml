@@ -1,0 +1,17 @@
+# Travis CI testing configuration
+
+language: node_js
+
+# Use latest version of Node.js
+node_js:
+  - lts/*
+
+# Cache node_modules after testing
+cache: npm
+
+# Scripts to run to test application
+script:
+  # Run each test manually instead of npm test so that it runs sequentially (and not in parallel)
+  - npm run test:lint
+  - npm run test:types
+  - npm run test:unit
