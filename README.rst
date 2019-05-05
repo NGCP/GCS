@@ -2,7 +2,7 @@
 NGCP Ground Control Station
 ===========================
 
-.. image:: https://travis-ci.com/NGCP/GCS.svg?branch=dev-2018
+.. image:: https://travis-ci.com/NGCP/GCS.svg
   :target: https://travis-ci.com/NGCP/GCS
   :alt: Build Status
 
@@ -60,7 +60,7 @@ Install all required third-party libraries and run the program:
 License
 =======
 
-`MIT <https://github.com/NGCP/GCS/blob/dev-2018/LICENSE>`_
+`MIT <https://github.com/NGCP/GCS/blob/master/LICENSE>`_
 
 .. _Northrop Grumman Collaboration Project: http://www.ngcpcalpoly.com/about.html
 .. _Node.js: https://nodejs.org/
