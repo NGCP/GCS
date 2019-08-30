@@ -14,7 +14,7 @@ import rover from './images/markers/vehicles/rover.png';
 
 import draggable_selector from './images/markers/draggable_selector.png';
 
-import arrow from './images/arrow.png';
+import arrow from './images/arrow.png'; /////////////
 import icon from './images/icon.png';
 
 import configStatic from './config.json';
