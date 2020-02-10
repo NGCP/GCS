@@ -219,11 +219,11 @@ function createMissionWindow(): void {
     title: 'NGCP Mission User Interface',
     icon,
     show: false,
-    width: Math.floor(WIDTH * 4 / 3),
-    minWidth: Math.floor(WIDTH * 4 / 3),
-    height: Math.floor(HEIGHT * 4 / 3),
+    width: Math.floor((WIDTH * 4) / 3),
+    minWidth: Math.floor((WIDTH * 4) / 3),
+    height: Math.floor((HEIGHT * 4) / 3),
     autoHideMenuBar: true,
-    minHeight: Math.floor(HEIGHT * 4 / 3),
+    minHeight: Math.floor((HEIGHT * 4) / 3),
   });
 
   if (isDevelopment) {

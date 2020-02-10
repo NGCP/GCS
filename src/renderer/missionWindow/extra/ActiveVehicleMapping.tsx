@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment, ReactNode } from 'react';
+import React, { PureComponent, ReactNode } from 'react';
 
 import '../mission.css';
 
@@ -67,11 +67,11 @@ export default class ActiveVehicleMapping extends PureComponent<ActiveVehicleMap
       return (
         <div key={missionName}>
           <h3>{title[missionName]}</h3>
-          <Fragment>{jobMappingComponents}</Fragment>
+          <>{jobMappingComponents}</>
         </div>
       );
     });
 
-    return <Fragment>{mappingComponents}</Fragment>;
+    return <>{mappingComponents}</>;
   }
 }

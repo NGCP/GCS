@@ -87,7 +87,7 @@ export function getBoundingBox(waypoints: Location[], error: number): BoundingBo
 
   // Units in meters. https://stackoverflow.com/a/39540339.
   const deltaLat = error / 111.32 / 1000;
-  const deltaLng = error * 360 / 40075 / Math.cos((top + bottom) / 2) / 1000;
+  const deltaLng = (error * 360) / 40075 / Math.cos((top + bottom) / 2) / 1000;
 
   return {
     top: top + deltaLat,

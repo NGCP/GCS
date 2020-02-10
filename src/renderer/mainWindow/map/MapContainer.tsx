@@ -2,7 +2,7 @@ import { Event, ipcRenderer } from 'electron';
 import fs from 'fs';
 import Leaflet from 'leaflet';
 import 'leaflet.offline';
-import React, { Component, Fragment, ReactNode } from 'react';
+import React, { Component, ReactNode } from 'react';
 import { Map, Viewport } from 'react-leaflet';
 
 import { Location, locationConfig } from '../../../static/index';
@@ -23,12 +23,11 @@ import POIMarker, { POIMarkerProps } from './marker/POIMarker';
 import VehicleMarker from './marker/VehicleMarker';
 import WaypointMarker from './marker/WaypointMarker';
 
-
 import './map.css';
 
-const mapOptions = {
+const mapUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}';
+const mapOptions: Leaflet.TileLayerOptions = {
   attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-  url: 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
   id: 'mapbox.satellite',
   accessToken: process.env.MAPBOX_TOKEN,
 };
@@ -179,11 +178,10 @@ export default class MapContainer extends Component<ThemeProps, State> {
      */
     const map = this.ref.current;
     if (map) {
-      // @ts-ignore
-      const cachedTileLayer = Leaflet.tileLayer.offline(mapOptions.url, mapOptions)
+      const cachedTileLayer = Leaflet.tileLayer
+        .offline(mapUrl, mapOptions)
         .addTo(map.leafletElement);
 
-      // @ts-ignore
       Leaflet.control.savetiles(cachedTileLayer, {
         saveWhatYouSee: true,
         saveText: '<i class="fa fa-download" aria-hidden="true" title="Save tiles"></i>',
@@ -420,12 +418,18 @@ export default class MapContainer extends Component<ThemeProps, State> {
         <WaypointMarker
           key={name}
           name={name}
-          {...waypoints[name]}
+          location={waypoints[name].location}
+          locked={waypoints[name].locked}
         />
       ));
 
     const poiMarkers = Object.keys(pois)
-      .map((hash): ReactNode => <POIMarker {...pois[hash]} />);
+      .map((hash): ReactNode => (
+        <POIMarker
+          location={pois[hash].location}
+          type={pois[hash].type}
+        />
+      ));
 
     return (
       <Map
@@ -437,10 +441,10 @@ export default class MapContainer extends Component<ThemeProps, State> {
       >
         <GeolocationControl />
         <ThemeControl theme={theme} />
-        <Fragment>{boundingBoxRectangles}</Fragment>
-        <Fragment>{vehicleMarkers}</Fragment>
-        <Fragment>{waypointMarkers}</Fragment>
-        <Fragment>{poiMarkers}</Fragment>
+        <>{boundingBoxRectangles}</>
+        <>{vehicleMarkers}</>
+        <>{waypointMarkers}</>
+        <>{poiMarkers}</>
       </Map>
     );
   }

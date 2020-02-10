@@ -59,7 +59,7 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
   /**
    * Timeout for scrollFromUser variable.
    */
-  private scrollFromUserTimer: NodeJS.Timeout = setTimeout((): void => {}, 200);
+  private scrollFromUserTimer: NodeJS.Timeout | null = null;
 
   /**
    * Timeout that will scroll to bottom when it times out.
@@ -134,8 +134,10 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
       if (!list) return;
 
       this.scrollFromUser = false;
-      clearTimeout(this.scrollFromUserTimer);
-      this.scrollFromUserTimer = setTimeout((): void => { this.scrollFromUser = true; }, 150);
+      if (this.scrollFromUserTimer) {
+        clearTimeout(this.scrollFromUserTimer);
+        this.scrollFromUserTimer = setTimeout((): void => { this.scrollFromUser = true; }, 150);
+      }
       list.scrollToRow(filteredMessages.length - 1);
     }
   }
