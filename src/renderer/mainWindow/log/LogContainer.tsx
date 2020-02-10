@@ -133,11 +133,12 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
       const list = this.ref.current;
       if (!list) return;
 
+      // Clear timeout of scrolling down and sets it again
       this.scrollFromUser = false;
       if (this.scrollFromUserTimer) {
         clearTimeout(this.scrollFromUserTimer);
-        this.scrollFromUserTimer = setTimeout((): void => { this.scrollFromUser = true; }, 150);
       }
+      this.scrollFromUserTimer = setTimeout((): void => { this.scrollFromUser = true; }, 150);
       list.scrollToRow(filteredMessages.length - 1);
     }
   }
