@@ -89,7 +89,7 @@ export default class Vehicle {
   /**
    * Callback to when the vehicle enters the error state.
    */
-  private errorCallback: ErrorCallback = (): void => {};
+  private errorCallback: ErrorCallback | null = null;
 
   /**
    * Handler that listens for different events from the vehicle connected.
@@ -109,7 +109,7 @@ export default class Vehicle {
 
     this.updateEventHandler.addHandler<VehicleStatus>('status', (status, message): boolean => {
       this.status = status;
-      if (status === 'error') {
+      if (status === 'error' && this.errorCallback) {
         this.errorCallback(message && message.errorMessage);
       }
       return false;

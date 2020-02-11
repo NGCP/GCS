@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment, ReactNode } from 'react';
+import React, { PureComponent, ReactNode } from 'react';
 
 import * as MissionInformation from '../../../types/missionInformation';
 
@@ -39,7 +39,7 @@ export default class MissionOptions extends PureComponent<MissionOptionsProps> {
         switch (missionName) {
           case 'isrSearch':
             checkboxes = (
-              <Fragment>
+              <>
                 <Checkbox
                   checked={options.isrSearch.noTakeoff}
                   onChange={MissionOptions.onChangeISRSearchNoTakeoff}
@@ -50,13 +50,13 @@ export default class MissionOptions extends PureComponent<MissionOptionsProps> {
                   onChange={MissionOptions.onChangeISRSearchNoLand}
                   label="Do not land after search"
                 />
-              </Fragment>
+              </>
             );
             break;
 
           case 'payloadDrop':
             checkboxes = (
-              <Fragment>
+              <>
                 <Checkbox
                   checked={options.payloadDrop.noTakeoff}
                   onChange={MissionOptions.onChangePayloadDropNoTakeoff}
@@ -67,7 +67,7 @@ export default class MissionOptions extends PureComponent<MissionOptionsProps> {
                   onChange={MissionOptions.onChangePayloadDropNoLand}
                   label="Do not land after search"
                 />
-              </Fragment>
+              </>
             );
             break;
 
@@ -83,6 +83,6 @@ export default class MissionOptions extends PureComponent<MissionOptionsProps> {
         );
       });
 
-    return <Fragment>{optionComponents}</Fragment>;
+    return <>{optionComponents}</>;
   }
 }

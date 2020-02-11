@@ -59,6 +59,12 @@ rules:
   # @typescript-eslint/no-use-before-define is already defined
   no-use-before-define: off
 
+  # Prevent usage of file extension in import statements (except .json and binary files)
+  import/extensions:
+    - error
+    - never
+    - json: always
+
   # Re-adding changed Airbnb rules (removed most likely from @typescript-eslint/recommended)
   "@typescript-eslint/camelcase":
     - error
