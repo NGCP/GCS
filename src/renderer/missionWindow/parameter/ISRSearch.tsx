@@ -57,7 +57,7 @@ type Locked = { [waypointType in ISRWaypointType]: boolean } & {
   isrSearch3: boolean;
   isrLand1: boolean;
   isrLand2: boolean;
-}
+};
 
 const lockedCache: Locked = {
   isrTakeoff: true,

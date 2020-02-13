@@ -27,7 +27,7 @@ type VTOLSearchType = 'quickScan';
 
 type Locked = { [type in VTOLSearchType]: boolean} & {
   quickScan: boolean;
-}
+};
 
 const lockedCache: Locked = {
   quickScan: true,

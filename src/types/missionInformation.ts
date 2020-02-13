@@ -6,7 +6,7 @@ export type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'ugvRescu
 
 type ActiveVehicleMappingSignature = {
   [missionName in MissionName]: { [vehicleId: number]: JobType };
-}
+};
 
 /**
  * Mapping of vehicle to job to perform for all missions.
