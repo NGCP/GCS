@@ -8,10 +8,10 @@
   "scripts": {
     "postinstall": "electron-rebuild",
     "test": "npm run test:lint && npm run test:types && npm run test:unit",
-    "test:lint": "eslint --ext .js,.jsx,.ts,.tsx \".\" & stylelint \"**/*.css\"",
+    "test:lint": "eslint --ext .js,.jsx,.ts,.tsx \".\" && stylelint \"**/*.css\"",
     "test:types": "tsc --project . --outDir dist --pretty",
     "test:unit": "mocha --require ts-node/register test/**/*.test.ts",
-    "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx \".\" & stylelint \"**/*.css\" --fix",
+    "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx \".\" && stylelint \"**/*.css\" --fix",
     "start": "electron-webpack dev",
     "start:windocs": "explorer http://localhost:8000/ & sphinx-autobuild docs docs/_build/html",
     "start:macdocs": "open http://localhost:8000/ & sphinx-autobuild docs docs/_build/html",
