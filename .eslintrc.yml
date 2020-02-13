@@ -8,6 +8,11 @@ parserOptions:
 plugins:
   - chai-friendly
 
+settings:
+  # Modules that should be a devDependency and will be used in the application
+  import/core-modules:
+    - electron
+
 rules:
   # Allow chai test assertions to occur without eslint throwing errors
   "@typescript-eslint/no-unused-expressions": off
