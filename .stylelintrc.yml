@@ -1,5 +1,3 @@
-# Rules to lint CSS
-
 # Use stylelint preset rules to lint
 extends: stylelint-config-standard
 

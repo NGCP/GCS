@@ -30,7 +30,7 @@ type UGVWaypointType = 'retrieveTarget' | 'deliverTarget';
 type Locked = { [waypointType in UGVWaypointType]: boolean } & {
   retrieveTarget: boolean;
   deliverTarget: boolean;
-}
+};
 
 const lockedCache: Locked = {
   retrieveTarget: true,

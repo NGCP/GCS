@@ -1,98 +1,19 @@
-# Use typescript-eslint to lint our TypeScript code
-parser: "@typescript-eslint/parser"
-
 # Use Airbnb rules to check code
 extends:
-  - airbnb
-  - plugin:@typescript-eslint/recommended
+  - airbnb-typescript
+
+parserOptions:
+  project: './tsconfig.json'
 
 plugins:
-  - import
   - chai-friendly
 
-env:
-  browser: true
-  node: true
-
 settings:
-  # TypeScript compatibility
-  import/parsers:
-    "@typescript-eslint/parser":
-      - .ts
-      - .tsx
-
-  # TypeScript compatibility
-  import/resolver:
-    typescript: {}
-
   # Modules that should be a devDependency and will be used in the application
   import/core-modules:
     - electron
 
-# Additional rules
 rules:
-  # Turn off linting about having wrong line ending, handled in .gitattributes
-  linebreak-style: off
-
-  # Have chai friendly no-unused-expressions rules, otherwise code can look nasty
-  no-unused-expressions: off
+  # Allow chai test assertions to occur without eslint throwing errors
+  "@typescript-eslint/no-unused-expressions": off
   chai-friendly/no-unused-expressions: error
-
-  # Add strictness to type declarations in TypeScript
-  "@typescript-eslint/explicit-function-return-type": error
-  "@typescript-eslint/no-explicit-any": error
-
-  # Enforce commenting styles
-  multiline-comment-style: error
-
-  # Modifying react/jsx-filename-extension to support TypeScript React files
-  "react/jsx-filename-extension":
-    - error
-    - extensions:
-      - .jsx
-      - .tsx
-
-  # Move no-useless-constructor to @typescript-eslint/no-useless-constructor
-  no-useless-constructor: off
-  "@typescript-eslint/no-useless-constructor": error
-
-  # @typescript-eslint/no-use-before-define is already defined
-  no-use-before-define: off
-
-  # Prevent usage of file extension in import statements (except .json and binary files)
-  import/extensions:
-    - error
-    - never
-    - json: always
-
-  # Re-adding changed Airbnb rules (removed most likely from @typescript-eslint/recommended)
-  "@typescript-eslint/camelcase":
-    - error
-    - properties: never
-
-  "@typescript-eslint/indent":
-    - error
-    - 2
-    - SwitchCase: 1
-      VariableDeclarator: 1
-      outerIIFEBody: 1
-      FunctionDeclaration:
-        parameters: 1
-        body: 1
-      FunctionExpression:
-        parameters: 1
-        body: 1
-      CallExpression:
-        arguments: 1
-      ArrayExpression: 1
-      ObjectExpression: 1
-      ImportDeclaration: 1
-      flatTernaryExpressions: false
-      ignoreComments: false
-
-
-  "@typescript-eslint/no-unused-vars":
-    - error
-    - vars: all
-      args: after-used
-      ignoreRestSiblings: true

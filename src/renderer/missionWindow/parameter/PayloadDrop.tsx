@@ -55,7 +55,7 @@ type Locked = { [type in PayloadType]: boolean} & {
   payloadDrop2: boolean;
   payloadDropLand1: boolean;
   payloadDropLand2: boolean;
-}
+};
 
 const lockedCache: Locked = {
   payloadDropTakoff: true,
