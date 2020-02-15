@@ -1,9 +1,8 @@
 # Prevent newline problems between different systems
 
 * text=auto
-*.sln text eol=lf
-*.c text
-*.h text
+*.txt text eol=lf
+*.rst text
 
 *.png binary
 *.jpg binary
