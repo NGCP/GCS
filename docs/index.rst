@@ -11,8 +11,8 @@
   :maxdepth: 2
 
   communications/introduction
-  communications/implementation
   communications/messages
   communications/jobs
   communications/vehicles
+  communications/implementation
   communications/examples

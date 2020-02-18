@@ -63,62 +63,6 @@ Maintaining Connection
 
 Vehicles must maintain their communication with the GCS (as well as other vehicles) by sending `update messages`_ and letting them know of their status.
 
-----------------------------------------------------------------------------------------------------
-
-Requirements
-============
-
-All messages sent should be in valid JSON and should include all of the following fields:
-
-.. note:: JSON does not support comments. These code blocks are written with JavaScript coloring to make reading easier. Understand that the label ``<string>`` stands for an actual string (e.g. "Hello world!").
-
-.. code-block:: js
-
-  {
-    "type": <string>,                  // Identifies the type of message being sent
-    "id": <unsigned 32-bit integer>    // Uniquely identifies the message from all other messages received from a vehicle
-    "sid": <unsigned 32-bit integer>   // Identifies the vehicle the message comes from (source vehicle)
-    "tid": <unsigned 32-bit integer>   // Identifies the vehicle the message is going to (target vehicle)
-    "time": <unsigned 64-bit integer>  // The number of seconds since January 1, 1970 0:00:00 UTC
-  }
-
-
-Implementing these fields
--------------------------
-
-.. confval:: type
-
-  :type: string
-
-  This is predefined for every message that is defined in the JSON protocol. This field defines what kind of message is being sent or received. For example, a start message's ``type`` field would be "start" and a stop message's ``type`` field would be "stop".
-
-.. confval:: id
-
-  :type: unsigned 32-bit integer
-
-  This should be changed every time a different message is sent. A way to implement this is to start sending messages with ``id`` equal to 0, and incrementing it by 1 for every different message sent.
-
-  Here's the catch: the same message (with the same ``id`` and fields) should be sent until it is acknowledged. This message's ``id`` field should not be changing every time it is sent.
-
-  See `this <implementation.html#creating-messages-with-proper-id-field>`__ for more information on how to implement this field.
-
-.. confval:: sid/tid
-
-  :type: unsigned 32-bit integer
-
-  These fields are predefined for every platform. See the `list of vehicle IDs`_ for the values used for these fields.
-
-.. confval:: time
-
-  :type: unsigned 64-bit integer
-
-  Used for security. This field allows vehicles to discard old messages. For this to work, all vehicles must run on the same time, in the case of this protocol, in GCS's time.
-
-  For all vehicles to properly set the ``time`` field to GCS's time, they must first connect to GCS. GCS will give the vehicle its local time, and the vehicle will create an offset between its own time and GCS's time. The ``time`` field will be the vehicle's time plus the offset, which is the same as GCS's time. In reality, the offset should be very small, if GCS and the vehicle get their time from the same source.
-
-  See `this <implementation.html#setting-time>`__ for more information on implementing this field.
-
 .. _acknowledgement messages: messages/other-messages.html#acknowledgement-message
 .. _bad messages: messages/other-messages.html#bad-message
-.. _list of vehicle IDs: vehicles.html
 .. _update messages: messages/vehicles-gcs-messages.html#update-message
