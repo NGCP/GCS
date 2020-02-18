@@ -2,10 +2,6 @@
 Messages from Vehicles to GCS
 =============================
 
-These are the specific messages that are sent from vehicles to GCS. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields). See `here <introduction.html#requirements>`__ for more information of the general message requirements.
-
-----------------------------------------------------------------------------------------------------
-
 Connect message
 ===============
 

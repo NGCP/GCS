@@ -9,7 +9,6 @@ The following are examples of how the flow of messages will be for each mission.
 
   In real missions, the ``id`` from the GCS when the vehicle connects can be higher if the GCS has performed missions with previous vehicles.
 
-
 .. note::
   All ``id`` fields will be filled in with an incrementing number. Every platform can implement this field differently; the only requirement is that the ``id`` field increases in value for every unique message sent. See `here <implementation.html#message-management>`__ for more information on how to generate these.
 

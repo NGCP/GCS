@@ -2,10 +2,6 @@
 Other messages
 ==============
 
-These types can be sent by any vehicle as well as the GCS.
-
-----------------------------------------------------------------------------------------------------
-
 Acknowledgement message
 =======================
 
