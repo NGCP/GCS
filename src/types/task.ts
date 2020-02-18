@@ -150,19 +150,19 @@ function isLandTask(task: Task): boolean {
 /**
  * Do not import this outside of types/missionInformation.
  */
-export interface UGVRetrieveTargetTaskParameters {
+export interface SUGVRetrieveTargetTaskParameters {
   lat: number;
   lng: number;
 }
 
-export interface UGVRetrieveTargetTask extends TaskBase, UGVRetrieveTargetTaskParameters {
+export interface SUGVRetrieveTargetTask extends TaskBase, SUGVRetrieveTargetTaskParameters {
   taskType: 'retrieveTarget';
 }
 
 /**
  * Type guard for UGV's RetriveTarget task.
  */
-function isUGVRetrieveTargetTask(task: Task): boolean {
+function isSUGVRetrieveTargetTask(task: Task): boolean {
   if (task.taskType !== 'retrieveTarget') return false;
   return Object.keys(task).length === 3; // Keys are taskType, lat, lng.
 }
@@ -186,14 +186,14 @@ function isDeliverTargetTask(task: Task): boolean {
   return task.taskType === 'deliverTarget';
 }
 
-export interface UUVRetrieveTargetTask extends TaskBase {
+export interface BUGVRetrieveTargetTask extends TaskBase {
   taskType: 'retrieveTarget';
 }
 
 /**
- * Type guard for UUV's RetrieveTarget task.
+ * Type guard for BUGV's RetrieveTarget task.
  */
-function isUUVRetrieveTargetTask(task: Task): boolean {
+function isBUGVRetrieveTargetTask(task: Task): boolean {
   if (task.taskType !== 'retrieveTarget') return false;
   return Object.keys(task).length === 1; // Only key is taskType.
 }
@@ -258,7 +258,7 @@ function isDetailedSearchTask(task: Task): boolean {
  * checking through the type guards.
  */
 export type Task = TakeoffTask | LoiterTask | ISRSearchTask | PayloadDropTask | LandTask
-| UGVRetrieveTargetTask | DeliverTargetTask | UUVRetrieveTargetTask | QuickScanTask
+| SUGVRetrieveTargetTask | DeliverTargetTask | BUGVRetrieveTargetTask | QuickScanTask
 | DetailedSearchTask;
 
 /**
@@ -266,8 +266,8 @@ export type Task = TakeoffTask | LoiterTask | ISRSearchTask | PayloadDropTask | 
  * pass in tasks.
  */
 export type TaskParameters = TakeoffTaskParameters | LoiterTaskParameters | ISRSearchTaskParameters
-| PayloadDropTaskParameters | LandTaskParameters | UGVRetrieveTargetTaskParameters
-| DeliverTargetTaskParameters | UUVRetrieveTargetTask | QuickScanTaskParameters
+| PayloadDropTaskParameters | LandTaskParameters | SUGVRetrieveTargetTaskParameters
+| DeliverTargetTaskParameters | BUGVRetrieveTargetTask | QuickScanTaskParameters
 | DetailedSearchParameters;
 
 /**
@@ -284,9 +284,9 @@ function isTask(object: { [key: string]: any }): boolean {
    || isISRSearchTask(task)
    || isPayloadDropTask(task)
    || isLandTask(task)
-   || isUGVRetrieveTargetTask(task)
+   || isSUGVRetrieveTargetTask(task)
    || isDeliverTargetTask(task)
-   || isUUVRetrieveTargetTask(task)
+   || isBUGVRetrieveTargetTask(task)
    || isQuickScanTask(task)
    || isDetailedSearchTask(task);
 }
@@ -300,9 +300,9 @@ export const TypeGuard = {
   isISRSearchTask,
   isPayloadDropTask,
   isLandTask,
-  isUGVRetrieveTargetTask,
+  isSUGVRetrieveTargetTask,
   isDeliverTargetTask,
-  isUUVRetrieveTargetTask,
+  isBUGVRetrieveTargetTask,
   isQuickScanTask,
   isDetailedSearchTask,
   isTask,
