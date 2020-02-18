@@ -30,7 +30,7 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
 }
 html_show_sourcelink = False
-html_favicon = '../resources/images/icon.png'
+html_favicon = '../src/static/images/icon.png'
 
 htmlhelp_basename = slug
 

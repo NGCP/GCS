@@ -4,20 +4,20 @@ Implementation
 
 This page is to show how many things in this protocol can be implemented.
 
-------------
+----------------------------------------------------------------------------------------------------
 
 Setting time
 ============
 
 All vehicles are required to include a ``time`` field on every message that they send. This time field should be configured to use GCS's time.
 
-To set this up, the vehicle must connect to the GCS. The time field in the `connect message <messages/vehicles-gcs-messages.html#connect-message>`_ that the vehicle sends the GCS will not matter, but it is still required to be included. The GCS will send back a `connection acknowledgment message <messages/gcs-vehicles-messages.html#connection-acknowledgement-message>`_, which includes the proper GCS time. The vehicle should calculate the offset between its own local time and GCS's time (through a simple subtraction of ``offset = gcsTime - myTime``).
+To set this up, the vehicle must connect to the GCS. The time field in the `connect message`_ that the vehicle sends the GCS will not matter, but it is still required to be included. The GCS will send back a `connection acknowledgment message`_, which includes the proper GCS time. The vehicle should calculate the offset between its own local time and GCS's time (through a simple subtraction of ``offset = gcsTime - myTime``).
 
 When sending messages after this, the vehicle should use the offset as well as its own local time to fill the ``time`` field in every message to GCS's time (``gcsTime = myTime + offset``).
 
-Use the `current millis <https://currentmillis.com/>`_ website to find the function in your vehicle program's language to get vehicle's local time.
+Use the `current millis website <https://currentmillis.com/>`__ to find the function in your vehicle program's language to get vehicle's local time.
 
-------------------
+----------------------------------------------------------------------------------------------------
 
 Message management
 ==================
@@ -121,3 +121,6 @@ With this option, a dictionary is not needed, as messages that are acknowledged 
       listener.emit('acknowledge', message.ackid);
     }
   }
+
+.. _connect message: messages/vehicles-gcs-messages.html#connect-message
+.. _connection acknowledgment message: messages/gcs-vehicles-messages.html#connection-acknowledgement-message

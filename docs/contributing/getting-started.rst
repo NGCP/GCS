@@ -2,25 +2,22 @@
 Getting Started
 ===============
 
-.. TODO: Write documentation of how to comment.
-.. TODO: Write documentation of how to import packages.
-
 For all forms of contribution, please read the information below.
 
---------------------------
+----------------------------------------------------------------------------------------------------
 
 Required framework/plugins
 ==========================
 
-Install Node.js_. This is required to compile and run the code you are writing.
+Install the LTS version of Node.js_. This is required to compile and run the code you are writing. Python2_ is also required to compile and run the code (a plugin we use uses it).
 
-Install Python_. This is required to build documentation such as this.
+Install the latest version of Python_. This is required to build documentation such as this.
 
 Install `Atom`_. Edit files using this text editor.
 
 Install `Git`_. This is for version control for GCS.
 
---------------------------------------
+----------------------------------------------------------------------------------------------------
 
 Required Git line-ending configuration
 ======================================
@@ -34,51 +31,43 @@ Run the following commands in your console to set the proper line-ending configu
   git config --global core.autocrlf false
   git config --global core.eol lf
 
------------------------------
+----------------------------------------------------------------------------------------------------
 
-Requirements for writing code
-=============================
+Requirements for writing code and documentation
+===============================================
 
-We use a few Node.js modules that need to be installed in your system. `npm-check-updates`_ lets us keep our project dependencies up to date.
+Atom packages
+-------------
 
-Run the following script to install the modules.
-
-.. code-block:: sh
-
-  npm install -g npm-check-updates
-
-Aftwards, install the following packages into Atom. These packages will ensure that your code is consistent with other developers.
+Install the following packages into your Atom text editor. These packages will ensure that your code is consistent with other developers.
 
 - atom-typescript
 - busy-signal
+- highlight-selected
 - hyperclick
 - intentions
 - linter
+- language-env
+- language-gitattributes
+- language-ignore
+- language-sphinx
 - linter-eslint
 - linter-js-yaml
 - linter-jsonlint
 - linter-stylelint
 - linter-ui-default
+- minimap
 - react
 - todo
 
-You can install the following packages too. These packages are completely optional, but they improve the quality of life while coding greatly.
+You can install the following package too. These packages are completely optional.
 
-- language-env
-- language-gitattributes
-- language-ignore
-- highlight-selected
-- minimap
 - teletype
 
-------------------------------
+Sphinx documentation packages
+-----------------------------
 
-Requirements for building docs
-==============================
-
-We use a few Python packages to build our documentation. Sphinx_ allows us to create our documentation, and `Sphinx Autobuild`_ allows us to see our documentation as we build it.
-
-Our documentation uses the `Read the Docs Sphinx Theme`_ so this must be installed too.
+We use a few Python packages to build our documentation. Sphinx_ allows us to create our documentation, and `Sphinx Autobuild`_ allows us to see our documentation as we build it. Our documentation uses the `Read the Docs Sphinx Theme`_ so this must be installed too.
 
 To install the packages, run the following script on your command line:
 
@@ -86,21 +75,11 @@ To install the packages, run the following script on your command line:
 
   pip install sphinx sphinx-autobuild sphinx_rtd_theme
 
-These Python packages are all you need to build the documentation. The following packages are what you need to install on Atom.
-
-- language-restructuredtext
-
-The following package is optional, but it will make your quality of life better when building documentation with others in real time.
-
-- highlight-selected
-- minimap
-- teletype
-
 .. _Node.js: https://nodejs.org/en/
 .. _Atom: https://atom.io/
 .. _Python: https://www.python.org/downloads/
+.. _Python2: https://www.python.org/downloads/release/python-278/
 .. _Git: https://git-scm.com/
-.. _npm-check-updates: https://github.com/tjunnone/npm-check-updates
 .. _Sphinx: http://www.sphinx-doc.org/en/master/
 .. _Sphinx Autobuild: https://github.com/GaretJax/sphinx-autobuild
 .. _Read the Docs Sphinx Theme: https://sphinx-rtd-theme.readthedocs.io/en/latest/index.html

@@ -2,8 +2,7 @@
 ISR Search
 ==========
 
-.. note::
-  If you have not read the information provided for all of these examples, `please do so <../examples.html>`_ before proceeding on reading this example.
+.. note:: If you have not read the information provided for all of these examples, `please do so <../examples.html>`__ before proceeding on reading this example.
 
 .. list-table::
   :header-rows: 1
@@ -44,7 +43,7 @@ ISR Search
         }
 
       | UAV will send all future messages in GCS's
-      | time by `getting the offset <../implementation.html#setting-time>`_ between
+      | time by `getting the offset <../implementation.html#setting-time>`__ between
       | its own time and the provided time.
     -
 

@@ -4,7 +4,7 @@ Other messages
 
 These types can be sent by any vehicle as well as the GCS.
 
------------------------
+----------------------------------------------------------------------------------------------------
 
 Acknowledgement message
 =======================
@@ -25,8 +25,7 @@ A way to think about this is to remember that it is recommended to increment the
     "sid": <unsigned 32-bit integer>,
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
-
-    "ackid": <unsigned 32-bit integer>  // ID of message being acknowledged
+    "ackid": <unsigned 32-bit integer>
   }
 
 .. note:: Should **not** be acknowledged.
@@ -37,7 +36,7 @@ A way to think about this is to remember that it is recommended to increment the
 
   The ID of the message the vehicle is acknowledging. When the other vehicle receives the acknowledgement, it knows which message to stop sending to this vehicle.
 
------------
+----------------------------------------------------------------------------------------------------
 
 Bad message
 ===========
@@ -52,13 +51,12 @@ Sent back to the other vehicle to show that a received message is invalid. This 
     "sid": <unsigned 32-bit integer>,
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
-
-    "error": <string>                   // Description of error
+    "error": <string>
   }
 
 .. note:: Should **not** be acknowledged.
 
-.. confval:: error | Optional
+.. confval:: error : Optional
 
   :type: string
 

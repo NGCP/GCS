@@ -5,8 +5,6 @@
   :maxdepth: 2
 
   contributing/getting-started
-  contributing/rules
-  contributing/ncu
 
 .. toctree::
   :caption: Communications

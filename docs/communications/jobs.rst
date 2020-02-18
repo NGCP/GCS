@@ -13,17 +13,16 @@ For example, an important part of the project is the ISR Search mission. To perf
 
 .. note:: More information of which tasks are related to which job are explained further below.
 
-The GCS will assign the vehicles the ``isrSearch`` job by sending them a `start message <messages/gcs-vehicles-messages.html#start-message>`_. By doing this, the vehicles know that they will be performing tasks very soon. The start message has a ``jobType`` field, which will be set to ``isrSearch``, so that the vehicles know which tasks to expect next from the GCS.
+The GCS will assign the vehicles the ``isrSearch`` job by sending them a `start message`_. By doing this, the vehicles know that they will be performing tasks very soon. The start message has a ``jobType`` field, which will be set to ``isrSearch``, so that the vehicles know which tasks to expect next from the GCS.
 
 To accomplish the ISR Search mission, GCS will assign a task for the vehicle to perform (for example, ``takeoff`` task), and assigns the next after the vehicle completes the first. This goes on until the ISR Search mission is completed.
 
-------------
+----------------------------------------------------------------------------------------------------
 
 List of jobs
 ============
 
-.. note::
-  The vehicle must specify its jobs on the `connect message <messages/vehicles-gcs-messages.html#connect-message>`_, and the GCS must specify the job it is assigning to the vehicle on the `start message <messages/gcs-vehicles-messages.html#start-message>`_.
+.. note:: The vehicle must specify its jobs on the `connect message`_, and the GCS must specify the job it is assigning to the vehicle on the `start message`_.
 
 ISR Search
 ----------
@@ -40,7 +39,7 @@ ISR Search
         "jobType": "isrSearch"
       }
 
-------------
+----------------------------------------------------------------------------------------------------
 
 Payload Drop
 ----------
@@ -57,7 +56,7 @@ Payload Drop
         "jobType": "payloadDrop"
       }
 
-----------
+----------------------------------------------------------------------------------------------------
 
 UGV Rescue
 ----------
@@ -74,7 +73,7 @@ UGV Rescue
         "jobType": "ugvRescue"
       }
 
-----------
+----------------------------------------------------------------------------------------------------
 
 UUV Rescue
 ----------
@@ -91,7 +90,7 @@ UUV Rescue
         "jobType": "uuvRescue"
       }
 
-----------
+----------------------------------------------------------------------------------------------------
 
 Quick Scan
 ----------
@@ -108,7 +107,7 @@ Quick Scan
         "jobType": "quickScan"
       }
 
----------------
+----------------------------------------------------------------------------------------------------
 
 Detailed Search
 ---------------
@@ -125,7 +124,7 @@ Detailed Search
         "jobType": "detailedSearch"
       }
 
--------------
+----------------------------------------------------------------------------------------------------
 
 List of tasks
 =============
@@ -146,11 +145,10 @@ Takeoff
     "missionInfo":
     {
       "taskType": "takeoff",
-
       "lat": <float>,           // Takeoff waypoint latitude
-      "lng": <float>,           // takeoff waypoint longitude
+      "lng": <float>,           // Takeoff waypoint longitude
       "alt": <float>,           // Takeoff waypoint altitude
-      "loiter":                      // Loiter waypoint information, used for UAV's idle state
+      "loiter":                 // Loiter waypoint information, used for UAV's idle state
       {
         "lat": <float>,
         "lng": <float>,
@@ -161,7 +159,7 @@ Takeoff
     }
   }
 
-------
+----------------------------------------------------------------------------------------------------
 
 Loiter
 ------
@@ -179,7 +177,6 @@ Used to update the loiter position of an airborne vehicle.
     "missionInfo":
     {
       "taskType": "loiter",
-
       "lat": <float>,
       "lng": <float>,
       "alt": <float>,
@@ -188,7 +185,7 @@ Used to update the loiter position of an airborne vehicle.
     }
   }
 
-----------
+----------------------------------------------------------------------------------------------------
 
 ISR Search
 ----------
@@ -204,9 +201,8 @@ ISR Search
     "missionInfo":
     {
       "taskType": "isrSearch",
-
-      "alt": <float>,       // Altitude
-      "waypoints":               // Array of three waypoints
+      "alt": <float>,
+      "waypoints":
       [
         {
           "lat": <float>,
@@ -224,7 +220,7 @@ ISR Search
     }
   }
 
-------------
+----------------------------------------------------------------------------------------------------
 
 Payload Drop
 ------------
@@ -240,8 +236,7 @@ Payload Drop
     "missionInfo":
     {
       "taskType": "payloadDrop",
-
-      "waypoints":               // Array of two waypoints
+      "waypoints":
       [
         {
           "lat": <float>,
@@ -257,7 +252,7 @@ Payload Drop
     }
   }
 
-----
+----------------------------------------------------------------------------------------------------
 
 Land
 ----
@@ -273,8 +268,7 @@ Land
     "missionInfo":
     {
       "taskType": "land",
-
-      "waypoints":              // Array of two waypoints
+      "waypoints":
       [
         {
           "lat": <float>,
@@ -290,7 +284,7 @@ Land
     }
   }
 
--------------------
+----------------------------------------------------------------------------------------------------
 
 UGV Retrieve Target
 -------------------
@@ -312,7 +306,7 @@ UGV Retrieve Target
     }
   }
 
---------------
+----------------------------------------------------------------------------------------------------
 
 Deliver Target
 --------------
@@ -334,7 +328,7 @@ Deliver Target
     }
   }
 
--------------------
+----------------------------------------------------------------------------------------------------
 
 UUV Retrieve Target
 -------------------
@@ -353,7 +347,7 @@ UUV Retrieve Target
     }
   }
 
-----------
+----------------------------------------------------------------------------------------------------
 
 Quick Scan
 ----------
@@ -369,8 +363,7 @@ Quick Scan
     "missionInfo":
     {
       "taskType": "quickScan",
-
-      "waypoints":              // Array of four waypoints to determine search area
+      "waypoints":
       [
         {
           "lat": <float>,   // Top left corner of search area
@@ -392,7 +385,7 @@ Quick Scan
     }
   }
 
----------------
+----------------------------------------------------------------------------------------------------
 
 Detailed Search
 ---------------
@@ -408,8 +401,10 @@ Detailed Search
     "missionInfo":
     {
       "taskType": "detailedSearch",
-
       "lat": <float>,
       "lng": <float>
     }
   }
+
+.. _connect message: messages/vehicles-gcs-messages.html#connect-message
+.. _start message: messages/gcs-vehicles-messages.html#start-message

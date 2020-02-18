@@ -2,16 +2,16 @@
 Messages from Vehicles to GCS
 =============================
 
-These are the specific messages that are sent from vehicles to GCS. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields). See `here <introduction.html#requirements>`_ for more information of the general message requirements.
+These are the specific messages that are sent from vehicles to GCS. All rules to normal messages apply to these (also requires ``type``, ``id``, ``sid``, ``tid``, ``time`` fields). See `here <introduction.html#requirements>`__ for more information of the general message requirements.
 
----------------
+----------------------------------------------------------------------------------------------------
 
 Connect message
 ===============
 
 Sent to the GCS to request connection to it. The vehicle will not have information of what GCS's time is yet, so any number is sufficient. The GCS will disregard this time.
 
-See the implementation for the ``time`` field for messages, which directly relates to this message `here <implementation.html#setting-time>`_.
+See the implementation for the ``time`` field for messages, which directly relates to this message `here <implementation.html#setting-time>`__.
 
 .. code-block:: js
 
@@ -22,24 +22,23 @@ See the implementation for the ``time`` field for messages, which directly relat
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
 
-    "jobsAvailable":                    // String array of jobs.
+    "jobsAvailable":
     [
-      <string>,
       <string>,
       ...
     ]
   }
 
 .. note::
-  Requires a `connection acknowledgement message <gcs-vehicles-messages.html#connection-acknowledgement-message>`_ from the GCS.
+  Requires a `connection acknowledgment message`_ from the GCS.
 
 .. confval:: jobsAvailable
 
   :type: string[]
 
-  List of jobs that the vehicle is. These jobs describe the tasks the vehicle is capable of performing. See the `list of jobs and tasks <jobs.html>`_ to see which jobs are valid.
+  List of jobs that the vehicle is. These jobs describe the tasks the vehicle is capable of performing. See the `list of jobs and tasks`_ to see which jobs are valid.
 
---------------
+----------------------------------------------------------------------------------------------------
 
 Update message
 ==============
@@ -54,15 +53,13 @@ Sent to the GCS to let it know of the vehicle's status. This should always be se
     "sid": <unsigned 32-bit integer>,
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
-
     "lat": <float>,
     "lng": <float>,
-    "alt": <float>,                     // Optional
-    "heading": <float>,                 // Optional
-    "battery": <float>,                 // Optional, must be a value from 0 < x <= 1
-
-    "status": <string>,                      // Vehicle status
-    "errorMessage": <string>                 // Optional, see notes below for more info
+    "alt": <float>,
+    "heading": <float>,
+    "battery": <float>,
+    "status": <string>,
+    "errorMessage": <string>
   }
 
 .. note::
@@ -91,7 +88,7 @@ Sent to the GCS to let it know of the vehicle's status. This should always be se
 
   :type: float
 
-  Heading of vehicle.
+  Heading of vehicle, in radians.
 
 .. confval:: battery : Optional
 
@@ -119,7 +116,7 @@ Sent to the GCS to let it know of the vehicle's status. This should always be se
 
   Description of why the vehicle is in error state. Should only be sent when the vehicle is in error state.
 
--------------------------------
+----------------------------------------------------------------------------------------------------
 
 Point of Interest message
 ===============================
@@ -134,9 +131,8 @@ Sent to the GCS to let it know of a point of interest found in a mission. Not al
     "sid": <unsigned 32-bit integer>,
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
-
-    "lat": <float>,                   // Latitude of point of interest
-    "lng": <float>,                   // Longitude of point of interest
+    "lat": <float>,
+    "lng": <float>
   }
 
 .. note::
@@ -154,7 +150,7 @@ Sent to the GCS to let it know of a point of interest found in a mission. Not al
 
   Longitude of point of interest.
 
-----------------
+----------------------------------------------------------------------------------------------------
 
 Complete message
 ================
@@ -168,10 +164,12 @@ Sent to the GCS to let it know that it has completed the assigned task.
     "id": <unsigned 32-bit integer>,
     "sid": <unsigned 32-bit integer>,
     "tid": <unsigned 32-bit integer>,
-    "time": <unsigned 64-bit integer>,
+    "time": <unsigned 64-bit integer>
   }
 
 .. note::
   Requires an `acknowledgement message`_ from the GCS.
 
-.. _`acknowledgement message`: other-messages.html#acknowledgement-message
+.. _acknowledgement message: other-messages.html#acknowledgement-message
+.. _connection acknowledgment message: gcs-vehicles-messages.html#connection-acknowledgement-message
+.. _list of jobs and tasks: jobs.html
