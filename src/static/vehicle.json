@@ -2,11 +2,9 @@
   "vehicleIds": {
     "UAV": 100,
     "UGV": 200,
-    "UUV": 300,
-    "VTOL 1": 400,
-    "VTOL 2": 401,
-    "ROV": 500,
-    "Blimp": 600
+    "BUGV": 300,
+    "VTOL": 400,
+    "BWB": 500
   },
   "vehicleInfos": {
     "0": {
@@ -16,50 +14,34 @@
     },
     "100": {
       "macAddress": "0013A2004194783A",
-      "name": "Skywalker",
-      "type": "plane"
-    },
-    "101": {
-      "macAddress": "0013A200419477B6",
-      "name": "Piper Cub",
+      "name": "UAV",
       "type": "plane"
     },
     "200": {
       "macAddress": "0013A200418EA9DE",
-      "name": "UGV",
+      "name": "SUGV",
       "type": "rover"
     },
     "300": {
       "macAddress": "",
-      "name": "UUV",
+      "name": "BUGV",
       "type": "rover"
     },
     "400": {
       "macAddress": "",
-      "name": "VTOL 1",
-      "type": "plane"
-    },
-    "401": {
-      "macAddress": "",
-      "name": "VTOL 2",
+      "name": "VTOL",
       "type": "plane"
     },
     "500": {
       "macAddress": "",
-      "name": "ROV",
+      "name": "BWB",
       "type": "plane"
     },
-    "600": {
-      "macAddress": "",
-      "name": "Blimp",
-      "type": "plane"
-    }
-  },
   "vehicleJobs": {
     "isrSearch": ["takeoff", "loiter", "isrSearch", "land"],
     "payloadDrop": ["takeoff", "loiter", "payloadDrop", "land"],
-    "ugvRescue": ["retrieveTarget", "deliverTarget"],
-    "uuvRescue": ["retrieveTarget"],
+    "sugvRescue": ["retrieveTarget", "deliverTarget"],
+    "bugvRescue": ["retrieveTarget"],
     "quickScan": ["quickScan"],
     "detailedSearch": ["detailedSearch"],
     "guide": []
@@ -90,4 +72,5 @@
       "message": "Disconnected"
     }
   }
+}
 }
