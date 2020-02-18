@@ -2,7 +2,7 @@
 NGCP Ground Control Station
 ===========================
 
-.. image:: https://travis-ci.com/NGCP/GCS.svg
+.. image:: https://travis-ci.com/NGCP/GCS.svg?branch=master
   :target: https://travis-ci.com/NGCP/GCS
   :alt: Build Status
 
