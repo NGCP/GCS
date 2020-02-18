@@ -3,7 +3,7 @@
  * https://ground-control-station.readthedocs.io/en/latest/communications/messages.html
  *
  * Includes definitions for tasks too, as those are part of a message.
- * https://ground-control-station.readthedocs.io/en/latest/communications/jobs.html
+ * https://ground-control-station.readthedocs.io/en/latest/communications/jobs-tasks.html#list-of-jobs
  */
 
 import { JobType, vehicleConfig } from '../static/index';

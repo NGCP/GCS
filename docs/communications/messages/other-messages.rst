@@ -24,13 +24,10 @@ A way to think about this is to remember that it is recommended to increment the
     "ackid": <unsigned 32-bit integer>
   }
 
+**ackid : unsigned 32-bit integer**
+  ID of the message the vehicle is acknowledging. When the other vehicle receives the acknowledgement, it knows which message to stop sending to this vehicle.
+
 .. note:: Should **not** be acknowledged.
-
-.. confval:: ackid
-
-  :type: unsigned 32-bit integer
-
-  The ID of the message the vehicle is acknowledging. When the other vehicle receives the acknowledgement, it knows which message to stop sending to this vehicle.
 
 ----------------------------------------------------------------------------------------------------
 
@@ -47,13 +44,10 @@ Sent back to the other vehicle to show that a received message is invalid. This 
     "sid": <unsigned 32-bit integer>,
     "tid": <unsigned 32-bit integer>,
     "time": <unsigned 64-bit integer>,
-    "error": <string>
+    "error": <optional string>
   }
 
-.. note:: Should **not** be acknowledged.
-
-.. confval:: error : Optional
-
-  :type: string
-
+**error : optional string**
   Highly recommended to include into the message, so that the sending vehicle can log the error.
+
+.. note:: Should **not** be acknowledged.

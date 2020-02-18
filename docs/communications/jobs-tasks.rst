@@ -1,8 +1,8 @@
-============
-Type of Jobs
-============
+==============
+Jobs and Tasks
+==============
 
-A job describes the tasks a vehicle is capable of performing.
+A vehicle's *job* (or profession) describes the type of *tasks* it can perform.
 
 For example, an important part of the project is the ISR Search mission. To perform this mission, the GCS look for vehicles that have an ``isrSearch`` job. By having the ``isrSearch`` job, the vehicle is stating that it is capable of performing all of the following tasks that are related to the job:
 
@@ -10,8 +10,6 @@ For example, an important part of the project is the ISR Search mission. To perf
 - ``loiter`` task
 - ``isrSearch`` task
 - ``land`` task
-
-.. note:: More information of which tasks are related to which job are explained further below.
 
 The GCS will assign the vehicles the ``isrSearch`` job by sending them a `start message`_. By doing this, the vehicles know that they will be performing tasks very soon. The start message has a ``jobType`` field, which will be set to ``isrSearch``, so that the vehicles know which tasks to expect next from the GCS.
 
@@ -22,124 +20,149 @@ To accomplish the ISR Search mission, GCS will assign a task for the vehicle to 
 List of jobs
 ============
 
-.. note:: The vehicle must specify its jobs on the `connect message`_, and the GCS must specify the job it is assigning to the vehicle on the `start message`_.
+.. note:: The vehicle must specify its jobs on the `connect message`_.
 
-ISR Search
-----------
+.. note:: The GCS must specify the job it is assigning the vehicle on the `start message`_. Examples of start messages are shown below for each job.
 
-.. confval:: Details
+ISR Search (job)
+----------------
 
-  :job type: ``isrSearch``
-  :tasks: Takeoff, Loiter, ISR Search, Land
-  :start message:
-    .. code-block:: json
+**Related tasks:**  Takeoff_, Loiter_, `ISR Search (task)`_, Land_
 
-      {
-        "type": "start",
-        "jobType": "isrSearch"
-      }
+.. code-block:: js
+
+  // Connect message (id, tid, sid, time fields omitted)
+  {
+    "type": "connect",
+    "jobsAvailable": ["isrSearch"]
+  }
+
+  // Start message (id, tid, sid, time fields omitted)
+  {
+    "type": "start",
+    "jobType": "isrSearch"
+  }
 
 ----------------------------------------------------------------------------------------------------
 
-Payload Drop
-----------
+Payload Drop (job)
+------------------
 
-.. confval:: Details
+**Related tasks:** Takeoff_, Loiter_, `Payload Drop (task)`_, Land_
 
-  :job type: ``payloadDrop``
-  :tasks: Takeoff, Loiter, Payload Drop, Land
-  :start message:
-    .. code-block:: json
+.. code-block:: js
 
-      {
-        "type": "start",
-        "jobType": "payloadDrop"
-      }
+  // Connect message (id, tid, sid, time fields omitted)
+  {
+    "type": "connect",
+    "jobsAvailable": ["payloadDrop"]
+  }
+
+  // Start message (id, tid, sid, time fields omitted)
+  {
+    "type": "start",
+    "jobType": "payloadDrop"
+  }
 
 ----------------------------------------------------------------------------------------------------
 
 UGV Rescue
 ----------
 
-.. confval:: Details
+**Related tasks:** `UGV Retrieve Target`_, `Deliver Target`_
 
-  :job type: ``ugvRescue``
-  :tasks: UGV Retrieve Target, Deliver Target
-  :start message:
-    .. code-block:: json
+.. code-block:: js
 
-      {
-        "type": "start",
-        "jobType": "ugvRescue"
-      }
+  // Connect message (id, tid, sid, time fields omitted)
+  {
+    "type": "connect",
+    "jobsAvailable": ["ugvRescue"]
+  }
+
+  // Start message (id, tid, sid, time fields omitted)
+  {
+    "type": "start",
+    "jobType": "ugvRescue"
+  }
 
 ----------------------------------------------------------------------------------------------------
 
 UUV Rescue
 ----------
 
-.. confval:: Details
+**Related tasks:** `UUV Retrieve Target`_
 
-  :job type: ``uuvRescue``
-  :tasks: UUV Retrieve Target
-  :start message:
-    .. code-block:: json
+.. code-block:: js
 
-      {
-        "type": "start",
-        "jobType": "uuvRescue"
-      }
+  // Connect message (id, tid, sid, time fields omitted)
+  {
+    "type": "connect",
+    "jobsAvailable": ["uuvRescue"]
+  }
 
-----------------------------------------------------------------------------------------------------
-
-Quick Scan
-----------
-
-.. confval:: Details
-
-  :job type: ``quickScan``
-  :tasks: Quick Scan
-  :start message:
-    .. code-block:: json
-
-      {
-        "type": "start",
-        "jobType": "quickScan"
-      }
+  // Start message (id, tid, sid, time fields omitted)
+  {
+    "type": "start",
+    "jobType": "uuvRescue"
+  }
 
 ----------------------------------------------------------------------------------------------------
 
-Detailed Search
----------------
+Quick Scan (job)
+----------------
 
-.. confval:: Details
+**Related tasks:** `Quick Scan (task)`_
 
-  :job type: ``detailedSearch``
-  :tasks: Detailed Search
-  :start message:
-    .. code-block:: json
+.. code-block:: js
 
-      {
-        "type": "start",
-        "jobType": "detailedSearch"
-      }
+  // Connect message (id, tid, sid, time fields omitted)
+  {
+    "type": "connect",
+    "jobsAvailable": ["quickScan"]
+  }
+
+  // Start message (id, tid, sid, time fields omitted)
+  {
+    "type": "start",
+    "jobType": "quickScan"
+  }
+
+----------------------------------------------------------------------------------------------------
+
+Detailed Search (job)
+---------------------
+
+**Related tasks:** `Detailed Search (task)`_
+
+.. code-block:: js
+
+  // Connect message (id, tid, sid, time fields omitted)
+  {
+    "type": "connect",
+    "jobsAvailable": ["detailedSearch"]
+  }
+
+  // Start message (id, tid, sid, time fields omitted)
+  {
+    "type": "start",
+    "jobType": "detailedSearch"
+  }
 
 ----------------------------------------------------------------------------------------------------
 
 List of tasks
 =============
 
-.. note:: The GCS must specify the type of task the vehicle is performing, as well as provide valid fields for the task.
+.. note:: The GCS must specify the type of task the vehicle is performing, as well as provide valid fields for the task on the `add mission message`_.
 
 Takeoff
 -------
 
-**Task type:** ``takeoff``
-
-**Add mission message:**
+**Related jobs**: `ISR Search (job)`_, `Payload Drop (job)`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -148,11 +171,11 @@ Takeoff
       "lat": <float>,           // Takeoff waypoint latitude
       "lng": <float>,           // Takeoff waypoint longitude
       "alt": <float>,           // Takeoff waypoint altitude
-      "loiter":                 // Loiter waypoint information, used for UAV's idle state
+      "loiter":
       {
-        "lat": <float>,
-        "lng": <float>,
-        "alt": <float>,
+        "lat": <float>,         // Loiter waypoint latitude
+        "lng": <float>,         // Loiter waypoint longitude
+        "alt": <float>,         // Loiter waypoint altitude
         "radius": <float>,      // Radius around loiter waypoint to fly around
         "direction": <float>    // Direction to loiter
       }
@@ -164,14 +187,11 @@ Takeoff
 Loiter
 ------
 
-Used to update the loiter position of an airborne vehicle.
-
-**Task type:** ``loiter``
-
-**Add mission message:**
+**Related jobs**: `ISR Search (job)`_, `Payload Drop (job)`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -180,22 +200,21 @@ Used to update the loiter position of an airborne vehicle.
       "lat": <float>,
       "lng": <float>,
       "alt": <float>,
-      "radius": <float>,      // Radius around loiter waypoint to fly around
-      "direction": <float>    // Direction to loiter
+      "radius": <float>,        // Radius around loiter waypoint to fly around
+      "direction": <float>      // Direction to loiter
     }
   }
 
 ----------------------------------------------------------------------------------------------------
 
-ISR Search
-----------
+ISR Search (task)
+-----------------
 
-**Task type:** ``isrSearch``
-
-**Add mission message:**
+**Related jobs**: `ISR Search (job)`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -222,15 +241,14 @@ ISR Search
 
 ----------------------------------------------------------------------------------------------------
 
-Payload Drop
-------------
+Payload Drop (task)
+-------------------
 
-**Task type:** ``payloadDrop``
-
-**Add mission message:**
+**Related jobs**: `Payload Drop (job)`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -257,12 +275,11 @@ Payload Drop
 Land
 ----
 
-**Task type:** ``land``
-
-**Add mission message:**
+**Related jobs**: `ISR Search (job)`_, `Payload Drop (job)`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -289,12 +306,11 @@ Land
 UGV Retrieve Target
 -------------------
 
-**Task type:** ``retrieveTarget``
-
-**Add mission message:**
+**Related jobs**: `UGV Rescue`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -311,12 +327,11 @@ UGV Retrieve Target
 Deliver Target
 --------------
 
-**Task type:** ``deliverTarget``
-
-**Add mission message:**
+**Related jobs**: `UGV Rescue`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -333,12 +348,11 @@ Deliver Target
 UUV Retrieve Target
 -------------------
 
-**Task type:** ``retrieveTarget``
-
-**Add mission message:**
+**Related jobs**: `UUV Rescue`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -349,15 +363,14 @@ UUV Retrieve Target
 
 ----------------------------------------------------------------------------------------------------
 
-Quick Scan
-----------
+Quick Scan (task)
+-----------------
 
-**Task type:** ``quickScan``
-
-**Add mission message:**
+**Related jobs**: `Quick Scan (job)`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
@@ -366,20 +379,20 @@ Quick Scan
       "waypoints":
       [
         {
-          "lat": <float>,   // Top left corner of search area
-          "lng": <float>
+          "lat": <float>,       // Top left latitude of search area
+          "lng": <float>        // Top left longitude of search area
         },
         {
-          "lat": <float>,   // Top right corner of search area
-          "lng": <float>
+          "lat": <float>,       // Top right latitude of search area
+          "lng": <float>        // Top right longitude of search area
         },
         {
-          "lat": <float>,   // Bottom left corner of search area
-          "lng": <float>
+          "lat": <float>,       // Bottom left latitude of search area
+          "lng": <float>        // Bottom left longitude of search area
         },
         {
-          "lat": <float>,   // Bottom right corner of search area
-          "lng": <float>
+          "lat": <float>,       // Bottom right latitude of search area
+          "lng": <float>        // Bottom right longitude of search area
         }
       ]
     }
@@ -387,24 +400,42 @@ Quick Scan
 
 ----------------------------------------------------------------------------------------------------
 
-Detailed Search
----------------
+Detailed Search (task)
+----------------------
 
-**Task type:** ``detailedSearch``
-
-**Add mission message:**
+**Related jobs**: `Detailed Search (job)`_
 
 .. code-block:: js
 
+  // Add mission message (id, tid, sid, time fields omitted)
   {
     "type": "addMission",
     "missionInfo":
     {
       "taskType": "detailedSearch",
-      "lat": <float>,
-      "lng": <float>
+      "lat": <float>,                 // Latitude of point of interest
+      "lng": <float>                  // Longitude of point of interest
     }
   }
 
+.. _add mission message: messages/gcs-vehicles-messages.html#add-mission-message
 .. _connect message: messages/vehicles-gcs-messages.html#connect-message
 .. _start message: messages/gcs-vehicles-messages.html#start-message
+
+.. _ISR Search (job): #isr-search-job
+.. _Payload Drop (job): #payload-drop-job
+.. _UGV Rescue: #ugv-rescue
+.. _UUV Rescue: #uuv-rescue
+.. _Quick Scan (job): #quick-scan-job
+.. _Detailed Search (job): #detailed-search-job
+
+.. _Takeoff: #takeoff
+.. _Loiter: #loiter
+.. _ISR Search (task): #isr-search-task
+.. _Payload Drop (task): #payload-drop-task
+.. _Land: #land
+.. _UGV Retrieve Target: #ugv-retrieve-target
+.. _Deliver Target: #deliver-target
+.. _UUV Retrieve Target: #uuv-retrieve-target
+.. _Quick Scan (task): #quick-scan-task
+.. _Detailed Search (task): #detailed-search-task

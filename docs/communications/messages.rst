@@ -20,20 +20,16 @@ Base message requirements
 Implementing these fields
 -------------------------
 
-.. confval:: type : string
-
+**type : string**
   This field is predefined depending on the type of message.
 
-.. confval:: id : unsigned 32-bit integer
-
+**id : unsigned 32-bit integer**
   See `this <implementation.html#creating-messages-with-proper-id-field>`__ for information.
 
-.. confval:: sid/tid : unsigned 32-bit integer
-
+**sid/tid : unsigned 32-bit integer**
   These fields are predefined for every platform. See the `list of vehicle IDs`_ for the values used for these fields.
 
-.. confval:: time : unsigned 64-bit integer
-
+**time : unsigned 64-bit integer**
   See `this <implementation.html#setting-time>`__ for more information on implementing this field.
 
 ----------------------------------------------------------------------------------------------------

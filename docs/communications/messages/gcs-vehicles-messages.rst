@@ -39,13 +39,10 @@ Sent to the vehicle to assign a job to complete a mission.
     "jobType": <string>,
   }
 
+**jobType : string**
+  Job being assigned to the vehicle to in order to complete the vehicle. This vehicle is capable of doing the job.
+
 .. note:: Requires an `acknowledgement message`_ from the vehicle.
-
-.. confval:: jobType
-
-  :type: string
-
-  The job being assigned to the vehicle to in order to complete the vehicle. This vehicle is capable of doing the job.
 
 ----------------------------------------------------------------------------------------------------
 
@@ -68,13 +65,10 @@ Sent to the vehicle to assign a task to perform. The task should be something un
     }
   }
 
+**missionInfo : object**
+  Task being assigned to the vehicle. This includes the task type as well as information related to that task. See the `list of tasks`_ to see the list of valid tasks and their provided information.
+
 .. note:: Requires an `acknowledgement message`_ from the vehicle.
-
-.. confval:: missionInfo
-
-  :type: object
-
-  The task being assigned to the vehicle. This includes the task type as well as information related to that task. See the `list of jobs and tasks`_ to see the list of valid tasks and their provided information.
 
 ----------------------------------------------------------------------------------------------------
 
@@ -126,7 +120,7 @@ Vehicle should have a procedure to get to a stable state when this message is se
 .. code-block:: js
 
   {
-    "type": "resume",
+    "type": "stop",
     "id": <unsigned 32-bit integer>,
     "sid": <unsigned 32-bit integer>,
     "tid": <unsigned 32-bit integer>,
@@ -136,5 +130,5 @@ Vehicle should have a procedure to get to a stable state when this message is se
 .. note:: Requires an `acknowledgement message`_ from the vehicle.
 
 .. _acknowledgement message: other-messages.html#acknowledgement-message
-.. _list of jobs and tasks: jobs.html
+.. _list of tasks: jobs-tasks.html#list-of-tasks
 .. _update messages: vehicles-gcs-messages.html#update-message
