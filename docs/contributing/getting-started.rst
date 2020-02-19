@@ -75,6 +75,17 @@ To install the packages, run the following script on your command line:
 
   pip install sphinx sphinx-autobuild sphinx_rtd_theme
 
+----------------------------------------------------------------------------------------------------
+
+Helpful links
+=============
+
+Sphinx documentation: https://www.sphinx-doc.org/en/latest/contents.html
+
+React.js tutorial (we use React to write the GCS UI): https://reactjs.org/tutorial/tutorial.html
+
+Documenting your TypeScript code: https://typedoc.org/guides/doccomments/
+
 .. _Node.js: https://nodejs.org/en/
 .. _Atom: https://atom.io/
 .. _Python: https://www.python.org/downloads/
