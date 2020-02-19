@@ -20,6 +20,8 @@ Base message requirements
 Implementing these fields
 -------------------------
 
+.. warning:: This section will be deleted once implementation of JSON communication is finished.
+
 **type : string**
   This field is predefined depending on the type of message.
 

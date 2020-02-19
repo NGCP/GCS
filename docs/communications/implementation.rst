@@ -4,6 +4,8 @@ Implementation
 
 This page is to show how many things in this protocol can be implemented.
 
+.. warning:: This page will be deleted once implementation of JSON communication is finished.
+
 ----------------------------------------------------------------------------------------------------
 
 Setting time
