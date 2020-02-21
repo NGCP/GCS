@@ -260,6 +260,11 @@ export default class Vehicle {
     this.sendMessage({
       type: 'start',
       jobType,
+      geofence: {
+        topLeft: [0, 0],
+        botRight: [0, 0],
+        keepOut: true,
+      },
     });
 
     this.updateEventHandler.addHandler<VehicleStatus>('status', (value): boolean => {

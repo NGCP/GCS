@@ -28,6 +28,28 @@ export interface StartMessage extends MessageBase {
    * Name of job to perform.
    */
   jobType: JobType;
+
+  /**
+    * Geofencing coordinates in the form of a rectangle, and geofence type sent with start message.
+    */
+  geofence: {
+
+    /**
+     * Top Left coordinate of geofencing rectangle, in form of latitude, longitude.
+     */
+    topLeft: [number, number];
+
+    /**
+     * Bottom right coordinate of geofencing rectangle, in form of latitude, longitude.
+     */
+    botRight: [number, number];
+
+    /**
+     * Boolean to specify whether geofence is keep out type (true), or keep in type (false).
+     */
+    keepOut: boolean;
+  };
+
 }
 
 /**
