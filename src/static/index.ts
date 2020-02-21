@@ -58,7 +58,7 @@ const vehicleIds: {
 /**
  * All valid job types. This should always match up to the job types in vehicle.json.
  */
-export type JobType = 'isrSearch' | 'payloadDrop' | 'sugvRescue' | 'bugvRescue'
+export type JobType = 'isrSearch' | 'payloadDrop' | 'ugvRescue' | 'uuvRescue'
 | 'quickScan' | 'detailedSearch' | 'guide' | 'geofence';
 
 const vehicleInfos: {
@@ -102,8 +102,8 @@ function isValidVehicleId(vehicleId: number): boolean {
 function isValidJobType(jobType: string): boolean {
   return jobType === 'isrSearch'
     || jobType === 'payloadDrop'
-    || jobType === 'sugvRescue'
-    || jobType === 'bugvRescue'
+    || jobType === 'ugvRescue'
+    || jobType === 'uuvRescue'
     || jobType === 'quickScan'
     || jobType === 'detailedSearch'
     || jobType === 'guide'
