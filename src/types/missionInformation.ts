@@ -2,7 +2,7 @@ import { JobType } from '../static/index';
 
 import * as Task from './task';
 
-export type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'sugvRescue' | 'bugvRescue'| 'geofence';
+export type MissionName = 'isrSearch' | 'vtolSearch' | 'payloadDrop' | 'ugvRescue' | 'uuvRescue';
 
 type ActiveVehicleMappingSignature = {
   [missionName in MissionName]: { [vehicleId: number]: JobType };
@@ -15,8 +15,8 @@ export interface ActiveVehicleMapping extends ActiveVehicleMappingSignature {
   isrSearch: { [vehicleId: number]: JobType };
   vtolSearch: { [vehicleId: number]: JobType };
   payloadDrop: { [vehicleId: number]: JobType };
-  sugvRescue: { [vehicleId: number]: JobType };
-  bugvRescue: { [vehicleId: number]: JobType };
+  ugvRescue: { [vehicleId: number]: JobType };
+  uuvRescue: { [vehicleId: number]: JobType };
 }
 
 /**
@@ -93,20 +93,6 @@ function isVTOLSearchInformation(information: Information): boolean {
   return information.missionName === 'vtolSearch';
 }
 
-// Geofence
-export interface GeofenceInformation extends InformationBase {
-  missionName: 'geofence';
-  parameters?: {
-    quickScan: Task.QuickScanTaskParameters;
-  };
-}
-
-/**
- * Type guard for Geofence mission information.
- */
-function isGeofenceInformation(information: Information): boolean {
-  return information.missionName === 'geofence';
-}
 /**
  * Type guard for Payload Drop mission information.
  */
@@ -123,32 +109,32 @@ function isPayloadDropInformation(information: Information): boolean {
   return information.missionName === 'payloadDrop';
 }
 
-export interface SUGVRescueInformation extends InformationBase {
-  missionName: 'sugvRescue';
+export interface UGVRescueInformation extends InformationBase {
+  missionName: 'ugvRescue';
   parameters?: {
-    retrieveTarget: Task.SUGVRetrieveTargetTaskParameters;
+    retrieveTarget: Task.UGVRetrieveTargetTaskParameters;
     deliverTarget: Task.DeliverTargetTaskParameters;
   };
 }
 
-function isSUGVRetreiveInformation(information: Information): boolean {
-  return information.missionName === 'sugvRescue';
+function isUGVRetreiveInformation(information: Information): boolean {
+  return information.missionName === 'ugvRescue';
 }
 
-export interface BUGVRescueInformation extends InformationBase {
-  missionName: 'bugvRescue';
+export interface UUVRescueInformation extends InformationBase {
+  missionName: 'uuvRescue';
   parameters?: {};
 }
 
-function isBUGVRetrieveInformation(information: Information): boolean {
-  return information.missionName === 'bugvRescue';
+function isUUVRetrieveInformation(information: Information): boolean {
+  return information.missionName === 'uuvRescue';
 }
 
 /**
  * All types of information that can be provided to a mission.
  */
 export type Information = ISRSearchInformation | VTOLSearchInformation
-| PayloadDropInformation | SUGVRescueInformation | BUGVRescueInformation;
+| PayloadDropInformation | UGVRescueInformation | UUVRescueInformation;
 
 
 /**
@@ -163,10 +149,9 @@ function isMissionInformation(object: { [key: string]: any }): boolean {
   return isISRSearchInformation(information)
    || isVTOLSearchInformation(information)
    || isPayloadDropInformation(information)
-   || isSUGVRetreiveInformation(information)
-   || isBUGVRetrieveInformation(information)
+   || isUGVRetreiveInformation(information)
+   || isUUVRetrieveInformation(information)
    || isMissionInformation(information);
-   || isGeofenceInformation(information);
 }
 
 /**
@@ -176,8 +161,7 @@ export const TypeGuard = {
   isISRSearchInformation,
   isVTOLSearchInformation,
   isPayloadDropInformation,
-  isSUGVRetreiveInformation,
-  isBUGVRetrieveInformation,
+  isUGVRetreiveInformation,
+  isUUVRetrieveInformation,
   isMissionInformation,
-  isGeofenceInformation,
 };
