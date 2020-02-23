@@ -1,4 +1,4 @@
 # Directories for stylelint to ignore
 
 dist
-docs/_build
+site

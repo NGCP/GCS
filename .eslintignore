@@ -1,4 +1,4 @@
 # Directories for eslint to ignore
 
 dist
-docs/_build
+site
