@@ -1,0 +1,52 @@
+site_name: NGCP Ground Control Station
+site_url: https://ground-control-station.readthedocs.io/
+site_description: Ground Control Station for autonomous vehicle platforms in NGCP
+site_author: Northrop Grumman Collaboration Project
+repo_name: NGCP/GCS
+repo_url: https://github.com/NGCP/GCS
+
+theme:
+    name: material
+    palette:
+      primary: green
+      accent: green
+    logo: img/icon.png
+    favicon: img/icon.png
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: '#'
+      baselevel: 2
+  - codehilite:
+      guess_lang: false
+  - markdown.extensions.md_in_html
+  - pymdownx.inlinehilite
+  - markdown_include.include:
+      base_path: docs
+
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      type: timeago
+
+# Documentation structure
+nav:
+  - index.md
+  - Contributing:
+      - contributing/getting-started.md
+      - contributing/guidelines.md
+  - Communications:
+      - communications/introduction.md
+      - Messages:
+        - communications/messages/base-message.md
+        - communications/messages/vehicles-gcs-messages.md
+        - communications/messages/gcs-vehicles-messages.md
+        - communications/messages/other-messages.md
+        - communications/messages/implementation.md
+      - Jobs and Tasks:
+        - communications/jobs-tasks/jobs-vs-tasks.md
+        - communications/jobs-tasks/jobs.md
+        - communications/jobs-tasks/tasks.md
+      - communications/vehicle-ids.md

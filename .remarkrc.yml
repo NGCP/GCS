@@ -1,0 +1,10 @@
+plugins:
+  # Use style guide preset
+  - remark-preset-lint-markdown-style-guide
+
+  # Added rules
+  - [lint-maximum-line-length, 100]
+  - [lint-rule-style, ----------------------------------------------------------------------------------------------------]
+  - [lint-definition-case, false]
+  - [lint-list-item-indent, tab-size]
+  - [lint-ordered-list-marker-value, ordered]
