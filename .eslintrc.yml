@@ -14,6 +14,9 @@ settings:
     - electron
 
 rules:
+  # Turn off linting about having wrong line ending, handled in .gitattributes
+  linebreak-style: off
+
   # Allow chai test assertions to occur without eslint throwing errors
   "@typescript-eslint/no-unused-expressions": off
   chai-friendly/no-unused-expressions: error

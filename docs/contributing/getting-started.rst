@@ -18,6 +18,22 @@ Install Python_. This is required to build documentation such as this.
 
 Install `Atom`_. Edit files using this text editor.
 
+Install `Git`_. This is for version control for GCS.
+
+--------------------------------------
+
+Required Git line-ending configuration
+======================================
+
+GCS uses LF line-endings for all its files. All Unix-based systems already use the correct Git line-ending configuration, so feel free to skip this section if you use a Unix system (Linux/macOS).
+
+Run the following commands in your console to set the proper line-ending configuration in your system:
+
+.. code-block:: sh
+
+  git config --global core.autocrlf false
+  git config --global core.eol lf
+
 -----------------------------
 
 Requirements for writing code
@@ -83,6 +99,7 @@ The following package is optional, but it will make your quality of life better 
 .. _Node.js: https://nodejs.org/en/
 .. _Atom: https://atom.io/
 .. _Python: https://www.python.org/downloads/
+.. _Git: https://git-scm.com/
 .. _npm-check-updates: https://github.com/tjunnone/npm-check-updates
 .. _Sphinx: http://www.sphinx-doc.org/en/master/
 .. _Sphinx Autobuild: https://github.com/GaretJax/sphinx-autobuild

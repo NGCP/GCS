@@ -1,6 +1,6 @@
 {
   "name": "GCS",
-  "version": "0.9.1",
+  "version": "0.9.3",
   "license": "MIT",
   "author": "Northrop Grumman Collaboration Project",
   "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
@@ -13,8 +13,7 @@
     "test:unit": "mocha --require ts-node/register test/**/*.test.ts",
     "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx \".\" && stylelint \"**/*.css\" --fix",
     "start": "electron-webpack dev",
-    "start:windocs": "explorer http://localhost:8000/ & sphinx-autobuild docs docs/_build/html",
-    "start:macdocs": "open http://localhost:8000/ & sphinx-autobuild docs docs/_build/html",
+    "docs": "(explorer http://localhost:8000/ || open http://localhost:8000/) & sphinx-autobuild docs docs/_build/html",
     "build": "electron-webpack && electron-builder"
   },
   "dependencies": {
