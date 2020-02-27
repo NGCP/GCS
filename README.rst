@@ -8,7 +8,7 @@ NGCP Ground Control Station
 
 .. image:: https://readthedocs.org/projects/ground-control-station/badge/?version=latest
   :target: https://ground-control-station.readthedocs.io/en/latest/?badge=latest
-  :alt: Documentation Status
+  :alt: Documentation Statussafasfasfsa
 
 .. image:: https://david-dm.org/NGCP/GCS/status.svg
   :target: https://david-dm.org/NGCP/GCS
