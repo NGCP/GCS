@@ -6,11 +6,14 @@
   height: 100%;
   width: 100;
   grid-template-areas:
-    'selector selector selector mapping'
+    'selector  selector  selector  mapping'
     'parameter parameter parameter mapping'
-    'parameter parameter parameter options'
-    'button button button options';
-  grid-template-rows: 25px 1fr 1fr 25px;
+    'parameter parameter parameter mapping'
+    'parameter parameter parameter mapping'
+    'geofence  geofence  geofence  options'
+    'geofence  geofence  geofence  options'
+    'button    button    button    options';
+  grid-template-rows: 25px 1fr 1fr 0.8fr 1fr 0.3fr 25px;
   grid-template-columns: repeat(4, 1fr);
 }
 
@@ -21,6 +24,11 @@
 
 .parameterContainer {
   grid-area: parameter;
+  padding-left: 20px;
+}
+
+.geofenceContainer {
+  grid-area: geofence;
   padding-left: 20px;
 }
 
