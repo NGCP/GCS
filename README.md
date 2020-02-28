@@ -1,7 +1,7 @@
 # NGCP Ground Control Station
 
 [![Build Status](https://travis-ci.com/NGCP/GCS.svg?branch=master)](https://travis-ci.com/NGCP/GCS)
-[![Documentation Status](https://readthedocs.org/projects/ground-control-station/badge/?version=latest)](https://ground-control-station.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/ground-control-station/badge/?version=latest)](https://readthedocs.org/projects/ground-control-station/builds/)
 [![dependencies Status](https://david-dm.org/NGCP/GCS/status.svg)](https://david-dm.org/NGCP/GCS)
 [![devDependencies Status](https://david-dm.org/NGCP/GCS/dev-status.svg)](https://david-dm.org/NGCP/GCS?type=dev)
 
