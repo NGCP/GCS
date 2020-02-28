@@ -5,8 +5,7 @@ import React, { Component, ReactNode } from 'react';
 import * as Slider from 'rc-slider';
 
 import { JobType } from '../../static/index';
-
-import { ThemeProps } from '../../types/componentStyle';
+import { BoundingBoxBounds, ThemeProps } from '../../types/componentStyle';
 import * as MissionInformation from '../../types/missionInformation';
 import { VehicleObject, VehicleStatus } from '../../types/vehicle';
 
@@ -15,6 +14,7 @@ import { updateVehicles } from '../../util/util';
 
 import ActiveVehicleMapping from './extra/ActiveVehicleMapping';
 import MissionOptions from './extra/MissionOptions';
+import CreateBoundingBoxButton from './extra/CreateBoundingBoxButton';
 
 import ISRSearch from './parameter/ISRSearch';
 import PayloadDrop from './parameter/PayloadDrop';
@@ -54,7 +54,37 @@ const title: { [missionName in MissionInformation.MissionName]: string } = {
   uuvRescue: 'UUV Rescue',
 };
 
+type GeofenceChecklistType = 'geofenceTop' | 'geofenceLeft' | 'geofenceRight' | 'geofenceBottom';
+
+const checklistCache: { [check in GeofenceChecklistType ]: number | undefined} = {
+  geofenceTop: undefined,
+  geofenceLeft: undefined,
+  geofenceRight: undefined,
+  geofenceBottom: undefined,
+};
+
+type Locked = {
+  geofence: boolean;
+};
+
+const lockedCache: Locked = {
+  geofence: true,
+};
+
+
 interface State {
+  /**
+   * Checklist of all required points for bounding box. This is used to generate the
+   * parameters for the mission.
+   */
+  checklist: { [check in GeofenceChecklistType]: number | undefined };
+
+  /**
+   * True if the inputs for the waypoint type is disabled. Will become disabled
+   * once the create pin is clicked.
+   */
+  locked: Locked;
+
   /**
    * Land missionType means we are performing UGV mission.
    * Underwater missionType means we are performing UUV mission.
@@ -142,6 +172,8 @@ export default class MissionWindow extends Component<ThemeProps, State> {
         },
       },
       information: initialInformation,
+      checklist: checklistCache,
+      locked: lockedCache,
     };
 
     this.onSliderChange = this.onSliderChange.bind(this);
@@ -155,9 +187,17 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     this.stopMissions = this.stopMissions.bind(this);
     this.toggleMissionType = this.toggleMissionType.bind(this);
     this.tipFormatter = this.tipFormatter.bind(this);
+
+    this.onChange = this.onChange.bind(this);
+    this.updateBoundingBoxes = this.updateBoundingBoxes.bind(this);
+    this.updateChecklist = this.updateChecklist.bind(this);
+    this.unlockParameterInputs = this.unlockParameterInputs.bind(this);
   }
 
   public componentDidMount(): void {
+    ipcRenderer.on('updateBoundingBoxes', (__: Event, _: boolean, ...boxPoints: { name: string; bounds: BoundingBoxBounds }[]): void => this.updateBoundingBoxes(...boxPoints));
+    ipcRenderer.on('unlockParameterInputs', (_: Event, waypointType: string): void => this.unlockParameterInputs(waypointType));
+
     ipcRenderer.on('updateVehicles', (_: Event, ...vehicles: VehicleObject[]): void => this.updateVehicles(...vehicles));
 
     ipcRenderer.on('updateInformation', (_: Event, information: MissionInformation.Information): void => this.updateInformation(information));
@@ -174,6 +214,67 @@ export default class MissionWindow extends Component<ThemeProps, State> {
       startMissionIndex: value[0],
       endMissionIndex: value[1],
     });
+  }
+
+  private onChange(event: React.ChangeEvent<HTMLInputElement>): void {
+    const { checklist } = this.state;
+    if (!(event.target.name in checklist)) return;
+
+    const name = event.target.name as GeofenceChecklistType;
+    const value = parseInt(event.target.value, 10) || 0;
+    switch (name) {
+      case 'geofenceTop':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Geofencing',
+          bounds: {
+            top: value,
+            bottom: checklist.geofenceBottom as number,
+            left: checklist.geofenceLeft as number,
+            right: checklist.geofenceRight as number,
+          },
+        });
+        break;
+
+      case 'geofenceLeft':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Geofencing',
+          bounds: {
+            top: checklist.geofenceTop as number,
+            bottom: checklist.geofenceBottom as number,
+            left: value,
+            right: checklist.geofenceRight as number,
+          },
+        });
+        break;
+
+      case 'geofenceRight':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Geofencing',
+          bounds: {
+            top: checklist.geofenceTop as number,
+            bottom: checklist.geofenceBottom as number,
+            left: checklist.geofenceLeft as number,
+            right: value,
+          },
+        });
+        break;
+
+      case 'geofenceBottom':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Geofencing',
+          bounds: {
+            top: checklist.geofenceTop as number,
+            bottom: value,
+            left: checklist.geofenceLeft as number,
+            right: checklist.geofenceRight as number,
+          },
+        });
+        break;
+
+      default:
+        this.updateChecklist({ [name]: value });
+        break;
+    }
   }
 
   private updateVehicles(...vehicles: VehicleObject[]): void {
@@ -260,6 +361,39 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     this.setState({ activeVehicleMapping: newActiveVehicleMapping });
   }
 
+  private updateBoundingBoxes(
+    ...boundingBoxes: { name: string; bounds: BoundingBoxBounds }[]
+  ): void {
+    const checks: { [checkName in GeofenceChecklistType]?: number} = {};
+
+    boundingBoxes.forEach((boxpoint): void => {
+      switch (boxpoint.name) {
+        case 'Geofencing':
+          checks.geofenceTop = boxpoint.bounds.top;
+          checks.geofenceRight = boxpoint.bounds.right;
+          checks.geofenceLeft = boxpoint.bounds.left;
+          checks.geofenceBottom = boxpoint.bounds.bottom;
+          break;
+
+        default: break;
+      }
+    });
+
+    this.updateChecklist(checks);
+  }
+
+  private updateChecklist(checks: { [checklistType in GeofenceChecklistType]?: number }): void {
+    const { checklist: newChecklist } = this.state;
+
+    Object.keys(checks).forEach((checklistTypeString): void => {
+      const checklistType = checklistTypeString as GeofenceChecklistType;
+      const value = checks[checklistType];
+      newChecklist[checklistType] = value;
+    });
+
+    this.setState({ checklist: newChecklist });
+  }
+
   private postStartMissions(): void {
     const {
       activeVehicleMapping,
@@ -310,7 +444,18 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     return title[missionName];
   }
 
+  private unlockParameterInputs(waypointType: string): void {
+    const { locked: newLocked } = this.state;
+
+    if (waypointType === 'geofence') {
+      newLocked.geofence = false;
+    }
+
+    this.setState({ locked: newLocked });
+  }
+
   public render(): ReactNode {
+    const { checklist, locked } = this.state;
     const { theme } = this.props;
     const {
       information,
@@ -339,7 +484,12 @@ export default class MissionWindow extends Component<ThemeProps, State> {
      * Start button will not appear unless all mission information is filled out
      * (and no mission is running).
      */
-    const readyToStart = information[missionName].parameters !== undefined;
+
+    const unlockStartMissionButton = information[missionName].parameters !== undefined
+      && checklist.geofenceTop !== undefined
+      && checklist.geofenceBottom !== undefined
+      && checklist.geofenceLeft !== undefined
+      && checklist.geofenceRight !== undefined;
 
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
@@ -366,8 +516,19 @@ export default class MissionWindow extends Component<ThemeProps, State> {
           <h1 style={{ marginTop: 0 }}>Options</h1>
           <MissionOptions title={title} missionNames={missionNames} options={options} />
         </div>
+        <div className="geofenceContainer">
+          <h1>Geofencing</h1>
+          <input className="inputFields" type="number" name="geofenceScanTop" value={checklist.geofenceTop || ''} disabled={locked.geofence} onChange={this.onChange} placeholder="Top" />
+          <br />
+          <input className="inputFields" type="number" name="geofenceBottom" value={checklist.geofenceBottom || ''} disabled={locked.geofence} onChange={this.onChange} placeholder="Bottom" />
+          <br />
+          <input className="inputFields" type="number" name="geofenceLeft" value={checklist.geofenceLeft || ''} disabled={locked.geofence} onChange={this.onChange} placeholder="Left" />
+          <br />
+          <input className="inputFields" type="number" name="geofenceRight" value={checklist.geofenceRight || ''} disabled={locked.geofence} onChange={this.onChange} placeholder="Right" />
+          <CreateBoundingBoxButton theme={theme} name="geofence" value="Geofencing" />
+        </div>
         <div className="buttonContainer">
-          {status === 'ready' && <button type="button" disabled={!readyToStart} onClick={this.postStartMissions}>Start Missions</button>}
+          {status === 'ready' && <button type="button" disabled={!unlockStartMissionButton} onClick={this.postStartMissions}>Start Missions</button>}
           {status !== 'ready' && <button type="button" onClick={ipc.postStopMissions}>Stop Missions</button>}
           {status === 'running' && <button type="button" onClick={this.postPauseMission}>Pause Mission</button>}
           {status === 'paused' && <button type="button" onClick={this.postResumeMission}>Resume Mission</button>}
