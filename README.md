@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/NGCP/GCS.svg?branch=master)](https://travis-ci.com/NGCP/GCS)
 [![Documentation Status](https://readthedocs.org/projects/ground-control-station/badge/?version=latest)](https://readthedocs.org/projects/ground-control-station/builds/)
+[![Coverage Status](https://coveralls.io/repos/github/NGCP/GCS/badge.svg?branch=master)](https://coveralls.io/github/NGCP/GCS?branch=master)
 [![dependencies Status](https://david-dm.org/NGCP/GCS/status.svg)](https://david-dm.org/NGCP/GCS)
 [![devDependencies Status](https://david-dm.org/NGCP/GCS/dev-status.svg)](https://david-dm.org/NGCP/GCS?type=dev)
 

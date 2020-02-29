@@ -3,6 +3,7 @@
 package-lock.json
 
 # Ignore generated folders
+.nyc_output
 dist
 node_modules
 site
