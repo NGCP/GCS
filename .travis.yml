@@ -6,12 +6,15 @@ language: node_js
 node_js:
   - lts/*
 
-# Cache node_modules after testing
-cache: npm
-
 # Scripts to run to test application
 script:
   - npm test
 
-# Run coverage after tests pass
-after_success: npm run coverage
+# Scripts to run after build success/failure
+after_success:
+  - npm run coverage
+  - chmod +x script/webhook.sh
+  - ./script/webhook.sh success
+after_failure:
+  - chmod +x script/webhook.sh
+  - ./script/webhook.sh failure
