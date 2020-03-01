@@ -10,6 +10,11 @@ if [[ $TRAVIS_BRANCH != 'master' ]]; then
   exit 0
 fi
 
+if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then
+  echo "INFO: Build is a pull request build, will not send webhook"
+  exit 0
+fi
+
 echo "INFO: On master branch, sending webhook"
 wget https://raw.githubusercontent.com/DiscordHooks/travis-ci-discord-webhook/master/send.sh
 chmod +x send.sh
