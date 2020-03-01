@@ -5,7 +5,7 @@ if [ -z $1 ]; then
   exit 1
 fi
 
-if [[ $TRAVIS_BRANCH != 'webhook' ]]; then
+if [[ $TRAVIS_BRANCH != 'master' ]]; then
   echo "INFO: Not the master branch, will not send webhook"
   exit 0
 fi
