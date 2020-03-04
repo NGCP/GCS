@@ -1,6 +1,7 @@
 import {
   app,
   BrowserWindow,
+  BrowserWindowConstructorOptions,
   dialog,
   Event,
   ipcMain,
@@ -95,7 +96,7 @@ const darwinMenu: MenuItemConstructorOptions = {
     },
     { type: 'separator' },
     { role: 'hide' },
-    { role: 'hideothers' },
+    { role: 'hideOthers' },
     { role: 'unhide' },
     { type: 'separator' },
     quitRole,
@@ -112,28 +113,28 @@ function postSaveConfig(): void {
   const fileName = moment().format('[GCS Configuration] YYYY-MM-DD [at] h.mm.ss A');
 
   // Loads a window that allows the user to choose the file path for the file to be saved.
-  const filePath = dialog.showSaveDialog(mainWindow, {
+  dialog.showSaveDialog(mainWindow, {
     title: 'Save Configuration',
     filters: [FILTER],
     defaultPath: `./${fileName}.${FILTER.extensions[0]}`,
-  });
+  }).then((saveDialogReturnValue) => {
+    if (saveDialogReturnValue.canceled) {
+      return;
+    }
 
-  // Returns if the user chooses to close the window instead of choosing a file path.
-  if (!filePath) return;
-
-  // Loads data up with information returned from main and mission windows.
-  const saveOptions: FileSaveOptions = {
-    filePath,
-    data: {
-      map: {
-        lat: 0,
-        lng: 0,
-        zoom: 18,
+    const saveOptions: FileSaveOptions = {
+      filePath: saveDialogReturnValue.filePath as string,
+      data: {
+        map: {
+          lat: 0,
+          lng: 0,
+          zoom: 18,
+        },
       },
-    },
-  };
+    };
 
-  ipc.postSaveConfig(saveOptions, mainWindow, missionWindow);
+    ipc.postSaveConfig(saveOptions, mainWindow, missionWindow);
+  });
 }
 
 /**
@@ -144,21 +145,20 @@ function postLoadConfig(): void {
   if (!mainWindow) return;
 
   // Loads a window that allows the user to choose the filePath of the file to be loaded.
-  const filePaths = dialog.showOpenDialog(mainWindow, {
+  dialog.showOpenDialog(mainWindow, {
     title: 'Open Configuration',
     filters: [FILTER],
     properties: ['openFile', 'createDirectory'],
+  }).then((loadDialogReturnValue) => {
+    if (loadDialogReturnValue.canceled) {
+      return;
+    }
+
+    const data = JSON.parse(fs.readFileSync(loadDialogReturnValue.filePaths[0]).toString());
+    if (data) {
+      ipc.postLoadConfig(data, mainWindow, missionWindow);
+    }
   });
-
-  // Returns if the user chooses to close the window instead of choosing a file path.
-  if (!filePaths || filePaths.length === 0) return;
-
-  // TODO: Add type for data.
-  const data = JSON.parse(fs.readFileSync(filePaths[0]).toString());
-
-  if (!data) return;
-
-  ipc.postLoadConfig(data, mainWindow, missionWindow);
 }
 
 /**
@@ -170,19 +170,32 @@ function hideMissionWindow(): void {
   }
 }
 
+function createWindow(
+  title: string,
+  width: number,
+  height: number,
+  options?: BrowserWindowConstructorOptions,
+) {
+  return new BrowserWindow({
+    title,
+    icon,
+    show: false,
+    width,
+    minWidth: width,
+    height,
+    minHeight: height,
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    ...options,
+  });
+}
+
 /**
  * Creates the main window. This window's hash is #main.
  */
 function createMainWindow(): void {
-  mainWindow = new BrowserWindow({
-    title: 'NGCP Ground Control Station',
-    icon,
-    show: false,
-    width: WIDTH,
-    minWidth: WIDTH,
-    height: HEIGHT,
-    minHeight: HEIGHT,
-  });
+  mainWindow = createWindow('NGCP Ground Control Station', WIDTH, HEIGHT);
 
   if (isDevelopment) {
     mainWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#main`);
@@ -215,16 +228,12 @@ function createMainWindow(): void {
  * the main window.
  */
 function createMissionWindow(): void {
-  missionWindow = new BrowserWindow({
-    title: 'NGCP Mission User Interface',
-    icon,
-    show: false,
-    width: Math.floor((WIDTH * 4) / 3),
-    minWidth: Math.floor((WIDTH * 4) / 3),
-    height: Math.floor((HEIGHT * 4) / 3),
-    autoHideMenuBar: true,
-    minHeight: Math.floor((HEIGHT * 4) / 3),
-  });
+  missionWindow = createWindow(
+    'NGCP Mission User Interface',
+    Math.floor((WIDTH * 4) / 3),
+    Math.floor((HEIGHT * 4) / 3),
+    { autoHideMenuBar: true },
+  );
 
   if (isDevelopment) {
     missionWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#mission`);
@@ -305,8 +314,8 @@ const menu: MenuItemConstructorOptions[] = [
       { role: 'cut' },
       { role: 'copy' },
       { role: 'paste' },
-      { role: 'pasteandmatchstyle' },
-      { role: 'selectall' },
+      { role: 'pasteAndMatchStyle' },
+      { role: 'selectAll' },
     ],
   },
   {
@@ -316,7 +325,7 @@ const menu: MenuItemConstructorOptions[] = [
       { type: 'separator' },
       { role: 'togglefullscreen' },
       { type: 'separator' },
-      { role: 'toggledevtools' },
+      { role: 'toggleDevTools' },
     ],
   },
   {
