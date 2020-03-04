@@ -9,6 +9,7 @@ node_js:
 # Scripts to run to test application
 script:
   - npm test
+  - npm run build
 
 # Scripts to run after build success/failure
 after_success:
