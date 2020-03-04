@@ -1,12 +1,12 @@
 {
   "name": "GCS",
-  "version": "0.11.2",
+  "version": "0.12.0",
   "license": "MIT",
   "author": "Northrop Grumman Collaboration Project",
   "description": "Ground Control Station for autonomous vehicle platforms in NGCP",
   "repository": "https://github.com/NGCP/GCS",
   "scripts": {
-    "postinstall": "electron-rebuild",
+    "postinstall": "electron-builder install-app-deps",
     "test": "npm run test:lint && npm run test:types && npm run test:unit",
     "test:lint": "npm run test:eslint && npm run test:stylelint && npm run test:remarklint",
     "test:eslint": "eslint --ext .js,.jsx,.ts,.tsx \".\"",
@@ -41,6 +41,7 @@
     "@types/chai": "^4.2.8",
     "@types/mocha": "^7.0.1",
     "@types/msgpack-lite": "^0.1.7",
+    "@types/node": "^12.12.29",
     "@types/rc-slider": "^8.6.5",
     "@types/react": "^16.9.19",
     "@types/react-dom": "^16.9.5",
@@ -53,9 +54,8 @@
     "chai": "^4.2.0",
     "coveralls": "^3.0.9",
     "dotenv-webpack": "^1.7.0",
-    "electron": "^3",
+    "electron": "^8.0.3",
     "electron-builder": "^22.3.2",
-    "electron-rebuild": "^1.10.0",
     "electron-webpack": "^2.7.4",
     "electron-webpack-ts": "^3.2.0",
     "eslint": "^6.8.0",
@@ -76,9 +76,6 @@
     "ts-node": "^8.6.2",
     "typescript": "^3.7.5",
     "webpack": "^4.41.5"
-  },
-  "build": {
-    "npmRebuild": false
   },
   "electronWebpack": {
     "main": {
