@@ -35,28 +35,12 @@ Sent to the vehicle to assign a job to complete a mission.
   "tid": <unsigned 32-bit integer>,
   "time": <unsigned 64-bit integer>,
   "jobType": <string>,
-  "geofence": {
-    "topLeft": [<float>, <float>],
-    "botRight": [<float>, <float>],
-    "keepOut": <boolean>
-  }
 }
 ```
 
   - **jobType : string**
-      - Job being assigned to the vehicle to in order to complete the vehicle. This vehicle is
+      - Job being assigned to the vehicle to in order to complete the mission. This vehicle is
       capable of doing the job.
-
-  - **geofence**
-      - **topLeft : float[]**
-          - Array of structure `[latitude, longitude]` for top left corner of geofencing.
-
-      - **botRight : float[]**
-          - Array of structure `[latitude, longitude]` for bottom right corner of geofencing.
-
-      - **keepOut : boolean**
-          - `#!json true` if vehicle should keep out of the geofenced area. `#!json false`
-          otherwise.
 
 !!! info "Requires an [acknowledgement message][] from the vehicle."
 
@@ -144,6 +128,35 @@ plane should either loiter or land to the ground). Vehicles should continue to s
   "time": <unsigned 64-bit integer>,
 }
 ```
+
+----------------------------------------------------------------------------------------------------
+
+## Geofence Message
+
+Sent to the vehicle to send geofencing coordinates for the keep-in and keep-out zones of the mission.
+
+```javascript
+{
+  "type": "geofence",
+  "id": <unsigned 32-bit integer>,
+  "sid": <unsigned 32-bit integer>,
+  "tid": <unsigned 32-bit integer>,
+  "time": <unsigned 64-bit integer>,
+  "geofence" {
+    "keepOut": [<float>, <float>][],
+    "keepIn": [<float>, <float>][]
+  }
+}
+```
+
+  - **geofence**
+      - **keepOut : [float, float][]**
+          - Array of structure `[latitude, longitude]` for all four corners of the box.
+
+      - **keepIn : [float, float][]**
+          - Array of structure `[latitude, longitude]` for all four corners of the box.
+
+!!! info "Requires an [acknowledgement message][] from the vehicle."
 
 ----------------------------------------------------------------------------------------------------
 
