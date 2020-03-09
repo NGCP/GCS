@@ -72,6 +72,11 @@ let mainWindow: BrowserWindow | null;
 let missionWindow: BrowserWindow | null;
 
 /**
+  * Reference to the manual control window of the application.
+  */
+let manualWindow: BrowserWindow | null;
+
+/**
  * Reference to the tray object of the application.
  */
 let tray: Tray;
@@ -196,6 +201,15 @@ function hideMissionWindow(): void {
   }
 }
 
+/**
+ * Hides the manual control window.
+ */
+function hideManualWindow(): void {
+  if (manualWindow) {
+    manualWindow.hide();
+  }
+}
+
 function createWindow(
   title: string,
   width: number,
@@ -287,6 +301,39 @@ function createMissionWindow(): void {
 }
 
 /**
+  * Creates the manual control window. This window's hash is #manual.
+  * Manual control window will be opened on GCS start.
+  */
+function createManualWindow(): void {
+  manualWindow = createWindow(
+    'NGCP Manual Control Window',
+    Math.floor((WIDTH) / 4),
+    Math.floor((HEIGHT) / 4),
+    { autoHideMenuBar: true },
+  );
+
+  if (isDevelopment) {
+    manualWindow.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}#manual`);
+  } else {
+    manualWindow.loadURL(`file:///${__dirname}/index.html#manual`);
+  }
+
+  manualWindow.on('ready-to-show', (): void => {
+    if (manualWindow) manualWindow.show();
+  });
+
+  manualWindow.on('close', (event): void => {
+    if (!quitting) {
+      event.preventDefault();
+
+      hideManualWindow();
+    } else {
+      manualWindow = null;
+    }
+  });
+}
+
+/**
  * Shows the main window.
  */
 function showMainWindow(): void {
@@ -308,6 +355,16 @@ function showMissionWindow(): void {
   }
 }
 
+/**
+ * Shows the manual control window.
+ */
+function showManualWindow(): void {
+  if (!manualWindow) {
+    createManualWindow();
+  } else {
+    manualWindow.show();
+  }
+}
 
 /**
  * Reference to the menu displayed on main window.
@@ -374,9 +431,19 @@ const menu: MenuItemConstructorOptions[] = [
       { role: 'minimize' },
       {
         label: 'Mission',
+        accelerator: 'CommandOrControl+Space',
         click: (): void => {
           if (mainWindow) {
             showMissionWindow();
+          }
+        },
+      },
+      {
+        label: 'Manual Control',
+        accelerator: 'CommandOrControl+Enter',
+        click: (): void => {
+          if (mainWindow) {
+            showManualWindow();
           }
         },
       },

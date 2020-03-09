@@ -5,6 +5,7 @@ import { ThemeProps } from '../types/componentStyle';
 
 import MainWindow from './mainWindow/MainWindow';
 import MissionWindow from './missionWindow/MissionWindow';
+import ManualWindow from './manualWindow/ManualWindow';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'leaflet/dist/leaflet.css';
@@ -16,6 +17,7 @@ import './app.css';
 const windows: { [hash: string]: React.ElementType } = {
   '#main': MainWindow as React.ElementType,
   '#mission': MissionWindow,
+  '#manual': ManualWindow,
 };
 
 type State = ThemeProps;
@@ -45,7 +47,7 @@ export default class App extends Component<{}, State> {
     const { theme } = this.state;
 
     // In the case another hash was somehow loaded.
-    if (window.location.hash !== '#main' && window.location.hash !== '#mission') {
+    if (window.location.hash !== '#main' && window.location.hash !== '#mission' && window.location.hash !== '#manual') {
       return (
         <div>
           <h1>404 Not Found</h1>
