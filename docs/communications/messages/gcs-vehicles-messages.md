@@ -133,7 +133,8 @@ plane should either loiter or land to the ground). Vehicles should continue to s
 
 ## Geofence Message
 
-Sent to the vehicle to send geofencing coordinates for the keep-in and keep-out zones of the mission.
+Sent to the vehicle to send geofencing coordinates for the keep-in and keep-out zones of the
+mission.
 
 ```javascript
 {

@@ -65,7 +65,11 @@ Set the following settings to configure your Atom text editor for this project. 
 project have 100 characters max.
 
   - Set `Settings > Editor > Preferred Line Length` to 100
+
   - Keep `Settings > Editor > Soft Wrap` unchecked
+
+  - Add `source.ts` and `source.tsx` to the list of supported extensions in
+  `Settings > Packages > linter-eslint > List of scopes to run ESLint on`
 
 ### MkDocs documentation packages
 

@@ -11,7 +11,7 @@
     "test:lint": "npm run test:eslint && npm run test:stylelint && npm run test:remarklint",
     "test:eslint": "eslint --ext .js,.jsx,.ts,.tsx \".\"",
     "test:stylelint": "stylelint \"**/*.css\"",
-    "test:remarklint": "remark .",
+    "test:remarklint": "remark . --frail",
     "test:types": "tsc --project . --outDir dist --pretty",
     "test:unit": "nyc mocha --require ts-node/register test/**/*.test.ts",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
