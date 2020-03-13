@@ -233,7 +233,7 @@ export class VTOLSearch extends Component<VTOLSearchProps, State> {
         <input className="inputFields" type="number" name="quickScanLeft" value={checklist.quickScanLeft || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Left" />
         <br />
         <input className="inputFields" type="number" name="quickScanRight" value={checklist.quickScanRight || ''} disabled={locked.quickScan} onChange={this.onChange} placeholder="Right" />
-        <CreateBoundingBoxButton theme={theme} name="quickScan" value="Bounding Box" />
+        <CreateBoundingBoxButton theme={theme} name="quickScan" value="Bounding Box" color="red" />
       </div>
     );
   }

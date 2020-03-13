@@ -13,6 +13,11 @@ export interface CreateBoundingBoxButtonProps extends ThemeProps{
    * Name of the box itself, when it shows up on the map.
    */
   value: string;
+
+  /**
+   * Color of the box as it appears on the map.
+   */
+  color: string;
 }
 
 export default class CreateBoundingBoxButton extends PureComponent<CreateBoundingBoxButtonProps> {
@@ -23,9 +28,9 @@ export default class CreateBoundingBoxButton extends PureComponent<CreateBoundin
   }
 
   private onClick(): void {
-    const { name, value } = this.props;
+    const { name, value, color } = this.props;
     ipc.postUnlockParameterInputs(name);
-    ipc.postCreateBoundingBoxes({ name: value });
+    ipc.postCreateBoundingBoxes({ name: value, color });
   }
 
   public render(): ReactNode {

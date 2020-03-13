@@ -6,14 +6,14 @@
   height: 100%;
   width: 100;
   grid-template-areas:
-    'selector  selector  selector  mapping'
-    'parameter parameter parameter mapping'
-    'parameter parameter parameter mapping'
-    'parameter parameter parameter mapping'
-    'geofence  geofence  geofence  options'
-    'geofence  geofence  geofence  options'
-    'button    button    button    options';
-  grid-template-rows: 25px 1fr 1fr 0.8fr 1fr 0.3fr 25px;
+    'selector       selector       selector        mapping'
+    'parameter      parameter      parameter       mapping'
+    'parameter      parameter      parameter       mapping'
+    'parameter      parameter      parameter       mapping'
+    'geofenceKeepIn geofenceKeepIn geofenceKeepOut options'
+    'geofenceKeepIn geofenceKeepIn geofenceKeepOut options'
+    'button         button         button          options';
+  grid-template-rows: 25px 1fr 1fr 1fr 1fr 0.3fr 25px;
   grid-template-columns: repeat(4, 1fr);
 }
 
@@ -27,8 +27,13 @@
   padding-left: 20px;
 }
 
-.geofenceContainer {
-  grid-area: geofence;
+.geofenceKeepInContainer {
+  grid-area: geofenceKeepIn;
+  padding-left: 20px;
+}
+
+.geofenceKeepOutContainer {
+  grid-area: geofenceKeepOut;
   padding-left: 20px;
 }
 

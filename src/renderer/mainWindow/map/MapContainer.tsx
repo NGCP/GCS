@@ -318,7 +318,7 @@ export default class MapContainer extends Component<ThemeProps, State> {
     boundingBoxes.forEach((boundingBox): void => {
       if (!newBoundingBoxes[boundingBox.name]) {
         newBoundingBoxes[boundingBox.name] = {
-          color: boundingBox.color || 'red',
+          color: boundingBox.color || 'black',
           bounds: boundingBox.bounds || (viewport.center && {
             top: viewport.center[0],
             bottom: viewport.center[0],

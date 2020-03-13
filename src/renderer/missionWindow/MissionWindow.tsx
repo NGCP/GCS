@@ -54,23 +54,22 @@ const title: { [missionName in MissionInformation.MissionName]: string } = {
   uuvRescue: 'UUV Rescue',
 };
 
-type GeofenceChecklistType = 'geofenceTop' | 'geofenceLeft' | 'geofenceRight' | 'geofenceBottom';
+type GeofenceChecklistType = 'geofenceKeepInTop' | 'geofenceKeepInLeft' | 'geofenceKeepInRight' | 'geofenceKeepInBottom' | 'geofenceKeepOutTop' | 'geofenceKeepOutLeft' | 'geofenceKeepOutRight' | 'geofenceKeepOutBottom';
 
 const checklistCache: { [check in GeofenceChecklistType ]: number | undefined} = {
-  geofenceTop: undefined,
-  geofenceLeft: undefined,
-  geofenceRight: undefined,
-  geofenceBottom: undefined,
+  geofenceKeepInTop: undefined,
+  geofenceKeepInLeft: undefined,
+  geofenceKeepInRight: undefined,
+  geofenceKeepInBottom: undefined,
+  geofenceKeepOutTop: undefined,
+  geofenceKeepOutLeft: undefined,
+  geofenceKeepOutRight: undefined,
+  geofenceKeepOutBottom: undefined,
 };
 
-type Locked = {
-  geofence: boolean;
-};
+type Locked = { geofenceKeepIn: boolean, geofenceKeepOut: boolean };
 
-const lockedCache: Locked = {
-  geofence: true,
-};
-
+const lockedCache: Locked = { geofenceKeepIn: true, geofenceKeepOut: true };
 
 interface State {
   /**
@@ -223,50 +222,98 @@ export default class MissionWindow extends Component<ThemeProps, State> {
     const name = event.target.name as GeofenceChecklistType;
     const value = parseInt(event.target.value, 10) || 0;
     switch (name) {
-      case 'geofenceTop':
+      case 'geofenceKeepInTop':
         ipc.postUpdateBoundingBoxes(true, {
-          name: 'Geofencing',
+          name: 'Geofence Keep In',
           bounds: {
             top: value,
-            bottom: checklist.geofenceBottom as number,
-            left: checklist.geofenceLeft as number,
-            right: checklist.geofenceRight as number,
+            bottom: checklist.geofenceKeepInBottom as number,
+            left: checklist.geofenceKeepInLeft as number,
+            right: checklist.geofenceKeepInRight as number,
           },
         });
         break;
 
-      case 'geofenceLeft':
+      case 'geofenceKeepInLeft':
         ipc.postUpdateBoundingBoxes(true, {
-          name: 'Geofencing',
+          name: 'Geofence Keep In',
           bounds: {
-            top: checklist.geofenceTop as number,
-            bottom: checklist.geofenceBottom as number,
+            top: checklist.geofenceKeepInTop as number,
+            bottom: checklist.geofenceKeepInBottom as number,
             left: value,
-            right: checklist.geofenceRight as number,
+            right: checklist.geofenceKeepInRight as number,
           },
         });
         break;
 
-      case 'geofenceRight':
+      case 'geofenceKeepInRight':
         ipc.postUpdateBoundingBoxes(true, {
-          name: 'Geofencing',
+          name: 'Geofence Keep In',
           bounds: {
-            top: checklist.geofenceTop as number,
-            bottom: checklist.geofenceBottom as number,
-            left: checklist.geofenceLeft as number,
+            top: checklist.geofenceKeepInTop as number,
+            bottom: checklist.geofenceKeepInBottom as number,
+            left: checklist.geofenceKeepInLeft as number,
             right: value,
           },
         });
         break;
 
-      case 'geofenceBottom':
+      case 'geofenceKeepInBottom':
         ipc.postUpdateBoundingBoxes(true, {
-          name: 'Geofencing',
+          name: 'Geofence Keep In',
           bounds: {
-            top: checklist.geofenceTop as number,
+            top: checklist.geofenceKeepInTop as number,
             bottom: value,
-            left: checklist.geofenceLeft as number,
-            right: checklist.geofenceRight as number,
+            left: checklist.geofenceKeepInLeft as number,
+            right: checklist.geofenceKeepInRight as number,
+          },
+        });
+        break;
+
+      case 'geofenceKeepOutTop':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Geofence Keep Out',
+          bounds: {
+            top: value,
+            bottom: checklist.geofenceKeepOutBottom as number,
+            left: checklist.geofenceKeepOutLeft as number,
+            right: checklist.geofenceKeepOutRight as number,
+          },
+        });
+        break;
+
+      case 'geofenceKeepOutLeft':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Geofence Keep Out',
+          bounds: {
+            top: checklist.geofenceKeepOutTop as number,
+            bottom: checklist.geofenceKeepOutBottom as number,
+            left: value,
+            right: checklist.geofenceKeepOutRight as number,
+          },
+        });
+        break;
+
+      case 'geofenceKeepOutRight':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Geofence Keep Out',
+          bounds: {
+            top: checklist.geofenceKeepOutTop as number,
+            bottom: checklist.geofenceKeepOutBottom as number,
+            left: checklist.geofenceKeepOutLeft as number,
+            right: value,
+          },
+        });
+        break;
+
+      case 'geofenceKeepOutBottom':
+        ipc.postUpdateBoundingBoxes(true, {
+          name: 'Geofence Keep Out',
+          bounds: {
+            top: checklist.geofenceKeepOutTop as number,
+            bottom: value,
+            left: checklist.geofenceKeepOutLeft as number,
+            right: checklist.geofenceKeepOutRight as number,
           },
         });
         break;
@@ -368,11 +415,18 @@ export default class MissionWindow extends Component<ThemeProps, State> {
 
     boundingBoxes.forEach((boxpoint): void => {
       switch (boxpoint.name) {
-        case 'Geofencing':
-          checks.geofenceTop = boxpoint.bounds.top;
-          checks.geofenceRight = boxpoint.bounds.right;
-          checks.geofenceLeft = boxpoint.bounds.left;
-          checks.geofenceBottom = boxpoint.bounds.bottom;
+        case 'Geofence Keep In':
+          checks.geofenceKeepInTop = boxpoint.bounds.top;
+          checks.geofenceKeepInRight = boxpoint.bounds.right;
+          checks.geofenceKeepInLeft = boxpoint.bounds.left;
+          checks.geofenceKeepInBottom = boxpoint.bounds.bottom;
+          break;
+
+        case 'Geofence Keep Out':
+          checks.geofenceKeepOutTop = boxpoint.bounds.top;
+          checks.geofenceKeepOutRight = boxpoint.bounds.right;
+          checks.geofenceKeepOutLeft = boxpoint.bounds.left;
+          checks.geofenceKeepOutBottom = boxpoint.bounds.bottom;
           break;
 
         default: break;
@@ -447,8 +501,11 @@ export default class MissionWindow extends Component<ThemeProps, State> {
   private unlockParameterInputs(waypointType: string): void {
     const { locked: newLocked } = this.state;
 
-    if (waypointType === 'geofence') {
-      newLocked.geofence = false;
+    if (waypointType === 'geofenceKeepIn') {
+      newLocked.geofenceKeepIn = false;
+    }
+    if (waypointType === 'geofenceKeepOut') {
+      newLocked.geofenceKeepOut = false;
     }
 
     this.setState({ locked: newLocked });
@@ -486,10 +543,14 @@ export default class MissionWindow extends Component<ThemeProps, State> {
      */
 
     const unlockStartMissionButton = information[missionName].parameters !== undefined
-      && checklist.geofenceTop !== undefined
-      && checklist.geofenceBottom !== undefined
-      && checklist.geofenceLeft !== undefined
-      && checklist.geofenceRight !== undefined;
+      && checklist.geofenceKeepInTop !== undefined
+      && checklist.geofenceKeepInBottom !== undefined
+      && checklist.geofenceKeepInLeft !== undefined
+      && checklist.geofenceKeepInRight !== undefined
+      && checklist.geofenceKeepOutTop !== undefined
+      && checklist.geofenceKeepOutBottom !== undefined
+      && checklist.geofenceKeepOutLeft !== undefined
+      && checklist.geofenceKeepOutRight !== undefined;
 
     return (
       <div className={`missionWrapper${theme === 'dark' ? '_dark' : ''}`}>
@@ -516,16 +577,27 @@ export default class MissionWindow extends Component<ThemeProps, State> {
           <h1 style={{ marginTop: 0 }}>Options</h1>
           <MissionOptions title={title} missionNames={missionNames} options={options} />
         </div>
-        <div className="geofenceContainer">
-          <h1>Geofencing</h1>
-          <input className="inputFields" type="number" name="geofenceScanTop" value={checklist.geofenceTop || ''} disabled={locked.geofence} onChange={this.onChange} placeholder="Top" />
+        <div className="geofenceKeepInContainer">
+          <h1>Geofence Keep In</h1>
+          <input className="inputFields" type="number" name="geofenceKeepInTop" value={checklist.geofenceKeepInTop || ''} disabled={locked.geofenceKeepIn} onChange={this.onChange} placeholder="Top" />
           <br />
-          <input className="inputFields" type="number" name="geofenceBottom" value={checklist.geofenceBottom || ''} disabled={locked.geofence} onChange={this.onChange} placeholder="Bottom" />
+          <input className="inputFields" type="number" name="geofenceKeepInBottom" value={checklist.geofenceKeepInBottom || ''} disabled={locked.geofenceKeepIn} onChange={this.onChange} placeholder="Bottom" />
           <br />
-          <input className="inputFields" type="number" name="geofenceLeft" value={checklist.geofenceLeft || ''} disabled={locked.geofence} onChange={this.onChange} placeholder="Left" />
+          <input className="inputFields" type="number" name="geofenceKeepInLeft" value={checklist.geofenceKeepInLeft || ''} disabled={locked.geofenceKeepIn} onChange={this.onChange} placeholder="Left" />
           <br />
-          <input className="inputFields" type="number" name="geofenceRight" value={checklist.geofenceRight || ''} disabled={locked.geofence} onChange={this.onChange} placeholder="Right" />
-          <CreateBoundingBoxButton theme={theme} name="geofence" value="Geofencing" />
+          <input className="inputFields" type="number" name="geofenceKeepInRight" value={checklist.geofenceKeepInRight || ''} disabled={locked.geofenceKeepIn} onChange={this.onChange} placeholder="Right" />
+          <CreateBoundingBoxButton theme={theme} name="geofenceKeepIn" value="Geofence Keep In" color="green" />
+        </div>
+        <div className="geofenceKeepOutContainer">
+          <h1>Geofence Keep Out</h1>
+          <input className="inputFields" type="number" name="geofenceKeepOutTop" value={checklist.geofenceKeepOutTop || ''} disabled={locked.geofenceKeepOut} onChange={this.onChange} placeholder="Top" />
+          <br />
+          <input className="inputFields" type="number" name="geofenceKeepOutBottom" value={checklist.geofenceKeepOutBottom || ''} disabled={locked.geofenceKeepOut} onChange={this.onChange} placeholder="Bottom" />
+          <br />
+          <input className="inputFields" type="number" name="geofenceKeepOutLeft" value={checklist.geofenceKeepOutLeft || ''} disabled={locked.geofenceKeepOut} onChange={this.onChange} placeholder="Left" />
+          <br />
+          <input className="inputFields" type="number" name="geofenceKeepOutRight" value={checklist.geofenceKeepOutRight || ''} disabled={locked.geofenceKeepOut} onChange={this.onChange} placeholder="Right" />
+          <CreateBoundingBoxButton theme={theme} name="geofenceKeepOut" value="Geofence Keep Out" color="red" />
         </div>
         <div className="buttonContainer">
           {status === 'ready' && <button type="button" disabled={!unlockStartMissionButton} onClick={this.postStartMissions}>Start Missions</button>}
