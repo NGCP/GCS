@@ -19,7 +19,7 @@ field for messages, which directly relates to this message [here](../implementat
 }
 ```
 
-!!! warning "Should not be acknowledged."
+!!! info "Requires an [acknowledgement message][] from the vehicle."
 
 ----------------------------------------------------------------------------------------------------
 
