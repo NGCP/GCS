@@ -29,7 +29,12 @@ process.env.GOOGLE_API_KEY = 'AIzaSyB1gepR_EONqgEcxuADmEZjizTuOU_cfnU';
 /**
  * Filter constant for all configuration files.
  */
-const FILTER = { name: 'GCS Configuration', extensions: ['json'] };
+const CONFIG_FILTER = { name: 'GCS Configuration', extensions: ['json'] };
+
+/**
+ * Filter constant for log files.
+ */
+const LOG_FILTER = { name: 'GCS Log', extensions: ['log'] };
 
 /**
  * Width of the application. Main window will have this width while mission window
@@ -115,8 +120,8 @@ function postSaveConfig(): void {
   // Loads a window that allows the user to choose the file path for the file to be saved.
   dialog.showSaveDialog(mainWindow, {
     title: 'Save Configuration',
-    filters: [FILTER],
-    defaultPath: `./${fileName}.${FILTER.extensions[0]}`,
+    filters: [CONFIG_FILTER],
+    defaultPath: `./${fileName}.${CONFIG_FILTER.extensions[0]}`,
   }).then((saveDialogReturnValue) => {
     if (saveDialogReturnValue.canceled) {
       return;
@@ -147,7 +152,7 @@ function postLoadConfig(): void {
   // Loads a window that allows the user to choose the filePath of the file to be loaded.
   dialog.showOpenDialog(mainWindow, {
     title: 'Open Configuration',
-    filters: [FILTER],
+    filters: [CONFIG_FILTER],
     properties: ['openFile', 'createDirectory'],
   }).then((loadDialogReturnValue) => {
     if (loadDialogReturnValue.canceled) {
@@ -158,6 +163,27 @@ function postLoadConfig(): void {
     if (data) {
       ipc.postLoadConfig(data, mainWindow, missionWindow);
     }
+  });
+}
+
+/**
+ * Save all the messages from the console log to a .log file
+ */
+function saveLog(messages: string): void {
+  if (!mainWindow) return;
+
+  const fileName = moment().format('[GCS Log] YYYY-MM-DD [at] h.mm.ss A');
+
+  // Loads a window that allows the user to choose the file path for the file to be saved.
+  dialog.showSaveDialog(mainWindow, {
+    title: 'Save Logs',
+    filters: [LOG_FILTER],
+    defaultPath: `./${fileName}.${LOG_FILTER.extensions[0]}`,
+  }).then((saveDialogReturnValue) => {
+    if (saveDialogReturnValue.canceled) {
+      return;
+    }
+    fs.writeFileSync((saveDialogReturnValue.filePath as string), messages);
   });
 }
 
@@ -471,6 +497,13 @@ ipcMain.on('post', (_: Event, notification: string, ...data: any[]): void => { /
 
   if (notification === 'hideMissionWindow') {
     hideMissionWindow();
+    return;
+  }
+
+  if (notification === 'saveLog') {
+    if (data.length > 0 && typeof data[0] === 'string') {
+      saveLog(data[0]);
+    }
     return;
   }
 

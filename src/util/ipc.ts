@@ -258,6 +258,16 @@ function postSaveConfig(
 }
 
 /**
+ * Post "saveLog" notification.
+ *
+ * Files that take this notification:
+ * - src/main/index
+ */
+function postSaveLog(log: string): void {
+  ipcRenderer.send('post', 'saveLog', log);
+}
+
+/**
  * Post "sendMessage" notification.
  *
  * Files that take this notification:
@@ -506,6 +516,7 @@ export default {
   postReceiveMessage,
   postResumeMission,
   postSaveConfig,
+  postSaveLog,
   postSendMessage,
   postSetMapToUserLocation,
   postShowMissionWindow,

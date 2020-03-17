@@ -15,6 +15,7 @@ import {
 } from 'react-virtualized';
 
 import * as ComponentStyle from '../../../types/componentStyle';
+import ipc from '../../../util/ipc';
 
 import Select from '../../common/Select';
 
@@ -93,6 +94,7 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
     this.onRowsRenderered = this.onRowsRenderered.bind(this);
     this.rowRenderer = this.rowRenderer.bind(this);
     this.clearMessages = this.clearMessages.bind(this);
+    this.saveMessages = this.saveMessages.bind(this);
     this.updateFilter = this.updateFilter.bind(this);
     this.logMessages = this.logMessages.bind(this);
 
@@ -231,6 +233,18 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
     this.onRowsRenderered();
   }
 
+  /**
+   * Combine the messages in the right format then pass it to postSaveLog.
+   */
+  private saveMessages(): void {
+    const { messages } = this.state;
+    let log = '';
+    messages.forEach((message): void => {
+      log += `${(message.time as Moment).format('YYYY-MM-DD HH:mm:ss.SSS')} - ${message.type} - ${message.message}\n`;
+    });
+    ipc.postSaveLog(log);
+  }
+
   public render(): ReactNode {
     const { theme } = this.props;
     const { filteredMessages } = this.state;
@@ -273,6 +287,7 @@ export default class LogContainer extends Component<ComponentStyle.ThemeProps, S
             }]}
           />
           <button type="button" onClick={this.clearMessages}>Clear Log</button>
+          <button type="button" onClick={this.saveMessages}>Save Log</button>
         </div>
       </div>
     );
