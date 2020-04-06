@@ -28,28 +28,6 @@ export interface StartMessage extends MessageBase {
    * Name of job to perform.
    */
   jobType: JobType;
-
-  /**
-    * Geofencing coordinates in the form of a rectangle, and geofence type sent with start message.
-    */
-  geofence: {
-
-    /**
-     * Top Left coordinate of geofencing rectangle, in form of latitude, longitude.
-     */
-    topLeft: [number, number];
-
-    /**
-     * Bottom right coordinate of geofencing rectangle, in form of latitude, longitude.
-     */
-    botRight: [number, number];
-
-    /**
-     * Boolean to specify whether geofence is keep out type (true), or keep in type (false).
-     */
-    keepOut: boolean;
-  };
-
 }
 
 /**
@@ -108,6 +86,34 @@ export interface StopMessage extends MessageBase {
  */
 function isStopMessage(message: Message): boolean {
   return message.type === 'stop';
+}
+
+export interface GeofenceMessage extends MessageBase {
+  type: 'geofence';
+
+  /**
+    * Geofencing coordinates in the form of a polygon.
+    */
+  geofence: {
+    /**
+     * geofence.keepOut and geofence.keepIn are defined as an array of tuples( [[number, number]] ).
+     * Each tuple consists of [ [latitude, longitude] ].
+     */
+    keepOut: [number, number][],
+    keepIn: [number, number][]
+  }
+}
+
+/**
+ * Type guard for Geofence Message.
+ */
+function isGeofenceMessage(message: Message): boolean {
+  return message.type === 'geofence'
+    && message.geofence !== undefined
+    && Array.isArray(message.geofence.keepIn)
+    && Array.isArray(message.geofence.keepOut)
+    && message.geofence.keepIn.every((pair) => pair.length === 2 && typeof pair[0] === 'number' && typeof pair[1] === 'number')
+    && message.geofence.keepOut.every((pair) => pair.length === 2 && typeof pair[0] === 'number' && typeof pair[1] === 'number');
 }
 
 export interface ConnectionAckMessage extends MessageBase {
@@ -280,10 +286,10 @@ export function isBadMessage(message: Message): boolean {
 /**
  * All types of messages sent to and from the GCS.
  */
-export type Message = StartMessage | AddMissionMessage | PauseMessage | ResumeMessage | StopMessage
-| ConnectionAckMessage | UpdateMessage | POIMessage | CompleteMessage | ConnectMessage
-| AcknowledgementMessage | BadMessage;
 
+export type Message = StartMessage | AddMissionMessage | PauseMessage | ResumeMessage | StopMessage
+| GeofenceMessage | ConnectionAckMessage | UpdateMessage | POIMessage | CompleteMessage
+| ConnectMessage | AcknowledgementMessage | BadMessage;
 /**
  * Simply checks if the message has a valid type field. This is different from the type
  * guards from types/missionInformation and types/task.
@@ -298,6 +304,7 @@ export function isMessage(message: { [key: string]: any }): boolean {
     'pause',
     'resume',
     'stop',
+    'geofence',
     'connectionAck',
     'update',
     'poi',
@@ -348,6 +355,7 @@ export const TypeGuard = {
   isPauseMessage,
   isResumeMessage,
   isStopMessage,
+  isGeofenceMessage,
   isConnectionAcknowledgementMessage,
   isUpdateMessage,
   isPOIMessage,
