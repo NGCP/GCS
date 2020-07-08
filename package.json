@@ -65,7 +65,7 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.3",
-    "eslint-plugin-react-hooks": "^1.7",
+    "eslint-plugin-react-hooks": "^4.0",
     "mocha": "^7.0.1",
     "nyc": "^15.0.0",
     "remark-cli": "^8.0.0",
