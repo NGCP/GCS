@@ -32,7 +32,7 @@
     "react-leaflet": "^2.6.1",
     "react-leaflet-control": "^2.1.2",
     "react-virtualized": "^9.21.2",
-    "serialport": "^8.0.7",
+    "serialport": "^9.0.3",
     "source-map-support": "^0.5.16",
     "xbee-api": "^0.6.0"
   },
