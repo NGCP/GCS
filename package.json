@@ -53,7 +53,7 @@
     "babel-eslint": "^10.0.3",
     "chai": "^4.2.0",
     "coveralls": "^3.0.9",
-    "dotenv-webpack": "^1.7.0",
+    "dotenv-webpack": "^7.0.1",
     "electron": "^8.0.3",
     "electron-builder": "^22.3.2",
     "electron-webpack": "^2.7.4",
