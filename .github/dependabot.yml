@@ -1,0 +1,82 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  labels:
+  - enhancement
+  ignore:
+  - dependency-name: electron
+    versions:
+    - ">= 6.a, < 7"
+  - dependency-name: electron
+    versions:
+    - ">= 7.a, < 8"
+  - dependency-name: eslint-plugin-react-hooks
+    versions:
+    - ">= 2.a, < 3"
+  - dependency-name: eslint-plugin-react-hooks
+    versions:
+    - ">= 3.a, < 4"
+  - dependency-name: rc-slider
+    versions:
+    - ">= 9.a, < 10"
+  - dependency-name: "@types/node"
+    versions:
+    - ">= 13.a, < 14"
+  - dependency-name: "@types/node"
+    versions:
+    - 14.14.22
+    - 14.14.24
+    - 14.14.25
+    - 14.14.26
+    - 14.14.28
+    - 14.14.30
+    - 14.14.31
+    - 14.14.32
+    - 14.14.33
+    - 14.14.34
+    - 14.14.35
+    - 14.14.36
+    - 14.14.37
+    - 14.14.39
+    - 14.14.41
+    - 15.0.0
+  - dependency-name: electron
+    versions:
+    - 11.2.1
+    - 11.2.2
+    - 11.2.3
+    - 11.3.0
+    - 12.0.0
+    - 12.0.1
+    - 12.0.2
+    - 12.0.4
+  - dependency-name: eslint
+    versions:
+    - 7.20.0
+    - 7.21.0
+    - 7.22.0
+    - 7.23.0
+    - 7.24.0
+    - 7.6.0
+  - dependency-name: mocha
+    versions:
+    - 8.2.1
+    - 8.3.0
+    - 8.3.1
+  - dependency-name: dotenv-webpack
+    versions:
+    - 6.0.0
+    - 6.0.2
+    - 6.0.4
+    - 7.0.1
+  - dependency-name: "@types/mocha"
+    versions:
+    - 8.2.0
+    - 8.2.1
+  - dependency-name: serialport
+    versions:
+    - 9.0.6
